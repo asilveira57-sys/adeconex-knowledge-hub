@@ -9,8 +9,68 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as MarketplacesRouteImport } from './routes/marketplaces'
+import { Route as FerramentasRouteImport } from './routes/ferramentas'
+import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as DownloadsRouteImport } from './routes/downloads'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketplacesRoute = MarketplacesRouteImport.update({
+  id: '/marketplaces',
+  path: '/marketplaces',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FerramentasRoute = FerramentasRouteImport.update({
+  id: '/ferramentas',
+  path: '/ferramentas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConhecimentoRoute = ConhecimentoRouteImport.update({
+  id: '/conhecimento',
+  path: '/conhecimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const B2bRoute = B2bRouteImport.update({
+  id: '/b2b',
+  path: '/b2b',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +79,172 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/b2b': typeof B2bRoute
+  '/blog': typeof BlogRoute
+  '/catalogo': typeof CatalogoRoute
+  '/conhecimento': typeof ConhecimentoRoute
+  '/contato': typeof ContatoRoute
+  '/downloads': typeof DownloadsRoute
+  '/empresa': typeof EmpresaRoute
+  '/ferramentas': typeof FerramentasRoute
+  '/marketplaces': typeof MarketplacesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/b2b': typeof B2bRoute
+  '/blog': typeof BlogRoute
+  '/catalogo': typeof CatalogoRoute
+  '/conhecimento': typeof ConhecimentoRoute
+  '/contato': typeof ContatoRoute
+  '/downloads': typeof DownloadsRoute
+  '/empresa': typeof EmpresaRoute
+  '/ferramentas': typeof FerramentasRoute
+  '/marketplaces': typeof MarketplacesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/b2b': typeof B2bRoute
+  '/blog': typeof BlogRoute
+  '/catalogo': typeof CatalogoRoute
+  '/conhecimento': typeof ConhecimentoRoute
+  '/contato': typeof ContatoRoute
+  '/downloads': typeof DownloadsRoute
+  '/empresa': typeof EmpresaRoute
+  '/ferramentas': typeof FerramentasRoute
+  '/marketplaces': typeof MarketplacesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/b2b'
+    | '/blog'
+    | '/catalogo'
+    | '/conhecimento'
+    | '/contato'
+    | '/downloads'
+    | '/empresa'
+    | '/ferramentas'
+    | '/marketplaces'
+    | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/b2b'
+    | '/blog'
+    | '/catalogo'
+    | '/conhecimento'
+    | '/contato'
+    | '/downloads'
+    | '/empresa'
+    | '/ferramentas'
+    | '/marketplaces'
+    | '/sitemap.xml'
+  id:
+    | '__root__'
+    | '/'
+    | '/b2b'
+    | '/blog'
+    | '/catalogo'
+    | '/conhecimento'
+    | '/contato'
+    | '/downloads'
+    | '/empresa'
+    | '/ferramentas'
+    | '/marketplaces'
+    | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  B2bRoute: typeof B2bRoute
+  BlogRoute: typeof BlogRoute
+  CatalogoRoute: typeof CatalogoRoute
+  ConhecimentoRoute: typeof ConhecimentoRoute
+  ContatoRoute: typeof ContatoRoute
+  DownloadsRoute: typeof DownloadsRoute
+  EmpresaRoute: typeof EmpresaRoute
+  FerramentasRoute: typeof FerramentasRoute
+  MarketplacesRoute: typeof MarketplacesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/marketplaces': {
+      id: '/marketplaces'
+      path: '/marketplaces'
+      fullPath: '/marketplaces'
+      preLoaderRoute: typeof MarketplacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferramentas': {
+      id: '/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/ferramentas'
+      preLoaderRoute: typeof FerramentasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conhecimento': {
+      id: '/conhecimento'
+      path: '/conhecimento'
+      fullPath: '/conhecimento'
+      preLoaderRoute: typeof ConhecimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/b2b': {
+      id: '/b2b'
+      path: '/b2b'
+      fullPath: '/b2b'
+      preLoaderRoute: typeof B2bRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +257,17 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  B2bRoute: B2bRoute,
+  BlogRoute: BlogRoute,
+  CatalogoRoute: CatalogoRoute,
+  ConhecimentoRoute: ConhecimentoRoute,
+  ContatoRoute: ContatoRoute,
+  DownloadsRoute: DownloadsRoute,
+  EmpresaRoute: EmpresaRoute,
+  FerramentasRoute: FerramentasRoute,
+  MarketplacesRoute: MarketplacesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
