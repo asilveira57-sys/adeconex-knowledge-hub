@@ -92,23 +92,10 @@ export function SiteHeader() {
 
 function Logo() {
   return (
-    <span className="flex items-center gap-2.5">
-      <img
-        src={logoA}
-        alt=""
-        aria-hidden
-        className="h-8 w-auto"
-      />
-      <span className="flex flex-col leading-none">
-        <img
-          src={logoWordmark}
-          alt="Adeconex"
-          className="h-4 w-auto"
-        />
-        <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-          Plataforma 2030
-        </span>
-      </span>
-    </span>
+    <img
+      src={logoWordmark}
+      alt="Adeconex"
+      className="h-8 w-auto block"
+    />
   );
 }
