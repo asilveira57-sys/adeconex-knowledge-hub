@@ -1,8 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-
-// TODO: replace with project URL once a project name or custom domain is set.
-const BASE_URL = "";
+import { BASE_URL } from "@/lib/seo";
 
 interface SitemapEntry {
   path: string;
@@ -15,16 +13,28 @@ export const Route = createFileRoute("/sitemap.xml")({
     handlers: {
       GET: async () => {
         const entries: SitemapEntry[] = [
+          // Institucional / plataforma
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/empresa", changefreq: "monthly", priority: "0.8" },
+          { path: "/empresa", changefreq: "monthly", priority: "0.7" },
+          { path: "/contato", changefreq: "monthly", priority: "0.6" },
+
+          // Pillars SEO preservadas do site antigo
+          { path: "/ribbon", changefreq: "weekly", priority: "0.95" },
+          { path: "/etiquetas/preco", changefreq: "weekly", priority: "0.95" },
+          { path: "/bopp", changefreq: "weekly", priority: "0.9" },
+          { path: "/fita-de-cetim", changefreq: "weekly", priority: "0.85" },
+          { path: "/fita-de-cetim/impressora-para-cetim", changefreq: "weekly", priority: "0.85" },
+          { path: "/brindes", changefreq: "monthly", priority: "0.7" },
+          { path: "/brindes/agenda-personalizada", changefreq: "monthly", priority: "0.75" },
+
+          // Módulos da plataforma
           { path: "/catalogo", changefreq: "weekly", priority: "0.9" },
-          { path: "/conhecimento", changefreq: "weekly", priority: "0.9" },
+          { path: "/conhecimento", changefreq: "weekly", priority: "0.85" },
           { path: "/ferramentas", changefreq: "weekly", priority: "0.8" },
           { path: "/downloads", changefreq: "weekly", priority: "0.7" },
           { path: "/marketplaces", changefreq: "monthly", priority: "0.8" },
+          { path: "/blog", changefreq: "daily", priority: "0.8" },
           { path: "/b2b", changefreq: "monthly", priority: "0.6" },
-          { path: "/blog", changefreq: "weekly", priority: "0.8" },
-          { path: "/contato", changefreq: "monthly", priority: "0.6" },
         ];
 
         const urls = entries.map((e) =>
@@ -34,7 +44,9 @@ export const Route = createFileRoute("/sitemap.xml")({
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,
-          ].filter(Boolean).join("\n"),
+          ]
+            .filter(Boolean)
+            .join("\n"),
         );
 
         const xml = [
