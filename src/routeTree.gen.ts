@@ -10,25 +10,45 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as MarketplacesRouteImport } from './routes/marketplaces'
+import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as BrindesRouteImport } from './routes/brindes'
+import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as B2bRouteImport } from './routes/b2b'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
+import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
+import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
+import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RibbonRoute = RibbonRouteImport.update({
+  id: '/ribbon',
+  path: '/ribbon',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketplacesRoute = MarketplacesRouteImport.update({
   id: '/marketplaces',
   path: '/marketplaces',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FitaDeCetimRoute = FitaDeCetimRouteImport.update({
+  id: '/fita-de-cetim',
+  path: '/fita-de-cetim',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FerramentasRoute = FerramentasRouteImport.update({
@@ -61,6 +81,16 @@ const CatalogoRoute = CatalogoRouteImport.update({
   path: '/catalogo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BrindesRoute = BrindesRouteImport.update({
+  id: '/brindes',
+  path: '/brindes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BoppRoute = BoppRouteImport.update({
+  id: '/bopp',
+  path: '/bopp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogRoute = BlogRouteImport.update({
   id: '/blog',
   path: '/blog',
@@ -71,29 +101,73 @@ const B2bRoute = B2bRouteImport.update({
   path: '/b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FitaDeCetimIndexRoute = FitaDeCetimIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FitaDeCetimRoute,
+} as any)
+const BrindesIndexRoute = BrindesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BrindesRoute,
+} as any)
+const FitaDeCetimImpressoraParaCetimRoute =
+  FitaDeCetimImpressoraParaCetimRouteImport.update({
+    id: '/impressora-para-cetim',
+    path: '/impressora-para-cetim',
+    getParentRoute: () => FitaDeCetimRoute,
+  } as any)
+const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
+  id: '/etiquetas/preco',
+  path: '/etiquetas/preco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrindesAgendaPersonalizadaRoute =
+  BrindesAgendaPersonalizadaRouteImport.update({
+    id: '/agenda-personalizada',
+    path: '/agenda-personalizada',
+    getParentRoute: () => BrindesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
+  '/bopp': typeof BoppRoute
+  '/brindes': typeof BrindesRouteWithChildren
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
+  '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/marketplaces': typeof MarketplacesRoute
+  '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/brindes/': typeof BrindesIndexRoute
+  '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
+  '/bopp': typeof BoppRoute
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
@@ -101,41 +175,69 @@ export interface FileRoutesByTo {
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
   '/marketplaces': typeof MarketplacesRoute
+  '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/brindes': typeof BrindesIndexRoute
+  '/fita-de-cetim': typeof FitaDeCetimIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
+  '/bopp': typeof BoppRoute
+  '/brindes': typeof BrindesRouteWithChildren
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
+  '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/marketplaces': typeof MarketplacesRoute
+  '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/brindes/': typeof BrindesIndexRoute
+  '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$'
     | '/b2b'
     | '/blog'
+    | '/bopp'
+    | '/brindes'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
     | '/downloads'
     | '/empresa'
     | '/ferramentas'
+    | '/fita-de-cetim'
     | '/marketplaces'
+    | '/ribbon'
     | '/sitemap.xml'
+    | '/brindes/agenda-personalizada'
+    | '/etiquetas/preco'
+    | '/fita-de-cetim/impressora-para-cetim'
+    | '/brindes/'
+    | '/fita-de-cetim/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$'
     | '/b2b'
     | '/blog'
+    | '/bopp'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
@@ -143,34 +245,56 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/ferramentas'
     | '/marketplaces'
+    | '/ribbon'
     | '/sitemap.xml'
+    | '/brindes/agenda-personalizada'
+    | '/etiquetas/preco'
+    | '/fita-de-cetim/impressora-para-cetim'
+    | '/brindes'
+    | '/fita-de-cetim'
   id:
     | '__root__'
     | '/'
+    | '/$'
     | '/b2b'
     | '/blog'
+    | '/bopp'
+    | '/brindes'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
     | '/downloads'
     | '/empresa'
     | '/ferramentas'
+    | '/fita-de-cetim'
     | '/marketplaces'
+    | '/ribbon'
     | '/sitemap.xml'
+    | '/brindes/agenda-personalizada'
+    | '/etiquetas/preco'
+    | '/fita-de-cetim/impressora-para-cetim'
+    | '/brindes/'
+    | '/fita-de-cetim/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRoute
+  BoppRoute: typeof BoppRoute
+  BrindesRoute: typeof BrindesRouteWithChildren
   CatalogoRoute: typeof CatalogoRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
   DownloadsRoute: typeof DownloadsRoute
   EmpresaRoute: typeof EmpresaRoute
   FerramentasRoute: typeof FerramentasRoute
+  FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
   MarketplacesRoute: typeof MarketplacesRoute
+  RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,11 +306,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ribbon': {
+      id: '/ribbon'
+      path: '/ribbon'
+      fullPath: '/ribbon'
+      preLoaderRoute: typeof RibbonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/marketplaces': {
       id: '/marketplaces'
       path: '/marketplaces'
       fullPath: '/marketplaces'
       preLoaderRoute: typeof MarketplacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fita-de-cetim': {
+      id: '/fita-de-cetim'
+      path: '/fita-de-cetim'
+      fullPath: '/fita-de-cetim'
+      preLoaderRoute: typeof FitaDeCetimRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ferramentas': {
@@ -231,6 +369,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/brindes': {
+      id: '/brindes'
+      path: '/brindes'
+      fullPath: '/brindes'
+      preLoaderRoute: typeof BrindesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bopp': {
+      id: '/bopp'
+      path: '/bopp'
+      fullPath: '/bopp'
+      preLoaderRoute: typeof BoppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog': {
       id: '/blog'
       path: '/blog'
@@ -245,6 +397,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof B2bRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -252,21 +411,89 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fita-de-cetim/': {
+      id: '/fita-de-cetim/'
+      path: '/'
+      fullPath: '/fita-de-cetim/'
+      preLoaderRoute: typeof FitaDeCetimIndexRouteImport
+      parentRoute: typeof FitaDeCetimRoute
+    }
+    '/brindes/': {
+      id: '/brindes/'
+      path: '/'
+      fullPath: '/brindes/'
+      preLoaderRoute: typeof BrindesIndexRouteImport
+      parentRoute: typeof BrindesRoute
+    }
+    '/fita-de-cetim/impressora-para-cetim': {
+      id: '/fita-de-cetim/impressora-para-cetim'
+      path: '/impressora-para-cetim'
+      fullPath: '/fita-de-cetim/impressora-para-cetim'
+      preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
+      parentRoute: typeof FitaDeCetimRoute
+    }
+    '/etiquetas/preco': {
+      id: '/etiquetas/preco'
+      path: '/etiquetas/preco'
+      fullPath: '/etiquetas/preco'
+      preLoaderRoute: typeof EtiquetasPrecoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brindes/agenda-personalizada': {
+      id: '/brindes/agenda-personalizada'
+      path: '/agenda-personalizada'
+      fullPath: '/brindes/agenda-personalizada'
+      preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
+      parentRoute: typeof BrindesRoute
+    }
   }
 }
 
+interface BrindesRouteChildren {
+  BrindesAgendaPersonalizadaRoute: typeof BrindesAgendaPersonalizadaRoute
+  BrindesIndexRoute: typeof BrindesIndexRoute
+}
+
+const BrindesRouteChildren: BrindesRouteChildren = {
+  BrindesAgendaPersonalizadaRoute: BrindesAgendaPersonalizadaRoute,
+  BrindesIndexRoute: BrindesIndexRoute,
+}
+
+const BrindesRouteWithChildren =
+  BrindesRoute._addFileChildren(BrindesRouteChildren)
+
+interface FitaDeCetimRouteChildren {
+  FitaDeCetimImpressoraParaCetimRoute: typeof FitaDeCetimImpressoraParaCetimRoute
+  FitaDeCetimIndexRoute: typeof FitaDeCetimIndexRoute
+}
+
+const FitaDeCetimRouteChildren: FitaDeCetimRouteChildren = {
+  FitaDeCetimImpressoraParaCetimRoute: FitaDeCetimImpressoraParaCetimRoute,
+  FitaDeCetimIndexRoute: FitaDeCetimIndexRoute,
+}
+
+const FitaDeCetimRouteWithChildren = FitaDeCetimRoute._addFileChildren(
+  FitaDeCetimRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRoute,
+  BoppRoute: BoppRoute,
+  BrindesRoute: BrindesRouteWithChildren,
   CatalogoRoute: CatalogoRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
   DownloadsRoute: DownloadsRoute,
   EmpresaRoute: EmpresaRoute,
   FerramentasRoute: FerramentasRoute,
+  FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
   MarketplacesRoute: MarketplacesRoute,
+  RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  EtiquetasPrecoRoute: EtiquetasPrecoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
