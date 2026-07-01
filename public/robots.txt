@@ -1,2 +1,7 @@
 User-agent: *
 Allow: /
+
+# Não indexar áreas privadas / autenticadas
+Disallow: /b2b
+
+Sitemap: https://www.adeconex.com.br/sitemap.xml

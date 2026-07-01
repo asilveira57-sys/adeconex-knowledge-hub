@@ -86,11 +86,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
+import { BASE_URL } from "@/lib/seo";
+
 const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Adeconex",
-  url: "/",
+  url: BASE_URL,
+  logo: `${BASE_URL}/favicon.png`,
   description:
     "Plataforma brasileira de autoridade em impressão térmica, identificação, etiquetagem, automação comercial e logística.",
   sameAs: [
@@ -106,6 +109,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#e63946" },
+      // Google Search Console — propriedade https://www.adeconex.com.br/
+      // Validação será concluída assim que o DNS apontar para esta build.
+      {
+        name: "google-site-verification",
+        content: "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
+      },
       { title: "Adeconex — Plataforma de impressão térmica e identificação" },
       {
         name: "description",
@@ -116,6 +125,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
