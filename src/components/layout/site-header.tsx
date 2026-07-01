@@ -3,6 +3,8 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { primaryNav, secondaryNav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
+import logoA from "@/assets/brand/logo-a.png";
+import logoWordmark from "@/assets/brand/logo-adeconex.png";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -91,19 +93,19 @@ export function SiteHeader() {
 function Logo() {
   return (
     <span className="flex items-center gap-2.5">
-      <span
+      <img
+        src={logoA}
+        alt=""
         aria-hidden
-        className="relative inline-flex h-7 w-7 items-center justify-center rounded-md ink-surface"
-      >
-        <span className="absolute inset-1 rounded-sm border border-white/30" />
-        <span className="absolute left-1.5 right-1.5 top-1/2 h-px bg-white/70" />
-        <span className="absolute left-1.5 right-1.5 top-1/2 mt-1 h-px bg-white/40" />
-      </span>
+        className="h-8 w-auto"
+      />
       <span className="flex flex-col leading-none">
-        <span className="font-display text-base font-semibold tracking-tight">
-          Adeconex
-        </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+        <img
+          src={logoWordmark}
+          alt="Adeconex"
+          className="h-4 w-auto"
+        />
+        <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
           Plataforma 2030
         </span>
       </span>
