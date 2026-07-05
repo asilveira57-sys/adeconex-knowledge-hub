@@ -94,9 +94,9 @@ export const migrateProductImages = createServerFn({ method: "POST" })
           .select("quality_flags")
           .eq("id", data.productId)
           .maybeSingle();
-        const flags = { ...((prod?.quality_flags as Record<string, unknown>) ?? {}) };
+        const flags: Record<string, boolean> = { ...((prod?.quality_flags as Record<string, boolean> | null) ?? {}) };
         delete flags.missing_image;
-        await supabaseAdmin.from("products").update({ quality_flags: flags }).eq("id", data.productId);
+        await supabaseAdmin.from("products").update({ quality_flags: flags as never }).eq("id", data.productId);
       }
     }
 
@@ -156,9 +156,9 @@ export const bulkMigrateImages = createServerFn({ method: "POST" })
           .select("quality_flags")
           .eq("id", pid)
           .maybeSingle();
-        const flags = { ...((prod?.quality_flags as Record<string, unknown>) ?? {}) };
+        const flags: Record<string, boolean> = { ...((prod?.quality_flags as Record<string, boolean> | null) ?? {}) };
         delete flags.missing_image;
-        await supabaseAdmin.from("products").update({ quality_flags: flags }).eq("id", pid);
+        await supabaseAdmin.from("products").update({ quality_flags: flags as never }).eq("id", pid);
       }
       totalMigrated += m;
       totalFailed += f;
