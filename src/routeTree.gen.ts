@@ -36,6 +36,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as AuthenticatedAdminProdutosRouteImport } from './routes/_authenticated.admin.produtos'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
+import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -175,6 +176,12 @@ const AuthenticatedAdminImportacaoRoute =
     path: '/importacao',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEnriquecimentoRoute =
+  AuthenticatedAdminEnriquecimentoRouteImport.update({
+    id: '/enriquecimento',
+    path: '/enriquecimento',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -225,6 +233,7 @@ export interface FileRoutesByTo {
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes': typeof BrindesIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
+  '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -255,6 +264,7 @@ export interface FileRoutesById {
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/admin/produtos': typeof AuthenticatedAdminProdutosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -285,6 +295,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes/'
     | '/fita-de-cetim/'
+    | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/admin/produtos'
     | '/admin/'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes'
     | '/fita-de-cetim'
+    | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/admin/produtos'
     | '/admin'
@@ -339,6 +351,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes/'
     | '/fita-de-cetim/'
+    | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/admin/produtos'
     | '/_authenticated/admin/'
@@ -557,16 +570,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminImportacaoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/enriquecimento': {
+      id: '/_authenticated/admin/enriquecimento'
+      path: '/enriquecimento'
+      fullPath: '/admin/enriquecimento'
+      preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminProdutosRoute: typeof AuthenticatedAdminProdutosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminProdutosRoute: AuthenticatedAdminProdutosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
