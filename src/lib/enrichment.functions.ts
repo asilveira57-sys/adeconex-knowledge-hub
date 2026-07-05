@@ -1,6 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { z } from "zod";
+
+type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
+type QualityFlags = Record<string, boolean>;
+
+/**
+ * Coerce a jsonb column value (which Supabase types as `Json`) back into a
+ * safe `Record<string, boolean>` for our quality_flags convention.
+ */
+function toQualityFlags(value: Json | null | undefined): QualityFlags {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: QualityFlags = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === "boolean") out[k] = v;
+  }
+  return out;
+}
 
 /**
  * Phase 4 — AI enrichment & media migration.
@@ -94,9 +111,10 @@ export const migrateProductImages = createServerFn({ method: "POST" })
           .select("quality_flags")
           .eq("id", data.productId)
           .maybeSingle();
-        const flags: Record<string, boolean> = { ...((prod?.quality_flags as Record<string, boolean> | null) ?? {}) };
+        const flags = toQualityFlags(prod?.quality_flags as Json | null | undefined);
         delete flags.missing_image;
-        await supabaseAdmin.from("products").update({ quality_flags: flags as never }).eq("id", data.productId);
+        const patch: ProductUpdate = { quality_flags: flags as Json };
+        await supabaseAdmin.from("products").update(patch).eq("id", data.productId);
       }
     }
 
@@ -156,9 +174,10 @@ export const bulkMigrateImages = createServerFn({ method: "POST" })
           .select("quality_flags")
           .eq("id", pid)
           .maybeSingle();
-        const flags: Record<string, boolean> = { ...((prod?.quality_flags as Record<string, boolean> | null) ?? {}) };
+        const flags = toQualityFlags(prod?.quality_flags as Json | null | undefined);
         delete flags.missing_image;
-        await supabaseAdmin.from("products").update({ quality_flags: flags as never }).eq("id", pid);
+        const patch: ProductUpdate = { quality_flags: flags as Json };
+        await supabaseAdmin.from("products").update(patch).eq("id", pid);
       }
       totalMigrated += m;
       totalFailed += f;
@@ -292,16 +311,16 @@ Gere conteúdo comercial, técnico e SEO para este produto.`,
       tool: ENRICHMENT_SCHEMA,
     });
 
-    // Persist
-    const patch: Record<string, unknown> = {
-      seo_title: result.seo_title?.slice(0, 200),
-      seo_description: result.seo_description?.slice(0, 300),
-      seo_keywords: result.seo_keywords ?? null,
-      short_description: result.short_description?.slice(0, 500),
-      commercial_description: result.commercial_description,
+    // Persist — typed against the generated Update schema
+    const patch: ProductUpdate = {
+      seo_title: typeof result.seo_title === "string" ? result.seo_title.slice(0, 200) : null,
+      seo_description: typeof result.seo_description === "string" ? result.seo_description.slice(0, 300) : null,
+      seo_keywords: typeof result.seo_keywords === "string" ? result.seo_keywords : null,
+      short_description: typeof result.short_description === "string" ? result.short_description.slice(0, 500) : null,
+      commercial_description: typeof result.commercial_description === "string" ? result.commercial_description : null,
       status: "enriched",
     };
-    const { error: updErr } = await supabaseAdmin.from("products").update(patch as never).eq("id", p.id);
+    const { error: updErr } = await supabaseAdmin.from("products").update(patch).eq("id", p.id);
     if (updErr) throw new Error(updErr.message);
 
     // Replace AI FAQs
