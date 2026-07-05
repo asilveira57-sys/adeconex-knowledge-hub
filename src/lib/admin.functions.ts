@@ -136,12 +136,13 @@ export const bulkUpdateStatus = createServerFn({ method: "POST" })
   .inputValidator((v) => bulkInput.parse(v))
   .handler(async ({ data, context }) => {
     await assertStaff(context);
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: { status: typeof data.status; published_at?: string } = { status: data.status };
     if (data.status === "published") patch.published_at = new Date().toISOString();
     const { error } = await context.supabase.from("products").update(patch).in("id", data.productIds);
     if (error) throw new Error(error.message);
     return { ok: true, updated: data.productIds.length };
   });
+
 
 export const getImportLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
