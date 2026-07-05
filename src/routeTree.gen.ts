@@ -24,6 +24,7 @@ import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
@@ -31,6 +32,7 @@ import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -107,6 +109,10 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -144,6 +150,11 @@ const BrindesAgendaPersonalizadaRoute =
     path: '/agenda-personalizada',
     getParentRoute: () => BrindesRoute,
   } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -163,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
@@ -185,6 +197,7 @@ export interface FileRoutesByTo {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
@@ -195,6 +208,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
@@ -210,6 +224,7 @@ export interface FileRoutesById {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
@@ -236,6 +251,7 @@ export interface FileRouteTypes {
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
+    | '/admin'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
@@ -258,6 +274,7 @@ export interface FileRouteTypes {
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
+    | '/admin'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
@@ -267,6 +284,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$'
+    | '/_authenticated'
     | '/auth'
     | '/b2b'
     | '/blog'
@@ -282,6 +300,7 @@ export interface FileRouteTypes {
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
+    | '/_authenticated/admin'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
@@ -292,6 +311,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRoute
@@ -417,6 +437,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$': {
       id: '/$'
       path: '/$'
@@ -466,8 +493,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
       parentRoute: typeof BrindesRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 interface BrindesRouteChildren {
   BrindesAgendaPersonalizadaRoute: typeof BrindesAgendaPersonalizadaRoute
@@ -499,6 +545,7 @@ const FitaDeCetimRouteWithChildren = FitaDeCetimRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRoute,
