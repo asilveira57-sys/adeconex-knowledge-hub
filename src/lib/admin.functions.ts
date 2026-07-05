@@ -118,12 +118,13 @@ export const updateProductStatus = createServerFn({ method: "POST" })
   .inputValidator((v) => updateStatusInput.parse(v))
   .handler(async ({ data, context }) => {
     await assertStaff(context);
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: { status: typeof data.status; published_at?: string } = { status: data.status };
     if (data.status === "published") patch.published_at = new Date().toISOString();
     const { error } = await context.supabase.from("products").update(patch).eq("id", data.productId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 const bulkInput = z.object({
   productIds: z.array(z.string().uuid()).min(1).max(500),
