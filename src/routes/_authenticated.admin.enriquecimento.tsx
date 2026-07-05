@@ -27,6 +27,7 @@ function EnrichmentPage() {
   const { data: queue, isLoading, refetch } = useQuery({
     queryKey: ["enrichment-queue"],
     queryFn: () => queueFn(),
+    staleTime: 30_000,
   });
 
   const [imgBatch, setImgBatch] = useState(10);

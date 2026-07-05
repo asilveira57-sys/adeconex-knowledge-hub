@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, Clock, ImageOff, DollarSign, Package, Laye
 const statsOptions = queryOptions({
   queryKey: ["admin", "catalog-stats"],
   queryFn: () => getCatalogStats(),
+  staleTime: 60_000, // stats change slowly — cache 1 min entre navegações
 });
 
 export const Route = createFileRoute("/_authenticated/admin/")({
