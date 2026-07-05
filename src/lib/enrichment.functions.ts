@@ -301,7 +301,7 @@ Gere conteúdo comercial, técnico e SEO para este produto.`,
       commercial_description: result.commercial_description,
       status: "enriched",
     };
-    const { error: updErr } = await supabaseAdmin.from("products").update(patch).eq("id", p.id);
+    const { error: updErr } = await supabaseAdmin.from("products").update(patch as never).eq("id", p.id);
     if (updErr) throw new Error(updErr.message);
 
     // Replace AI FAQs
