@@ -23,6 +23,7 @@ import { Route as BrindesRouteImport } from './routes/brindes'
 import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as B2bRouteImport } from './routes/b2b'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
@@ -101,6 +102,11 @@ const B2bRoute = B2bRouteImport.update({
   path: '/b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -142,6 +148,7 @@ const BrindesAgendaPersonalizadaRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/auth': typeof AuthRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/auth': typeof AuthRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/auth': typeof AuthRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -212,6 +221,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/auth'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/auth'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$'
+    | '/auth'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -280,6 +292,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  AuthRoute: typeof AuthRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRoute
   BoppRoute: typeof BoppRoute
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof B2bRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$': {
       id: '/$'
       path: '/$'
@@ -479,6 +499,7 @@ const FitaDeCetimRouteWithChildren = FitaDeCetimRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  AuthRoute: AuthRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRoute,
   BoppRoute: BoppRoute,
