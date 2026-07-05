@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listProducts, updateProductStatus, bulkUpdateStatus } from "@/lib/admin.functions";
+import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, CheckCircle2, ExternalLink, ImageOff } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Eye, EyeOff, CheckCircle2, ExternalLink, ImageOff, SquareArrowOutUpRight } from "lucide-react";
+
 
 type Status = "all" | "imported" | "needs_review" | "enriched" | "published" | "hidden" | "discontinued";
 type Quality = "all" | "missing_image" | "missing_price" | "thin_content";
