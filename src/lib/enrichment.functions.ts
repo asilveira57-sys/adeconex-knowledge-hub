@@ -187,18 +187,17 @@ export const bulkMigrateImages = createServerFn({ method: "POST" })
     return { productsProcessed: productIds.length, totalMigrated, totalFailed, perProduct };
   });
 
-export const getSignedImageUrl = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((v) => z.object({ path: z.string().min(1) }).parse(v))
-  .handler(async ({ data, context }) => {
-    await assertStaff(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: signed, error } = await supabaseAdmin.storage
-      .from(BUCKET)
-      .createSignedUrl(data.path, 60 * 30);
-    if (error) throw new Error(error.message);
-    return { url: signed.signedUrl };
-  });
+/**
+ * Build a public URL for a catalog-media object. The bucket is public, so we
+ * concatenate the storage endpoint with the object path — no RPC, no signing.
+ * Safe to call from client components.
+ */
+export function publicMediaUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  const base = (import.meta.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
+  if (!base) return null;
+  return `${base}/storage/v1/object/public/${BUCKET}/${path.replace(/^\/+/, "")}`;
+}
 
 // ============ AI ENRICHMENT ============
 
