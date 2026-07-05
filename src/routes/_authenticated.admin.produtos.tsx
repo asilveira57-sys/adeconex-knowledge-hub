@@ -164,9 +164,11 @@ function ProductsAdmin() {
                 <TableRow><TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">Nenhum produto encontrado com os filtros atuais.</TableCell></TableRow>
               )}
               {data.rows.map((row) => {
-                const mainImg = row.product_images?.find((i) => i.is_main)?.source_url ?? row.product_images?.[0]?.source_url;
+                const mainRec = row.product_images?.find((i) => i.is_main) ?? row.product_images?.[0];
+                const mainImg = publicMediaUrl(mainRec?.storage_path) ?? mainRec?.source_url ?? null;
                 const st = STATUS_LABEL[row.status] ?? { label: row.status, tone: "muted" as const };
                 const flags = (row.quality_flags ?? {}) as Record<string, boolean>;
+
                 return (
                   <TableRow key={row.id}>
                     <TableCell><Checkbox checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} /></TableCell>
