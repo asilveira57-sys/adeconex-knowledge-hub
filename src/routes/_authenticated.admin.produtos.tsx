@@ -180,9 +180,12 @@ function ProductsAdmin() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{row.name}</div>
+                      <Link to="/admin/produtos/$id" params={{ id: row.id }} className="font-medium hover:underline">
+                        {row.name}
+                      </Link>
                       <div className="text-xs text-muted-foreground">{row.slug}</div>
                     </TableCell>
+
                     <TableCell className="tabular-nums">{row.price ? `R$ ${Number(row.price).toFixed(2)}` : "—"}</TableCell>
                     <TableCell className="tabular-nums">{row.stock_quantity ?? "—"}</TableCell>
                     <TableCell>
