@@ -102,7 +102,7 @@ function PreviewPage() {
         {/* Content */}
         <div className="space-y-5">
           <div>
-            <p className="eyebrow text-xs">{categories.map((c) => c.name).join(" · ") || "Sem categoria"}</p>
+            <p className="eyebrow text-xs">{categories.map((c) => c?.name).filter(Boolean).join(" · ") || "Sem categoria"}</p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight">{product.name}</h1>
             <p className="mt-1 text-xs text-muted-foreground">
               SKU: {product.sku ?? "—"} · Modelo: {product.model ?? "—"} · Ref: {product.reference ?? "—"}
