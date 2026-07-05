@@ -31,6 +31,10 @@ const listOptions = (input: { search: string; status: Status; quality: Quality; 
   });
 
 export const Route = createFileRoute("/_authenticated/admin/produtos")({
+  loader: ({ context }) =>
+    context.queryClient.prefetchQuery(
+      listOptions({ search: "", status: "all", quality: "all", page: 1, pageSize: 25 }),
+    ),
   component: ProductsAdmin,
 });
 
