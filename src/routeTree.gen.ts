@@ -33,6 +33,7 @@ import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fit
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -155,6 +156,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -174,12 +180,13 @@ export interface FileRoutesByFullPath {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -197,12 +204,12 @@ export interface FileRoutesByTo {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes': typeof BrindesIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -224,12 +231,13 @@ export interface FileRoutesById {
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -257,6 +265,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes/'
     | '/fita-de-cetim/'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -274,12 +283,12 @@ export interface FileRouteTypes {
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
-    | '/admin'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes'
     | '/fita-de-cetim'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -306,6 +315,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/impressora-para-cetim'
     | '/brindes/'
     | '/fita-de-cetim/'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -500,15 +510,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
