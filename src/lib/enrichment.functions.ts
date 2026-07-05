@@ -1,6 +1,23 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { z } from "zod";
+
+type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
+type QualityFlags = Record<string, boolean>;
+
+/**
+ * Coerce a jsonb column value (which Supabase types as `Json`) back into a
+ * safe `Record<string, boolean>` for our quality_flags convention.
+ */
+function toQualityFlags(value: Json | null | undefined): QualityFlags {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const out: QualityFlags = {};
+  for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+    if (typeof v === "boolean") out[k] = v;
+  }
+  return out;
+}
 
 /**
  * Phase 4 — AI enrichment & media migration.
