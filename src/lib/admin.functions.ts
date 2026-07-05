@@ -81,9 +81,14 @@ export const listProducts = createServerFn({ method: "GET" })
     await assertStaff(context);
     const from = (data.page - 1) * data.pageSize;
     const to = from + data.pageSize - 1;
+    // Only pull the main image + storage_path (uses images_main_by_product_idx)
     let q = context.supabase
       .from("products")
-      .select("id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, product_images(source_url, is_main)", { count: "exact" })
+      .select(
+        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, product_images!inner(source_url, storage_path, is_main)",
+        { count: "exact" },
+      )
+      .eq("product_images.is_main", true)
       .order("updated_at", { ascending: false })
       .range(from, to);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
