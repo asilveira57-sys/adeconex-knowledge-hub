@@ -176,3 +176,44 @@ export const grantAdmin = createServerFn({ method: "POST" })
     if (error && !error.message.includes("duplicate")) throw new Error(error.message);
     return { ok: true };
   });
+
+export const getProductPreview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ productId: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { data: product, error } = await context.supabase
+      .from("products")
+      .select(
+        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at",
+      )
+      .eq("id", data.productId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!product) throw new Error("Produto não encontrado");
+
+    const [{ data: images }, { data: faqs }, { data: cats }] = await Promise.all([
+      context.supabase
+        .from("product_images")
+        .select("id, source_url, storage_path, is_main, position, alt_text")
+        .eq("product_id", data.productId)
+        .order("position"),
+      context.supabase
+        .from("product_faqs")
+        .select("id, question, answer, position, is_ai_generated, is_reviewed")
+        .eq("product_id", data.productId)
+        .order("position"),
+      context.supabase
+        .from("product_categories")
+        .select("category:categories(id, name, slug)")
+        .eq("product_id", data.productId),
+    ]);
+
+    return {
+      product,
+      images: images ?? [],
+      faqs: faqs ?? [],
+      categories: (cats ?? []).map((r: { category: { id: string; name: string; slug: string } | null }) => r.category).filter(Boolean),
+    };
+  });
+

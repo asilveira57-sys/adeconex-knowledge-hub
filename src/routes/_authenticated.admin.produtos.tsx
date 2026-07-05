@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listProducts, updateProductStatus, bulkUpdateStatus } from "@/lib/admin.functions";
+import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, CheckCircle2, ExternalLink, ImageOff } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Eye, EyeOff, CheckCircle2, ExternalLink, ImageOff, SquareArrowOutUpRight } from "lucide-react";
+
 
 type Status = "all" | "imported" | "needs_review" | "enriched" | "published" | "hidden" | "discontinued";
 type Quality = "all" | "missing_image" | "missing_price" | "thin_content";
@@ -161,9 +164,11 @@ function ProductsAdmin() {
                 <TableRow><TableCell colSpan={8} className="py-8 text-center text-sm text-muted-foreground">Nenhum produto encontrado com os filtros atuais.</TableCell></TableRow>
               )}
               {data.rows.map((row) => {
-                const mainImg = row.product_images?.find((i) => i.is_main)?.source_url ?? row.product_images?.[0]?.source_url;
+                const mainRec = row.product_images?.find((i) => i.is_main) ?? row.product_images?.[0];
+                const mainImg = publicMediaUrl(mainRec?.storage_path) ?? mainRec?.source_url ?? null;
                 const st = STATUS_LABEL[row.status] ?? { label: row.status, tone: "muted" as const };
                 const flags = (row.quality_flags ?? {}) as Record<string, boolean>;
+
                 return (
                   <TableRow key={row.id}>
                     <TableCell><Checkbox checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} /></TableCell>
@@ -175,9 +180,12 @@ function ProductsAdmin() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{row.name}</div>
+                      <Link to="/admin/produtos/$id" params={{ id: row.id }} className="font-medium hover:underline">
+                        {row.name}
+                      </Link>
                       <div className="text-xs text-muted-foreground">{row.slug}</div>
                     </TableCell>
+
                     <TableCell className="tabular-nums">{row.price ? `R$ ${Number(row.price).toFixed(2)}` : "—"}</TableCell>
                     <TableCell className="tabular-nums">{row.stock_quantity ?? "—"}</TableCell>
                     <TableCell>
@@ -192,6 +200,15 @@ function ProductsAdmin() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        <Link
+                          to="/admin/produtos/$id"
+                          params={{ id: row.id }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent"
+                          title="Ver preview"
+                        >
+                          <SquareArrowOutUpRight className="h-4 w-4" />
+                        </Link>
+
                         {row.status !== "published" && (
                           <Button size="sm" variant="ghost" title="Publicar" onClick={() => changeStatus(row.id, "published")}><Eye className="h-4 w-4" /></Button>
                         )}
