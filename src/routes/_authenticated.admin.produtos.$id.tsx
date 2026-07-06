@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -140,17 +141,23 @@ function PreviewPage() {
             <p className="text-sm italic text-muted-foreground">Ainda sem descrição enriquecida.</p>
           )}
 
-          {product.technical_description && (
-            <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Descrição técnica (origem)</CardTitle></CardHeader>
-              <CardContent>
-                <div
-                  className="prose prose-sm max-w-none prose-p:my-2"
-                  dangerouslySetInnerHTML={{ __html: product.technical_description }}
-                />
-              </CardContent>
-            </Card>
-          )}
+          {(() => {
+            const cleaned = sanitizeTechnicalDescription(product.technical_description, {
+              isAdhesive: !isNonAdhesiveProduct({ name: product.name, sku: product.sku }),
+            });
+            if (!cleaned) return null;
+            return (
+              <Card>
+                <CardHeader className="pb-2"><CardTitle className="text-sm">Descrição técnica (origem)</CardTitle></CardHeader>
+                <CardContent>
+                  <div
+                    className="prose prose-sm max-w-none prose-p:my-2"
+                    dangerouslySetInnerHTML={{ __html: cleaned }}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {faqs.length > 0 && (
             <Card>

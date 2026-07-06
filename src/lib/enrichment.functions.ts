@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
 import { z } from "zod";
 
 type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
@@ -293,7 +294,9 @@ export const enrichProduct = createServerFn({ method: "POST" })
       .map((r: any) => r.category?.name)
       .filter(Boolean)
       .join(", ");
-    const source = stripHtml(p.technical_description) || stripHtml(p.raw_html) || p.short_description || "";
+    const nonAdhesive = isNonAdhesiveProduct({ name: p.name, sku: p.sku });
+    const techClean = sanitizeTechnicalDescription(p.technical_description, { isAdhesive: !nonAdhesive });
+    const source = stripHtml(techClean) || stripHtml(p.raw_html) || p.short_description || "";
 
     const result = await callLovableAI({
       system:
@@ -305,6 +308,8 @@ Preço: ${p.price ?? "—"}
 
 Descrição de origem (pode conter ruído):
 ${source || "(sem descrição fornecida — gere conteúdo genérico coerente com o nome/categoria)"}
+
+${nonAdhesive ? "ATENÇÃO: este é um produto NÃO ADESIVO (etiqueta tag / papel cartão sem adesivo). NÃO mencione adesivo, cola, liner, siliconado, tack, coesão ou temperatura de aplicação. Não invente ficha técnica de adesivo." : ""}
 
 Gere conteúdo comercial, técnico e SEO para este produto.`,
       tool: ENRICHMENT_SCHEMA,
