@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Suspense } from "react";
+import { ProductCarousel } from "@/components/product-carousel";
 import {
   ArrowRight,
   BookOpen,
