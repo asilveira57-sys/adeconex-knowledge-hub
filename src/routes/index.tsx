@@ -293,7 +293,7 @@ function KnowledgePreview() {
   ];
   const categories = [
     "Etiquetas", "Ribbon", "Impressoras", "Automação",
-    "Código de barras", "Logística", "RFID", "Mercado Livre",
+    "Código de barras", "Logística", "Mercado Livre",
     "Marketplace", "Indústria", "Papelaria", "Tutoriais",
   ];
   return (
