@@ -194,12 +194,6 @@ function Solutions() {
       copy: "Coletores, leitores, balanças e periféricos integrados ao seu ERP.",
     },
     {
-    {
-      icon: Factory,
-      title: "Logística & Indústria",
-      copy: "Soluções de identificação para WMS, expedição, picking e linha de produção.",
-    },
-    {
       icon: Factory,
       title: "Logística & Indústria",
       copy: "Soluções de identificação para WMS, expedição, picking e linha de produção.",
