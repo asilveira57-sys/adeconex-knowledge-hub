@@ -53,12 +53,41 @@ function HomePage() {
       <TrustStrip />
       <Solutions />
       <CatalogTeaser />
+      <Vitrines />
       <KnowledgePreview />
       <ToolsPreview />
       <Marketplaces />
       <ProofAndSocial />
       <FinalCta />
     </>
+  );
+}
+
+function Vitrines() {
+  return (
+    <Suspense fallback={<div className="container-page py-12 text-sm text-muted-foreground">Carregando vitrine…</div>}>
+      <ProductCarousel
+        eyebrow="Vitrine"
+        title="Etiquetas Couchê"
+        description="Papel branco calandrado, ideal para uso geral, código de barras, preço e identificação."
+        categorySlug="etiqueta-couche"
+        ctaHref="/catalogo"
+      />
+      <ProductCarousel
+        eyebrow="Vitrine"
+        title="Etiquetas BOPP"
+        description="Polipropileno branco, resistente à água, gordura e rasgo — perfeito para alimentos e validade."
+        categorySlug="etiqueta-bopp"
+        ctaHref="/catalogo"
+      />
+      <ProductCarousel
+        eyebrow="Vitrine"
+        title="Ribbons"
+        description="Cera, cera-resina e resina, compatíveis com as principais impressoras térmicas do mercado."
+        categorySlug="ribbon-cera"
+        ctaHref="/catalogo"
+      />
+    </Suspense>
   );
 }
 
