@@ -81,7 +81,7 @@ function Hero() {
           <p className="mt-5 max-w-xl text-base text-white/70 md:text-lg">
             Mais do que um catálogo: um ecossistema digital com conteúdo,
             ferramentas gratuitas, documentação e produtos para etiquetas,
-            ribbons, impressoras, RFID, código de barras e logística.
+            ribbons, impressoras, código de barras e logística.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
