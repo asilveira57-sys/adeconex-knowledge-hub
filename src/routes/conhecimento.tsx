@@ -5,7 +5,7 @@ export const Route = createFileRoute("/conhecimento")({
   head: () => ({
     meta: [
       { title: "Centro de conhecimento — Adeconex" },
-      { name: "description", content: "Portal técnico sobre impressão térmica, etiquetas, ribbons, RFID, código de barras, automação comercial e logística." },
+      { name: "description", content: "Portal técnico sobre impressão térmica, etiquetas, ribbons, código de barras, automação comercial e logística." },
       { property: "og:title", content: "Centro de conhecimento — Adeconex" },
       { property: "og:description", content: "Guias, tutoriais, comparativos e boas práticas sobre identificação industrial." },
       { property: "og:url", content: "/conhecimento" },
