@@ -23,7 +23,7 @@ export const Route = createFileRoute("/conhecimento")({
         "Impressoras térmicas e drivers",
         "Automação comercial",
         "Código de barras e GS1",
-        "Código de barras e GS1",
+        "Logística e WMS",
         "Logística e WMS",
         "Mercado Livre e marketplaces",
         "Indústria, papelaria, boas práticas",
