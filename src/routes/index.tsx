@@ -152,7 +152,7 @@ function TrustStrip() {
     "Fábrica própria",
     "Suporte técnico nacional",
     "ZPL / EPL / GS1",
-    "RFID UHF",
+    "Código de barras GS1",
     "Logística rastreável",
     "Atendimento B2B dedicado",
   ];
