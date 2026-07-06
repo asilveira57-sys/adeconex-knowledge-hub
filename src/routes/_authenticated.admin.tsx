@@ -11,8 +11,13 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async () => {
-    const { roles } = await getMyRoles();
+  beforeLoad: async ({ context }) => {
+    const { roles } = await context.queryClient.ensureQueryData({
+      queryKey: ["admin", "my-roles"],
+      queryFn: () => getMyRoles(),
+      staleTime: Infinity,
+      gcTime: Infinity,
+    });
     if (!roles.includes("admin") && !roles.includes("editor")) {
       throw redirect({ to: "/" });
     }
