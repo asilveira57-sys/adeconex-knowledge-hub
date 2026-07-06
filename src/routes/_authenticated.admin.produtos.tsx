@@ -171,7 +171,7 @@ function ProductsAdmin() {
                 const flags = (row.quality_flags ?? {}) as Record<string, boolean>;
 
                 return (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} onMouseEnter={() => qc.prefetchQuery(productPreviewOptions(row.id))}>
                     <TableCell><Checkbox checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} /></TableCell>
                     <TableCell>
                       {mainImg ? (
