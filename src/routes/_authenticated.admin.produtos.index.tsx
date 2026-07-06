@@ -34,7 +34,7 @@ const listOptions = (input: { search: string; status: Status; quality: Quality; 
     placeholderData: (prev) => prev, // mantém a página anterior visível ao paginar/filtrar
   });
 
-export const Route = createFileRoute("/_authenticated/admin/produtos")({
+export const Route = createFileRoute("/_authenticated/admin/produtos/")({
   loader: ({ context }) =>
     context.queryClient.prefetchQuery(
       listOptions({ search: "", status: "all", quality: "all", page: 1, pageSize: 25 }),
