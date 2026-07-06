@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listProducts, updateProductStatus, bulkUpdateStatus } from "@/lib/admin.functions";
+import { productPreviewOptions } from "@/lib/admin.queries";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -170,7 +171,7 @@ function ProductsAdmin() {
                 const flags = (row.quality_flags ?? {}) as Record<string, boolean>;
 
                 return (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id} onMouseEnter={() => qc.prefetchQuery(productPreviewOptions(row.id))}>
                     <TableCell><Checkbox checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} /></TableCell>
                     <TableCell>
                       {mainImg ? (

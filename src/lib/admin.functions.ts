@@ -86,7 +86,7 @@ export const listProducts = createServerFn({ method: "GET" })
       .from("products")
       .select(
         "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, product_images(source_url, storage_path, is_main)",
-        { count: "exact" },
+        { count: "estimated" },
       )
       .eq("product_images.is_main", true)
       .order("updated_at", { ascending: false })
