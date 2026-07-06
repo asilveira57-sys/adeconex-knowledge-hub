@@ -294,7 +294,9 @@ export const enrichProduct = createServerFn({ method: "POST" })
       .map((r: any) => r.category?.name)
       .filter(Boolean)
       .join(", ");
-    const source = stripHtml(p.technical_description) || stripHtml(p.raw_html) || p.short_description || "";
+    const nonAdhesive = isNonAdhesiveProduct({ name: p.name, sku: p.sku });
+    const techClean = sanitizeTechnicalDescription(p.technical_description, { isAdhesive: !nonAdhesive });
+    const source = stripHtml(techClean) || stripHtml(p.raw_html) || p.short_description || "";
 
     const result = await callLovableAI({
       system:
