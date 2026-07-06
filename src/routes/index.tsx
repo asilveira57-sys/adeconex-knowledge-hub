@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BookOpen,
   Calculator,
-  Calculator,
   Download,
   Factory,
   FileBarChart2,
