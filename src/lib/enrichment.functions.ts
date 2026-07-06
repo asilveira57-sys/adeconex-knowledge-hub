@@ -309,6 +309,8 @@ Preço: ${p.price ?? "—"}
 Descrição de origem (pode conter ruído):
 ${source || "(sem descrição fornecida — gere conteúdo genérico coerente com o nome/categoria)"}
 
+${nonAdhesive ? "ATENÇÃO: este é um produto NÃO ADESIVO (etiqueta tag / papel cartão sem adesivo). NÃO mencione adesivo, cola, liner, siliconado, tack, coesão ou temperatura de aplicação. Não invente ficha técnica de adesivo." : ""}
+
 Gere conteúdo comercial, técnico e SEO para este produto.`,
       tool: ENRICHMENT_SCHEMA,
     });
