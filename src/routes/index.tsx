@@ -194,9 +194,10 @@ function Solutions() {
       copy: "Coletores, leitores, balanças e periféricos integrados ao seu ERP.",
     },
     {
-      icon: Cpu,
-      title: "RFID UHF",
-      copy: "Tags, leitores e antenas para inventário, rastreabilidade e gestão de ativos.",
+    {
+      icon: Factory,
+      title: "Logística & Indústria",
+      copy: "Soluções de identificação para WMS, expedição, picking e linha de produção.",
     },
     {
       icon: Factory,
