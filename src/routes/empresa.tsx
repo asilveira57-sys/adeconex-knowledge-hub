@@ -122,7 +122,7 @@ function PillarsSection() {
   const pillars = [
     { icon: Factory, title: "Produção", body: "Fábrica própria com linhas dedicadas a etiquetas e conversão de bobinas, com controle de processo." },
     { icon: Microscope, title: "Controle de qualidade", body: "Testes de aderência, durabilidade, leitura e compatibilidade em cada lote produzido." },
-    { icon: Users, title: "Equipe técnica", body: "Especialistas em impressão térmica, ZPL, GS1 e RFID para apoiar do projeto à pós-venda." },
+    { icon: Users, title: "Equipe técnica", body: "Especialistas em impressão térmica, ZPL e GS1 para apoiar do projeto à pós-venda." },
     { icon: Award, title: "Pós-venda", body: "Suporte responsivo, base de conhecimento e relacionamento contínuo com cada cliente." },
   ];
   return (

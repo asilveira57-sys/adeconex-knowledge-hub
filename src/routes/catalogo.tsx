@@ -5,7 +5,7 @@ export const Route = createFileRoute("/catalogo")({
   head: () => ({
     meta: [
       { title: "Catálogo técnico — Adeconex" },
-      { name: "description", content: "Etiquetas, ribbons, impressoras, RFID e automação comercial. Cada produto com ficha técnica completa, compatibilidade, vídeos e downloads." },
+      { name: "description", content: "Etiquetas, ribbons, impressoras e automação comercial. Cada produto com ficha técnica completa, compatibilidade, vídeos e downloads." },
       { property: "og:title", content: "Catálogo técnico — Adeconex" },
       { property: "og:description", content: "Páginas de produto com especificação, aplicações, compatibilidade, FAQ e comparativos." },
       { property: "og:url", content: "/catalogo" },

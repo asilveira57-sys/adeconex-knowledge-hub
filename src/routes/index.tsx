@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BookOpen,
   Calculator,
-  Cpu,
   Download,
   Factory,
   FileBarChart2,
@@ -29,7 +28,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas, ribbons, RFID, automação comercial e logística. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas, ribbons, automação comercial e logística. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
       { property: "og:title", content: "Adeconex — Plataforma 2030" },
       {
@@ -81,7 +80,7 @@ function Hero() {
           <p className="mt-5 max-w-xl text-base text-white/70 md:text-lg">
             Mais do que um catálogo: um ecossistema digital com conteúdo,
             ferramentas gratuitas, documentação e produtos para etiquetas,
-            ribbons, impressoras, RFID, código de barras e logística.
+            ribbons, impressoras, código de barras e logística.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
@@ -152,7 +151,7 @@ function TrustStrip() {
     "Fábrica própria",
     "Suporte técnico nacional",
     "ZPL / EPL / GS1",
-    "RFID UHF",
+    "Código de barras GS1",
     "Logística rastreável",
     "Atendimento B2B dedicado",
   ];
@@ -192,11 +191,6 @@ function Solutions() {
       icon: Workflow,
       title: "Automação comercial",
       copy: "Coletores, leitores, balanças e periféricos integrados ao seu ERP.",
-    },
-    {
-      icon: Cpu,
-      title: "RFID UHF",
-      copy: "Tags, leitores e antenas para inventário, rastreabilidade e gestão de ativos.",
     },
     {
       icon: Factory,
@@ -299,7 +293,7 @@ function KnowledgePreview() {
   ];
   const categories = [
     "Etiquetas", "Ribbon", "Impressoras", "Automação",
-    "Código de barras", "Logística", "RFID", "Mercado Livre",
+    "Código de barras", "Logística", "Mercado Livre",
     "Marketplace", "Indústria", "Papelaria", "Tutoriais",
   ];
   return (
