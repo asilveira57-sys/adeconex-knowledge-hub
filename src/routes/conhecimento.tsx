@@ -24,7 +24,7 @@ export const Route = createFileRoute("/conhecimento")({
         "Automação comercial",
         "Código de barras e GS1",
         "Logística e WMS",
-        "Logística e WMS",
+        "Mercado Livre e marketplaces",
         "Mercado Livre e marketplaces",
         "Indústria, papelaria, boas práticas",
         "Tutoriais passo a passo",
