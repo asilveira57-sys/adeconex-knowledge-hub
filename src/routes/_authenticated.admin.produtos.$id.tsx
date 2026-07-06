@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getProductPreview } from "@/lib/admin.functions";
+import { productPreviewOptions } from "@/lib/admin.queries";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,12 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowLeft, ExternalLink, ImageOff, Sparkles } from "lucide-react";
 
-const previewOptions = (productId: string) =>
-  queryOptions({
-    queryKey: ["admin", "product-preview", productId],
-    queryFn: () => getProductPreview({ data: { productId } }),
-    staleTime: 15_000,
-  });
+const previewOptions = productPreviewOptions;
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/$id")({
   head: () => ({ meta: [{ title: "Preview de produto — Admin" }, { name: "robots", content: "noindex" }] }),
