@@ -179,7 +179,7 @@ function CatalogGrid() {
             size="sm"
             disabled={page <= 1}
             onClick={() =>
-              navigate({ search: (prev) => ({ ...prev, page: Math.max(1, page - 1) }) })
+              navigate({ search: (prev: { cat?: string; page: number }) => ({ ...prev, page: Math.max(1, page - 1) }) })
             }
           >
             <ChevronLeft className="h-4 w-4" /> Anterior
@@ -189,7 +189,7 @@ function CatalogGrid() {
             size="sm"
             disabled={page >= totalPages}
             onClick={() =>
-              navigate({ search: (prev) => ({ ...prev, page: Math.min(totalPages, page + 1) }) })
+              navigate({ search: (prev: { cat?: string; page: number }) => ({ ...prev, page: Math.min(totalPages, page + 1) }) })
             }
           >
             Próxima <ChevronRight className="h-4 w-4" />
