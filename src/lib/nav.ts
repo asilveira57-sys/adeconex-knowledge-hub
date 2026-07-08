@@ -15,6 +15,7 @@ export const primaryNav: NavItem[] = [
 
 export const secondaryNav: NavItem[] = [
   { to: "/blog", label: "Blog" },
+  { to: "/avaliacoes", label: "Avaliações" },
   { to: "/b2b", label: "Área B2B" },
   { to: "/contato", label: "Contato" },
 ];
