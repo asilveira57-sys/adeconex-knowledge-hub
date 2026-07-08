@@ -23,6 +23,7 @@ import { Route as BrindesRouteImport } from './routes/brindes'
 import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as B2bRouteImport } from './routes/b2b'
+import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SplatRouteImport } from './routes/$'
@@ -107,6 +108,11 @@ const BlogRoute = BlogRouteImport.update({
 const B2bRoute = B2bRouteImport.update({
   id: '/b2b',
   path: '/b2b',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliacoesRoute = AvaliacoesRouteImport.update({
+  id: '/avaliacoes',
+  path: '/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -194,6 +200,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
+  '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
+  '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/auth'
+    | '/avaliacoes'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/auth'
+    | '/avaliacoes'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -343,6 +354,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/_authenticated'
     | '/auth'
+    | '/avaliacoes'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -375,6 +387,7 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  AvaliacoesRoute: typeof AvaliacoesRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRoute
   BoppRoute: typeof BoppRoute
@@ -490,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/b2b'
       fullPath: '/b2b'
       preLoaderRoute: typeof B2bRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliacoes': {
+      id: '/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/avaliacoes'
+      preLoaderRoute: typeof AvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -663,6 +683,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  AvaliacoesRoute: AvaliacoesRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRoute,
   BoppRoute: BoppRoute,

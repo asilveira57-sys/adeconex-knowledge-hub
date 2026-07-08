@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, ExternalLink, MapPin, MessageSquarePlus, Phone, Star } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
-import { getPlaceDetails, type PlaceReview } from "@/lib/place.functions";
+import { getPlaceDetails, type PlaceDetails, type PlaceReview } from "@/lib/place.functions";
 import { absoluteUrl } from "@/lib/seo";
 
 const PATH = "/avaliacoes";
