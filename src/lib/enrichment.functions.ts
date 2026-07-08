@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
-import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { z } from "zod";
 
 type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
