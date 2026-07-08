@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
-import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
