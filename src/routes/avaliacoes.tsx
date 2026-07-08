@@ -34,18 +34,82 @@ function AvaliacoesPage() {
   const place = Route.useLoaderData() as PlaceDetails;
   const mapEmbed = `https://www.google.com/maps?q=place_id:${PLACE_ID}&output=embed`;
 
+  const primaryImage = place.photos[0]?.url;
+  const dayMap: Record<string, string> = {
+    "Segunda-feira": "Mo",
+    "Terça-feira": "Tu",
+    "Quarta-feira": "We",
+    "Quinta-feira": "Th",
+    "Sexta-feira": "Fr",
+    Sábado: "Sa",
+    Domingo: "Su",
+  };
+  const openingHoursSpec = place.weekdayDescriptions
+    .map((d) => {
+      const [dayRaw, ...rest] = d.split(":");
+      const dayOfWeek = dayMap[dayRaw.trim()];
+      const times = rest.join(":").trim();
+      if (!dayOfWeek || /fechado/i.test(times)) return null;
+      const m = times.match(/(\d{2}:\d{2})\s*[–-]\s*(\d{2}:\d{2})/);
+      if (!m) return null;
+      return {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek,
+        opens: m[1],
+        closes: m[2],
+      };
+    })
+    .filter(Boolean);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": `${URL}#localbusiness`,
     name: place.name,
-    address: place.address,
-    telephone: place.phone,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: place.address,
+      addressLocality: "Vila Velha",
+      addressRegion: "ES",
+      addressCountry: "BR",
+    },
+    telephone: place.phone ?? undefined,
     url: URL,
+    sameAs: place.website ? [place.website, place.googleMapsUri] : [place.googleMapsUri],
+    ...(primaryImage ? { image: place.photos.slice(0, 4).map((p) => p.url) } : {}),
+    priceRange: "$$",
+    ...(place.location?.lat
+      ? {
+          geo: {
+            "@type": "GeoCoordinates",
+            latitude: place.location.lat,
+            longitude: place.location.lng,
+          },
+        }
+      : {}),
+    ...(openingHoursSpec.length ? { openingHoursSpecification: openingHoursSpec } : {}),
     aggregateRating: {
       "@type": "AggregateRating",
       ratingValue: place.rating,
       reviewCount: place.reviewCount,
+      bestRating: 5,
+      worstRating: 1,
     },
+    review: place.reviews
+      .filter((r) => r.text.trim().length > 20)
+      .slice(0, 8)
+      .map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.author },
+        datePublished: r.publishTime,
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: r.rating,
+          bestRating: 5,
+          worstRating: 1,
+        },
+        reviewBody: r.text,
+      })),
   };
 
   return (
