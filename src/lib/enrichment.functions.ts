@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database, Json } from "@/integrations/supabase/types";
-import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { z } from "zod";
 
 type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
@@ -309,7 +309,7 @@ Preço: ${p.price ?? "—"}
 Descrição de origem (pode conter ruído):
 ${source || "(sem descrição fornecida — gere conteúdo genérico coerente com o nome/categoria)"}
 
-${nonAdhesive ? "ATENÇÃO: este é um produto NÃO ADESIVO (etiqueta tag / papel cartão sem adesivo). NÃO mencione adesivo, cola, liner, siliconado, tack, coesão ou temperatura de aplicação. Não invente ficha técnica de adesivo." : ""}
+${nonAdhesive ? `ATENÇÃO: este é um produto NÃO ADESIVO (etiqueta tag / gôndola / papel cartão sem cola). NÃO mencione adesivo, cola, liner, siliconado, tack, coesão ou temperatura de aplicação. Não invente ficha técnica de adesivo. O papel base é COUCHÊ 150 g/m² (Suzano Design Gloss), com estas especificações confirmadas pelo laudo do fabricante — use-as como referência quando descrever a ficha técnica:\n${stripHtml(NON_ADHESIVE_PAPER_150_SPECS_HTML)}` : ""}
 
 Gere conteúdo comercial, técnico e SEO para este produto.`,
       tool: ENRICHMENT_SCHEMA,

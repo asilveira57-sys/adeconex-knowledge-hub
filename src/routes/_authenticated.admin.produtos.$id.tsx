@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
-import { isNonAdhesiveProduct, sanitizeTechnicalDescription } from "@/lib/sanitize-technical";
+import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -142,17 +142,20 @@ function PreviewPage() {
           )}
 
           {(() => {
+            const nonAdhesive = isNonAdhesiveProduct({ name: product.name, sku: product.sku });
             const cleaned = sanitizeTechnicalDescription(product.technical_description, {
-              isAdhesive: !isNonAdhesiveProduct({ name: product.name, sku: product.sku }),
+              isAdhesive: !nonAdhesive,
             });
-            if (!cleaned) return null;
+            const paperSpec = nonAdhesive ? NON_ADHESIVE_PAPER_150_SPECS_HTML : "";
+            const html = [cleaned, paperSpec].filter(Boolean).join("\n");
+            if (!html) return null;
             return (
               <Card>
                 <CardHeader className="pb-2"><CardTitle className="text-sm">Descrição técnica (origem)</CardTitle></CardHeader>
                 <CardContent>
                   <div
-                    className="prose prose-sm max-w-none prose-p:my-2"
-                    dangerouslySetInnerHTML={{ __html: cleaned }}
+                    className="prose prose-sm max-w-none prose-p:my-2 prose-table:text-xs"
+                    dangerouslySetInnerHTML={{ __html: html }}
                   />
                 </CardContent>
               </Card>
