@@ -31,7 +31,7 @@ export const Route = createFileRoute("/avaliacoes")({
 });
 
 function AvaliacoesPage() {
-  const place = Route.useLoaderData();
+  const place = Route.useLoaderData() as PlaceDetails;
   const mapEmbed = `https://www.google.com/maps?q=place_id:${PLACE_ID}&output=embed`;
 
   const jsonLd = {
