@@ -246,7 +246,7 @@ function AvaliacoesPage() {
   );
 }
 
-function RatingCard({ place }: { place: ReturnType<typeof Route.useLoaderData> }) {
+function RatingCard({ place }: { place: PlaceDetails }) {
   const full = Math.floor(place.rating);
   const hasHalf = place.rating - full >= 0.25 && place.rating - full < 0.75;
   const total = 5;
