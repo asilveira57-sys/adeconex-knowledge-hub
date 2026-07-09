@@ -5,7 +5,7 @@ export const Route = createFileRoute("/blog")({
   head: () => ({
     meta: [
       { title: "Blog Adeconex — Notícias e conteúdo do setor" },
-      { name: "description", content: "Artigos, notícias e análises sobre impressão térmica, identificação, logística e automação comercial." },
+      { name: "description", content: "Artigos, notícias e análises sobre impressão térmica, etiquetas, ribbons e identificação industrial." },
       { property: "og:title", content: "Blog Adeconex" },
       { property: "og:description", content: "Conteúdo editorial sobre o setor de identificação industrial e automação." },
       { property: "og:url", content: "/blog" },
