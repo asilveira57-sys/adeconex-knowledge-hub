@@ -131,19 +131,28 @@ function Hero() {
 
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
             {[
-              { v: "20+", l: "Anos de mercado" },
-              { v: "5.000+", l: "Clientes B2B" },
-              { v: "4,9★", l: "Avaliação Google" },
-            ].map((s) => (
-              <div key={s.l}>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
-                  {s.l}
-                </dt>
-                <dd className="mt-1 font-display text-2xl font-semibold text-white">
-                  {s.v}
-                </dd>
-              </div>
-            ))}
+              { v: "20+", l: "Anos de mercado", to: undefined as string | undefined },
+              { v: "5.000+", l: "Clientes B2B", to: undefined },
+              { v: "4,9★", l: "Avaliação Google", to: "/avaliacoes" as const },
+            ].map((s) => {
+              const inner = (
+                <>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
+                    {s.l}
+                  </dt>
+                  <dd className="mt-1 font-display text-2xl font-semibold text-white">
+                    {s.v}
+                  </dd>
+                </>
+              );
+              return s.to ? (
+                <Link key={s.l} to={s.to} className="group block transition-opacity hover:opacity-80">
+                  {inner}
+                </Link>
+              ) : (
+                <div key={s.l}>{inner}</div>
+              );
+            })}
           </dl>
         </div>
 
