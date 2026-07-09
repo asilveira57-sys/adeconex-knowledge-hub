@@ -183,7 +183,7 @@ function AvaliacoesPage() {
               body={place.address}
               action={{
                 label: "Como chegar",
-                href: `https://www.google.com/maps/dir/?api=1&destination=place_id:${PLACE_ID}`,
+                href: directionsHref,
               }}
             />
             <InfoCard
