@@ -32,7 +32,9 @@ export const Route = createFileRoute("/avaliacoes")({
 
 function AvaliacoesPage() {
   const place = Route.useLoaderData() as PlaceDetails;
-  const mapEmbed = `https://www.google.com/maps?q=place_id:${PLACE_ID}&output=embed`;
+  const { lat, lng } = place.location;
+  const mapEmbed = `https://maps.google.com/maps?q=${lat},${lng}&z=17&hl=pt-BR&output=embed`;
+  const directionsHref = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${PLACE_ID}`;
 
   const primaryImage = place.photos[0]?.url;
   const dayMap: Record<string, string> = {
@@ -181,7 +183,7 @@ function AvaliacoesPage() {
               body={place.address}
               action={{
                 label: "Como chegar",
-                href: `https://www.google.com/maps/dir/?api=1&destination=place_id:${PLACE_ID}`,
+                href: directionsHref,
               }}
             />
             <InfoCard
