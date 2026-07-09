@@ -131,19 +131,28 @@ function Hero() {
 
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
             {[
-              { v: "20+", l: "Anos de mercado" },
-              { v: "5.000+", l: "Clientes B2B" },
-              { v: "4,9★", l: "Avaliação Google" },
-            ].map((s) => (
-              <div key={s.l}>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
-                  {s.l}
-                </dt>
-                <dd className="mt-1 font-display text-2xl font-semibold text-white">
-                  {s.v}
-                </dd>
-              </div>
-            ))}
+              { v: "20+", l: "Anos de mercado", to: undefined as string | undefined },
+              { v: "5.000+", l: "Clientes B2B", to: undefined },
+              { v: "4,9★", l: "Avaliação Google", to: "/avaliacoes" as const },
+            ].map((s) => {
+              const inner = (
+                <>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/50">
+                    {s.l}
+                  </dt>
+                  <dd className="mt-1 font-display text-2xl font-semibold text-white">
+                    {s.v}
+                  </dd>
+                </>
+              );
+              return s.to ? (
+                <Link key={s.l} to={s.to} className="group block transition-opacity hover:opacity-80">
+                  {inner}
+                </Link>
+              ) : (
+                <div key={s.l}>{inner}</div>
+              );
+            })}
           </dl>
         </div>
 
@@ -515,29 +524,36 @@ function ProofAndSocial() {
         <div>
           <p className="eyebrow">Prova social</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            4,9 / 5 no Google.{" "}
+            <Link to="/avaliacoes" className="hover:underline underline-offset-4">
+              4,9 / 5 no Google.
+            </Link>{" "}
             <span className="text-muted-foreground">Há mais de uma década.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Indústrias, papelarias, varejistas, integradoras e operadores
             logísticos confiam na Adeconex como referência em identificação.
           </p>
-          <div className="mt-6 flex items-center gap-3">
+          <Link
+            to="/avaliacoes"
+            className="mt-6 inline-flex items-center gap-3 transition-opacity hover:opacity-80"
+            aria-label="Ver todas as avaliações Google verificadas"
+          >
             <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-5 w-5 fill-ember text-ember" />
               ))}
             </div>
-            <span className="font-mono text-sm text-ink-soft">
-              Avaliações Google verificadas
+            <span className="font-mono text-sm text-ink-soft underline-offset-4 group-hover:underline">
+              Ver avaliações Google verificadas →
             </span>
-          </div>
+          </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           {reviews.map((r) => (
-            <figure
+            <Link
               key={r.name}
-              className="rounded-xl border hairline bg-card p-5"
+              to="/avaliacoes"
+              className="block rounded-xl border hairline bg-card p-5 transition-shadow hover:shadow-card"
             >
               <div className="flex">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -551,7 +567,7 @@ function ProofAndSocial() {
                 <span className="font-medium text-foreground">{r.name}</span> ·{" "}
                 {r.role}
               </figcaption>
-            </figure>
+            </Link>
           ))}
         </div>
       </div>
