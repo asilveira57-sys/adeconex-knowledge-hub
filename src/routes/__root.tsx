@@ -95,7 +95,7 @@ const organizationJsonLd = {
   url: BASE_URL,
   logo: `${BASE_URL}/favicon.png`,
   description:
-    "Plataforma brasileira de autoridade em impressão térmica, identificação, etiquetagem, automação comercial e logística.",
+    "Plataforma brasileira de autoridade em impressão térmica, etiquetas, ribbons e identificação industrial.",
   sameAs: [
     "https://www.instagram.com/adeconex",
     "https://www.youtube.com/@adeconex",
