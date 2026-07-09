@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas, ribbons, automação comercial e logística. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
       { property: "og:title", content: "Adeconex — Plataforma 2030" },
       {
