@@ -228,14 +228,9 @@ function Solutions() {
       copy: "Desktop, industrial e mobile. Especificação técnica, vídeos e suporte pós-venda.",
     },
     {
-      icon: Workflow,
-      title: "Automação comercial",
-      copy: "Coletores, leitores, balanças e periféricos integrados ao seu ERP.",
-    },
-    {
       icon: Factory,
-      title: "Logística & Indústria",
-      copy: "Soluções de identificação para WMS, expedição, picking e linha de produção.",
+      title: "Etiquetas industriais",
+      copy: "Identificação de produtos, embalagens, caixas e paletes para indústria e varejo.",
     },
   ];
   return (
