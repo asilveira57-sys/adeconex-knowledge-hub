@@ -14,7 +14,7 @@ import {
   Sparkles,
   Star,
   Tag,
-  Workflow,
+  
 } from "lucide-react";
 import heroImg from "@/assets/hero-printer.jpg";
 import labelsImg from "@/assets/labels-macro.jpg";
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas, ribbons, automação comercial e logística. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
       { property: "og:title", content: "Adeconex — Plataforma 2030" },
       {
@@ -228,14 +228,9 @@ function Solutions() {
       copy: "Desktop, industrial e mobile. Especificação técnica, vídeos e suporte pós-venda.",
     },
     {
-      icon: Workflow,
-      title: "Automação comercial",
-      copy: "Coletores, leitores, balanças e periféricos integrados ao seu ERP.",
-    },
-    {
       icon: Factory,
-      title: "Logística & Indústria",
-      copy: "Soluções de identificação para WMS, expedição, picking e linha de produção.",
+      title: "Etiquetas industriais",
+      copy: "Identificação de produtos, embalagens, caixas e paletes para indústria e varejo.",
     },
   ];
   return (
@@ -514,7 +509,7 @@ function ProofAndSocial() {
     },
     {
       name: "Eduardo S.",
-      role: "Automação comercial",
+      role: "Comprador — Varejo",
       body: "Pedido recorrente pela área B2B virou rotina. Economizo tempo todo mês.",
     },
   ];

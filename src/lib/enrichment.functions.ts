@@ -300,7 +300,7 @@ export const enrichProduct = createServerFn({ method: "POST" })
 
     const result = await callLovableAI({
       system:
-        "Você é redator técnico da Adeconex, especialista em impressão térmica, etiquetas, ribbons, lacres e automação comercial B2B. Produza conteúdo em português do Brasil, direto, com terminologia técnica correta. Nunca invente especificações numéricas que não estejam no material fornecido.",
+        "Você é redator técnico da Adeconex, especialista em impressão térmica, etiquetas, ribbons e lacres B2B. Produza conteúdo em português do Brasil, direto, com terminologia técnica correta. Nunca invente especificações numéricas que não estejam no material fornecido.",
       user: `Produto: ${p.name}
 SKU: ${p.sku ?? "—"} | Modelo: ${p.model ?? "—"} | Ref: ${p.reference ?? "—"}
 Categorias: ${cats || "—"}

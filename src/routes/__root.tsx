@@ -95,7 +95,7 @@ const organizationJsonLd = {
   url: BASE_URL,
   logo: `${BASE_URL}/favicon.png`,
   description:
-    "Plataforma brasileira de autoridade em impressão térmica, identificação, etiquetagem, automação comercial e logística.",
+    "Plataforma brasileira de autoridade em impressão térmica, etiquetas, ribbons e identificação industrial.",
   sameAs: [
     "https://www.instagram.com/adeconex",
     "https://www.youtube.com/@adeconex",
@@ -119,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Adeconex: autoridade nacional em impressão térmica, etiquetas, ribbons, automação comercial e logística. Conteúdo técnico, ferramentas gratuitas e produtos.",
+          "Adeconex: autoridade nacional em impressão térmica, etiquetas e ribbons. Conteúdo técnico, ferramentas gratuitas e produtos.",
       },
       { property: "og:site_name", content: "Adeconex" },
       { property: "og:type", content: "website" },

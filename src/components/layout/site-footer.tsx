@@ -13,8 +13,8 @@ export function SiteFooter() {
               Adeconex
             </p>
             <p className="mt-2 text-sm text-muted-foreground max-w-xs">
-              Autoridade nacional em impressão térmica, identificação,
-              etiquetagem, automação comercial e logística.
+              Autoridade nacional em impressão térmica, etiquetas, ribbons e
+              identificação industrial.
             </p>
             <div className="mt-4 flex items-center gap-3 text-ink-soft">
               <a href="https://www.instagram.com/adeconex" aria-label="Instagram" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">
