@@ -509,7 +509,7 @@ function ProofAndSocial() {
     },
     {
       name: "Eduardo S.",
-      role: "Automação comercial",
+      role: "Comprador — Varejo",
       body: "Pedido recorrente pela área B2B virou rotina. Economizo tempo todo mês.",
     },
   ];
