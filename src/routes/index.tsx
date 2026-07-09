@@ -14,7 +14,7 @@ import {
   Sparkles,
   Star,
   Tag,
-  Workflow,
+  
 } from "lucide-react";
 import heroImg from "@/assets/hero-printer.jpg";
 import labelsImg from "@/assets/labels-macro.jpg";
