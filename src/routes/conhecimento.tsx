@@ -16,7 +16,7 @@ export const Route = createFileRoute("/conhecimento")({
     <ModulePlaceholder
       eyebrow="Centro de conhecimento"
       title="O maior portal técnico brasileiro sobre identificação industrial."
-      description="Estamos estruturando categorias, guias e comparativos otimizados para SEO e mecanismos de IA. Conteúdo útil para indústria, varejo, logística, papelaria e automação."
+      description="Estamos estruturando categorias, guias e comparativos otimizados para SEO e mecanismos de IA. Conteúdo útil para indústria, varejo, papelaria e operações que usam impressão térmica."
       features={[
         "Etiquetas — tipos, adesivos, aplicações",
         "Ribbon — cera, cera-resina, resina",
