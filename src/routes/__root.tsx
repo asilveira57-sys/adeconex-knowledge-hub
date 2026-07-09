@@ -119,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Adeconex: autoridade nacional em impressão térmica, etiquetas, ribbons, automação comercial e logística. Conteúdo técnico, ferramentas gratuitas e produtos.",
+          "Adeconex: autoridade nacional em impressão térmica, etiquetas e ribbons. Conteúdo técnico, ferramentas gratuitas e produtos.",
       },
       { property: "og:site_name", content: "Adeconex" },
       { property: "og:type", content: "website" },
