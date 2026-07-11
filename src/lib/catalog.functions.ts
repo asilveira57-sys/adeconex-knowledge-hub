@@ -222,6 +222,7 @@ export type ProductDetail = {
   technical_description: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  seo_keywords: string | null;
   images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
   categories: Array<{ name: string; slug: string }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
