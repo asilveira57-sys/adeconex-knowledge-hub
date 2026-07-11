@@ -222,6 +222,7 @@ export type ProductDetail = {
   technical_description: string | null;
   seo_title: string | null;
   seo_description: string | null;
+  seo_keywords: string | null;
   images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
   categories: Array<{ name: string; slug: string }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
@@ -234,7 +235,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, status",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, status",
       )
       .eq("slug", data.slug)
       .maybeSingle();
@@ -283,6 +284,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       technical_description: p.technical_description,
       seo_title: p.seo_title,
       seo_description: p.seo_description,
+      seo_keywords: p.seo_keywords ?? null,
       images,
       categories: (cats ?? [])
         .map((r: { category: { name: string; slug: string } | null }) => r.category)
