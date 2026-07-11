@@ -284,6 +284,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       technical_description: p.technical_description,
       seo_title: p.seo_title,
       seo_description: p.seo_description,
+      seo_keywords: p.seo_keywords ?? null,
       images,
       categories: (cats ?? [])
         .map((r: { category: { name: string; slug: string } | null }) => r.category)
