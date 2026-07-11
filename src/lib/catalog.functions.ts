@@ -222,7 +222,7 @@ export type ProductDetail = {
   technical_description: string | null;
   seo_title: string | null;
   seo_description: string | null;
-  images: Array<{ id: string; url: string; alt: string | null; is_main: boolean }>;
+  images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
   categories: Array<{ name: string; slug: string }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
 };
@@ -265,7 +265,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         const url = publicUrl(base, i.storage_path) ?? i.source_url;
         return url ? { id: i.id, url, alt: i.alt_text ?? p.name, is_main: !!i.is_main } : null;
       })
-      .filter((x): x is { id: string; url: string; alt: string | null; is_main: boolean } => !!x);
+      .filter((x): x is { id: string; url: string; alt: string; is_main: boolean } => !!x);
 
     return {
       id: p.id,
