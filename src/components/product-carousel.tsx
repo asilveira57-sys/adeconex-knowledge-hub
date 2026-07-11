@@ -112,7 +112,8 @@ export function ProductCarousel({
                 className="basis-[75%] pl-3 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <Link
-                  to="/catalogo"
+                  to="/produto/$slug"
+                  params={{ slug: p.slug }}
                   className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                   aria-label={p.name}
                 >
