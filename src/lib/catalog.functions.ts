@@ -235,7 +235,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, status",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, status",
       )
       .eq("slug", data.slug)
       .maybeSingle();
