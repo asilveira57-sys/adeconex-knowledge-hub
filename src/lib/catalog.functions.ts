@@ -205,3 +205,89 @@ export const listCatalog = createServerFn({ method: "GET" })
 
     return { items, total: count ?? 0, page: data.page, pageSize: data.pageSize };
   });
+
+export type ProductDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string | null;
+  model: string | null;
+  reference: string | null;
+  price: number | null;
+  promotional_price: number | null;
+  is_available: boolean;
+  stock_quantity: number | null;
+  short_description: string | null;
+  commercial_description: string | null;
+  technical_description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
+  categories: Array<{ name: string; slug: string }>;
+  faqs: Array<{ id: string; question: string; answer: string }>;
+};
+
+export const getProductBySlug = createServerFn({ method: "GET" })
+  .inputValidator((v) => z.object({ slug: z.string().min(1) }).parse(v))
+  .handler(async ({ data }): Promise<ProductDetail | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: p, error } = await supabaseAdmin
+      .from("products")
+      .select(
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, status",
+      )
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!p) return null;
+
+    const [{ data: imgs }, { data: faqs }, { data: cats }] = await Promise.all([
+      supabaseAdmin
+        .from("product_images")
+        .select("id, storage_path, source_url, alt_text, is_main, position")
+        .eq("product_id", p.id)
+        .order("is_main", { ascending: false })
+        .order("position", { ascending: true }),
+      supabaseAdmin
+        .from("product_faqs")
+        .select("id, question, answer, position")
+        .eq("product_id", p.id)
+        .order("position", { ascending: true }),
+      supabaseAdmin
+        .from("product_categories")
+        .select("category:categories(name, slug)")
+        .eq("product_id", p.id),
+    ]);
+
+    const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
+    const images = (imgs ?? [])
+      .map((i) => {
+        const url = publicUrl(base, i.storage_path) ?? i.source_url;
+        return url ? { id: i.id, url, alt: i.alt_text ?? p.name, is_main: !!i.is_main } : null;
+      })
+      .filter((x): x is { id: string; url: string; alt: string; is_main: boolean } => !!x);
+
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      sku: p.sku,
+      model: p.model,
+      reference: p.reference,
+      price: p.price !== null ? Number(p.price) : null,
+      promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
+      is_available: !!p.is_available,
+      stock_quantity: p.stock_quantity,
+      short_description: p.short_description,
+      commercial_description: p.commercial_description,
+      technical_description: p.technical_description,
+      seo_title: p.seo_title,
+      seo_description: p.seo_description,
+      images,
+      categories: (cats ?? [])
+        .map((r: { category: { name: string; slug: string } | null }) => r.category)
+        .filter((c): c is { name: string; slug: string } => !!c),
+      faqs: (faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+    };
+  });
+

@@ -160,7 +160,8 @@ function CatalogGrid() {
         {data.items.map((p) => (
           <Link
             key={p.id}
-            to="/catalogo"
+            to="/produto/$slug"
+            params={{ slug: p.slug }}
             className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
             aria-label={p.name}
           >

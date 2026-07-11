@@ -30,6 +30,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
+import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
@@ -144,6 +145,11 @@ const BrindesIndexRoute = BrindesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BrindesRoute,
 } as any)
+const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
+  id: '/produto/$slug',
+  path: '/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FitaDeCetimImpressoraParaCetimRoute =
   FitaDeCetimImpressoraParaCetimRouteImport.update({
     id: '/impressora-para-cetim',
@@ -219,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
@@ -247,6 +254,7 @@ export interface FileRoutesByTo {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes': typeof BrindesIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
@@ -313,6 +322,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/produto/$slug'
     | '/brindes/'
     | '/fita-de-cetim/'
     | '/admin/enriquecimento'
@@ -341,6 +351,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/produto/$slug'
     | '/brindes'
     | '/fita-de-cetim'
     | '/admin/enriquecimento'
@@ -373,6 +384,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/produto/$slug'
     | '/brindes/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/enriquecimento'
@@ -403,6 +415,7 @@ export interface RootRouteChildren {
   RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
+  ProdutoSlugRoute: typeof ProdutoSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -554,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrindesIndexRouteImport
       parentRoute: typeof BrindesRoute
     }
+    '/produto/$slug': {
+      id: '/produto/$slug'
+      path: '/produto/$slug'
+      fullPath: '/produto/$slug'
+      preLoaderRoute: typeof ProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fita-de-cetim/impressora-para-cetim': {
       id: '/fita-de-cetim/impressora-para-cetim'
       path: '/impressora-para-cetim'
@@ -699,6 +719,7 @@ const rootRouteChildren: RootRouteChildren = {
   RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
+  ProdutoSlugRoute: ProdutoSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
