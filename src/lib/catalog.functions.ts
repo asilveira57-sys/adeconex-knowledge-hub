@@ -226,6 +226,22 @@ export type ProductDetail = {
   images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
   categories: Array<{ name: string; slug: string }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
+  variants: ProductVariantOption[];
+  variant_options: Array<{ name: string; values: string[] }>;
+};
+
+export type ProductVariantOption = {
+  id: string;
+  name: string;
+  sku: string | null;
+  option1_name: string | null;
+  option1_value: string | null;
+  option2_name: string | null;
+  option2_value: string | null;
+  price: number | null;
+  promotional_price: number | null;
+  stock_quantity: number | null;
+  image_url: string | null;
 };
 
 export const getProductBySlug = createServerFn({ method: "GET" })
