@@ -19,6 +19,7 @@ import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as BrindesRouteImport } from './routes/brindes'
 import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -90,6 +91,11 @@ const ConhecimentoRoute = ConhecimentoRouteImport.update({
 const CatalogoRoute = CatalogoRouteImport.update({
   id: '/catalogo',
   path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrindesRoute = BrindesRouteImport.update({
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
+  '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
+  '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
@@ -282,6 +290,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
+  '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/bopp'
     | '/brindes'
+    | '/carrinho'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
@@ -349,6 +359,7 @@ export interface FileRouteTypes {
     | '/b2b'
     | '/blog'
     | '/bopp'
+    | '/carrinho'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/bopp'
     | '/brindes'
+    | '/carrinho'
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
@@ -416,6 +428,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRoute
   BoppRoute: typeof BoppRoute
   BrindesRoute: typeof BrindesRouteWithChildren
+  CarrinhoRoute: typeof CarrinhoRoute
   CatalogoRoute: typeof CatalogoRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
@@ -500,6 +513,13 @@ declare module '@tanstack/react-router' {
       path: '/catalogo'
       fullPath: '/catalogo'
       preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brindes': {
@@ -729,6 +749,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRoute,
   BoppRoute: BoppRoute,
   BrindesRoute: BrindesRouteWithChildren,
+  CarrinhoRoute: CarrinhoRoute,
   CatalogoRoute: CatalogoRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
