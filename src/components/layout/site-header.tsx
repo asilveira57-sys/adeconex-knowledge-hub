@@ -94,9 +94,16 @@ export function SiteHeader() {
             </Link>
           ))}
           <Link
+            to={user ? "/minha-conta" : "/auth"}
+            onClick={() => setOpen(false)}
+            className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-md border hairline px-4 py-3 text-sm font-medium text-foreground"
+          >
+            <User className="h-4 w-4" /> {user ? "Minha conta" : "Entrar"}
+          </Link>
+          <Link
             to="/contato"
             onClick={() => setOpen(false)}
-            className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
           >
             Solicitar orçamento
           </Link>
