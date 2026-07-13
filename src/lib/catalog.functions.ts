@@ -289,6 +289,41 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       })
       .filter((x): x is { id: string; url: string; alt: string; is_main: boolean } => !!x);
 
+    const variants: ProductVariantOption[] = (variantsRaw ?? []).map((v) => ({
+      id: v.id,
+      name: v.name,
+      sku: v.sku,
+      option1_name: v.option1_name,
+      option1_value: v.option1_value,
+      option2_name: v.option2_name,
+      option2_value: v.option2_value,
+      price: v.price !== null ? Number(v.price) : null,
+      promotional_price:
+        v.promotional_price !== null && Number(v.promotional_price) > 0
+          ? Number(v.promotional_price)
+          : null,
+      stock_quantity: v.stock_quantity,
+      image_url: v.main_image_url,
+    }));
+
+    // Build unique option groups (Cor, Tamanho, etc.) preserving first-seen order
+    const optionMap = new Map<string, string[]>();
+    for (const v of variants) {
+      for (const [name, value] of [
+        [v.option1_name, v.option1_value],
+        [v.option2_name, v.option2_value],
+      ] as const) {
+        if (!name || !value) continue;
+        const arr = optionMap.get(name) ?? [];
+        if (!arr.includes(value)) arr.push(value);
+        optionMap.set(name, arr);
+      }
+    }
+    const variant_options = Array.from(optionMap.entries()).map(([name, values]) => ({
+      name,
+      values,
+    }));
+
     return {
       id: p.id,
       name: p.name,
@@ -311,6 +346,8 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .map((r: { category: { name: string; slug: string } | null }) => r.category)
         .filter((c): c is { name: string; slug: string } => !!c),
       faqs: (faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+      variants,
+      variant_options,
     };
   });
 
