@@ -168,6 +168,8 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productOptions(slug));
   const [idx, setIdx] = useState(0);
+  const [qty, setQty] = useState(1);
+  const { add } = useCart();
 
   // Variant selection state — one selected value per option name
   const [selectedOpts, setSelectedOpts] = useState<Record<string, string>>(() => {
