@@ -1,30 +1,38 @@
-
 import { ImageOff } from "lucide-react";
 import type { CartSnapshot } from "@/lib/cart.functions";
-import { SHIPPING_OPTIONS, type ShippingOptionId } from "@/lib/checkout.local";
+import type { CheckoutSelection } from "@/lib/checkout.local";
 
 function money(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function resolveShippingDisplay(sel: Pick<CheckoutSelection, "shipping_option" | "shipping_snapshot">) {
+  if (sel.shipping_option === "carrier" && sel.shipping_snapshot) {
+    return { price: sel.shipping_snapshot.price, label: money(sel.shipping_snapshot.price) };
+  }
+  if (sel.shipping_option === "pickup") return { price: 0, label: "Retirada — grátis" };
+  if (sel.shipping_option === "quote_later") return { price: 0, label: "A confirmar" };
+  return { price: 0, label: "—" };
+}
+
 export function CheckoutSummary({
   cart,
-  shippingOption,
+  selection,
   ctaLabel,
   ctaDisabled,
   ctaReason,
   onCta,
 }: {
   cart: CartSnapshot;
-  shippingOption: ShippingOptionId | null;
+  selection: Pick<CheckoutSelection, "shipping_option" | "shipping_snapshot">;
   ctaLabel: string;
   ctaDisabled?: boolean;
   ctaReason?: string | null;
   onCta?: () => void;
 }) {
-  const shipping = SHIPPING_OPTIONS.find((o) => o.id === shippingOption) ?? null;
-  const shippingCost = shipping?.price ?? 0;
-  const total = cart.subtotal + shippingCost;
+  const ship = resolveShippingDisplay(selection);
+  const total = cart.subtotal + ship.price;
+  const hasShipping = !!selection.shipping_option;
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -66,13 +74,7 @@ export function CheckoutSummary({
 
         <div className="space-y-2 border-t hairline pt-4 text-sm">
           <Row label="Subtotal" value={money(cart.subtotal)} />
-          <Row
-            label="Frete"
-            value={
-              shipping ? (shippingCost === 0 ? "A confirmar" : money(shippingCost)) : "—"
-            }
-            muted={!shipping}
-          />
+          <Row label="Frete" value={ship.label} muted={!hasShipping} />
           <div className="flex items-baseline justify-between border-t hairline pt-3">
             <span className="font-display text-base font-semibold">Total</span>
             <span className="font-display text-xl font-semibold tabular-nums">

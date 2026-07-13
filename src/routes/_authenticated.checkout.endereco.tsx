@@ -165,7 +165,7 @@ function EnderecoStep() {
 
       <CheckoutSummary
         cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
-        shippingOption={selection.shipping_option}
+        selection={selection}
         ctaLabel="Continuar para frete"
         ctaDisabled={!canContinue}
         ctaReason={canContinue ? null : "Selecione um endereço para continuar."}
