@@ -226,6 +226,22 @@ export type ProductDetail = {
   images: Array<{ id: string; url: string; alt: string; is_main: boolean }>;
   categories: Array<{ name: string; slug: string }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
+  variants: ProductVariantOption[];
+  variant_options: Array<{ name: string; values: string[] }>;
+};
+
+export type ProductVariantOption = {
+  id: string;
+  name: string;
+  sku: string | null;
+  option1_name: string | null;
+  option1_value: string | null;
+  option2_name: string | null;
+  option2_value: string | null;
+  price: number | null;
+  promotional_price: number | null;
+  stock_quantity: number | null;
+  image_url: string | null;
 };
 
 export const getProductBySlug = createServerFn({ method: "GET" })
@@ -242,7 +258,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!p) return null;
 
-    const [{ data: imgs }, { data: faqs }, { data: cats }] = await Promise.all([
+    const [{ data: imgs }, { data: faqs }, { data: cats }, { data: variantsRaw }] = await Promise.all([
       supabaseAdmin
         .from("product_images")
         .select("id, storage_path, source_url, alt_text, is_main, position")
@@ -258,6 +274,11 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .from("product_categories")
         .select("category:categories(name, slug)")
         .eq("product_id", p.id),
+      supabaseAdmin
+        .from("product_variants")
+        .select("id, name, sku, option1_name, option1_value, option2_name, option2_value, price, promotional_price, stock_quantity, main_image_url, sort_order")
+        .eq("product_id", p.id)
+        .order("sort_order", { ascending: true }),
     ]);
 
     const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
@@ -267,6 +288,41 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         return url ? { id: i.id, url, alt: i.alt_text ?? p.name, is_main: !!i.is_main } : null;
       })
       .filter((x): x is { id: string; url: string; alt: string; is_main: boolean } => !!x);
+
+    const variants: ProductVariantOption[] = (variantsRaw ?? []).map((v) => ({
+      id: v.id,
+      name: v.name ?? p.name,
+      sku: v.sku,
+      option1_name: v.option1_name,
+      option1_value: v.option1_value,
+      option2_name: v.option2_name,
+      option2_value: v.option2_value,
+      price: v.price !== null ? Number(v.price) : null,
+      promotional_price:
+        v.promotional_price !== null && Number(v.promotional_price) > 0
+          ? Number(v.promotional_price)
+          : null,
+      stock_quantity: v.stock_quantity,
+      image_url: v.main_image_url,
+    }));
+
+    // Build unique option groups (Cor, Tamanho, etc.) preserving first-seen order
+    const optionMap = new Map<string, string[]>();
+    for (const v of variants) {
+      for (const [name, value] of [
+        [v.option1_name, v.option1_value],
+        [v.option2_name, v.option2_value],
+      ] as const) {
+        if (!name || !value) continue;
+        const arr = optionMap.get(name) ?? [];
+        if (!arr.includes(value)) arr.push(value);
+        optionMap.set(name, arr);
+      }
+    }
+    const variant_options = Array.from(optionMap.entries()).map(([name, values]) => ({
+      name,
+      values,
+    }));
 
     return {
       id: p.id,
@@ -290,6 +346,8 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .map((r: { category: { name: string; slug: string } | null }) => r.category)
         .filter((c): c is { name: string; slug: string } => !!c),
       faqs: (faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
+      variants,
+      variant_options,
     };
   });
 
