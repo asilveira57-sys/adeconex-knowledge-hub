@@ -1,14 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { primaryNav, secondaryNav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { useSession } from "@/hooks/use-session";
+import { useCart } from "@/hooks/use-cart";
 import logoWordmark from "@/assets/brand/logo-adeconex.png";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const { user } = useSession();
+  const { snapshot } = useCart();
+  const cartCount = snapshot.item_count;
 
   return (
     <header className="sticky top-0 z-50 border-b hairline bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
