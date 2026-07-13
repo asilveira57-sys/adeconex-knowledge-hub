@@ -291,7 +291,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
 
     const variants: ProductVariantOption[] = (variantsRaw ?? []).map((v) => ({
       id: v.id,
-      name: v.name,
+      name: v.name ?? p.name,
       sku: v.sku,
       option1_name: v.option1_name,
       option1_value: v.option1_value,
