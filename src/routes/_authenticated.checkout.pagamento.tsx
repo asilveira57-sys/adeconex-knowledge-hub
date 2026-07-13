@@ -5,7 +5,7 @@ import { CreditCard, Wrench, MessageCircle } from "lucide-react";
 import { getCheckoutSnapshot } from "@/lib/checkout.functions";
 import { useCheckoutSelection } from "@/hooks/use-checkout";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
-import { SHIPPING_OPTIONS } from "@/lib/checkout.local";
+import { FALLBACK_SHIPPING } from "@/lib/checkout.local";
 
 export const Route = createFileRoute("/_authenticated/checkout/pagamento")({
   component: PagamentoStep,
@@ -19,7 +19,10 @@ function PagamentoStep() {
     staleTime: 5_000,
   });
   const { selection } = useCheckoutSelection();
-  const shipping = SHIPPING_OPTIONS.find((o) => o.id === selection.shipping_option) ?? null;
+  const shippingLabel =
+    selection.shipping_option === "carrier" && selection.shipping_snapshot
+      ? `${selection.shipping_snapshot.carrier} · ${selection.shipping_snapshot.service_name}`
+      : FALLBACK_SHIPPING.find((o) => o.id === selection.shipping_option)?.label ?? null;
 
   // Build a WhatsApp message so the customer can close the deal manually
   // while Mercado Pago integration (Fase 8) is not yet enabled.
@@ -41,7 +44,7 @@ function PagamentoStep() {
         style: "currency",
         currency: "BRL",
       })}`,
-      shipping ? `Entrega: ${shipping.label}` : "",
+      shippingLabel ? `Entrega: ${shippingLabel}` : "",
       selection.customer_notes ? `Observações: ${selection.customer_notes}` : "",
     ]
       .filter(Boolean)
@@ -97,7 +100,7 @@ function PagamentoStep() {
 
       <CheckoutSummary
         cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
-        shippingOption={selection.shipping_option}
+        selection={selection}
         ctaLabel="Pagamento em breve"
         ctaDisabled
         ctaReason="Botão liberado na próxima fase, com Mercado Pago ativo."

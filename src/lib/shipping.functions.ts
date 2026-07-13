@@ -186,11 +186,11 @@ export const quoteShipping = createServerFn({ method: "POST" })
       carrier: s.company?.name ?? s.name,
       price: Number(s.custom_price ?? s.price ?? 0),
       deadline_days: Number(s.custom_delivery_time ?? s.delivery_time ?? 0),
-      raw: s as unknown as Record<string, unknown>,
+      raw: s as any,
       expires_at,
     }));
 
-    const { data: inserted, error } = await context.supabase
+    const { data: inserted, error } = await (context.supabase as any)
       .from("shipping_quotes")
       .insert(rows)
       .select(

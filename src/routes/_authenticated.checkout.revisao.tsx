@@ -5,7 +5,7 @@ import { MapPin, Truck, User, ImageOff, Pencil } from "lucide-react";
 import { getCheckoutSnapshot } from "@/lib/checkout.functions";
 import { useCheckoutSelection } from "@/hooks/use-checkout";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
-import { SHIPPING_OPTIONS } from "@/lib/checkout.local";
+import { FALLBACK_SHIPPING } from "@/lib/checkout.local";
 
 export const Route = createFileRoute("/_authenticated/checkout/revisao")({
   component: RevisaoStep,
@@ -13,6 +13,24 @@ export const Route = createFileRoute("/_authenticated/checkout/revisao")({
 
 function money(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function describeShipping(selection: ReturnType<typeof useCheckoutSelection>["selection"]) {
+  if (selection.shipping_option === "carrier" && selection.shipping_snapshot) {
+    const s = selection.shipping_snapshot;
+    return {
+      label: `${s.carrier} · ${s.service_name}`,
+      deadline: `Entrega em até ${s.deadline_days} ${s.deadline_days === 1 ? "dia útil" : "dias úteis"}`,
+      priceLabel: money(s.price),
+    };
+  }
+  const f = FALLBACK_SHIPPING.find((o) => o.id === selection.shipping_option);
+  if (!f) return null;
+  return {
+    label: f.label,
+    deadline: f.deadline,
+    priceLabel: f.id === "pickup" ? "Grátis" : "A confirmar",
+  };
 }
 
 function RevisaoStep() {
@@ -28,7 +46,7 @@ function RevisaoStep() {
   const address = data?.addresses.find((a) => a.id === selection.address_id) ?? null;
   const company =
     data?.companies.find((c) => c.id === selection.billing_company_id) ?? null;
-  const shipping = SHIPPING_OPTIONS.find((o) => o.id === selection.shipping_option) ?? null;
+  const shipping = describeShipping(selection);
 
   const canContinue = !!address && !!shipping && (data?.cart.items.length ?? 0) > 0;
 
@@ -89,9 +107,7 @@ function RevisaoStep() {
             <>
               <p className="font-medium">{shipping.label}</p>
               <p className="text-sm text-muted-foreground">{shipping.deadline}</p>
-              <p className="text-sm text-muted-foreground">
-                {shipping.price === 0 ? "Valor a confirmar" : money(shipping.price)}
-              </p>
+              <p className="text-sm text-muted-foreground">{shipping.priceLabel}</p>
             </>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma modalidade selecionada.</p>
@@ -141,7 +157,7 @@ function RevisaoStep() {
 
       <CheckoutSummary
         cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
-        shippingOption={selection.shipping_option}
+        selection={selection}
         ctaLabel="Ir para pagamento"
         ctaDisabled={!canContinue}
         ctaReason={
