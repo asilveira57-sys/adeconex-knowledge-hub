@@ -402,14 +402,55 @@ function ProductPage() {
               </div>
 
 
-              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                <Button asChild size="lg" className="flex-1">
+              {effAvailable && effPrice != null && (
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                  <div className="inline-flex items-center rounded-lg border hairline bg-surface-2">
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      aria-label="Diminuir"
+                      className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+                      disabled={qty <= 1}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-medium tabular-nums">{qty}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => (effStock != null ? Math.min(effStock, q + 1) : q + 1))}
+                      aria-label="Aumentar"
+                      className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+                      disabled={effStock != null && qty >= effStock}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <Button
+                    size="lg"
+                    className="flex-1 min-w-[200px]"
+                    disabled={add.isPending}
+                    onClick={() =>
+                      add.mutate({
+                        product_id: p.id,
+                        variant_id: selectedVariant?.id ?? null,
+                        quantity: qty,
+                      })
+                    }
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    {add.isPending ? "Adicionando…" : "Adicionar ao carrinho"}
+                  </Button>
+                </div>
+              )}
+
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <Button asChild variant="outline" size="lg" className="flex-1">
                   <a
                     href={`https://wa.me/5527999999999?text=${waMsg}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <MessageCircle className="mr-2 h-4 w-4" /> Falar no WhatsApp
+                    <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp
                   </a>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="flex-1">
@@ -418,6 +459,7 @@ function ProductPage() {
                   </Link>
                 </Button>
               </div>
+
 
               <ul className="mt-5 grid grid-cols-1 gap-2 border-t hairline pt-4 text-sm sm:grid-cols-2">
                 <li className="flex items-start gap-2">
