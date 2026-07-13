@@ -139,8 +139,8 @@ function CartPage() {
               </div>
               <div className="border-t hairline pt-4">
                 {isAuthenticated ? (
-                  <Button className="w-full" size="lg" disabled>
-                    Finalizar compra (em breve)
+                  <Button asChild className="w-full" size="lg" disabled={snapshot.items.length === 0}>
+                    <Link to="/checkout/endereco">Finalizar compra</Link>
                   </Button>
                 ) : (
                   <div className="space-y-3">
