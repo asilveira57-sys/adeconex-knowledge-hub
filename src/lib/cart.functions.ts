@@ -207,18 +207,18 @@ export const addToCart = createServerFn({ method: "POST" })
     const resolved = await resolveLineData(context.supabase, data.product_id, variant_id);
     const cartId = await ensureCart(context.supabase, context.userId);
 
-    // Look up existing line
-    const { data: existing } = await context.supabase
-      .from("cart_items")
-      .select("id, quantity")
-      .eq("cart_id", cartId)
-      .eq("product_id", data.product_id)
-      .is("variant_id", variant_id === null ? null : (undefined as any))
-      .maybeSingle();
-
-    // The `.is()` trick above only handles null; for the non-null case do a second lookup.
-    let row = existing;
-    if (variant_id !== null) {
+    // Look up existing line for this (product, variant) pair
+    let row: { id: string; quantity: number } | null = null;
+    if (variant_id === null) {
+      const { data: match } = await context.supabase
+        .from("cart_items")
+        .select("id, quantity")
+        .eq("cart_id", cartId)
+        .eq("product_id", data.product_id)
+        .is("variant_id", null)
+        .maybeSingle();
+      row = match ?? null;
+    } else {
       const { data: match } = await context.supabase
         .from("cart_items")
         .select("id, quantity")
