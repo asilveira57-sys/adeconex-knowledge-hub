@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+
 import { ImageOff } from "lucide-react";
 import type { CartSnapshot } from "@/lib/cart.functions";
 import { SHIPPING_OPTIONS, type ShippingOptionId } from "@/lib/checkout.local";
@@ -10,7 +10,6 @@ function money(v: number) {
 export function CheckoutSummary({
   cart,
   shippingOption,
-  ctaHref,
   ctaLabel,
   ctaDisabled,
   ctaReason,
@@ -18,7 +17,6 @@ export function CheckoutSummary({
 }: {
   cart: CartSnapshot;
   shippingOption: ShippingOptionId | null;
-  ctaHref?: string;
   ctaLabel: string;
   ctaDisabled?: boolean;
   ctaReason?: string | null;
