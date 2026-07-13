@@ -81,27 +81,14 @@ export function CheckoutSummary({
           </div>
         </div>
 
-        {ctaHref ? (
-          <Link
-            to={ctaHref}
-            className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-card hover:bg-primary/90 aria-disabled:pointer-events-none aria-disabled:opacity-50"
-            aria-disabled={ctaDisabled}
-            onClick={(e) => {
-              if (ctaDisabled) e.preventDefault();
-            }}
-          >
-            {ctaLabel}
-          </Link>
-        ) : (
-          <button
-            type="button"
-            disabled={ctaDisabled}
-            onClick={onCta}
-            className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-card hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-          >
-            {ctaLabel}
-          </button>
-        )}
+        <button
+          type="button"
+          disabled={ctaDisabled}
+          onClick={onCta}
+          className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-card hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+        >
+          {ctaLabel}
+        </button>
 
         {ctaDisabled && ctaReason && (
           <p className="text-xs text-muted-foreground">{ctaReason}</p>
