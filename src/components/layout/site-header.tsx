@@ -60,12 +60,25 @@ export function SiteHeader() {
             </Link>
           )}
           <Link
+            to="/carrinho"
+            aria-label="Ver carrinho"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-md border hairline text-foreground transition-colors hover:bg-accent"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
+          </Link>
+          <Link
             to="/contato"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
           >
             Solicitar orçamento
           </Link>
         </div>
+
 
         <button
           type="button"
