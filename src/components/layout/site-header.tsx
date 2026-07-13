@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useState } from "react";
 import { primaryNav, secondaryNav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
-import logoA from "@/assets/brand/logo-a.png";
+import { useSession } from "@/hooks/use-session";
 import logoWordmark from "@/assets/brand/logo-adeconex.png";
 
 export function SiteHeader() {
