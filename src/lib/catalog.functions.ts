@@ -258,7 +258,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!p) return null;
 
-    const [{ data: imgs }, { data: faqs }, { data: cats }] = await Promise.all([
+    const [{ data: imgs }, { data: faqs }, { data: cats }, { data: variantsRaw }] = await Promise.all([
       supabaseAdmin
         .from("product_images")
         .select("id, storage_path, source_url, alt_text, is_main, position")
@@ -274,6 +274,11 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .from("product_categories")
         .select("category:categories(name, slug)")
         .eq("product_id", p.id),
+      supabaseAdmin
+        .from("product_variants")
+        .select("id, name, sku, option1_name, option1_value, option2_name, option2_value, price, promotional_price, stock_quantity, main_image_url, sort_order")
+        .eq("product_id", p.id)
+        .order("sort_order", { ascending: true }),
     ]);
 
     const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
