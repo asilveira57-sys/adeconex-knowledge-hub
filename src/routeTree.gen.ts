@@ -36,8 +36,14 @@ import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fit
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
+import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
+import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
+import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
@@ -179,16 +185,51 @@ const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   path: '/minha-conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCheckoutIndexRoute =
+  AuthenticatedCheckoutIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedCheckoutRevisaoRoute =
+  AuthenticatedCheckoutRevisaoRouteImport.update({
+    id: '/revisao',
+    path: '/revisao',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutPagamentoRoute =
+  AuthenticatedCheckoutPagamentoRouteImport.update({
+    id: '/pagamento',
+    path: '/pagamento',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutFreteRoute =
+  AuthenticatedCheckoutFreteRouteImport.update({
+    id: '/frete',
+    path: '/frete',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutEnderecoRoute =
+  AuthenticatedCheckoutEnderecoRouteImport.update({
+    id: '/endereco',
+    path: '/endereco',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
 const AuthenticatedAdminImportacaoRoute =
   AuthenticatedAdminImportacaoRouteImport.update({
     id: '/importacao',
@@ -235,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
@@ -244,7 +286,12 @@ export interface FileRoutesByFullPath {
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
+  '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
+  '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
+  '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
@@ -275,7 +322,12 @@ export interface FileRoutesByTo {
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
+  '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
+  '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
+  '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
 }
@@ -302,6 +354,7 @@ export interface FileRoutesById {
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
@@ -311,7 +364,12 @@ export interface FileRoutesById {
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
+  '/_authenticated/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
+  '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
+  '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
@@ -338,6 +396,7 @@ export interface FileRouteTypes {
     | '/ribbon'
     | '/sitemap.xml'
     | '/admin'
+    | '/checkout'
     | '/minha-conta'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
@@ -347,7 +406,12 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/'
     | '/admin/enriquecimento'
     | '/admin/importacao'
+    | '/checkout/endereco'
+    | '/checkout/frete'
+    | '/checkout/pagamento'
+    | '/checkout/revisao'
     | '/admin/'
+    | '/checkout/'
     | '/admin/produtos/$id'
     | '/admin/produtos/'
   fileRoutesByTo: FileRoutesByTo
@@ -378,7 +442,12 @@ export interface FileRouteTypes {
     | '/fita-de-cetim'
     | '/admin/enriquecimento'
     | '/admin/importacao'
+    | '/checkout/endereco'
+    | '/checkout/frete'
+    | '/checkout/pagamento'
+    | '/checkout/revisao'
     | '/admin'
+    | '/checkout'
     | '/admin/produtos/$id'
     | '/admin/produtos'
   id:
@@ -404,6 +473,7 @@ export interface FileRouteTypes {
     | '/ribbon'
     | '/sitemap.xml'
     | '/_authenticated/admin'
+    | '/_authenticated/checkout'
     | '/_authenticated/minha-conta'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
@@ -413,7 +483,12 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
+    | '/_authenticated/checkout/endereco'
+    | '/_authenticated/checkout/frete'
+    | '/_authenticated/checkout/pagamento'
+    | '/_authenticated/checkout/revisao'
     | '/_authenticated/admin/'
+    | '/_authenticated/checkout/'
     | '/_authenticated/admin/produtos/$id'
     | '/_authenticated/admin/produtos/'
   fileRoutesById: FileRoutesById
@@ -634,6 +709,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout': {
+      id: '/_authenticated/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -641,12 +723,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/checkout/': {
+      id: '/_authenticated/checkout/'
+      path: '/'
+      fullPath: '/checkout/'
+      preLoaderRoute: typeof AuthenticatedCheckoutIndexRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/checkout/revisao': {
+      id: '/_authenticated/checkout/revisao'
+      path: '/revisao'
+      fullPath: '/checkout/revisao'
+      preLoaderRoute: typeof AuthenticatedCheckoutRevisaoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/pagamento': {
+      id: '/_authenticated/checkout/pagamento'
+      path: '/pagamento'
+      fullPath: '/checkout/pagamento'
+      preLoaderRoute: typeof AuthenticatedCheckoutPagamentoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/frete': {
+      id: '/_authenticated/checkout/frete'
+      path: '/frete'
+      fullPath: '/checkout/frete'
+      preLoaderRoute: typeof AuthenticatedCheckoutFreteRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/endereco': {
+      id: '/_authenticated/checkout/endereco'
+      path: '/endereco'
+      fullPath: '/checkout/endereco'
+      preLoaderRoute: typeof AuthenticatedCheckoutEnderecoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
     }
     '/_authenticated/admin/importacao': {
       id: '/_authenticated/admin/importacao'
@@ -698,13 +815,36 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedCheckoutRouteChildren {
+  AuthenticatedCheckoutEnderecoRoute: typeof AuthenticatedCheckoutEnderecoRoute
+  AuthenticatedCheckoutFreteRoute: typeof AuthenticatedCheckoutFreteRoute
+  AuthenticatedCheckoutPagamentoRoute: typeof AuthenticatedCheckoutPagamentoRoute
+  AuthenticatedCheckoutRevisaoRoute: typeof AuthenticatedCheckoutRevisaoRoute
+  AuthenticatedCheckoutIndexRoute: typeof AuthenticatedCheckoutIndexRoute
+}
+
+const AuthenticatedCheckoutRouteChildren: AuthenticatedCheckoutRouteChildren = {
+  AuthenticatedCheckoutEnderecoRoute: AuthenticatedCheckoutEnderecoRoute,
+  AuthenticatedCheckoutFreteRoute: AuthenticatedCheckoutFreteRoute,
+  AuthenticatedCheckoutPagamentoRoute: AuthenticatedCheckoutPagamentoRoute,
+  AuthenticatedCheckoutRevisaoRoute: AuthenticatedCheckoutRevisaoRoute,
+  AuthenticatedCheckoutIndexRoute: AuthenticatedCheckoutIndexRoute,
+}
+
+const AuthenticatedCheckoutRouteWithChildren =
+  AuthenticatedCheckoutRoute._addFileChildren(
+    AuthenticatedCheckoutRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
 }
 
