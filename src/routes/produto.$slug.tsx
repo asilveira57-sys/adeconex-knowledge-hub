@@ -313,10 +313,49 @@ function ProductPage() {
             )}
 
             <div className="flex flex-wrap items-center gap-3 text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
-              {p.sku && <span>SKU <span className="text-foreground">{p.sku}</span></span>}
+              {effSku && <span>SKU <span className="text-foreground">{effSku}</span></span>}
               {p.model && <span>Modelo <span className="text-foreground">{p.model}</span></span>}
               {p.reference && <span>Ref <span className="text-foreground">{p.reference}</span></span>}
             </div>
+
+            {/* Variant selectors */}
+            {p.variant_options.length > 0 && (
+              <div className="space-y-4">
+                {p.variant_options.map((opt) => (
+                  <div key={opt.name}>
+                    <div className="mb-2 flex items-baseline justify-between">
+                      <span className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
+                        {opt.name}
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        {selectedOpts[opt.name] ?? "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {opt.values.map((val) => {
+                        const active = selectedOpts[opt.name] === val;
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() =>
+                              setSelectedOpts((s) => ({ ...s, [opt.name]: val }))
+                            }
+                            className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                              active
+                                ? "border-primary bg-primary/10 text-foreground ring-1 ring-primary"
+                                : "border-border bg-surface-2 text-foreground/80 hover:border-foreground/40"
+                            }`}
+                          >
+                            {val}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Purchase card */}
             <div className="rounded-xl border hairline bg-card p-6 shadow-card">
@@ -346,14 +385,19 @@ function ProductPage() {
               <div className="mt-2 flex items-center gap-2 text-sm">
                 <span
                   className={`inline-block h-2 w-2 rounded-full ${
-                    p.is_available ? "bg-emerald-500" : "bg-muted-foreground"
+                    effAvailable ? "bg-emerald-500" : "bg-muted-foreground"
                   }`}
                   aria-hidden
                 />
                 <span className="text-muted-foreground">
-                  {p.is_available ? "Disponível para pronta entrega" : "Consulte disponibilidade"}
+                  {effAvailable
+                    ? selectedVariant && effStock != null && effStock <= 20
+                      ? `Últimas ${effStock} unidades em estoque`
+                      : "Disponível para pronta entrega"
+                    : "Consulte disponibilidade"}
                 </span>
               </div>
+
 
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Button asChild size="lg" className="flex-1">
