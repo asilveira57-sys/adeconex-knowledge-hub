@@ -1,13 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useState } from "react";
 import { primaryNav, secondaryNav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
-import logoA from "@/assets/brand/logo-a.png";
+import { useSession } from "@/hooks/use-session";
 import logoWordmark from "@/assets/brand/logo-adeconex.png";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user } = useSession();
 
   return (
     <header className="sticky top-0 z-50 border-b hairline bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
@@ -40,6 +41,21 @@ export function SiteHeader() {
           >
             Área B2B
           </Link>
+          {user ? (
+            <Link
+              to="/minha-conta"
+              className="inline-flex items-center gap-1.5 rounded-md border hairline px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              <User className="h-4 w-4" /> Minha conta
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="inline-flex items-center gap-1.5 rounded-md border hairline px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              <User className="h-4 w-4" /> Entrar
+            </Link>
+          )}
           <Link
             to="/contato"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
@@ -78,9 +94,16 @@ export function SiteHeader() {
             </Link>
           ))}
           <Link
+            to={user ? "/minha-conta" : "/auth"}
+            onClick={() => setOpen(false)}
+            className="mt-2 inline-flex items-center justify-center gap-1.5 rounded-md border hairline px-4 py-3 text-sm font-medium text-foreground"
+          >
+            <User className="h-4 w-4" /> {user ? "Minha conta" : "Entrar"}
+          </Link>
+          <Link
             to="/contato"
             onClick={() => setOpen(false)}
-            className="mt-2 inline-flex items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground"
           >
             Solicitar orçamento
           </Link>
