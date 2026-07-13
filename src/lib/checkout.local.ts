@@ -1,15 +1,25 @@
 /**
  * Checkout selection state — kept in localStorage so it survives reloads
  * but is never trusted server-side. Server functions re-validate every
- * address_id / company_id / shipping option before creating an order.
+ * address_id / company_id / shipping option / quote_id before creating
+ * an order.
  */
 
-export type ShippingOptionId = "pickup" | "quote_later";
+export type ShippingOptionId = "pickup" | "quote_later" | "carrier";
+
+export type ShippingSnapshot = {
+  quote_id: string | null;
+  carrier: string;
+  service_name: string;
+  price: number;
+  deadline_days: number;
+};
 
 export type CheckoutSelection = {
   address_id: string | null;
   billing_company_id: string | null;
   shipping_option: ShippingOptionId | null;
+  shipping_snapshot: ShippingSnapshot | null;
   customer_notes: string;
 };
 
@@ -19,6 +29,7 @@ const empty: CheckoutSelection = {
   address_id: null,
   billing_company_id: null,
   shipping_option: null,
+  shipping_snapshot: null,
   customer_notes: "",
 };
 
@@ -56,26 +67,19 @@ export function onCheckoutChange(cb: () => void) {
   };
 }
 
-export const SHIPPING_OPTIONS: Array<{
-  id: ShippingOptionId;
-  label: string;
-  description: string;
-  price: number;
-  deadline: string;
-}> = [
+/** Manual fallback modes offered alongside the real carrier quotes. */
+export const FALLBACK_SHIPPING = [
   {
-    id: "pickup",
+    id: "pickup" as const,
     label: "Retirar em Vila Velha (ES)",
     description: "Retirada no CD da Adeconex após a confirmação do pagamento.",
-    price: 0,
     deadline: "Pronto em até 1 dia útil",
   },
   {
-    id: "quote_later",
+    id: "quote_later" as const,
     label: "Frete a combinar com o comercial",
     description:
       "Nossa equipe confirma o valor e a transportadora após a análise do pedido.",
-    price: 0,
     deadline: "Prazo confirmado pelo comercial",
   },
 ];
