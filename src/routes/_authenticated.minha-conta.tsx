@@ -32,6 +32,7 @@ import {
   onlyDigits,
   fetchViaCep,
 } from "@/lib/account.validation";
+import { listMyOrders, ORDER_STATUS_LABEL } from "@/lib/orders.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
