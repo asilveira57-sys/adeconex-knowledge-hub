@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { OrderFilesCard } from "@/components/order-files-card";
 
 export const Route = createFileRoute("/_authenticated/pedido/$id")({
   head: () => ({
