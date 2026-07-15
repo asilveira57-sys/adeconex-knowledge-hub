@@ -28,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const navItems = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag, exact: false },
   { to: "/admin/produtos", label: "Produtos", icon: PackageSearch, exact: false },
   { to: "/admin/importacao", label: "Importação", icon: UploadCloud, exact: false },
   { to: "/admin/enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
