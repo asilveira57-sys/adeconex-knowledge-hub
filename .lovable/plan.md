@@ -1,92 +1,46 @@
+## Fase 12 — Notificações + QA end-to-end (sem compra de etiqueta no Melhor Envio)
 
-# Adeconex 2030 → E-commerce completo
+Ajuste confirmado: Melhor Envio permanece **somente como cotador de frete**. A compra/impressão da etiqueta será feita no Olist quando essa integração for ativada. Portanto, esta fase **remove** qualquer plano de "comprar etiqueta pelo admin" e foca em comunicação com o cliente e validação ponta-a-ponta.
 
-Escopo enorme. Não dá para entregar tudo em uma única rodada sem quebrar o que já funciona. Proposta: entregar por **fases pequenas e testáveis**, cada uma aprovada antes da próxima. Abaixo o plano completo; começo pela Fase 1 (Auditoria) assim que você aprovar.
+### 1. Notificações por e-mail (transacional)
+Disparo automático via server functions, chamando o provedor de e-mail (Resend por padrão — pedirei a chave se ainda não existir).
+- **Pedido recebido** — logo após `createOrderFromCart`.
+- **Pagamento aprovado** — no webhook Mercado Pago, quando status vira `pago`.
+- **Pagamento recusado / pendente** — no webhook, com link para retomar.
+- **Arquivo de arte aprovado / precisa correção** — no `reviewOrderFile` do staff.
+- **Pedido enviado** — quando admin muda status para `enviado` (inclui código de rastreio se preenchido).
+- **Pedido entregue / cancelado** — nas transições correspondentes.
 
-## Estado atual (do que já sei)
+Templates HTML simples com identidade Adeconex (logo, vermelho `#e63946`, link para `/pedido/$id`). Registro de envio em `email_log` (tabela nova, RLS admin-only) para auditoria e reenvio manual.
 
-- **Stack**: TanStack Start + Supabase (Lovable Cloud). Auth por e-mail/senha já ativo (`/auth`), gate em `_authenticated`.
-- **Catálogo**: 21 tabelas já existem — `products`, `product_variants`, `product_categories`, `categories`, `brands`, `product_images` (bucket público `catalog-media`), `product_faqs`, `product_specifications`, `materials`, `applications`, `markets`, `legacy_redirects` etc. 829 produtos importados.
-- **Roles**: tabela `user_roles` + `has_role`/`is_staff`. Admin em `/admin`.
-- **Front público**: home, `/catalogo`, `/produto/$slug`, páginas institucionais, avaliações Google, redirects 301.
-- **Faltando para e-commerce**: perfil estendido (CPF/CNPJ/empresa), endereços, carrinho, checkout, pedidos, pagamentos, frete, arquivos do cliente, integrações Mercado Pago / Melhor Envio / sistema interno.
+### 2. Painel admin: reenviar notificação
+Botão "Reenviar e-mail" em `/admin/pedidos/$id` (por evento) usando `email_log` como histórico. Sem UI de compra de etiqueta.
 
-## Decisões que preciso confirmar antes de começar
+### 3. Ajustes de UI para deixar claro o fluxo de etiqueta
+- Em `/admin/pedidos/$id`, o campo de rastreio continua **manual** (staff cola o código gerado no Olist).
+- Legenda curta: "A etiqueta é gerada no Olist. Cole aqui o código de rastreio."
+- Nada muda no checkout do cliente — Melhor Envio segue cotando normalmente.
 
-1. **Mercado Pago**: você tem conta e credenciais de **teste (sandbox)**? Vou precisar de `MP_ACCESS_TOKEN` (test) para começar. Live só depois de tudo validado.
-2. **Melhor Envio**: conta + credenciais OAuth (client_id/secret) do **sandbox**? CEP de origem da Adeconex?
-3. **"Sistema interno"** que recebe o pedido: já existe endpoint/URL/token, ou fica como estrutura preparada (log + botão reenviar) até você definir?
-4. **Convivência com marketplaces**: o site hoje direciona para marketplaces. O e-commerce próprio **substitui** ou **coexiste** com esses CTAs?
-5. **Cadastro obrigatório no checkout** (recomendado, dado que há envio de arquivo e acompanhamento) — confirma?
-6. **Escopo inicial**: posso começar pelas Fases 1–4 (auditoria + banco + conta do cliente + carrinho) sem tocar em pagamento/frete ainda? É o caminho mais seguro.
+### 4. QA end-to-end (checklist executável)
+Roteiro em `.lovable/qa-fase12.md` + validação manual via Playwright headless:
+1. Cadastro PF e PJ, endereço, empresa padrão.
+2. Adicionar produto com variante ao carrinho, ver recálculo.
+3. Checkout: endereço → cotação Melhor Envio real → pagamento Mercado Pago (sandbox).
+4. Webhook Mercado Pago → pedido vira `pago` → e-mail disparado.
+5. Upload de arte no `/pedido/$id`, aprovação pelo staff → e-mail ao cliente.
+6. Admin muda status para `enviado` com código de rastreio manual → e-mail ao cliente.
+7. Verificação de RLS: usuário B não acessa pedido/arquivo de A.
+8. Lighthouse nas rotas públicas principais (meta ≥95 perf/SEO).
 
-## Fases
+### Detalhes técnicos
+- `src/lib/email.server.ts` — client Resend (ou provedor equivalente), lê `RESEND_API_KEY` dentro do handler.
+- `src/lib/notifications.functions.ts` — uma função por evento, gravando em `email_log`.
+- Migração: `email_log (id, order_id, event, to_email, status, error, sent_at)` + GRANTs + RLS (`is_staff` lê tudo; sem acesso anon/authenticated direto).
+- Ganchos: `payments.functions.ts` (webhook), `order-files.functions.ts` (review), `orders.functions.ts` (transições de status).
+- Sem novas dependências além do SDK do provedor de e-mail.
 
-### Fase 1 — Auditoria (entrego relatório, sem código)
-Mapa detalhado das tabelas atuais (colunas, RLS, grants), autenticação, componentes reaproveitáveis, campos faltantes por tabela, riscos. Saída: documento aprovando o desenho da Fase 2.
+### Fora do escopo (confirmado)
+- Compra/impressão de etiqueta via Melhor Envio — será feita no Olist futuramente.
+- Ativação da integração Olist — segue desligada até você pedir.
 
-### Fase 2 — Banco de dados (migrations aditivas)
-Novas tabelas, preservando o catálogo atual:
-- `profiles` — estender com `cpf`, `phone`, `whatsapp`, `birth_date`, `customer_type`
-- `companies`, `customer_addresses`
-- `carts`, `cart_items`
-- `orders`, `order_items`, `order_addresses`, `order_status_history`
-- `payments`, `payment_events`
-- `shipping_quotes`, `shipments`
-- `order_files` (bucket **privado** `order-files`)
-- `coupons`, `coupon_redemptions`
-- `integration_logs`
-- Sequência para `order_number` (`ADC-YYYY-NNNNNN`)
-- RLS: cliente vê só o seu; admin/editor vê tudo; GRANTs obrigatórios.
-
-### Fase 3 — Conta do cliente
-`/minha-conta` (visão geral, perfil, empresa, endereços, pedidos, arquivos). Formulários com validação zod, viacep para CEP, máscaras CPF/CNPJ.
-
-### Fase 4 — Catálogo + variações no front
-Completar variações (`product_variants` já existe) na página de produto, seleção de opções, preço/estoque por variação.
-
-### Fase 5 — Carrinho persistente
-`/carrinho`, server functions para add/update/remove, merge do carrinho anônimo (localStorage) no login, validação de estoque, quantidade mínima, múltiplos.
-
-### Fase 6 — Checkout multi-etapa
-`/checkout/{endereco,frete,revisao,pagamento}`. Recalculo de preços **no servidor** a cada etapa.
-
-### Fase 7 — Melhor Envio (cotação apenas)
-Server function `quoteShipping` → API sandbox. Persiste `shipping_quotes` com `quote_token` e `expires_at`. Sem compra automática de etiqueta.
-
-### Fase 8 — Mercado Pago (sandbox)
-- `createOrderAndPreference` (cria `orders` como `aguardando_pagamento`, gera `preference_id`)
-- Server route pública `/api/public/webhooks/mercadopago` — valida assinatura, consulta MP com o `payment_id`, é idempotente via `payment_events.event_key`
-- Páginas `/pagamento/{aprovado,pendente,recusado}` que **consultam status interno**, não confiam no query param
-- Reserva/baixa de estoque só após confirmação segura
-
-### Fase 9 — Pedidos (cliente + admin)
-Painel do cliente com timeline; painel admin em `/admin/pedidos` com filtros, ações (aprovar arquivo, gerar etiqueta manualmente, inserir rastreio, reenviar integração, cancelar).
-
-### Fase 10 — Arquivos do cliente
-Upload em bucket **privado** com signed URLs, vinculado a `order_item`, fluxo de aprovação.
-
-### Fase 11 — Integração sistema interno
-Server function assíncrona + `integration_logs` + retry com backoff + botão "Reenviar" no admin. Falha aqui **não** cancela pedido.
-
-### Fase 12 — Compra de etiqueta Melhor Envio (manual pelo admin) + notificações por e-mail + testes end-to-end + go-live
-
-## Regras técnicas que vou seguir (do seu prompt)
-
-- Nunca confiar em preço do front — recálculo server-side sempre.
-- Webhook Mercado Pago valida assinatura + consulta MP + idempotente.
-- Credenciais só em secrets (`add_secret`), nunca em código.
-- RLS estrita: cliente só vê o próprio; arquivos em bucket privado.
-- Numeração de pedido via sequência Postgres.
-- Nada de "simulado como real": sandbox de verdade nas duas integrações.
-
-## Secrets que vou pedir quando chegar a hora (não agora)
-
-- `MERCADOPAGO_ACCESS_TOKEN` (sandbox → depois live)
-- `MERCADOPAGO_WEBHOOK_SECRET`
-- `MELHORENVIO_CLIENT_ID`, `MELHORENVIO_CLIENT_SECRET`, `MELHORENVIO_SANDBOX=true`
-- `INTERNAL_SYSTEM_URL`, `INTERNAL_SYSTEM_TOKEN` (quando existir)
-
-## O que peço agora
-
-Responda às 6 perguntas acima (principalmente 1, 2, 3 e 6). Com isso aprovado, começo **imediatamente pela Fase 1 (auditoria)** e depois entrego a Fase 2 (migração de banco) para sua aprovação — sem tocar em nada que já funciona.
+Quer que eu use **Resend** como provedor (padrão recomendado, pede só `RESEND_API_KEY` e um domínio verificado) ou prefere outro?
