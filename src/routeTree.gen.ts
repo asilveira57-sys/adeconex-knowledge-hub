@@ -51,6 +51,7 @@ import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
+import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
 
@@ -273,6 +274,12 @@ const AuthenticatedAdminProdutosIndexRoute =
     path: '/produtos/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPedidosIndexRoute =
+  AuthenticatedAdminPedidosIndexRouteImport.update({
+    id: '/pedidos/',
+    path: '/pedidos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const ApiPublicWebhooksMercadopagoRoute =
   ApiPublicWebhooksMercadopagoRouteImport.update({
     id: '/api/public/webhooks/mercadopago',
@@ -329,6 +336,7 @@ export interface FileRoutesByFullPath {
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -370,6 +378,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRoutesById {
@@ -417,6 +426,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRouteTypes {
@@ -464,6 +474,7 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
+    | '/admin/pedidos/'
     | '/admin/produtos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -505,6 +516,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
+    | '/admin/pedidos'
     | '/admin/produtos'
   id:
     | '__root__'
@@ -551,6 +563,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/'
     | '/_authenticated/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
+    | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
   fileRoutesById: FileRoutesById
 }
@@ -879,6 +892,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/pedidos/': {
+      id: '/_authenticated/admin/pedidos/'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos/'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/webhooks/mercadopago': {
       id: '/api/public/webhooks/mercadopago'
       path: '/api/public/webhooks/mercadopago'
@@ -901,6 +921,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminProdutosIdRoute: typeof AuthenticatedAdminProdutosIdRoute
+  AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
 }
 
@@ -909,6 +930,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminProdutosIdRoute: AuthenticatedAdminProdutosIdRoute,
+  AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
 }
 
