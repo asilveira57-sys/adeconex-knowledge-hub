@@ -127,7 +127,7 @@ export const listAdminOrders = createServerFn({ method: "GET" })
       )
       .order("created_at", { ascending: false })
       .range(from, to);
-    if (data.status && data.status !== "all") q = q.eq("status", data.status);
+    if (data.status && data.status !== "all") q = q.eq("status", data.status as OrderStatus);
     if (data.search) q = q.ilike("order_number", `%${data.search}%`);
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
