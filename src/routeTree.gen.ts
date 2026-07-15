@@ -43,6 +43,7 @@ import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
 import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
@@ -225,6 +226,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
+  id: '/pedido/$id',
+  path: '/pedido/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedCheckoutRevisaoRoute =
   AuthenticatedCheckoutRevisaoRouteImport.update({
     id: '/revisao',
@@ -318,6 +324,7 @@ export interface FileRoutesByFullPath {
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
@@ -358,6 +365,7 @@ export interface FileRoutesByTo {
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
@@ -404,6 +412,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/checkout/frete'
     | '/checkout/pagamento'
     | '/checkout/revisao'
+    | '/pedido/$id'
     | '/admin/'
     | '/checkout/'
     | '/admin/produtos/$id'
@@ -490,6 +500,7 @@ export interface FileRouteTypes {
     | '/checkout/frete'
     | '/checkout/pagamento'
     | '/checkout/revisao'
+    | '/pedido/$id'
     | '/admin'
     | '/checkout'
     | '/admin/produtos/$id'
@@ -535,6 +546,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/frete'
     | '/_authenticated/checkout/pagamento'
     | '/_authenticated/checkout/revisao'
+    | '/_authenticated/pedido/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
     | '/_authenticated/admin/produtos/$id'
@@ -811,6 +823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/pedido/$id': {
+      id: '/_authenticated/pedido/$id'
+      path: '/pedido/$id'
+      fullPath: '/pedido/$id'
+      preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/checkout/revisao': {
       id: '/_authenticated/checkout/revisao'
       path: '/revisao'
@@ -921,12 +940,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
+  AuthenticatedPedidoIdRoute: typeof AuthenticatedPedidoIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
+  AuthenticatedPedidoIdRoute: AuthenticatedPedidoIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
