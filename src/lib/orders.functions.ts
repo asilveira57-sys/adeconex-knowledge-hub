@@ -218,7 +218,7 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!current) throw new Error("Pedido não encontrado");
 
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: Database["public"]["Tables"]["orders"]["Update"] = { status: data.status };
     if (data.status === "pago" && current.status !== "pago") patch.paid_at = new Date().toISOString();
     if (data.status === "enviado") patch.shipped_at = new Date().toISOString();
     if (data.status === "entregue") patch.delivered_at = new Date().toISOString();
