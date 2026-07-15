@@ -32,6 +32,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
+import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
+import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
+import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
@@ -47,6 +50,7 @@ import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
+import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -163,6 +167,21 @@ const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
   path: '/produto/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PagamentoRecusadoRoute = PagamentoRecusadoRouteImport.update({
+  id: '/pagamento/recusado',
+  path: '/pagamento/recusado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
+  id: '/pagamento/pendente',
+  path: '/pagamento/pendente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoAprovadoRoute = PagamentoAprovadoRouteImport.update({
+  id: '/pagamento/aprovado',
+  path: '/pagamento/aprovado',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FitaDeCetimImpressoraParaCetimRoute =
   FitaDeCetimImpressoraParaCetimRouteImport.update({
     id: '/impressora-para-cetim',
@@ -248,6 +267,12 @@ const AuthenticatedAdminProdutosIndexRoute =
     path: '/produtos/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicWebhooksMercadopagoRoute =
+  ApiPublicWebhooksMercadopagoRouteImport.update({
+    id: '/api/public/webhooks/mercadopago',
+    path: '/api/public/webhooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminProdutosIdRoute =
   AuthenticatedAdminProdutosIdRouteImport.update({
     id: '/produtos/$id',
@@ -281,6 +306,9 @@ export interface FileRoutesByFullPath {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/pagamento/aprovado': typeof PagamentoAprovadoRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -293,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -317,6 +346,9 @@ export interface FileRoutesByTo {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/pagamento/aprovado': typeof PagamentoAprovadoRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes': typeof BrindesIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
@@ -329,6 +361,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRoutesById {
@@ -359,6 +392,9 @@ export interface FileRoutesById {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
+  '/pagamento/aprovado': typeof PagamentoAprovadoRoute
+  '/pagamento/pendente': typeof PagamentoPendenteRoute
+  '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -371,6 +407,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
 }
 export interface FileRouteTypes {
@@ -401,6 +438,9 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/pagamento/aprovado'
+    | '/pagamento/pendente'
+    | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
     | '/fita-de-cetim/'
@@ -413,6 +453,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/checkout/'
     | '/admin/produtos/$id'
+    | '/api/public/webhooks/mercadopago'
     | '/admin/produtos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -437,6 +478,9 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/pagamento/aprovado'
+    | '/pagamento/pendente'
+    | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes'
     | '/fita-de-cetim'
@@ -449,6 +493,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/admin/produtos/$id'
+    | '/api/public/webhooks/mercadopago'
     | '/admin/produtos'
   id:
     | '__root__'
@@ -478,6 +523,9 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/fita-de-cetim/impressora-para-cetim'
+    | '/pagamento/aprovado'
+    | '/pagamento/pendente'
+    | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
     | '/fita-de-cetim/'
@@ -490,6 +538,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
     | '/_authenticated/admin/produtos/$id'
+    | '/api/public/webhooks/mercadopago'
     | '/_authenticated/admin/produtos/'
   fileRoutesById: FileRoutesById
 }
@@ -515,7 +564,11 @@ export interface RootRouteChildren {
   RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
+  PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
+  PagamentoPendenteRoute: typeof PagamentoPendenteRoute
+  PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
+  ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -681,6 +734,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProdutoSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pagamento/recusado': {
+      id: '/pagamento/recusado'
+      path: '/pagamento/recusado'
+      fullPath: '/pagamento/recusado'
+      preLoaderRoute: typeof PagamentoRecusadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/pendente': {
+      id: '/pagamento/pendente'
+      path: '/pagamento/pendente'
+      fullPath: '/pagamento/pendente'
+      preLoaderRoute: typeof PagamentoPendenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/aprovado': {
+      id: '/pagamento/aprovado'
+      path: '/pagamento/aprovado'
+      fullPath: '/pagamento/aprovado'
+      preLoaderRoute: typeof PagamentoAprovadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fita-de-cetim/impressora-para-cetim': {
       id: '/fita-de-cetim/impressora-para-cetim'
       path: '/impressora-para-cetim'
@@ -785,6 +859,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/produtos/'
       preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/webhooks/mercadopago': {
+      id: '/api/public/webhooks/mercadopago'
+      path: '/api/public/webhooks/mercadopago'
+      fullPath: '/api/public/webhooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/produtos/$id': {
       id: '/_authenticated/admin/produtos/$id'
@@ -901,18 +982,12 @@ const rootRouteChildren: RootRouteChildren = {
   RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
+  PagamentoAprovadoRoute: PagamentoAprovadoRoute,
+  PagamentoPendenteRoute: PagamentoPendenteRoute,
+  PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
+  ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
