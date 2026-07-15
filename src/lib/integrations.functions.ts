@@ -38,5 +38,9 @@ export const resendOrderIntegration = createServerFn({ method: "POST" })
     await assertStaff(context);
     const { sendOrderToInternal } = await import("@/lib/integrations.server");
     const result = await sendOrderToInternal(data.orderId);
-    return result;
+    return {
+      ok: result.ok,
+      status: result.status ?? null,
+      error: result.ok ? null : result.error,
+    };
   });

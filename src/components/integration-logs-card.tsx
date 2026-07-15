@@ -21,9 +21,9 @@ export function IntegrationLogsCard({ orderId }: { orderId: string }) {
 
   const resend = useMutation({
     mutationFn: () => resendOrderIntegration({ data: { orderId } }),
-    onSuccess: (r) => {
+    onSuccess: (r: { ok: boolean; error: string | null }) => {
       if (r.ok) toast.success("Pedido reenviado com sucesso");
-      else toast.error(`Falha ao reenviar: ${r.error}`);
+      else toast.error(`Falha ao reenviar: ${r.error ?? "erro desconhecido"}`);
       qc.invalidateQueries({ queryKey: ["integration-logs", orderId] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
