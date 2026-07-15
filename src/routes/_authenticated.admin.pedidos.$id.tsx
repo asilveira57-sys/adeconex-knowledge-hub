@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { OrderFilesCard } from "@/components/order-files-card";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$id")({
   component: AdminPedidoDetail,
