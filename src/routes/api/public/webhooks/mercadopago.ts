@@ -216,6 +216,15 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
               to_status: nextOrderStatus as any,
               comment: `Mercado Pago: ${paymentStatus}`,
             });
+            // Fase 11: dispara integração com sistema interno quando confirmar
+            if (nextOrderStatus === "pago") {
+              try {
+                const { sendOrderToInternal } = await import("@/lib/integrations.server");
+                await sendOrderToInternal(orderId);
+              } catch (e) {
+                console.error("[mp-webhook] integração interna falhou", e);
+              }
+            }
           }
         }
 
