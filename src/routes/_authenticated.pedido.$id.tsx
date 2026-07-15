@@ -125,6 +125,8 @@ function PedidoPage() {
               </ol>
             </CardContent>
           </Card>
+
+          <OrderFilesCard orderId={order.id} staff={false} />
         </div>
 
         <div className="space-y-6">
