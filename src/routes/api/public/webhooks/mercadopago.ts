@@ -209,7 +209,7 @@ export const Route = createFileRoute("/api/public/webhooks/mercadopago")({
             if (nextOrderStatus === "pago") patch.paid_at = new Date().toISOString();
             if (nextOrderStatus === "cancelado")
               patch.cancelled_at = new Date().toISOString();
-            await supabaseAdmin.from("orders").update(patch).eq("id", orderId);
+            await supabaseAdmin.from("orders").update(patch as any).eq("id", orderId);
             await supabaseAdmin.from("order_status_history").insert({
               order_id: orderId,
               from_status: order.status as any,

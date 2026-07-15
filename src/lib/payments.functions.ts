@@ -86,7 +86,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     const { data: addr } = await supabase
       .from("customer_addresses")
       .select(
-        "id, label, recipient_name, recipient_document, zip, street, number, complement, district, city, state, country, phone",
+        "id, label, recipient_name, recipient_document, zip, street, number, complement, district, city, state, country",
       )
       .eq("id", data.address_id)
       .eq("user_id", context.userId)
@@ -255,7 +255,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
       city: addr.city,
       state: addr.state,
       country: addr.country ?? "BR",
-      phone: addr.phone ?? null,
+      phone: null,
     });
     if (addrErr) throw new Error(addrErr.message);
 
@@ -335,7 +335,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     });
 
     // 11) Fecha carrinho
-    await supabase.from("carts").update({ status: "checked_out" }).eq("id", cart.id);
+    await supabase.from("carts").update({ status: "converted" }).eq("id", cart.id);
 
     return {
       order_id: order.id,
