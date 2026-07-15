@@ -32,6 +32,7 @@ import {
   onlyDigits,
   fetchViaCep,
 } from "@/lib/account.validation";
+import { listMyOrders, ORDER_STATUS_LABEL } from "@/lib/orders.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -697,16 +698,69 @@ function AddressDialog({
 }
 
 // ============================================================
-// PEDIDOS — placeholder até Fase 8/9
+// PEDIDOS
 // ============================================================
 function PedidosTab() {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["orders", "me", "list"],
+    queryFn: () => listMyOrders(),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (isError) {
+    return <p className="text-sm text-destructive">{error instanceof Error ? error.message : "Erro"}</p>;
+  }
+  const orders = data?.orders ?? [];
+  if (orders.length === 0) {
+    return (
+      <EmptyState
+        icon={Package}
+        title="Você ainda não tem pedidos"
+        description="Quando o checkout for concluído, seus pedidos e o histórico aparecerão aqui."
+        action={<Link to="/catalogo"><Button variant="outline">Ver catálogo</Button></Link>}
+      />
+    );
+  }
+
+  const brl = (n: number | string) =>
+    new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(n) || 0);
+
+  const tone = (s: string): "default" | "destructive" | "secondary" | "outline" => {
+    if (s === "pago" || s === "entregue" || s === "arte_aprovada") return "default";
+    if (s === "cancelado" || s === "estornado") return "destructive";
+    if (s === "enviado" || s === "em_producao" || s === "em_preparacao") return "secondary";
+    return "outline";
+  };
+
   return (
-    <EmptyState
-      icon={Package}
-      title="Você ainda não tem pedidos"
-      description="Quando o checkout for concluído, seus pedidos e o histórico aparecerão aqui."
-      action={<Link to="/catalogo"><Button variant="outline">Ver catálogo</Button></Link>}
-    />
+    <div className="space-y-2">
+      {orders.map((o: (typeof orders)[number]) => (
+        <Link
+          key={o.id}
+          to="/pedido/$id"
+          params={{ id: o.id }}
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary"
+        >
+          <div className="min-w-0">
+            <p className="font-medium">{o.order_number}</p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(o.created_at).toLocaleDateString("pt-BR", { dateStyle: "short" })}
+              {o.shipping_carrier ? ` · ${o.shipping_carrier}` : ""}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge variant={tone(o.status)}>{ORDER_STATUS_LABEL[o.status]}</Badge>
+            <span className="tabular-nums font-medium">{brl(o.total)}</span>
+          </div>
+        </Link>
+      ))}
+    </div>
   );
 }
 
