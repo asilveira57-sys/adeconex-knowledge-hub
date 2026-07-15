@@ -162,6 +162,8 @@ function AdminPedidoDetail() {
               </ol>
             </CardContent>
           </Card>
+
+          <OrderFilesCard orderId={order.id} staff={true} />
         </div>
 
         <div className="space-y-6">
