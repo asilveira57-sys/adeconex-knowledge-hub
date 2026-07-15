@@ -740,7 +740,7 @@ function PedidosTab() {
 
   return (
     <div className="space-y-2">
-      {orders.map((o) => (
+      {orders.map((o: (typeof orders)[number]) => (
         <Link
           key={o.id}
           to="/pedido/$id"
