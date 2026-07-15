@@ -22,6 +22,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { OrderFilesCard } from "@/components/order-files-card";
+import { IntegrationLogsCard } from "@/components/integration-logs-card";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$id")({
   component: AdminPedidoDetail,
@@ -214,6 +215,8 @@ function AdminPedidoDetail() {
               ) : <p className="text-muted-foreground">Sem pagamento registrado.</p>}
             </CardContent>
           </Card>
+
+          <IntegrationLogsCard orderId={order.id} />
 
           <Card>
             <CardHeader><CardTitle className="text-base">Anotações internas</CardTitle></CardHeader>
