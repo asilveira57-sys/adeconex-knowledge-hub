@@ -21,7 +21,7 @@ function money(v: number) {
 
 function CartPage() {
   const { user } = useSession();
-  const { snapshot, updateQty, remove, loading, isAuthenticated } = useCart();
+  const { snapshot, updateQty, remove, loading } = useCart();
 
   const isEmpty = snapshot.items.length === 0;
 
@@ -103,20 +103,12 @@ function CartPage() {
                       max={line.max_stock ?? undefined}
                     />
                     <div className="text-right">
-                      {isAuthenticated ? (
-                        <>
-                          <div className="text-xs text-muted-foreground">
-                            {money(line.unit_price)} un.
-                          </div>
-                          <div className="font-display text-lg font-semibold tabular-nums">
-                            {money(line.line_total)}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="text-xs text-muted-foreground">
-                          Entre para ver o preço
-                        </div>
-                      )}
+                      <div className="text-xs text-muted-foreground">
+                        {money(line.unit_price)} un.
+                      </div>
+                      <div className="font-display text-lg font-semibold tabular-nums">
+                        {money(line.line_total)}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -129,23 +121,21 @@ function CartPage() {
               <h2 className="font-display text-lg font-semibold">Resumo</h2>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums font-medium">
-                  {isAuthenticated ? money(snapshot.subtotal) : "—"}
-                </span>
+                <span className="tabular-nums font-medium">{money(snapshot.subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Frete</span>
                 <span className="text-muted-foreground">Calculado no checkout</span>
               </div>
               <div className="border-t hairline pt-4">
-                {isAuthenticated ? (
+                {user ? (
                   <Button asChild className="w-full" size="lg">
                     <Link to="/checkout/endereco">Finalizar compra</Link>
                   </Button>
                 ) : (
                   <div className="space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      Para ver preços e finalizar a compra, entre na sua conta.
+                        Para finalizar a compra, entre na sua conta.
                     </p>
                     <Button asChild className="w-full" size="lg">
                       <Link
