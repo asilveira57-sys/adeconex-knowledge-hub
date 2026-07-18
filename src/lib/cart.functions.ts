@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
@@ -379,4 +380,101 @@ export const mergeAnonymousCart = createServerFn({ method: "POST" })
       }
     }
     return { merged };
+  });
+
+// ---------- PUBLIC HYDRATE (anonymous carts) ----------
+export const hydrateAnonymousCart = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        items: z
+          .array(
+            z.object({
+              product_id: z.string().uuid(),
+              variant_id: z.string().uuid().nullable().optional(),
+              quantity: z.number().int().min(1).max(9999),
+            }),
+          )
+          .max(200),
+      })
+      .parse(data),
+  )
+  .handler(async ({ data }): Promise<CartSnapshot> => {
+    if (data.items.length === 0) {
+      return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
+    }
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+    );
+    const productIds = Array.from(new Set(data.items.map((i) => i.product_id)));
+    const variantIds = Array.from(
+      new Set(data.items.map((i) => i.variant_id).filter(Boolean) as string[]),
+    );
+
+    const [{ data: prods }, { data: imgs }, { data: variants }] = await Promise.all([
+      supabase
+        .from("products")
+        .select("id, name, slug, sku, price, promotional_price, stock_quantity")
+        .in("id", productIds),
+      supabase
+        .from("product_images")
+        .select("product_id, storage_path, source_url, is_main, position")
+        .in("product_id", productIds)
+        .order("is_main", { ascending: false })
+        .order("position", { ascending: true }),
+      variantIds.length
+        ? supabase
+            .from("product_variants")
+            .select(
+              "id, sku, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+            )
+            .in("id", variantIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+    const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
+    const productMap = new Map<string, any>((prods ?? []).map((p: any) => [p.id, p]));
+    const imgMap = new Map<string, string | null>();
+    for (const img of imgs ?? []) {
+      if (!imgMap.has(img.product_id)) {
+        imgMap.set(img.product_id, publicUrl(base, img.storage_path) ?? img.source_url ?? null);
+      }
+    }
+    const variantMap = new Map<string, any>((variants ?? []).map((v: any) => [v.id, v]));
+
+    const lines: CartLine[] = data.items.map((i, idx) => {
+      const p = productMap.get(i.product_id);
+      const v = i.variant_id ? variantMap.get(i.variant_id) : null;
+      const variant_label = v
+        ? [
+            v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+            v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+          ]
+            .filter(Boolean)
+            .join(" · ") || null
+        : null;
+      const unit = Number(
+        v?.promotional_price ?? v?.price ?? p?.promotional_price ?? p?.price ?? 0,
+      );
+      return {
+        item_id: `local-${idx}-${i.product_id}-${i.variant_id ?? "0"}`,
+        product_id: i.product_id,
+        variant_id: i.variant_id ?? null,
+        product_name: p?.name ?? "Produto",
+        product_slug: p?.slug ?? "",
+        variant_label,
+        sku: v?.sku ?? p?.sku ?? null,
+        unit_price: unit,
+        quantity: i.quantity,
+        line_total: Number((unit * i.quantity).toFixed(2)),
+        image_url: imgMap.get(i.product_id) ?? null,
+        max_stock: v?.stock_quantity ?? p?.stock_quantity ?? null,
+      };
+    });
+
+    const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
+    const item_count = lines.reduce((s, l) => s + l.quantity, 0);
+    return { cart_id: null, currency: "BRL", items: lines, subtotal, item_count };
   });

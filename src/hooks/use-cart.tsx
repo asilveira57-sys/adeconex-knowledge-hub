@@ -6,6 +6,7 @@ import { useSession } from "@/hooks/use-session";
 import {
   addToCart,
   getMyCart,
+  hydrateAnonymousCart,
   mergeAnonymousCart,
   removeCartItem,
   updateCartItem,
@@ -41,6 +42,7 @@ export function useCart() {
   const localItems = useLocalCart();
 
   const fetchCart = useServerFn(getMyCart);
+  const hydrateFn = useServerFn(hydrateAnonymousCart);
   const addFn = useServerFn(addToCart);
   const updateFn = useServerFn(updateCartItem);
   const removeFn = useServerFn(removeCartItem);
@@ -51,6 +53,14 @@ export function useCart() {
     queryFn: () => fetchCart(),
     enabled: !!user && ready,
     staleTime: 15_000,
+  });
+
+  const anonKey = JSON.stringify(localItems);
+  const anonQuery = useQuery({
+    queryKey: ["cart", "anon", anonKey],
+    queryFn: () => hydrateFn({ data: { items: localItems } }),
+    enabled: !user && ready && localItems.length > 0,
+    staleTime: 30_000,
   });
 
   // Merge anonymous cart when the user signs in.
@@ -73,7 +83,7 @@ export function useCart() {
 
   const snapshot: CartSnapshot = user
     ? serverQuery.data ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }
-    : buildLocalSnapshot(localItems);
+    : anonQuery.data ?? buildLocalSnapshot(localItems);
 
   const add = useMutation({
     mutationFn: async (input: { product_id: string; variant_id: string | null; quantity: number }) => {
