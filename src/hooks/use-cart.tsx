@@ -6,6 +6,7 @@ import { useSession } from "@/hooks/use-session";
 import {
   addToCart,
   getMyCart,
+  hydrateAnonymousCart,
   mergeAnonymousCart,
   removeCartItem,
   updateCartItem,
