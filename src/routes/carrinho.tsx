@@ -128,7 +128,7 @@ function CartPage() {
                 <span className="text-muted-foreground">Calculado no checkout</span>
               </div>
               <div className="border-t hairline pt-4">
-                {isAuthenticated ? (
+                {user ? (
                   <Button asChild className="w-full" size="lg">
                     <Link to="/checkout/endereco">Finalizar compra</Link>
                   </Button>
