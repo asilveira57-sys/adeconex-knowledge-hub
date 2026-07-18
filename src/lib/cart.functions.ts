@@ -403,11 +403,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     if (data.items.length === 0) {
       return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
     }
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-    );
+    const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
     const productIds = Array.from(new Set(data.items.map((i) => i.product_id)));
     const variantIds = Array.from(
       new Set(data.items.map((i) => i.variant_id).filter(Boolean) as string[]),
