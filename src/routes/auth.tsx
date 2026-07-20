@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,18 @@ function AuthPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const destination = search.redirect?.startsWith("/") ? search.redirect : "/admin";
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      const storedDestination = typeof window !== "undefined" ? window.sessionStorage.getItem("adeconex-auth-redirect") : null;
+      if (mounted && data.session) {
+        if (storedDestination) window.sessionStorage.removeItem("adeconex-auth-redirect");
+        navigate({ to: (storedDestination || destination) as never, replace: true });
+      }
+    });
+    return () => { mounted = false; };
+  }, [destination, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
