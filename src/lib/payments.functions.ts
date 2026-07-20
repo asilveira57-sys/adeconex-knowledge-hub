@@ -73,6 +73,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         shipping_option: z.enum(["pickup", "quote_later", "carrier"]),
         shipping_quote_id: z.string().uuid().nullable().optional(),
         customer_notes: z.string().max(1000).optional(),
+        origin: z.string().url().optional(),
       })
       .parse(data),
   )
@@ -268,10 +269,24 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     });
 
     // 9) Cria preference no Mercado Pago
-    const origin =
-      (process.env.SITE_URL ?? process.env.PUBLIC_SITE_URL ?? "https://adeconex.com.br").replace(/\/$/, "");
+    const rawOrigin =
+      data.origin ??
+      process.env.SITE_URL ??
+      process.env.PUBLIC_SITE_URL ??
+      "https://adeconex.com.br";
+    const origin = rawOrigin.replace(/\/$/, "");
+    // Mercado Pago rejeita back_urls apontando para localhost / 127.0.0.1
+    // Nesse caso ficamos sem back_urls e sem auto_return (MP mostra o botão "Voltar ao site" desativado, mas cria a preferência).
+    const isLocal = /^https?:\/\/(localhost|127\.0\.0\.1)/i.test(origin);
+    const backUrls = isLocal
+      ? undefined
+      : {
+          success: `${origin}/pagamento/aprovado?order_id=${order.id}`,
+          pending: `${origin}/pagamento/pendente?order_id=${order.id}`,
+          failure: `${origin}/pagamento/recusado?order_id=${order.id}`,
+        };
 
-    const prefBody = {
+    const prefBody: Record<string, unknown> = {
       items: [
         ...items.map((i) => ({
           id: i.product_id,
@@ -294,12 +309,6 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
       ],
       external_reference: order.id,
       statement_descriptor: "ADECONEX",
-      back_urls: {
-        success: `${origin}/pagamento/aprovado?order_id=${order.id}`,
-        pending: `${origin}/pagamento/pendente?order_id=${order.id}`,
-        failure: `${origin}/pagamento/recusado?order_id=${order.id}`,
-      },
-      auto_return: "approved",
       notification_url: `${origin}/api/public/webhooks/mercadopago`,
       metadata: {
         order_id: order.id,
@@ -307,6 +316,10 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         user_id: context.userId,
       },
     };
+    if (backUrls) {
+      prefBody.back_urls = backUrls;
+      prefBody.auto_return = "approved";
+    }
 
     const prefRes = await fetch(`${MP_API}/checkout/preferences`, {
       method: "POST",
@@ -318,9 +331,12 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     });
     const prefJson: any = await prefRes.json().catch(() => ({}));
     if (!prefRes.ok || !prefJson?.id) {
-      throw new Error(
-        `Mercado Pago ${prefRes.status}: ${prefJson?.message ?? "falha ao criar preferência"}`,
-      );
+      const detail =
+        prefJson?.message ??
+        prefJson?.error ??
+        (prefJson?.cause && JSON.stringify(prefJson.cause)) ??
+        "falha ao criar preferência";
+      throw new Error(`Mercado Pago ${prefRes.status}: ${detail}`);
     }
 
     // 10) Grava payment (pending)
