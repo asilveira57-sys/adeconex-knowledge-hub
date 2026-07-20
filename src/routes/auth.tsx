@@ -1,11 +1,15 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Entrar — Adeconex 2030" },
@@ -17,12 +21,28 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  const destination = search.redirect?.startsWith("/") ? search.redirect : "/admin";
+
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      const storedDestination = typeof window !== "undefined" ? window.sessionStorage.getItem("adeconex-auth-redirect") : null;
+      if (mounted && data.session) {
+        if (storedDestination) window.sessionStorage.removeItem("adeconex-auth-redirect");
+        navigate({ to: (storedDestination || destination) as never, replace: true });
+      }
+    });
+    return () => { mounted = false; };
+  }, [destination, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +51,11 @@ function AuthPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/admin" });
+        navigate({ to: destination as never });
       } else {
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
+          options: { emailRedirectTo: `${window.location.origin}/auth?redirect=${encodeURIComponent(destination)}` },
         });
         if (error) throw error;
         setNotice("Conta criada. Verifique seu e-mail para confirmar (se aplicável) e faça login.");
@@ -44,6 +64,24 @@ function AuthPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao autenticar");
     } finally { setLoading(false); }
+  };
+
+  const signInWithGoogle = async () => {
+    setGoogleLoading(true); setError(null); setNotice(null);
+    try {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("adeconex-auth-redirect", destination);
+      }
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: `${window.location.origin}/auth?redirect=${encodeURIComponent(destination)}`,
+        extraParams: { prompt: "select_account" },
+      });
+      if (result.error) throw result.error;
+      if (result.redirected) return;
+      navigate({ to: destination as never });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao entrar com Google");
+    } finally { setGoogleLoading(false); }
   };
 
   return (
@@ -73,6 +111,15 @@ function AuthPage() {
             {loading ? "Aguarde..." : mode === "signin" ? "Entrar" : "Criar conta"}
           </Button>
         </form>
+        <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="h-px flex-1 bg-border" />
+          <span>ou</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <Button type="button" variant="outline" className="w-full" disabled={googleLoading} onClick={signInWithGoogle}>
+          <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">G</span>
+          {googleLoading ? "Conectando..." : "Entrar com Google"}
+        </Button>
         <div className="mt-4 text-center text-sm">
           <button
             type="button"
