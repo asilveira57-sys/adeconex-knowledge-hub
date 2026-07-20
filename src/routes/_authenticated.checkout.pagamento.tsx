@@ -46,6 +46,7 @@ function PagamentoStep() {
           shipping_option: selection.shipping_option!,
           shipping_quote_id: selection.shipping_snapshot?.quote_id ?? null,
           customer_notes: notes,
+          origin: typeof window !== "undefined" ? window.location.origin : undefined,
         },
       }),
     onSuccess: (res) => {
@@ -55,7 +56,9 @@ function PagamentoStep() {
       window.location.href = target;
     },
     onError: (err: any) => {
-      toast.error(err?.message ?? "Não foi possível iniciar o pagamento");
+      const msg = err?.message ?? "Não foi possível iniciar o pagamento";
+      console.error("[checkout] createOrderAndPreference failed:", err);
+      toast.error(msg, { duration: 8000 });
     },
   });
 
