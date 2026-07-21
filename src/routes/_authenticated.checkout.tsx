@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Check, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/use-cart";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({
@@ -25,13 +26,14 @@ function CheckoutLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { snapshot, loading } = useCart();
+  const { ready } = useSession();
 
   // Redirect to cart when there's nothing to check out.
   useEffect(() => {
-    if (!loading && snapshot.items.length === 0) {
+    if (ready && !loading && snapshot.items.length === 0) {
       navigate({ to: "/carrinho" });
     }
-  }, [loading, snapshot.items.length, navigate]);
+  }, [ready, loading, snapshot.items.length, navigate]);
 
   const currentIdx = Math.max(
     0,
