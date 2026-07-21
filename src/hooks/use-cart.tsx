@@ -129,7 +129,7 @@ export function useCart() {
 
   return {
     snapshot,
-    loading: !ready || (user ? serverQuery.isLoading : localItems.length > 0 && anonQuery.isLoading),
+    loading: user ? serverQuery.isLoading : ready && localItems.length > 0 && anonQuery.isLoading,
     add,
     updateQty,
     remove,
