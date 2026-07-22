@@ -185,7 +185,7 @@ export const getProductPreview = createServerFn({ method: "GET" })
     const { data: product, error } = await context.supabase
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at",
+        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at, weight_kg, width_mm, height_mm, length_mm",
       )
       .eq("id", data.productId)
       .maybeSingle();
