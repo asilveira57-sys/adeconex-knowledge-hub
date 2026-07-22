@@ -181,6 +181,9 @@ function PreviewPage() {
             </Card>
           )}
 
+          <DimensionsCard product={product} />
+
+
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">SEO</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
