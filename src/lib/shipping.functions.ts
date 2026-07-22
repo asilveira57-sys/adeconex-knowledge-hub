@@ -83,7 +83,12 @@ async function loadCartForQuote(supabase: any, userId: string) {
   const products = items.map((r: any) => {
     const p = productMap.get(r.product_id) ?? {};
     const v = r.variant_id ? variantMap.get(r.variant_id) ?? {} : {};
-    const weight_kg = Number(v.weight_kg ?? p.weight_kg ?? DEFAULT_DIMENSIONS.weight);
+    let weight_kg = Number(v.weight_kg ?? p.weight_kg ?? DEFAULT_DIMENSIONS.weight);
+    // Heuristic: some products have weight stored in grams (e.g. 500 = 500g).
+    // Anything above 30kg per unit is almost certainly grams for our catalog.
+    if (weight_kg > 30) weight_kg = weight_kg / 1000;
+    // Cap per-unit weight so a single line can't blow past carrier limits.
+    weight_kg = Math.min(weight_kg, 30);
     const width = Number(v.width_mm ?? p.width_mm ?? 0) / 10 || DEFAULT_DIMENSIONS.width;
     const height = Number(v.height_mm ?? p.height_mm ?? 0) / 10 || DEFAULT_DIMENSIONS.height;
     const length = Number(v.length_mm ?? p.length_mm ?? 0) / 10 || DEFAULT_DIMENSIONS.length;
