@@ -1,14 +1,17 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
+import { updateProductDimensions } from "@/lib/admin.functions";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, ExternalLink, ImageOff, Sparkles } from "lucide-react";
+import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const previewOptions = productPreviewOptions;
 
@@ -178,6 +181,9 @@ function PreviewPage() {
             </Card>
           )}
 
+          <DimensionsCard product={product} />
+
+
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">SEO</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
@@ -190,5 +196,93 @@ function PreviewPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+type ProductDims = {
+  id: string;
+  weight_kg: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  length_mm: number | null;
+};
+
+function DimensionsCard({ product }: { product: ProductDims }) {
+  const update = useServerFn(updateProductDimensions);
+  const qc = useQueryClient();
+  const [form, setForm] = useState({
+    weight_kg: product.weight_kg != null ? String(product.weight_kg) : "",
+    width_mm: product.width_mm != null ? String(product.width_mm) : "",
+    height_mm: product.height_mm != null ? String(product.height_mm) : "",
+    length_mm: product.length_mm != null ? String(product.length_mm) : "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  function parseNum(v: string): number | null {
+    if (v.trim() === "") return null;
+    const n = Number(v.replace(",", "."));
+    return Number.isFinite(n) ? n : null;
+  }
+
+  async function onSave() {
+    setSaving(true);
+    try {
+      await update({
+        data: {
+          productId: product.id,
+          weight_kg: parseNum(form.weight_kg),
+          width_mm: parseNum(form.width_mm),
+          height_mm: parseNum(form.height_mm),
+          length_mm: parseNum(form.length_mm),
+        },
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "product-preview", product.id] });
+      toast.success("Dimensões atualizadas");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const Field = ({ label, unit, k }: { label: string; unit: string; k: keyof typeof form }) => (
+    <label className="block">
+      <span className="text-xs uppercase text-muted-foreground">{label} ({unit})</span>
+      <input
+        type="number"
+        inputMode="decimal"
+        step="0.01"
+        min="0"
+        value={form[k]}
+        onChange={(e) => setForm((s) => ({ ...s, [k]: e.target.value }))}
+        className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
+        placeholder="—"
+      />
+    </label>
+  );
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Package className="h-4 w-4" /> Dimensões e peso (para cotação de frete)
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Field label="Peso" unit="kg" k="weight_kg" />
+          <Field label="Largura" unit="mm" k="width_mm" />
+          <Field label="Altura" unit="mm" k="height_mm" />
+          <Field label="Comprimento" unit="mm" k="length_mm" />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Use kg reais (ex.: 0.5 = 500 g) e milímetros da embalagem. Estes valores são enviados ao Melhor Envio.
+        </p>
+        <Button size="sm" onClick={onSave} disabled={saving}>
+          {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+          Salvar dimensões
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
