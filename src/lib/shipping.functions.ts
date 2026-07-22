@@ -170,7 +170,24 @@ export const quoteShipping = createServerFn({ method: "POST" })
     const valid = services.filter(
       (s) => !s.error && (s.price ?? s.custom_price) != null,
     );
-    if (valid.length === 0) return [];
+
+    if (valid.length === 0) {
+      const reasons = services
+        .filter((s) => s.error)
+        .map((s) => `${s.company?.name ?? s.name}: ${s.error}`);
+      console.error("[Melhor Envio] Nenhuma cotação válida", {
+        origin,
+        destination,
+        totalServices: services.length,
+        reasons,
+      });
+      if (reasons.length > 0) {
+        throw new Error(
+          `Nenhuma transportadora retornou preço. ${reasons.slice(0, 3).join(" | ")}`,
+        );
+      }
+      return [];
+    }
 
     const expires_at = new Date(Date.now() + QUOTE_TTL_MINUTES * 60_000).toISOString();
 
