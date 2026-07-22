@@ -130,6 +130,32 @@ export const updateProductStatus = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const dimsInput = z.object({
+  productId: z.string().uuid(),
+  weight_kg: z.number().min(0).max(200).nullable(),
+  width_mm: z.number().min(0).max(5000).nullable(),
+  height_mm: z.number().min(0).max(5000).nullable(),
+  length_mm: z.number().min(0).max(5000).nullable(),
+});
+
+export const updateProductDimensions = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => dimsInput.parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { error } = await context.supabase
+      .from("products")
+      .update({
+        weight_kg: data.weight_kg,
+        width_mm: data.width_mm,
+        height_mm: data.height_mm,
+        length_mm: data.length_mm,
+      })
+      .eq("id", data.productId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 const bulkInput = z.object({
   productIds: z.array(z.string().uuid()).min(1).max(500),
