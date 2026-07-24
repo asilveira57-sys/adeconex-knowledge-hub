@@ -12,6 +12,7 @@ import {
 import { formatCommercialHtml } from "@/lib/format-commercial";
 import { BASE_URL, absoluteUrl } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
+import { ShippingCepQuote } from "@/components/shipping-cep-quote";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
