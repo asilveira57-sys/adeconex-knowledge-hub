@@ -12,6 +12,7 @@ import {
 import { formatCommercialHtml } from "@/lib/format-commercial";
 import { BASE_URL, absoluteUrl } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
+import { ShippingCepQuote } from "@/components/shipping-cep-quote";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -442,6 +443,12 @@ function ProductPage() {
                   </Button>
                 </div>
               )}
+
+              <ShippingCepQuote
+                productId={p.id}
+                variantId={selectedVariant?.id ?? null}
+                quantity={qty}
+              />
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="lg" className="flex-1">
