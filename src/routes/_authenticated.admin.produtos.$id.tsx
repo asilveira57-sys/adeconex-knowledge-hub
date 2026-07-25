@@ -189,6 +189,14 @@ function PreviewPage() {
 
           <DimensionsCard product={product} />
 
+          <KitsCard
+            productId={product.id}
+            sellsByKit={!!(product as any).sells_by_kit}
+            kits={kits ?? []}
+          />
+
+
+
 
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">SEO</CardTitle></CardHeader>
