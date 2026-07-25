@@ -211,14 +211,14 @@ export const getProductPreview = createServerFn({ method: "GET" })
     const { data: product, error } = await context.supabase
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at, weight_kg, width_mm, height_mm, length_mm",
+        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at, weight_kg, width_mm, height_mm, length_mm, sells_by_kit",
       )
       .eq("id", data.productId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!product) throw new Error("Produto não encontrado");
 
-    const [{ data: images }, { data: faqs }, { data: cats }] = await Promise.all([
+    const [{ data: images }, { data: faqs }, { data: cats }, { data: kits }] = await Promise.all([
       context.supabase
         .from("product_images")
         .select("id, source_url, storage_path, is_main, position, alt_text")
@@ -233,6 +233,14 @@ export const getProductPreview = createServerFn({ method: "GET" })
         .from("product_categories")
         .select("category:categories(id, name, slug)")
         .eq("product_id", data.productId),
+      context.supabase
+        .from("product_variants")
+        .select(
+          "id, name, sku, units_per_pack, price, promotional_price, stock_mode, stock_quantity, weight_kg, width_mm, height_mm, length_mm, is_active, sort_order",
+        )
+        .eq("product_id", data.productId)
+        .eq("is_kit", true)
+        .order("sort_order"),
     ]);
 
     return {
@@ -240,6 +248,98 @@ export const getProductPreview = createServerFn({ method: "GET" })
       images: images ?? [],
       faqs: faqs ?? [],
       categories: (cats ?? []).map((r: { category: { id: string; name: string; slug: string } | null }) => r.category).filter(Boolean),
+      kits: kits ?? [],
     };
   });
+
+export const setSellsByKit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z.object({ productId: z.string().uuid(), sells_by_kit: z.boolean() }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { error } = await context.supabase
+      .from("products")
+      .update({ sells_by_kit: data.sells_by_kit })
+      .eq("id", data.productId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+const kitInput = z.object({
+  id: z.string().uuid().optional(),
+  productId: z.string().uuid(),
+  name: z.string().min(1).max(120),
+  sku: z.string().max(80).nullable().optional(),
+  units_per_pack: z.number().int().min(1).max(100000),
+  price: z.number().min(0).nullable(),
+  promotional_price: z.number().min(0).nullable().optional(),
+  stock_mode: z.enum(["own", "derived"]),
+  stock_quantity: z.number().int().min(0).nullable().optional(),
+  weight_kg: z.number().min(0).max(200).nullable().optional(),
+  width_mm: z.number().min(0).max(5000).nullable().optional(),
+  height_mm: z.number().min(0).max(5000).nullable().optional(),
+  length_mm: z.number().min(0).max(5000).nullable().optional(),
+  sort_order: z.number().int().min(0).max(9999).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export const upsertProductKit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => kitInput.parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const row = {
+      product_id: data.productId,
+      name: data.name,
+      sku: data.sku ?? null,
+      units_per_pack: data.units_per_pack,
+      price: data.price,
+      promotional_price: data.promotional_price ?? null,
+      stock_mode: data.stock_mode,
+      stock_quantity: data.stock_mode === "own" ? (data.stock_quantity ?? 0) : null,
+      weight_kg: data.weight_kg ?? null,
+      width_mm: data.width_mm ?? null,
+      height_mm: data.height_mm ?? null,
+      length_mm: data.length_mm ?? null,
+      sort_order: data.sort_order,
+      is_active: data.is_active,
+      is_kit: true,
+    };
+    if (data.id) {
+      const { error } = await context.supabase
+        .from("product_variants")
+        .update(row)
+        .eq("id", data.id)
+        .eq("product_id", data.productId);
+      if (error) throw new Error(error.message);
+      return { ok: true, id: data.id };
+    }
+    const { data: inserted, error } = await context.supabase
+      .from("product_variants")
+      .insert(row)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { ok: true, id: inserted.id };
+  });
+
+export const deleteProductKit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z.object({ id: z.string().uuid(), productId: z.string().uuid() }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { error } = await context.supabase
+      .from("product_variants")
+      .delete()
+      .eq("id", data.id)
+      .eq("product_id", data.productId)
+      .eq("is_kit", true);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
