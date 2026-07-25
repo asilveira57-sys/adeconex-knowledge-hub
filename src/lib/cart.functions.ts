@@ -474,3 +474,91 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     const item_count = lines.reduce((s, l) => s + l.quantity, 0);
     return { cart_id: null, currency: "BRL", items: lines, subtotal, item_count };
   });
+
+// ---------- RESTORE CART FROM A PENDING ORDER ----------
+/**
+ * Reabre o carrinho ativo do usuário com os itens de um pedido que ficou
+ * "aguardando_pagamento" (ex.: pagamento recusado ou retorno sem confirmação).
+ * O pedido permanece registrado com o status atual — apenas espelhamos os
+ * itens no carrinho para o cliente poder tentar novamente sem perder nada.
+ */
+export const restoreCartFromOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ order_id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ context, data }) => {
+    const { data: order } = await context.supabase
+      .from("orders")
+      .select("id, status, user_id")
+      .eq("id", data.order_id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!order) throw new Error("Pedido não encontrado");
+    if (order.status === "pago" || order.status === "enviado" || order.status === "entregue") {
+      return { restored: 0, skipped: "order_already_paid" as const };
+    }
+
+    const { data: items } = await context.supabase
+      .from("order_items")
+      .select("product_id, variant_id, quantity")
+      .eq("order_id", order.id);
+    const rows = items ?? [];
+    if (rows.length === 0) return { restored: 0 };
+
+    const cartId = await ensureCart(context.supabase, context.userId);
+    let restored = 0;
+    for (const it of rows) {
+      const variant_id = (it.variant_id as string | null) ?? null;
+      try {
+        const resolved = await resolveLineData(
+          context.supabase,
+          it.product_id as string,
+          variant_id,
+        );
+        let existing: { id: string; quantity: number } | null = null;
+        if (variant_id === null) {
+          const { data: match } = await context.supabase
+            .from("cart_items")
+            .select("id, quantity")
+            .eq("cart_id", cartId)
+            .eq("product_id", it.product_id)
+            .is("variant_id", null)
+            .maybeSingle();
+          existing = match ?? null;
+        } else {
+          const { data: match } = await context.supabase
+            .from("cart_items")
+            .select("id, quantity")
+            .eq("cart_id", cartId)
+            .eq("product_id", it.product_id)
+            .eq("variant_id", variant_id)
+            .maybeSingle();
+          existing = match ?? null;
+        }
+
+        let nextQty = Math.max(Number(it.quantity) || 0, existing?.quantity ?? 0);
+        if (resolved.stock != null) nextQty = Math.min(nextQty, resolved.stock);
+        if (nextQty <= 0) continue;
+
+        if (existing) {
+          await context.supabase
+            .from("cart_items")
+            .update({ quantity: nextQty, unit_price: resolved.unit_price })
+            .eq("id", existing.id);
+        } else {
+          await context.supabase.from("cart_items").insert({
+            cart_id: cartId,
+            product_id: it.product_id,
+            variant_id,
+            quantity: nextQty,
+            unit_price: resolved.unit_price,
+          });
+        }
+        restored += 1;
+      } catch {
+        // Item indisponível: apenas ignora
+      }
+    }
+    return { restored };
+  });
