@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/$id")({
 function PreviewPage() {
   const { id } = Route.useParams();
   const { data } = useSuspenseQuery(previewOptions(id));
-  const { product, images, faqs, categories } = data;
+  const { product, images, faqs, categories, kits } = data as typeof data & { kits: KitRow[] };
   const [activeIdx, setActiveIdx] = useState(0);
 
   const resolvedImages = images
