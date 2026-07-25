@@ -467,7 +467,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     const [{ data: prods }, { data: imgs }, { data: variants }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, name, slug, sku, price, promotional_price, stock_quantity")
+        .select("id, name, slug, sku, price, promotional_price, stock_quantity, sells_by_kit")
         .in("id", productIds),
       supabase
         .from("product_images")
@@ -479,7 +479,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         ? supabase
             .from("product_variants")
             .select(
-              "id, sku, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+              "id, sku, name, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value, units_per_pack, is_kit, stock_mode",
             )
             .in("id", variantIds)
         : Promise.resolve({ data: [] as any[] }),
@@ -498,17 +498,33 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     const lines: CartLine[] = data.items.map((i, idx) => {
       const p = productMap.get(i.product_id);
       const v = i.variant_id ? variantMap.get(i.variant_id) : null;
+      const isKit = !!v?.is_kit;
+      const units_per_pack = isKit ? Math.max(1, Number(v?.units_per_pack ?? 1)) : 1;
       const variant_label = v
-        ? [
-            v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
-            v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || null
+        ? isKit
+          ? (v.name ?? `Caixa com ${units_per_pack}`)
+          : [
+              v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+              v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null
         : null;
       const unit = Number(
         v?.promotional_price ?? v?.price ?? p?.promotional_price ?? p?.price ?? 0,
       );
+      let maxStock: number | null = v?.stock_quantity ?? p?.stock_quantity ?? null;
+      if (isKit) {
+        const mode: "own" | "derived" = v?.stock_mode === "derived" ? "derived" : "own";
+        maxStock =
+          mode === "derived"
+            ? p?.stock_quantity != null
+              ? Math.floor(Number(p.stock_quantity) / units_per_pack)
+              : null
+            : v?.stock_quantity != null
+              ? Number(v.stock_quantity)
+              : null;
+      }
       return {
         item_id: `local-${idx}-${i.product_id}-${i.variant_id ?? "0"}`,
         product_id: i.product_id,
@@ -521,9 +537,12 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         quantity: i.quantity,
         line_total: Number((unit * i.quantity).toFixed(2)),
         image_url: imgMap.get(i.product_id) ?? null,
-        max_stock: v?.stock_quantity ?? p?.stock_quantity ?? null,
+        max_stock: maxStock,
+        units_per_pack,
+        sells_by_kit: !!p?.sells_by_kit,
       };
     });
+
 
     const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
     const item_count = lines.reduce((s, l) => s + l.quantity, 0);
