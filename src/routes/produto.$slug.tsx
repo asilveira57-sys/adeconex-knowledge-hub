@@ -471,13 +471,26 @@ function ProductPage() {
                 />
                 <span className="text-muted-foreground">
                   {effAvailable
-                    ? selectedVariant && effStock != null && effStock <= 20
-                      ? `Últimas ${effStock} unidades em estoque`
-                      : "Disponível para pronta entrega"
+                    ? selectedKit
+                      ? effStock != null && effStock <= 10
+                        ? `Últimas ${effStock} ${effStock === 1 ? "caixa" : "caixas"}`
+                        : "Disponível em caixas fechadas"
+                      : selectedVariant && effStock != null && effStock <= 20
+                        ? `Últimas ${effStock} unidades em estoque`
+                        : "Disponível para pronta entrega"
                     : "Consulte disponibilidade"}
                 </span>
               </div>
 
+              {selectedKit && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Vendido apenas em caixas fechadas de{" "}
+                  <strong className="text-foreground">
+                    {selectedKit.units_per_pack} unidades
+                  </strong>
+                  .
+                </p>
+              )}
 
               {effAvailable && effPrice != null && (
                 <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -502,6 +515,12 @@ function ProductPage() {
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
+                  <span className="text-xs text-muted-foreground">{qtyUnitLabel}</span>
+                  {selectedKit && (
+                    <span className="text-xs text-muted-foreground">
+                      = {qty * selectedKit.units_per_pack} unidades
+                    </span>
+                  )}
                   <Button
                     size="lg"
                     className="flex-1 min-w-[200px]"
@@ -509,7 +528,7 @@ function ProductPage() {
                     onClick={() =>
                       add.mutate({
                         product_id: p.id,
-                        variant_id: selectedVariant?.id ?? null,
+                        variant_id: activeVariantId,
                         quantity: qty,
                       })
                     }
@@ -522,7 +541,8 @@ function ProductPage() {
 
               <ShippingCepQuote
                 productId={p.id}
-                variantId={selectedVariant?.id ?? null}
+                variantId={activeVariantId}
+
                 quantity={qty}
               />
 
