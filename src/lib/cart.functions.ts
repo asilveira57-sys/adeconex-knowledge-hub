@@ -28,6 +28,10 @@ export type CartLine = {
   line_total: number;
   image_url: string | null;
   max_stock: number | null;
+  /** Unidades por caixa quando a linha é um kit fechado (1 = venda avulsa). */
+  units_per_pack: number;
+  /** Produto vendido apenas em kits fechados. */
+  sells_by_kit: boolean;
 };
 
 export type CartSnapshot = {
@@ -37,6 +41,7 @@ export type CartSnapshot = {
   subtotal: number;
   item_count: number;
 };
+
 
 async function ensureCart(supabase: any, userId: string): Promise<string> {
   const { data: existing } = await supabase
