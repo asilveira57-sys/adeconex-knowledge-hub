@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { XCircle } from "lucide-react";
+import { toast } from "sonner";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
+import { restoreCartFromOrder } from "@/lib/cart.functions";
 
 export const Route = createFileRoute("/pagamento/recusado")({
   head: () => ({
@@ -20,11 +23,31 @@ export const Route = createFileRoute("/pagamento/recusado")({
 function Recusado() {
   const { order_id } = Route.useSearch();
   const fetchStatus = useServerFn(getOrderPaymentStatus);
+  const restoreFn = useServerFn(restoreCartFromOrder);
+  const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["order-status", order_id],
     queryFn: () => fetchStatus({ data: { order_id: order_id! } }),
     enabled: !!order_id,
   });
+
+  const restore = useMutation({
+    mutationFn: () => restoreFn({ data: { order_id: order_id! } }),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["cart", "me"] });
+      if (res.restored > 0) {
+        toast.success(`${res.restored} item(s) restaurados no carrinho`);
+      }
+    },
+  });
+
+  const didRestore = useRef(false);
+  useEffect(() => {
+    if (!order_id || didRestore.current) return;
+    didRestore.current = true;
+    restore.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order_id]);
 
   return (
     <div className="container-page py-16">
@@ -33,27 +56,30 @@ function Recusado() {
         <h1 className="mt-4 font-display text-2xl font-semibold">Pagamento não aprovado</h1>
         <p className="mt-2 text-muted-foreground">
           {data?.order_number ? (
-            <>Pedido <span className="font-mono">{data.order_number}</span> não foi confirmado pelo emissor.</>
+            <>
+              Pedido <span className="font-mono">{data.order_number}</span> ficou como{" "}
+              <strong>aguardando pagamento</strong> e está salvo na sua conta.
+            </>
           ) : (
             "O emissor recusou a transação."
           )}
         </p>
         <p className="mt-4 text-sm text-muted-foreground">
-          Verifique os dados do cartão, tente outro método (Pix ou boleto) ou fale com nossa
-          equipe pelo WhatsApp para concluir o pedido.
+          Restauramos os itens no seu carrinho. Você pode tentar outro método (Pix, boleto ou outro
+          cartão) ou falar com nossa equipe pelo WhatsApp.
         </p>
         <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link
-            to="/checkout/pagamento"
+            to="/carrinho"
             className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-card hover:bg-primary/90"
           >
-            Tentar novamente
+            Voltar ao carrinho
           </Link>
           <Link
-            to="/contato"
+            to="/minha-conta"
             className="inline-flex h-11 items-center justify-center rounded-md border hairline bg-card px-6 text-sm font-semibold hover:bg-accent"
           >
-            Falar com o comercial
+            Ver meus pedidos
           </Link>
         </div>
       </div>
