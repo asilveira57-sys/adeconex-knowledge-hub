@@ -172,10 +172,20 @@ function ProductPage() {
   const [qty, setQty] = useState(1);
   const { add } = useCart();
 
+  const isKitMode = p.sells_by_kit && p.kits.length > 0;
+
+  // Kit selection state (kit mode)
+  const [selectedKitId, setSelectedKitId] = useState<string | null>(
+    isKitMode ? p.kits[0].id : null,
+  );
+  const selectedKit = isKitMode
+    ? p.kits.find((k) => k.id === selectedKitId) ?? p.kits[0]
+    : null;
+
   // Variant selection state — one selected value per option name
   const [selectedOpts, setSelectedOpts] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
-    if (p.variants.length > 0) {
+    if (!isKitMode && p.variants.length > 0) {
       const first = p.variants[0];
       if (first.option1_name && first.option1_value) initial[first.option1_name] = first.option1_value;
       if (first.option2_name && first.option2_value) initial[first.option2_name] = first.option2_value;
@@ -184,7 +194,7 @@ function ProductPage() {
   });
 
   const selectedVariant =
-    p.variants.length > 0
+    !isKitMode && p.variants.length > 0
       ? p.variants.find((v) => {
           const m1 = !v.option1_name || selectedOpts[v.option1_name] === v.option1_value;
           const m2 = !v.option2_name || selectedOpts[v.option2_name] === v.option2_value;
@@ -192,14 +202,21 @@ function ProductPage() {
         }) ?? null
       : null;
 
-  // Effective price/stock/sku — variant overrides product when a variant is selected
-  const effPrice = selectedVariant?.price ?? p.price;
-  const effPromo = selectedVariant?.promotional_price ?? p.promotional_price;
-  const effStock = selectedVariant?.stock_quantity ?? p.stock_quantity;
-  const effSku = selectedVariant?.sku ?? p.sku;
-  const effAvailable = selectedVariant
-    ? (selectedVariant.stock_quantity ?? 0) > 0
-    : p.is_available;
+  // Effective price/stock/sku — kit > variant > product
+  const effPrice = selectedKit?.price ?? selectedVariant?.price ?? p.price;
+  const effPromo = selectedKit?.promotional_price ?? selectedVariant?.promotional_price ?? p.promotional_price;
+  const effStock = selectedKit
+    ? selectedKit.stock_boxes
+    : selectedVariant?.stock_quantity ?? p.stock_quantity;
+  const effSku = selectedKit?.sku ?? selectedVariant?.sku ?? p.sku;
+  const effAvailable = selectedKit
+    ? selectedKit.stock_boxes == null || selectedKit.stock_boxes > 0
+    : selectedVariant
+      ? (selectedVariant.stock_quantity ?? 0) > 0
+      : p.is_available;
+  const activeVariantId = selectedKit?.id ?? selectedVariant?.id ?? null;
+  const qtyUnitLabel = selectedKit ? (qty === 1 ? "caixa" : "caixas") : "un.";
+
 
   const price = money(effPromo ?? effPrice);
   const strike =
