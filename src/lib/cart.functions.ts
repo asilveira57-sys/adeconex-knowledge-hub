@@ -28,6 +28,10 @@ export type CartLine = {
   line_total: number;
   image_url: string | null;
   max_stock: number | null;
+  /** Unidades por caixa quando a linha é um kit fechado (1 = venda avulsa). */
+  units_per_pack: number;
+  /** Produto vendido apenas em kits fechados. */
+  sells_by_kit: boolean;
 };
 
 export type CartSnapshot = {
@@ -37,6 +41,7 @@ export type CartSnapshot = {
   subtotal: number;
   item_count: number;
 };
+
 
 async function ensureCart(supabase: any, userId: string): Promise<string> {
   const { data: existing } = await supabase
@@ -55,7 +60,10 @@ async function ensureCart(supabase: any, userId: string): Promise<string> {
   return created.id;
 }
 
-/** Resolve current price + stock + labels for a (product, variant?) pair. */
+/** Resolve current price + stock + labels for a (product, variant?) pair.
+ *  Quando o produto vende por kit, exige variant_id de um kit ativo e retorna
+ *  o "estoque em caixas" já resolvido (own vs derived).
+ */
 async function resolveLineData(
   supabase: any,
   product_id: string,
@@ -63,7 +71,7 @@ async function resolveLineData(
 ) {
   const { data: p } = await supabase
     .from("products")
-    .select("id, name, slug, sku, price, promotional_price, is_available, stock_quantity")
+    .select("id, name, slug, sku, price, promotional_price, is_available, stock_quantity, sells_by_kit")
     .eq("id", product_id)
     .maybeSingle();
   if (!p) throw new Error("Produto não encontrado");
@@ -73,31 +81,58 @@ async function resolveLineData(
   let sku = p.sku as string | null;
   let stock = p.stock_quantity as number | null;
   let variant_label: string | null = null;
+  let units_per_pack = 1;
+  const sells_by_kit = !!p.sells_by_kit;
+
+  if (sells_by_kit && !variant_id) {
+    throw new Error(`"${p.name}" só é vendido em kits fechados — selecione uma opção.`);
+  }
 
   if (variant_id) {
     const { data: v } = await supabase
       .from("product_variants")
       .select(
-        "id, sku, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+        "id, sku, name, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value, units_per_pack, is_kit, is_active, stock_mode, weight_kg, width_mm, height_mm, length_mm",
       )
       .eq("id", variant_id)
       .eq("product_id", product_id)
       .maybeSingle();
     if (!v) throw new Error("Variação indisponível");
+    if (sells_by_kit && (!v.is_kit || v.is_active === false)) {
+      throw new Error("Opção de kit indisponível");
+    }
     unit_price = Number(v.promotional_price ?? v.price ?? unit_price ?? 0);
     sku = v.sku ?? sku;
-    stock = v.stock_quantity ?? stock;
-    variant_label = [
-      v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
-      v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
-    ]
-      .filter(Boolean)
-      .join(" · ") || null;
+    units_per_pack = Math.max(1, Number(v.units_per_pack ?? 1));
+
+    if (v.is_kit) {
+      // Estoque em CAIXAS
+      const mode: "own" | "derived" = v.stock_mode === "derived" ? "derived" : "own";
+      stock =
+        mode === "derived"
+          ? p.stock_quantity != null
+            ? Math.floor(Number(p.stock_quantity) / units_per_pack)
+            : null
+          : v.stock_quantity != null
+            ? Number(v.stock_quantity)
+            : null;
+      variant_label = v.name ?? `Caixa com ${units_per_pack}`;
+    } else {
+      stock = v.stock_quantity ?? stock;
+      variant_label =
+        [
+          v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+          v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") || null;
+    }
   }
 
   if (unit_price <= 0) throw new Error(`"${p.name}" está sem preço configurado`);
-  return { product: p, unit_price, sku, stock, variant_label };
+  return { product: p, unit_price, sku, stock, variant_label, units_per_pack, sells_by_kit };
 }
+
 
 // ---------- READ ----------
 export const getMyCart = createServerFn({ method: "GET" })
@@ -129,7 +164,7 @@ export const getMyCart = createServerFn({ method: "GET" })
     const [{ data: prods }, { data: imgs }, { data: variants }] = await Promise.all([
       context.supabase
         .from("products")
-        .select("id, name, slug, sku, stock_quantity")
+        .select("id, name, slug, sku, stock_quantity, sells_by_kit")
         .in("id", productIds.length ? productIds : ["00000000-0000-0000-0000-000000000000"]),
       context.supabase
         .from("product_images")
@@ -141,7 +176,7 @@ export const getMyCart = createServerFn({ method: "GET" })
         ? context.supabase
             .from("product_variants")
             .select(
-              "id, sku, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+              "id, sku, name, stock_quantity, option1_name, option1_value, option2_name, option2_value, units_per_pack, is_kit, stock_mode",
             )
             .in("id", variantIds)
         : Promise.resolve({ data: [] as any[] }),
@@ -160,15 +195,32 @@ export const getMyCart = createServerFn({ method: "GET" })
     const lines: CartLine[] = items.map((r: any) => {
       const p = productMap.get(r.product_id);
       const v = r.variant_id ? variantMap.get(r.variant_id) : null;
+      const isKit = !!v?.is_kit;
+      const units_per_pack = isKit ? Math.max(1, Number(v?.units_per_pack ?? 1)) : 1;
       const variant_label = v
-        ? [
-            v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
-            v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || null
+        ? isKit
+          ? (v.name ?? `Caixa com ${units_per_pack}`)
+          : [
+              v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+              v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null
         : null;
       const unit = Number(r.unit_price);
+      // Max stock em CAIXAS (kit) ou UNIDADES (avulso)
+      let maxStock: number | null = v?.stock_quantity ?? p?.stock_quantity ?? null;
+      if (isKit) {
+        const mode: "own" | "derived" = v?.stock_mode === "derived" ? "derived" : "own";
+        maxStock =
+          mode === "derived"
+            ? p?.stock_quantity != null
+              ? Math.floor(Number(p.stock_quantity) / units_per_pack)
+              : null
+            : v?.stock_quantity != null
+              ? Number(v.stock_quantity)
+              : null;
+      }
       return {
         item_id: r.id,
         product_id: r.product_id,
@@ -181,9 +233,12 @@ export const getMyCart = createServerFn({ method: "GET" })
         quantity: r.quantity,
         line_total: Number((unit * r.quantity).toFixed(2)),
         image_url: imgMap.get(r.product_id) ?? null,
-        max_stock: v?.stock_quantity ?? p?.stock_quantity ?? null,
+        max_stock: maxStock,
+        units_per_pack,
+        sells_by_kit: !!p?.sells_by_kit,
       };
     });
+
 
     const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
     const item_count = lines.reduce((s, l) => s + l.quantity, 0);
@@ -412,7 +467,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     const [{ data: prods }, { data: imgs }, { data: variants }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, name, slug, sku, price, promotional_price, stock_quantity")
+        .select("id, name, slug, sku, price, promotional_price, stock_quantity, sells_by_kit")
         .in("id", productIds),
       supabase
         .from("product_images")
@@ -424,7 +479,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         ? supabase
             .from("product_variants")
             .select(
-              "id, sku, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+              "id, sku, name, price, promotional_price, stock_quantity, option1_name, option1_value, option2_name, option2_value, units_per_pack, is_kit, stock_mode",
             )
             .in("id", variantIds)
         : Promise.resolve({ data: [] as any[] }),
@@ -443,17 +498,33 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
     const lines: CartLine[] = data.items.map((i, idx) => {
       const p = productMap.get(i.product_id);
       const v = i.variant_id ? variantMap.get(i.variant_id) : null;
+      const isKit = !!v?.is_kit;
+      const units_per_pack = isKit ? Math.max(1, Number(v?.units_per_pack ?? 1)) : 1;
       const variant_label = v
-        ? [
-            v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
-            v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || null
+        ? isKit
+          ? (v.name ?? `Caixa com ${units_per_pack}`)
+          : [
+              v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+              v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null
         : null;
       const unit = Number(
         v?.promotional_price ?? v?.price ?? p?.promotional_price ?? p?.price ?? 0,
       );
+      let maxStock: number | null = v?.stock_quantity ?? p?.stock_quantity ?? null;
+      if (isKit) {
+        const mode: "own" | "derived" = v?.stock_mode === "derived" ? "derived" : "own";
+        maxStock =
+          mode === "derived"
+            ? p?.stock_quantity != null
+              ? Math.floor(Number(p.stock_quantity) / units_per_pack)
+              : null
+            : v?.stock_quantity != null
+              ? Number(v.stock_quantity)
+              : null;
+      }
       return {
         item_id: `local-${idx}-${i.product_id}-${i.variant_id ?? "0"}`,
         product_id: i.product_id,
@@ -466,9 +537,12 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         quantity: i.quantity,
         line_total: Number((unit * i.quantity).toFixed(2)),
         image_url: imgMap.get(i.product_id) ?? null,
-        max_stock: v?.stock_quantity ?? p?.stock_quantity ?? null,
+        max_stock: maxStock,
+        units_per_pack,
+        sells_by_kit: !!p?.sells_by_kit,
       };
     });
+
 
     const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
     const item_count = lines.reduce((s, l) => s + l.quantity, 0);

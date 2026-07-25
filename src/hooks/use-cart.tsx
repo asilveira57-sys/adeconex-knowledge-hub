@@ -155,7 +155,10 @@ function buildLocalSnapshot(items: ReturnType<typeof readLocalCart>): CartSnapsh
     line_total: 0,
     image_url: null,
     max_stock: null,
+    units_per_pack: 1,
+    sells_by_kit: false,
   }));
+
   return {
     cart_id: null,
     currency: "BRL",

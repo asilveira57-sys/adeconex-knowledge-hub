@@ -80,6 +80,13 @@ function CartPage() {
                       {line.variant_label && (
                         <p className="text-xs text-muted-foreground">{line.variant_label}</p>
                       )}
+                      {line.units_per_pack > 1 && (
+                        <p className="text-xs text-primary">
+                          {line.quantity} {line.quantity === 1 ? "caixa" : "caixas"} ·{" "}
+                          {line.units_per_pack} un/cx ={" "}
+                          <strong>{line.quantity * line.units_per_pack} unidades</strong>
+                        </p>
+                      )}
                       {line.sku && (
                         <p className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
                           SKU {line.sku}
@@ -101,16 +108,18 @@ function CartPage() {
                       quantity={line.quantity}
                       onChange={(q) => updateQty.mutate({ item: line, quantity: q })}
                       max={line.max_stock ?? undefined}
+                      unitLabel={line.units_per_pack > 1 ? "caixas" : undefined}
                     />
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">
-                        {money(line.unit_price)} un.
+                        {money(line.unit_price)} {line.units_per_pack > 1 ? "/ caixa" : "un."}
                       </div>
                       <div className="font-display text-lg font-semibold tabular-nums">
                         {money(line.line_total)}
                       </div>
                     </div>
                   </div>
+
                 </div>
               </li>
             ))}
@@ -168,36 +177,42 @@ function QtyStepper({
   quantity,
   onChange,
   max,
+  unitLabel,
 }: {
   quantity: number;
   onChange: (q: number) => void;
   max?: number;
+  unitLabel?: string;
 }) {
   const canInc = max == null || quantity < max;
   return (
-    <div className="inline-flex items-center rounded-lg border hairline bg-surface-2">
-      <button
-        type="button"
-        onClick={() => onChange(Math.max(1, quantity - 1))}
-        aria-label="Diminuir"
-        className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
-        disabled={quantity <= 1}
-      >
-        <Minus className="h-4 w-4" />
-      </button>
-      <span className="w-10 text-center text-sm font-medium tabular-nums">{quantity}</span>
-      <button
-        type="button"
-        onClick={() => onChange(quantity + 1)}
-        aria-label="Aumentar"
-        className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
-        disabled={!canInc}
-      >
-        <Plus className="h-4 w-4" />
-      </button>
+    <div className="flex items-center gap-2">
+      <div className="inline-flex items-center rounded-lg border hairline bg-surface-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(1, quantity - 1))}
+          aria-label="Diminuir"
+          className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+          disabled={quantity <= 1}
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="w-10 text-center text-sm font-medium tabular-nums">{quantity}</span>
+        <button
+          type="button"
+          onClick={() => onChange(quantity + 1)}
+          aria-label="Aumentar"
+          className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+          disabled={!canInc}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+      {unitLabel && <span className="text-xs text-muted-foreground">{unitLabel}</span>}
     </div>
   );
 }
+
 
 function EmptyState() {
   return (

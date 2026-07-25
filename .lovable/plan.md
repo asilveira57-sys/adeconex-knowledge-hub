@@ -1,46 +1,63 @@
-## Fase 12 — Notificações + QA end-to-end (sem compra de etiqueta no Melhor Envio)
+## Objetivo
+Habilitar venda por embalagens/kits fechados reaproveitando a tabela `product_variants` como "opção de kit", sem criar módulo novo. Produtos com o flag ativado só permitem selecionar caixas/kits pré-cadastrados (Unidade, Kit 5, Kit 10, etc.) — sem digitar quantidade livre em unidades. Produtos sem o flag mantêm o comportamento atual.
 
-Ajuste confirmado: Melhor Envio permanece **somente como cotador de frete**. A compra/impressão da etiqueta será feita no Olist quando essa integração for ativada. Portanto, esta fase **remove** qualquer plano de "comprar etiqueta pelo admin" e foca em comunicação com o cliente e validação ponta-a-ponta.
+## Alterações de banco (uma migração)
+Reaproveitar `product_variants` como "kit". Adicionar apenas o necessário:
 
-### 1. Notificações por e-mail (transacional)
-Disparo automático via server functions, chamando o provedor de e-mail (Resend por padrão — pedirei a chave se ainda não existir).
-- **Pedido recebido** — logo após `createOrderFromCart`.
-- **Pagamento aprovado** — no webhook Mercado Pago, quando status vira `pago`.
-- **Pagamento recusado / pendente** — no webhook, com link para retomar.
-- **Arquivo de arte aprovado / precisa correção** — no `reviewOrderFile` do staff.
-- **Pedido enviado** — quando admin muda status para `enviado` (inclui código de rastreio se preenchido).
-- **Pedido entregue / cancelado** — nas transições correspondentes.
+- `products.sells_by_kit boolean not null default false`
+- `product_variants.units_per_pack integer not null default 1` — unidades dentro do kit
+- `product_variants.is_kit boolean not null default false` — marca a linha como opção de kit
+- `product_variants.is_active boolean not null default true` — status ativo/inativo
+- `product_variants.stock_mode text not null default 'own'` — `own` (estoque próprio em caixas) ou `derived` (calculado a partir do estoque unitário do produto)
 
-Templates HTML simples com identidade Adeconex (logo, vermelho `#e63946`, link para `/pedido/$id`). Registro de envio em `email_log` (tabela nova, RLS admin-only) para auditoria e reenvio manual.
+Dimensões/peso da caixa já existem em `product_variants` (`weight_kg`, `width_mm/cm`, `height_mm/cm`, `length_mm/cm`, `insurance_value`), então são reutilizados. `sku`, `price`, `promotional_price`, `sort_order` também já existem.
 
-### 2. Painel admin: reenviar notificação
-Botão "Reenviar e-mail" em `/admin/pedidos/$id` (por evento) usando `email_log` como histórico. Sem UI de compra de etiqueta.
+Sem seed novo. Migração é aditiva — pedidos e produtos atuais continuam funcionando.
 
-### 3. Ajustes de UI para deixar claro o fluxo de etiqueta
-- Em `/admin/pedidos/$id`, o campo de rastreio continua **manual** (staff cola o código gerado no Olist).
-- Legenda curta: "A etiqueta é gerada no Olist. Cole aqui o código de rastreio."
-- Nada muda no checkout do cliente — Melhor Envio segue cotando normalmente.
+## Backend (server functions)
 
-### 4. QA end-to-end (checklist executável)
-Roteiro em `.lovable/qa-fase12.md` + validação manual via Playwright headless:
-1. Cadastro PF e PJ, endereço, empresa padrão.
-2. Adicionar produto com variante ao carrinho, ver recálculo.
-3. Checkout: endereço → cotação Melhor Envio real → pagamento Mercado Pago (sandbox).
-4. Webhook Mercado Pago → pedido vira `pago` → e-mail disparado.
-5. Upload de arte no `/pedido/$id`, aprovação pelo staff → e-mail ao cliente.
-6. Admin muda status para `enviado` com código de rastreio manual → e-mail ao cliente.
-7. Verificação de RLS: usuário B não acessa pedido/arquivo de A.
-8. Lighthouse nas rotas públicas principais (meta ≥95 perf/SEO).
+**`src/lib/admin.functions.ts`**
+- Estender `updateProductBasic`/salvar produto: aceitar `sells_by_kit`.
+- Adicionar CRUD de kits: `upsertProductKit`, `deleteProductKit` (na verdade upsert em `product_variants` com `is_kit=true`).
 
-### Detalhes técnicos
-- `src/lib/email.server.ts` — client Resend (ou provedor equivalente), lê `RESEND_API_KEY` dentro do handler.
-- `src/lib/notifications.functions.ts` — uma função por evento, gravando em `email_log`.
-- Migração: `email_log (id, order_id, event, to_email, status, error, sent_at)` + GRANTs + RLS (`is_staff` lê tudo; sem acesso anon/authenticated direto).
-- Ganchos: `payments.functions.ts` (webhook), `order-files.functions.ts` (review), `orders.functions.ts` (transições de status).
-- Sem novas dependências além do SDK do provedor de e-mail.
+**`src/lib/catalog.functions.ts`**
+- Retornar `sells_by_kit` no produto e filtrar variantes com `is_kit=true, is_active=true` quando aplicável. Incluir `units_per_pack`, `stock_mode` e resolver estoque efetivo (`own` → `stock_quantity`; `derived` → `floor(product.stock_quantity / units_per_pack)`).
 
-### Fora do escopo (confirmado)
-- Compra/impressão de etiqueta via Melhor Envio — será feita no Olist futuramente.
-- Ativação da integração Olist — segue desligada até você pedir.
+**`src/lib/cart.functions.ts`**
+- `addToCart` e hidratação: quando o produto vende por kit, exigir `variant_id` de um kit ativo; `quantity` representa nº de caixas (não unidades).
+- Snapshot de linha: incluir `units_per_pack`, `total_units = quantity * units_per_pack`, `unit_price` do kit, `line_total = quantity * unit_price`, dimensões/peso do kit no `metadata`.
+- Validação de estoque: usar estoque em caixas (modo `own`) ou derivar do estoque unitário (modo `derived`), rejeitando excesso.
 
-Quer que eu use **Resend** como provedor (padrão recomendado, pede só `RESEND_API_KEY` e um domínio verificado) ou prefere outro?
+**`src/lib/shipping.functions.ts` e `shipping-preview.functions.ts`**
+- Ao montar `products[]` para o Melhor Envio: quando o item vier de um kit, usar peso/dimensões da caixa (variant) e enviar `quantity = nº de caixas` (a API já trata cada `quantity` como volume). Sem kit, comportamento atual.
+
+**`src/lib/checkout.functions.ts` / `orders.functions.ts`**
+- `order_items.metadata` recebe `units_per_pack`, `total_units`, dimensões da caixa. `product_sku`/`variant_label` já cobrem identificação. Sem mudança de schema em pedidos.
+
+## Frontend
+
+**Admin — `src/routes/_authenticated.admin.produtos.$id.tsx`**
+- Toggle "Venda por kits fechados" no card básico.
+- Novo card "Opções de kit" (quando ligado): tabela editável com nome, unidades por kit, SKU, preço, preço promocional, estoque (modo + valor), peso/dimensões da caixa, ativo, ordem. Botões adicionar/remover.
+
+**Produto — `src/routes/produto.$slug.tsx`**
+- Quando `sells_by_kit`, substituir o seletor atual de variantes por cards/botões de kit (Unidade / Caixa com 5 / …). Ao selecionar: recalcular preço da caixa, preço por unidade, estoque em caixas, e passar dimensões da caixa para `ShippingCepQuote`.
+- Campo de quantidade passa a se chamar "Caixas" com máx = estoque em caixas do kit. Exibir "N caixas × M un = X unidades".
+
+**Carrinho — `src/routes/carrinho.tsx` + `CheckoutSummary`**
+- Exibir, nas linhas com kit, "3 caixas com 20 unidades — total 60 unidades" e SKU do kit.
+
+**Painel de pedidos (cliente e admin)**
+- Renderizar `metadata.units_per_pack`/`total_units` quando presente.
+
+## Ordem de implementação
+1. Migração + regeneração de types.
+2. Admin: flag + CRUD de kits.
+3. Catálogo + página do produto (seleção de kit, sem quantidade livre).
+4. Carrinho (persistência do kit, validações de estoque em caixas).
+5. Frete (peso/dimensões da caixa, quantidade = volumes).
+6. Exibição em pedido/checkout.
+
+## Fora de escopo
+- Nenhum novo módulo, tabela de "kits" separada, ou mudança em Mercado Pago/checkout além de repassar `metadata`.
+- Produtos sem o flag ficam intocados.

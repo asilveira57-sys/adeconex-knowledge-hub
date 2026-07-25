@@ -1,0 +1,10 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS sells_by_kit boolean NOT NULL DEFAULT false;
+ALTER TABLE public.product_variants ADD COLUMN IF NOT EXISTS units_per_pack integer NOT NULL DEFAULT 1;
+ALTER TABLE public.product_variants ADD COLUMN IF NOT EXISTS is_kit boolean NOT NULL DEFAULT false;
+ALTER TABLE public.product_variants ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true;
+ALTER TABLE public.product_variants ADD COLUMN IF NOT EXISTS stock_mode text NOT NULL DEFAULT 'own';
+ALTER TABLE public.product_variants DROP CONSTRAINT IF EXISTS product_variants_stock_mode_check;
+ALTER TABLE public.product_variants ADD CONSTRAINT product_variants_stock_mode_check CHECK (stock_mode IN ('own','derived'));
+ALTER TABLE public.product_variants DROP CONSTRAINT IF EXISTS product_variants_units_per_pack_check;
+ALTER TABLE public.product_variants ADD CONSTRAINT product_variants_units_per_pack_check CHECK (units_per_pack >= 1);
+CREATE INDEX IF NOT EXISTS product_variants_product_kit_idx ON public.product_variants (product_id, is_kit, is_active, sort_order);

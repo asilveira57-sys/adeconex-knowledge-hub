@@ -228,6 +228,8 @@ export type ProductDetail = {
   faqs: Array<{ id: string; question: string; answer: string }>;
   variants: ProductVariantOption[];
   variant_options: Array<{ name: string; values: string[] }>;
+  sells_by_kit: boolean;
+  kits: KitOption[];
 };
 
 export type ProductVariantOption = {
@@ -244,6 +246,24 @@ export type ProductVariantOption = {
   image_url: string | null;
 };
 
+export type KitOption = {
+  id: string;
+  name: string;
+  sku: string | null;
+  units_per_pack: number;
+  price: number | null;
+  promotional_price: number | null;
+  stock_mode: "own" | "derived";
+  /** Estoque efetivo em caixas — já resolvido conforme stock_mode. */
+  stock_boxes: number | null;
+  weight_kg: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  length_mm: number | null;
+  is_active: boolean;
+  sort_order: number;
+};
+
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((v) => z.object({ slug: z.string().min(1) }).parse(v))
   .handler(async ({ data }): Promise<ProductDetail | null> => {
@@ -251,7 +271,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, status",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status",
       )
       .eq("slug", data.slug)
       .maybeSingle();
@@ -276,7 +296,9 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .eq("product_id", p.id),
       supabaseAdmin
         .from("product_variants")
-        .select("id, name, sku, option1_name, option1_value, option2_name, option2_value, price, promotional_price, stock_quantity, main_image_url, sort_order")
+        .select(
+          "id, name, sku, option1_name, option1_value, option2_name, option2_value, price, promotional_price, stock_quantity, main_image_url, sort_order, units_per_pack, is_kit, is_active, stock_mode, weight_kg, width_mm, height_mm, length_mm",
+        )
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
     ]);
@@ -289,7 +311,45 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       })
       .filter((x): x is { id: string; url: string; alt: string; is_main: boolean } => !!x);
 
-    const variants: ProductVariantOption[] = (variantsRaw ?? []).map((v) => ({
+    const rawVariants = variantsRaw ?? [];
+    const kitRows = rawVariants.filter((v: any) => v.is_kit && v.is_active !== false);
+    const productStock = p.stock_quantity as number | null;
+
+    const kits: KitOption[] = kitRows.map((v: any) => {
+      const units = Math.max(1, Number(v.units_per_pack ?? 1));
+      const mode: "own" | "derived" = v.stock_mode === "derived" ? "derived" : "own";
+      const stock_boxes =
+        mode === "derived"
+          ? productStock != null
+            ? Math.floor(productStock / units)
+            : null
+          : v.stock_quantity != null
+            ? Number(v.stock_quantity)
+            : null;
+      return {
+        id: v.id,
+        name: v.name ?? (units === 1 ? "Unidade" : `Caixa com ${units}`),
+        sku: v.sku,
+        units_per_pack: units,
+        price: v.price !== null ? Number(v.price) : null,
+        promotional_price:
+          v.promotional_price !== null && Number(v.promotional_price) > 0
+            ? Number(v.promotional_price)
+            : null,
+        stock_mode: mode,
+        stock_boxes,
+        weight_kg: v.weight_kg !== null ? Number(v.weight_kg) : null,
+        width_mm: v.width_mm !== null ? Number(v.width_mm) : null,
+        height_mm: v.height_mm !== null ? Number(v.height_mm) : null,
+        length_mm: v.length_mm !== null ? Number(v.length_mm) : null,
+        is_active: v.is_active !== false,
+        sort_order: Number(v.sort_order ?? 0),
+      };
+    });
+
+    // Variantes clássicas (option1/option2) — só exibidas quando NÃO é venda por kit
+    const nonKitVariants = rawVariants.filter((v: any) => !v.is_kit);
+    const variants: ProductVariantOption[] = nonKitVariants.map((v: any) => ({
       id: v.id,
       name: v.name ?? p.name,
       sku: v.sku,
@@ -306,7 +366,6 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       image_url: v.main_image_url,
     }));
 
-    // Build unique option groups (Cor, Tamanho, etc.) preserving first-seen order
     const optionMap = new Map<string, string[]>();
     for (const v of variants) {
       for (const [name, value] of [
@@ -348,6 +407,9 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       faqs: (faqs ?? []).map((f) => ({ id: f.id, question: f.question, answer: f.answer })),
       variants,
       variant_options,
+      sells_by_kit: !!p.sells_by_kit,
+      kits,
     };
   });
+
 

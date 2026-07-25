@@ -1404,6 +1404,8 @@ export type Database = {
           height_mm: number | null
           id: string
           insurance_value: number | null
+          is_active: boolean
+          is_kit: boolean
           legacy_id: number | null
           length_cm: number | null
           length_mm: number | null
@@ -1419,7 +1421,9 @@ export type Database = {
           reference: string | null
           sku: string | null
           sort_order: number
+          stock_mode: string
           stock_quantity: number | null
+          units_per_pack: number
           updated_at: string
           weight_kg: number | null
           width_cm: number | null
@@ -1434,6 +1438,8 @@ export type Database = {
           height_mm?: number | null
           id?: string
           insurance_value?: number | null
+          is_active?: boolean
+          is_kit?: boolean
           legacy_id?: number | null
           length_cm?: number | null
           length_mm?: number | null
@@ -1449,7 +1455,9 @@ export type Database = {
           reference?: string | null
           sku?: string | null
           sort_order?: number
+          stock_mode?: string
           stock_quantity?: number | null
+          units_per_pack?: number
           updated_at?: string
           weight_kg?: number | null
           width_cm?: number | null
@@ -1464,6 +1472,8 @@ export type Database = {
           height_mm?: number | null
           id?: string
           insurance_value?: number | null
+          is_active?: boolean
+          is_kit?: boolean
           legacy_id?: number | null
           length_cm?: number | null
           length_mm?: number | null
@@ -1479,7 +1489,9 @@ export type Database = {
           reference?: string | null
           sku?: string | null
           sort_order?: number
+          stock_mode?: string
           stock_quantity?: number | null
+          units_per_pack?: number
           updated_at?: string
           weight_kg?: number | null
           width_cm?: number | null
@@ -1585,6 +1597,7 @@ export type Database = {
           redirect_status: string
           reference: string | null
           roll_quantity: number | null
+          sells_by_kit: boolean
           seo_description: string | null
           seo_keywords: string | null
           seo_title: string | null
@@ -1642,6 +1655,7 @@ export type Database = {
           redirect_status?: string
           reference?: string | null
           roll_quantity?: number | null
+          sells_by_kit?: boolean
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
@@ -1699,6 +1713,7 @@ export type Database = {
           redirect_status?: string
           reference?: string | null
           roll_quantity?: number | null
+          sells_by_kit?: boolean
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null

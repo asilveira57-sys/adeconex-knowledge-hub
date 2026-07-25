@@ -3,15 +3,21 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
-import { updateProductDimensions } from "@/lib/admin.functions";
+import {
+  updateProductDimensions,
+  setSellsByKit,
+  upsertProductKit,
+  deleteProductKit,
+} from "@/lib/admin.functions";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2, Boxes, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+
 
 const previewOptions = productPreviewOptions;
 
@@ -34,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/$id")({
 function PreviewPage() {
   const { id } = Route.useParams();
   const { data } = useSuspenseQuery(previewOptions(id));
-  const { product, images, faqs, categories } = data;
+  const { product, images, faqs, categories, kits } = data as typeof data & { kits: KitRow[] };
   const [activeIdx, setActiveIdx] = useState(0);
 
   const resolvedImages = images
@@ -183,6 +189,14 @@ function PreviewPage() {
 
           <DimensionsCard product={product} />
 
+          <KitsCard
+            productId={product.id}
+            sellsByKit={!!(product as any).sells_by_kit}
+            kits={kits ?? []}
+          />
+
+
+
 
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm">SEO</CardTitle></CardHeader>
@@ -286,3 +300,306 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     </Card>
   );
 }
+
+// ============================================================================
+// Kits (venda por embalagens fechadas)
+// ============================================================================
+
+type KitRow = {
+  id: string;
+  name: string | null;
+  sku: string | null;
+  units_per_pack: number | null;
+  price: number | null;
+  promotional_price: number | null;
+  stock_mode: "own" | "derived" | null;
+  stock_quantity: number | null;
+  weight_kg: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  length_mm: number | null;
+  is_active: boolean | null;
+  sort_order: number | null;
+};
+
+type KitDraft = {
+  id?: string;
+  name: string;
+  sku: string;
+  units_per_pack: string;
+  price: string;
+  promotional_price: string;
+  stock_mode: "own" | "derived";
+  stock_quantity: string;
+  weight_kg: string;
+  width_mm: string;
+  height_mm: string;
+  length_mm: string;
+  sort_order: string;
+  is_active: boolean;
+};
+
+function emptyDraft(order: number): KitDraft {
+  return {
+    name: "",
+    sku: "",
+    units_per_pack: "",
+    price: "",
+    promotional_price: "",
+    stock_mode: "derived",
+    stock_quantity: "",
+    weight_kg: "",
+    width_mm: "",
+    height_mm: "",
+    length_mm: "",
+    sort_order: String(order),
+    is_active: true,
+  };
+}
+
+function toDraft(k: KitRow): KitDraft {
+  const s = (v: number | null) => (v != null ? String(v) : "");
+  return {
+    id: k.id,
+    name: k.name ?? "",
+    sku: k.sku ?? "",
+    units_per_pack: s(k.units_per_pack),
+    price: s(k.price),
+    promotional_price: s(k.promotional_price),
+    stock_mode: k.stock_mode === "own" ? "own" : "derived",
+    stock_quantity: s(k.stock_quantity),
+    weight_kg: s(k.weight_kg),
+    width_mm: s(k.width_mm),
+    height_mm: s(k.height_mm),
+    length_mm: s(k.length_mm),
+    sort_order: s(k.sort_order),
+    is_active: k.is_active !== false,
+  };
+}
+
+function parseNum(v: string): number | null {
+  if (v.trim() === "") return null;
+  const n = Number(v.replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+}
+
+function KitsCard({
+  productId,
+  sellsByKit,
+  kits,
+}: {
+  productId: string;
+  sellsByKit: boolean;
+  kits: KitRow[];
+}) {
+  const qc = useQueryClient();
+  const toggleFn = useServerFn(setSellsByKit);
+  const upsertFn = useServerFn(upsertProductKit);
+  const deleteFn = useServerFn(deleteProductKit);
+  const [enabled, setEnabled] = useState(sellsByKit);
+  const [drafts, setDrafts] = useState<KitDraft[]>(() =>
+    kits.length > 0 ? kits.map(toDraft) : [],
+  );
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function toggle(next: boolean) {
+    setEnabled(next);
+    try {
+      await toggleFn({ data: { productId, sells_by_kit: next } });
+      await qc.invalidateQueries({ queryKey: ["admin", "product-preview", productId] });
+      toast.success(next ? "Venda por kits ativada" : "Venda por kits desativada");
+    } catch (e) {
+      setEnabled(!next);
+      toast.error((e as Error).message);
+    }
+  }
+
+  function updateDraft(idx: number, patch: Partial<KitDraft>) {
+    setDrafts((d) => d.map((row, i) => (i === idx ? { ...row, ...patch } : row)));
+  }
+
+  async function saveDraft(idx: number) {
+    const d = drafts[idx];
+    const units = parseNum(d.units_per_pack);
+    const price = parseNum(d.price);
+    if (!d.name.trim()) return toast.error("Nome do kit é obrigatório");
+    if (units == null || units < 1) return toast.error("Unidades por caixa inválido");
+    if (price == null) return toast.error("Preço da caixa é obrigatório");
+    setBusy(d.id ?? `new-${idx}`);
+    try {
+      const res = await upsertFn({
+        data: {
+          id: d.id,
+          productId,
+          name: d.name.trim(),
+          sku: d.sku.trim() || null,
+          units_per_pack: units,
+          price,
+          promotional_price: parseNum(d.promotional_price),
+          stock_mode: d.stock_mode,
+          stock_quantity: d.stock_mode === "own" ? (parseNum(d.stock_quantity) ?? 0) : null,
+          weight_kg: parseNum(d.weight_kg),
+          width_mm: parseNum(d.width_mm),
+          height_mm: parseNum(d.height_mm),
+          length_mm: parseNum(d.length_mm),
+          sort_order: Number(parseNum(d.sort_order) ?? idx),
+          is_active: d.is_active,
+        },
+      });
+      if (!d.id) updateDraft(idx, { id: res.id });
+      await qc.invalidateQueries({ queryKey: ["admin", "product-preview", productId] });
+      toast.success("Kit salvo");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function removeDraft(idx: number) {
+    const d = drafts[idx];
+    if (!d.id) {
+      setDrafts((rows) => rows.filter((_, i) => i !== idx));
+      return;
+    }
+    if (!confirm(`Remover kit "${d.name}"?`)) return;
+    setBusy(d.id);
+    try {
+      await deleteFn({ data: { id: d.id, productId } });
+      setDrafts((rows) => rows.filter((_, i) => i !== idx));
+      await qc.invalidateQueries({ queryKey: ["admin", "product-preview", productId] });
+      toast.success("Kit removido");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  function addRow() {
+    setDrafts((rows) => [...rows, emptyDraft(rows.length)]);
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Boxes className="h-4 w-4" /> Venda por kits fechados
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={(e) => toggle(e.target.checked)}
+            className="h-4 w-4"
+          />
+          <span>
+            Este produto é vendido apenas em <strong>caixas fechadas</strong> (o cliente escolhe uma
+            das opções abaixo — não pode digitar quantidade livre).
+          </span>
+        </label>
+
+        {enabled && (
+          <div className="space-y-3">
+            {drafts.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                Nenhum kit cadastrado ainda — adicione ao menos uma opção.
+              </p>
+            )}
+            {drafts.map((d, idx) => (
+              <div key={d.id ?? `new-${idx}`} className="rounded-md border p-3 space-y-3">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <TextField label="Nome" value={d.name} onChange={(v) => updateDraft(idx, { name: v })} placeholder="Caixa com 100" />
+                  <TextField label="SKU" value={d.sku} onChange={(v) => updateDraft(idx, { sku: v })} placeholder="Opcional" />
+                  <TextField label="Un/caixa" value={d.units_per_pack} onChange={(v) => updateDraft(idx, { units_per_pack: v })} type="number" />
+                  <TextField label="Preço (R$)" value={d.price} onChange={(v) => updateDraft(idx, { price: v })} type="number" />
+                  <TextField label="Preço promo (R$)" value={d.promotional_price} onChange={(v) => updateDraft(idx, { promotional_price: v })} type="number" />
+                  <label className="block">
+                    <span className="text-xs uppercase text-muted-foreground">Estoque</span>
+                    <select
+                      value={d.stock_mode}
+                      onChange={(e) => updateDraft(idx, { stock_mode: e.target.value as "own" | "derived" })}
+                      className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
+                    >
+                      <option value="derived">Derivado do estoque unitário</option>
+                      <option value="own">Estoque próprio da caixa</option>
+                    </select>
+                  </label>
+                  {d.stock_mode === "own" && (
+                    <TextField label="Caixas em estoque" value={d.stock_quantity} onChange={(v) => updateDraft(idx, { stock_quantity: v })} type="number" />
+                  )}
+                  <TextField label="Ordem" value={d.sort_order} onChange={(v) => updateDraft(idx, { sort_order: v })} type="number" />
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  <TextField label="Peso caixa (kg)" value={d.weight_kg} onChange={(v) => updateDraft(idx, { weight_kg: v })} type="number" />
+                  <TextField label="Largura (mm)" value={d.width_mm} onChange={(v) => updateDraft(idx, { width_mm: v })} type="number" />
+                  <TextField label="Altura (mm)" value={d.height_mm} onChange={(v) => updateDraft(idx, { height_mm: v })} type="number" />
+                  <TextField label="Comprimento (mm)" value={d.length_mm} onChange={(v) => updateDraft(idx, { length_mm: v })} type="number" />
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={d.is_active}
+                      onChange={(e) => updateDraft(idx, { is_active: e.target.checked })}
+                    />
+                    Ativo (exibido na loja)
+                  </label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => removeDraft(idx)} disabled={busy != null}>
+                      <Trash2 className="mr-1 h-3 w-3" /> Remover
+                    </Button>
+                    <Button size="sm" onClick={() => saveDraft(idx)} disabled={busy != null}>
+                      {busy === (d.id ?? `new-${idx}`) && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                      Salvar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            <Button size="sm" variant="outline" onClick={addRow}>
+              <Plus className="mr-1 h-3 w-3" /> Adicionar kit
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Dimensões e peso da <strong>caixa</strong> são usados pelo Melhor Envio quando este
+              kit é escolhido. Se o cliente comprar N caixas, N volumes serão despachados.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function TextField({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs uppercase text-muted-foreground">{label}</span>
+      <input
+        type={type}
+        inputMode={type === "number" ? "decimal" : undefined}
+        step={type === "number" ? "0.01" : undefined}
+        min={type === "number" ? "0" : undefined}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder ?? "—"}
+        className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
+      />
+    </label>
+  );
+}
+
