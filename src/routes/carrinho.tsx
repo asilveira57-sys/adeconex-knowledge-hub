@@ -177,36 +177,42 @@ function QtyStepper({
   quantity,
   onChange,
   max,
+  unitLabel,
 }: {
   quantity: number;
   onChange: (q: number) => void;
   max?: number;
+  unitLabel?: string;
 }) {
   const canInc = max == null || quantity < max;
   return (
-    <div className="inline-flex items-center rounded-lg border hairline bg-surface-2">
-      <button
-        type="button"
-        onClick={() => onChange(Math.max(1, quantity - 1))}
-        aria-label="Diminuir"
-        className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
-        disabled={quantity <= 1}
-      >
-        <Minus className="h-4 w-4" />
-      </button>
-      <span className="w-10 text-center text-sm font-medium tabular-nums">{quantity}</span>
-      <button
-        type="button"
-        onClick={() => onChange(quantity + 1)}
-        aria-label="Aumentar"
-        className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
-        disabled={!canInc}
-      >
-        <Plus className="h-4 w-4" />
-      </button>
+    <div className="flex items-center gap-2">
+      <div className="inline-flex items-center rounded-lg border hairline bg-surface-2">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(1, quantity - 1))}
+          aria-label="Diminuir"
+          className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+          disabled={quantity <= 1}
+        >
+          <Minus className="h-4 w-4" />
+        </button>
+        <span className="w-10 text-center text-sm font-medium tabular-nums">{quantity}</span>
+        <button
+          type="button"
+          onClick={() => onChange(quantity + 1)}
+          aria-label="Aumentar"
+          className="p-2 text-foreground hover:bg-accent disabled:opacity-40"
+          disabled={!canInc}
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+      </div>
+      {unitLabel && <span className="text-xs text-muted-foreground">{unitLabel}</span>}
     </div>
   );
 }
+
 
 function EmptyState() {
   return (
