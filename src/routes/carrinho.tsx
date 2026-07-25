@@ -80,6 +80,13 @@ function CartPage() {
                       {line.variant_label && (
                         <p className="text-xs text-muted-foreground">{line.variant_label}</p>
                       )}
+                      {line.units_per_pack > 1 && (
+                        <p className="text-xs text-primary">
+                          {line.quantity} {line.quantity === 1 ? "caixa" : "caixas"} ·{" "}
+                          {line.units_per_pack} un/cx ={" "}
+                          <strong>{line.quantity * line.units_per_pack} unidades</strong>
+                        </p>
+                      )}
                       {line.sku && (
                         <p className="text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
                           SKU {line.sku}
@@ -101,16 +108,18 @@ function CartPage() {
                       quantity={line.quantity}
                       onChange={(q) => updateQty.mutate({ item: line, quantity: q })}
                       max={line.max_stock ?? undefined}
+                      unitLabel={line.units_per_pack > 1 ? "caixas" : undefined}
                     />
                     <div className="text-right">
                       <div className="text-xs text-muted-foreground">
-                        {money(line.unit_price)} un.
+                        {money(line.unit_price)} {line.units_per_pack > 1 ? "/ caixa" : "un."}
                       </div>
                       <div className="font-display text-lg font-semibold tabular-nums">
                         {money(line.line_total)}
                       </div>
                     </div>
                   </div>
+
                 </div>
               </li>
             ))}
