@@ -3,15 +3,21 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { productPreviewOptions } from "@/lib/admin.queries";
-import { updateProductDimensions } from "@/lib/admin.functions";
+import {
+  updateProductDimensions,
+  setSellsByKit,
+  upsertProductKit,
+  deleteProductKit,
+} from "@/lib/admin.functions";
 import { publicMediaUrl } from "@/lib/enrichment.functions";
 import { isNonAdhesiveProduct, sanitizeTechnicalDescription, NON_ADHESIVE_PAPER_150_SPECS_HTML } from "@/lib/sanitize-technical";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2, Boxes, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+
 
 const previewOptions = productPreviewOptions;
 
