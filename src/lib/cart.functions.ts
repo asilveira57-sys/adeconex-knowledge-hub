@@ -315,11 +315,7 @@ export const getMyCart = createServerFn({ method: "GET" })
       };
     });
 
-
-    const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
-    const item_count = lines.reduce((s, l) => s + l.quantity, 0);
-
-    return { cart_id: cart.id, currency: cart.currency, items: lines, subtotal, item_count };
+    return await finalizeSnapshot(cart.id, cart.currency, lines);
   });
 
 // ---------- ADD ----------
