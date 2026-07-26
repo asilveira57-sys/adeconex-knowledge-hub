@@ -42,20 +42,16 @@ export type CartLine = {
   bundle_applied: boolean;
 };
 
-export function emptyCartSnapshot(): CartSnapshot {
-  return {
-    cart_id: null,
-    currency: "BRL",
-    items: [],
-    subtotal_full: 0,
-    bundle_discount_total: 0,
-    subtotal: 0,
-    item_count: 0,
-    bundle_discounts: [],
-  };
-}
-
-
+export type CartSnapshot = {
+  cart_id: string | null;
+  currency: string;
+  items: CartLine[];
+  subtotal_full: number;
+  bundle_discount_total: number;
+  subtotal: number;
+  item_count: number;
+  bundle_discounts: BundleApplication[];
+};
 
 export function emptyCartSnapshot(): CartSnapshot {
   return {
@@ -69,6 +65,7 @@ export function emptyCartSnapshot(): CartSnapshot {
     bundle_discounts: [],
   };
 }
+
 
 async function finalizeSnapshot(
   cart_id: string | null,
