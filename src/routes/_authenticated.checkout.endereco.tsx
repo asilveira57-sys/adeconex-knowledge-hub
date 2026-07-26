@@ -1,3 +1,4 @@
+import { emptyCartSnapshot } from "@/lib/cart.functions";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -164,7 +165,7 @@ function EnderecoStep() {
       </div>
 
       <CheckoutSummary
-        cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
+        cart={data?.cart ?? emptyCartSnapshot()}
         selection={selection}
         ctaLabel="Continuar para frete"
         ctaDisabled={!canContinue}

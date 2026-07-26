@@ -15,6 +15,10 @@ function publicUrl(base: string, path: string | null): string | null {
   return `${base}/storage/v1/object/public/${BUCKET}/${path.replace(/^\/+/, "")}`;
 }
 
+import type { BundleApplication } from "./bundles.shared";
+import { computeBundleApplications } from "./bundles.shared";
+import { loadActiveOffersMatchingProducts } from "./bundles.functions";
+
 export type CartLine = {
   item_id: string;
   product_id: string;
@@ -32,16 +36,85 @@ export type CartLine = {
   units_per_pack: number;
   /** Produto vendido apenas em kits fechados. */
   sells_by_kit: boolean;
+  /** Marcado quando a linha foi adicionada via oferta de Compre Junto. */
+  bundle_offer_id: string | null;
+  /** Marca se essa linha está contribuindo para um desconto de Compre Junto. */
+  bundle_applied: boolean;
 };
 
 export type CartSnapshot = {
   cart_id: string | null;
   currency: string;
   items: CartLine[];
+  subtotal_full: number;
+  bundle_discount_total: number;
   subtotal: number;
   item_count: number;
+  bundle_discounts: BundleApplication[];
 };
 
+export function emptyCartSnapshot(): CartSnapshot {
+  return {
+    cart_id: null,
+    currency: "BRL",
+    items: [],
+    subtotal_full: 0,
+    bundle_discount_total: 0,
+    subtotal: 0,
+    item_count: 0,
+    bundle_discounts: [],
+  };
+}
+
+
+async function finalizeSnapshot(
+  cart_id: string | null,
+  currency: string,
+  lines: CartLine[],
+): Promise<CartSnapshot> {
+  const subtotal_full = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
+  const item_count = lines.reduce((s, l) => s + l.quantity, 0);
+  const productIds = Array.from(new Set(lines.map((l) => l.product_id)));
+  let bundle_discounts: BundleApplication[] = [];
+  let bundle_discount_total = 0;
+  if (productIds.length > 0) {
+    try {
+      const offers = await loadActiveOffersMatchingProducts(productIds);
+      if (offers.length > 0) {
+        bundle_discounts = computeBundleApplications(
+          lines.map((l) => ({
+            item_id: l.item_id,
+            product_id: l.product_id,
+            variant_id: l.variant_id,
+            quantity: l.quantity,
+            unit_price: l.unit_price,
+            is_kit_variant: l.units_per_pack > 1,
+          })),
+          offers,
+        );
+        bundle_discount_total = Number(
+          bundle_discounts.reduce((s, b) => s + b.total_discount, 0).toFixed(2),
+        );
+        const affected = new Set<string>();
+        for (const b of bundle_discounts) for (const id of b.affected_item_ids) affected.add(id);
+        for (const l of lines) if (affected.has(l.item_id)) l.bundle_applied = true;
+      }
+    } catch {
+      // Se o cálculo falhar, seguimos sem desconto — nunca bloqueia o carrinho.
+    }
+  }
+  const subtotal = Number((subtotal_full - bundle_discount_total).toFixed(2));
+  return {
+    cart_id,
+    currency,
+    items: lines,
+    subtotal_full,
+    bundle_discount_total,
+    subtotal,
+    item_count,
+    bundle_discounts,
+  };
+}
 
 async function ensureCart(supabase: any, userId: string): Promise<string> {
   const { data: existing } = await supabase
@@ -59,6 +132,7 @@ async function ensureCart(supabase: any, userId: string): Promise<string> {
   if (error) throw new Error(error.message);
   return created.id;
 }
+
 
 /** Resolve current price + stock + labels for a (product, variant?) pair.
  *  Quando o produto vende por kit, exige variant_id de um kit ativo e retorna
@@ -146,7 +220,7 @@ export const getMyCart = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (!cart) {
-      return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
+      return emptyCartSnapshot();
     }
 
     const { data: rows } = await context.supabase
@@ -236,14 +310,12 @@ export const getMyCart = createServerFn({ method: "GET" })
         max_stock: maxStock,
         units_per_pack,
         sells_by_kit: !!p?.sells_by_kit,
+      bundle_offer_id: null,
+      bundle_applied: false,
       };
     });
 
-
-    const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
-    const item_count = lines.reduce((s, l) => s + l.quantity, 0);
-
-    return { cart_id: cart.id, currency: cart.currency, items: lines, subtotal, item_count };
+    return await finalizeSnapshot(cart.id, cart.currency, lines);
   });
 
 // ---------- ADD ----------
@@ -456,7 +528,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<CartSnapshot> => {
     if (data.items.length === 0) {
-      return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
+      return emptyCartSnapshot();
     }
     const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
     const productIds = Array.from(new Set(data.items.map((i) => i.product_id)));
@@ -540,13 +612,12 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         max_stock: maxStock,
         units_per_pack,
         sells_by_kit: !!p?.sells_by_kit,
+      bundle_offer_id: null,
+      bundle_applied: false,
       };
     });
 
-
-    const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
-    const item_count = lines.reduce((s, l) => s + l.quantity, 0);
-    return { cart_id: null, currency: "BRL", items: lines, subtotal, item_count };
+    return await finalizeSnapshot(null, "BRL", lines);
   });
 
 // ---------- RESTORE CART FROM A PENDING ORDER ----------

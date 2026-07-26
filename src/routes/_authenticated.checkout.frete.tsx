@@ -1,3 +1,4 @@
+import { emptyCartSnapshot } from "@/lib/cart.functions";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -229,7 +230,7 @@ function FreteStep() {
       </div>
 
       <CheckoutSummary
-        cart={snap?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
+        cart={snap?.cart ?? emptyCartSnapshot()}
         selection={selection}
         ctaLabel="Revisar pedido"
         ctaDisabled={!canContinue}

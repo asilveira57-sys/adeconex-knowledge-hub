@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useSession } from "@/hooks/use-session";
 import {
   addToCart,
+  emptyCartSnapshot,
   getMyCart,
   hydrateAnonymousCart,
   mergeAnonymousCart,
@@ -82,7 +83,7 @@ export function useCart() {
   }, [user?.id]);
 
   const snapshot: CartSnapshot = user
-    ? serverQuery.data ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }
+    ? serverQuery.data ?? emptyCartSnapshot()
     : anonQuery.data ?? buildLocalSnapshot(localItems);
 
   const add = useMutation({
@@ -157,13 +158,13 @@ function buildLocalSnapshot(items: ReturnType<typeof readLocalCart>): CartSnapsh
     max_stock: null,
     units_per_pack: 1,
     sells_by_kit: false,
+      bundle_offer_id: null,
+      bundle_applied: false,
   }));
 
   return {
-    cart_id: null,
-    currency: "BRL",
+    ...emptyCartSnapshot(),
     items: lines,
-    subtotal: 0,
     item_count: lines.reduce((s, l) => s + l.quantity, 0),
   };
 }
