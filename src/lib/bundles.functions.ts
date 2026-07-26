@@ -431,12 +431,16 @@ export const addBundleToCart = createServerFn({ method: "POST" })
     // Telemetria (best-effort)
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: cur } = await supabaseAdmin
+        .from("bundle_offers")
+        .select("add_to_cart_count")
+        .eq("id", offer.id)
+        .maybeSingle();
+      const next = Number((cur as any)?.add_to_cart_count ?? 0) + 1;
       await supabaseAdmin
         .from("bundle_offers")
-        .update({ add_to_cart_count: (offer as any).add_to_cart_count ?? 0 })
+        .update({ add_to_cart_count: next })
         .eq("id", offer.id);
-      // Increment via raw SQL fallback:
-      await supabaseAdmin.rpc("noop_ignore" as any, {}).catch(() => {});
     } catch {}
 
     return { ok: true, offer_id: offer.id };
