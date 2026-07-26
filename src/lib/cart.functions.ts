@@ -617,10 +617,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
       };
     });
 
-
-    const subtotal = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
-    const item_count = lines.reduce((s, l) => s + l.quantity, 0);
-    return { cart_id: null, currency: "BRL", items: lines, subtotal, item_count };
+    return await finalizeSnapshot(null, "BRL", lines);
   });
 
 // ---------- RESTORE CART FROM A PENDING ORDER ----------
