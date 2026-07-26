@@ -80,6 +80,138 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_offer_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_anchor: boolean
+          is_complement_target: boolean
+          offer_id: string
+          product_id: string
+          quantity: number
+          sort_order: number
+          updated_at: string
+          variant_id: string | null
+          variant_scope: Database["public"]["Enums"]["bundle_variant_scope"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_anchor?: boolean
+          is_complement_target?: boolean
+          offer_id: string
+          product_id: string
+          quantity?: number
+          sort_order?: number
+          updated_at?: string
+          variant_id?: string | null
+          variant_scope?: Database["public"]["Enums"]["bundle_variant_scope"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_anchor?: boolean
+          is_complement_target?: boolean
+          offer_id?: string
+          product_id?: string
+          quantity?: number
+          sort_order?: number
+          updated_at?: string
+          variant_id?: string | null
+          variant_scope?: Database["public"]["Enums"]["bundle_variant_scope"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_offer_items_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "bundle_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_offer_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_offer_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bundle_offers: {
+        Row: {
+          add_to_cart_count: number
+          allow_stack_with_coupon: boolean
+          conversions: number
+          created_at: string
+          discount_total: number
+          discount_type: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value: number
+          ends_at: string | null
+          id: string
+          impressions: number
+          is_active: boolean
+          name: string
+          product_id: string
+          revenue_total: number
+          sort_order: number
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          add_to_cart_count?: number
+          allow_stack_with_coupon?: boolean
+          conversions?: number
+          created_at?: string
+          discount_total?: number
+          discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value?: number
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          is_active?: boolean
+          name: string
+          product_id: string
+          revenue_total?: number
+          sort_order?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          add_to_cart_count?: number
+          allow_stack_with_coupon?: boolean
+          conversions?: number
+          created_at?: string
+          discount_total?: number
+          discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value?: number
+          ends_at?: string | null
+          id?: string
+          impressions?: number
+          is_active?: boolean
+          name?: string
+          product_id?: string
+          revenue_total?: number
+          sort_order?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_offers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -2046,6 +2178,13 @@ export type Database = {
         | "preorder"
         | "discontinued"
         | "made_to_order"
+      bundle_discount_type:
+        | "percent"
+        | "fixed"
+        | "fixed_price"
+        | "complement_percent"
+        | "complement_fixed"
+      bundle_variant_scope: "any" | "specific" | "any_kit"
       cart_status: "active" | "converted" | "abandoned"
       compatibility_type:
         | "printer"
@@ -2262,6 +2401,14 @@ export const Constants = {
         "discontinued",
         "made_to_order",
       ],
+      bundle_discount_type: [
+        "percent",
+        "fixed",
+        "fixed_price",
+        "complement_percent",
+        "complement_fixed",
+      ],
+      bundle_variant_scope: ["any", "specific", "any_kit"],
       cart_status: ["active", "converted", "abandoned"],
       compatibility_type: [
         "printer",
