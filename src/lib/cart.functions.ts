@@ -134,6 +134,72 @@ async function finalizeSnapshot(
   };
 }
 
+
+export function emptyCartSnapshot(): CartSnapshot {
+  return {
+    cart_id: null,
+    currency: "BRL",
+    items: [],
+    subtotal_full: 0,
+    bundle_discount_total: 0,
+    subtotal: 0,
+    item_count: 0,
+    bundle_discounts: [],
+  };
+}
+
+async function finalizeSnapshot(
+  cart_id: string | null,
+  currency: string,
+  lines: CartLine[],
+): Promise<CartSnapshot> {
+  const subtotal_full = Number(lines.reduce((s, l) => s + l.line_total, 0).toFixed(2));
+  const item_count = lines.reduce((s, l) => s + l.quantity, 0);
+  const productIds = Array.from(new Set(lines.map((l) => l.product_id)));
+  let bundle_discounts: BundleApplication[] = [];
+  let bundle_discount_total = 0;
+  if (productIds.length > 0) {
+    try {
+      const offers = await loadActiveOffersMatchingProducts(productIds);
+      if (offers.length > 0) {
+        bundle_discounts = computeBundleApplications(
+          lines.map((l) => ({
+            item_id: l.item_id,
+            product_id: l.product_id,
+            variant_id: l.variant_id,
+            quantity: l.quantity,
+            unit_price: l.unit_price,
+            is_kit_variant: l.units_per_pack > 1,
+          })),
+          offers,
+        );
+        bundle_discount_total = Number(
+          bundle_discounts.reduce((s, b) => s + b.total_discount, 0).toFixed(2),
+        );
+        const affected = new Set<string>();
+        for (const b of bundle_discounts) for (const id of b.affected_item_ids) affected.add(id);
+        for (const l of lines) if (affected.has(l.item_id)) l.bundle_applied = true;
+      }
+    } catch {
+      // Se o cálculo falhar, seguimos sem desconto — nunca bloqueia o carrinho.
+    }
+  }
+  const subtotal = Number((subtotal_full - bundle_discount_total).toFixed(2));
+  return {
+    cart_id,
+    currency,
+    items: lines,
+    subtotal_full,
+    bundle_discount_total,
+    subtotal,
+    item_count,
+    bundle_discounts,
+  };
+}
+
+async function ensureCart(supabase: any, userId: string): Promise<string> {
+  const { data: existing } = await supabase
+    .from("carts")
     .select("id")
     .eq("user_id", userId)
     .eq("status", "active")
@@ -147,6 +213,7 @@ async function finalizeSnapshot(
   if (error) throw new Error(error.message);
   return created.id;
 }
+
 
 /** Resolve current price + stock + labels for a (product, variant?) pair.
  *  Quando o produto vende por kit, exige variant_id de um kit ativo e retorna
