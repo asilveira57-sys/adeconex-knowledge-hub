@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useSession } from "@/hooks/use-session";
 import {
   addToCart,
+  emptyCartSnapshot,
   getMyCart,
   hydrateAnonymousCart,
   mergeAnonymousCart,
