@@ -163,10 +163,8 @@ function buildLocalSnapshot(items: ReturnType<typeof readLocalCart>): CartSnapsh
   }));
 
   return {
-    cart_id: null,
-    currency: "BRL",
+    ...emptyCartSnapshot(),
     items: lines,
-    subtotal: 0,
     item_count: lines.reduce((s, l) => s + l.quantity, 0),
   };
 }
