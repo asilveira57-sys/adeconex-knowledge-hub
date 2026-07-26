@@ -15,6 +15,10 @@ function publicUrl(base: string, path: string | null): string | null {
   return `${base}/storage/v1/object/public/${BUCKET}/${path.replace(/^\/+/, "")}`;
 }
 
+import type { BundleApplication } from "./bundles.shared";
+import { computeBundleApplications } from "./bundles.shared";
+import { loadActiveOffersMatchingProducts } from "./bundles.functions";
+
 export type CartLine = {
   item_id: string;
   product_id: string;
@@ -32,15 +36,26 @@ export type CartLine = {
   units_per_pack: number;
   /** Produto vendido apenas em kits fechados. */
   sells_by_kit: boolean;
+  /** Marcado quando a linha foi adicionada via oferta de Compre Junto. */
+  bundle_offer_id: string | null;
+  /** Marca se essa linha está contribuindo para um desconto de Compre Junto. */
+  bundle_applied: boolean;
 };
 
 export type CartSnapshot = {
   cart_id: string | null;
   currency: string;
   items: CartLine[];
+  /** Soma dos line_total (sem descontos de Compre Junto). */
+  subtotal_full: number;
+  /** Total descontado por Compre Junto. */
+  bundle_discount_total: number;
+  /** Subtotal já com os descontos de Compre Junto aplicados. */
   subtotal: number;
   item_count: number;
+  bundle_discounts: BundleApplication[];
 };
+
 
 
 async function ensureCart(supabase: any, userId: string): Promise<string> {
