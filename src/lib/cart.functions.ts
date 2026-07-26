@@ -310,6 +310,8 @@ export const getMyCart = createServerFn({ method: "GET" })
         max_stock: maxStock,
         units_per_pack,
         sells_by_kit: !!p?.sells_by_kit,
+      bundle_offer_id: null,
+      bundle_applied: false,
       };
     });
 
@@ -614,6 +616,8 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
         max_stock: maxStock,
         units_per_pack,
         sells_by_kit: !!p?.sells_by_kit,
+      bundle_offer_id: null,
+      bundle_applied: false,
       };
     });
 

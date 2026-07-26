@@ -157,6 +157,8 @@ function buildLocalSnapshot(items: ReturnType<typeof readLocalCart>): CartSnapsh
     max_stock: null,
     units_per_pack: 1,
     sells_by_kit: false,
+      bundle_offer_id: null,
+      bundle_applied: false,
   }));
 
   return {
