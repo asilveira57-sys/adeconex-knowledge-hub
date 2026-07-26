@@ -1,63 +1,98 @@
 ## Objetivo
-Habilitar venda por embalagens/kits fechados reaproveitando a tabela `product_variants` como "opção de kit", sem criar módulo novo. Produtos com o flag ativado só permitem selecionar caixas/kits pré-cadastrados (Unidade, Kit 5, Kit 10, etc.) — sem digitar quantidade livre em unidades. Produtos sem o flag mantêm o comportamento atual.
+Adicionar "Compre Junto" ao Adeconex 2030 sem criar módulo separado. Reaproveitar `products`, `product_variants` (kits), `cart_items` e `order_items`. Vantagem = desconto (percentual, fixo, preço fechado, ou desconto só no complementar) aplicado somente quando todos os itens obrigatórios estiverem no carrinho.
 
-## Alterações de banco (uma migração)
-Reaproveitar `product_variants` como "kit". Adicionar apenas o necessário:
+## Banco (uma migração)
 
-- `products.sells_by_kit boolean not null default false`
-- `product_variants.units_per_pack integer not null default 1` — unidades dentro do kit
-- `product_variants.is_kit boolean not null default false` — marca a linha como opção de kit
-- `product_variants.is_active boolean not null default true` — status ativo/inativo
-- `product_variants.stock_mode text not null default 'own'` — `own` (estoque próprio em caixas) ou `derived` (calculado a partir do estoque unitário do produto)
+Reaproveitamos onde possível. Criar apenas:
 
-Dimensões/peso da caixa já existem em `product_variants` (`weight_kg`, `width_mm/cm`, `height_mm/cm`, `length_mm/cm`, `insurance_value`), então são reutilizados. `sku`, `price`, `promotional_price`, `sort_order` também já existem.
+- `bundle_offers`
+  - `product_id` (produto âncora — onde a oferta aparece)
+  - `name` interno, `slug` opcional, `sort_order`, `is_active`
+  - `discount_type`: `percent | fixed | fixed_price | complement_percent | complement_fixed`
+  - `discount_value numeric` (percentual, valor, ou preço fechado)
+  - `allow_stack_with_coupon boolean default false`
+  - `starts_at`, `ends_at` (opcional)
+  - contadores de telemetria: `impressions`, `add_to_cart_count`, `conversions`, `revenue_total`, `discount_total`
+- `bundle_offer_items`
+  - `offer_id`, `product_id`
+  - `variant_id` (nullable — variação/kit obrigatório)
+  - `variant_scope`: `any | specific | any_kit` (para "todos os kits ativos")
+  - `quantity int` (obrigatória por conjunto)
+  - `is_anchor boolean` (marca o produto principal)
+  - `is_complement_target boolean` (usado por `complement_*` para saber onde aplicar desconto)
+  - `sort_order`
 
-Sem seed novo. Migração é aditiva — pedidos e produtos atuais continuam funcionando.
+RLS: leitura pública para ofertas ativas dentro da janela; escrita apenas staff. GRANT `select` para `anon` + `authenticated`; `all` para `service_role`.
 
-## Backend (server functions)
+Sem tabela de "aplicações" — a aplicação é derivada no carrinho a partir dos itens presentes; telemetria de vendas é incrementada na conclusão do pedido.
 
-**`src/lib/admin.functions.ts`**
-- Estender `updateProductBasic`/salvar produto: aceitar `sells_by_kit`.
-- Adicionar CRUD de kits: `upsertProductKit`, `deleteProductKit` (na verdade upsert em `product_variants` com `is_kit=true`).
+Reaproveitamento: nenhuma mudança em `products`. `cart_items.metadata` já é jsonb — usamos `metadata.bundle` para marcar `{ offer_id, role: 'anchor'|'complement' }`. `order_items.metadata` recebe o mesmo snapshot no checkout. `orders.metadata.bundle_discounts` guarda o resumo por oferta (id, nome, conjuntos aplicados, desconto).
 
-**`src/lib/catalog.functions.ts`**
-- Retornar `sells_by_kit` no produto e filtrar variantes com `is_kit=true, is_active=true` quando aplicável. Incluir `units_per_pack`, `stock_mode` e resolver estoque efetivo (`own` → `stock_quantity`; `derived` → `floor(product.stock_quantity / units_per_pack)`).
+## Backend
+
+**`src/lib/bundles.functions.ts`** (novo, client-safe wrapper)
+- `listBundleOffersForProduct(product_id)` — público, retorna ofertas ativas + itens + snapshot de preço/imagem de cada participante (usa cliente publishable server-side).
+- `computeBundleApplications(cartItems)` — helper puro; dado o carrinho, retorna: `[{ offer_id, applications: N, per_conjunto_discount, total_discount, affected_item_ids }]`. Regras:
+  - conta quantos conjuntos completos cabem (min de floor(qty_item / qty_required) para cada item obrigatório, respeitando `variant_scope`);
+  - aplica desconto apenas nas N unidades correspondentes por item; excedente fica com preço cheio;
+  - se duas ofertas competem pelos mesmos itens, escolhe a de maior `total_discount` (greedy por desconto/conjunto desc);
+  - `complement_*` aplica só nos itens marcados `is_complement_target`.
+- `addBundleToCart({ offer_id, selections })` — valida estoque de TODOS os itens antes; insere cada item via lógica existente com `metadata.bundle = { offer_id, role }`; falha atômica (rollback dos inserts já feitos) se algum estoque faltar.
 
 **`src/lib/cart.functions.ts`**
-- `addToCart` e hidratação: quando o produto vende por kit, exigir `variant_id` de um kit ativo; `quantity` representa nº de caixas (não unidades).
-- Snapshot de linha: incluir `units_per_pack`, `total_units = quantity * units_per_pack`, `unit_price` do kit, `line_total = quantity * unit_price`, dimensões/peso do kit no `metadata`.
-- Validação de estoque: usar estoque em caixas (modo `own`) ou derivar do estoque unitário (modo `derived`), rejeitando excesso.
+- Estender `getMyCart`/`hydrateAnonymousCart`: depois de montar linhas, rodar `computeBundleApplications` e devolver no snapshot:
+  - `bundle_discounts: [{ offer_id, name, applications, discount_total, savings_label }]`
+  - `subtotal` = subtotal cheio − soma de descontos de bundle
+  - por linha, `bundle_applied_qty` e `bundle_discount_applied` (para UI)
+- Nenhuma mudança em preços gravados; desconto é calculado, não persistido nas linhas.
 
-**`src/lib/shipping.functions.ts` e `shipping-preview.functions.ts`**
-- Ao montar `products[]` para o Melhor Envio: quando o item vier de um kit, usar peso/dimensões da caixa (variant) e enviar `quantity = nº de caixas` (a API já trata cada `quantity` como volume). Sem kit, comportamento atual.
+**`src/lib/checkout.functions.ts`**
+- `getCheckoutSnapshot` já usa carrinho — herda os descontos.
+- Ao criar pedido: preencher `orders.discount_total` com soma dos bundles + cupom; gravar `orders.metadata.bundle_discounts` e por item `order_items.metadata.bundle` e `discount` proporcional. Incrementar contadores `conversions/revenue_total/discount_total` na oferta (best-effort, dentro da mesma transação de finalização).
 
-**`src/lib/checkout.functions.ts` / `orders.functions.ts`**
-- `order_items.metadata` recebe `units_per_pack`, `total_units`, dimensões da caixa. `product_sku`/`variant_label` já cobrem identificação. Sem mudança de schema em pedidos.
+**`src/lib/payments.functions.ts`** — nada muda além de já usar o `total` recalculado.
+
+**`src/lib/admin.functions.ts`**
+- `listBundleOffers(product_id)`, `upsertBundleOffer(offer + items[])`, `deleteBundleOffer`, `duplicateBundleOffer`, `toggleBundleOfferActive`.
+- `searchProductsForBundle(q)` — busca por nome/SKU (limite 20) para o seletor.
+
+**Frete e conflitos**
+- Frete: nada muda — cada linha continua com seu peso/dimensões/kit.
+- Cupom: no cálculo do cupom, ignorar itens já cobertos por bundle a menos que `allow_stack_with_coupon = true` na oferta. Ordem: promocional do produto → bundle → cupom → desconto geral.
 
 ## Frontend
 
 **Admin — `src/routes/_authenticated.admin.produtos.$id.tsx`**
-- Toggle "Venda por kits fechados" no card básico.
-- Novo card "Opções de kit" (quando ligado): tabela editável com nome, unidades por kit, SKU, preço, preço promocional, estoque (modo + valor), peso/dimensões da caixa, ativo, ordem. Botões adicionar/remover.
+- Novo card `BundleOffersCard` abaixo do `KitsCard`. Lista de ofertas com editor inline (drawer/dialog): nome, itens (busca produto → escolher variação/kit ou "qualquer kit ativo" → quantidade → marcar âncora/alvo do desconto complementar), tipo/valor de desconto, datas, ativo, ordem, "permitir acumular com cupom". Mostra preço normal do conjunto e preço final simulado. Ações: editar, duplicar, excluir.
 
 **Produto — `src/routes/produto.$slug.tsx`**
-- Quando `sells_by_kit`, substituir o seletor atual de variantes por cards/botões de kit (Unidade / Caixa com 5 / …). Ao selecionar: recalcular preço da caixa, preço por unidade, estoque em caixas, e passar dimensões da caixa para `ShippingCepQuote`.
-- Campo de quantidade passa a se chamar "Caixas" com máx = estoque em caixas do kit. Exibir "N caixas × M un = X unidades".
+- Novo componente `BundleOffersSection` abaixo das informações principais. Para cada oferta ativa: cards dos itens (imagem, nome, variação/kit, quantidade, preço), preço normal, desconto, preço final, economia em R$, botão "Adicionar conjunto ao carrinho". Quando `variant_scope='any'` ou `any_kit`, exigir seleção antes de habilitar o botão. Registra impressão (fire-and-forget) uma vez por sessão.
 
 **Carrinho — `src/routes/carrinho.tsx` + `CheckoutSummary`**
-- Exibir, nas linhas com kit, "3 caixas com 20 unidades — total 60 unidades" e SKU do kit.
+- Renderizar acima do subtotal um bloco "Oferta Compre Junto aplicada" por oferta, com preço normal, desconto e economia. Nas linhas afetadas, badge discreta "Compre Junto".
+- Se validação quebrar (item removido, quantidade insuficiente, variação trocada), simplesmente parar de exibir o desconto — o cálculo já é derivado; toast informativo apenas quando o próprio usuário reduzir/remover um item marcado como bundle.
 
-**Painel de pedidos (cliente e admin)**
-- Renderizar `metadata.units_per_pack`/`total_units` quando presente.
+**Pedido (cliente/admin)**
+- Exibir seção "Ofertas aplicadas" a partir de `orders.metadata.bundle_discounts`.
+
+## Telemetria
+- Impressão: `impressions++` server fn simples chamada pelo produto (uma vez por sessão por oferta).
+- Adição ao carrinho: `add_to_cart_count++` em `addBundleToCart`.
+- Conversão: incrementos em `conversions`, `revenue_total`, `discount_total` no fechamento do pedido pago.
+- Nada de painel BI agora — só campos prontos.
 
 ## Ordem de implementação
-1. Migração + regeneração de types.
-2. Admin: flag + CRUD de kits.
-3. Catálogo + página do produto (seleção de kit, sem quantidade livre).
-4. Carrinho (persistência do kit, validações de estoque em caixas).
-5. Frete (peso/dimensões da caixa, quantidade = volumes).
-6. Exibição em pedido/checkout.
+1. Migração (`bundle_offers`, `bundle_offer_items`, grants, RLS, índices por `product_id`, `is_active`).
+2. Server fns públicas de leitura + `computeBundleApplications` puro (com testes rápidos manuais no carrinho).
+3. Integração no snapshot do carrinho (desconto derivado).
+4. Card admin com CRUD.
+5. Seção na página do produto + `addBundleToCart` com validação de estoque.
+6. Renderização no carrinho + resumo do checkout.
+7. Persistência no pedido + interação com cupom (respeitar `allow_stack_with_coupon`).
+8. Contadores de telemetria.
 
 ## Fora de escopo
-- Nenhum novo módulo, tabela de "kits" separada, ou mudança em Mercado Pago/checkout além de repassar `metadata`.
-- Produtos sem o flag ficam intocados.
+- Novo módulo/rota dedicada de "promoções".
+- Alteração de `products.price`.
+- Painel de BI/relatórios visuais.
+- Mudanças em frete, kits, Mercado Pago ou Melhor Envio além de repassar `total`/`metadata`.
