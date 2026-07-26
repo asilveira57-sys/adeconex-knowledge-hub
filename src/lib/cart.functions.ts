@@ -220,7 +220,7 @@ export const getMyCart = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (!cart) {
-      return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
+      return emptyCartSnapshot();
     }
 
     const { data: rows } = await context.supabase
@@ -530,7 +530,7 @@ export const hydrateAnonymousCart = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }): Promise<CartSnapshot> => {
     if (data.items.length === 0) {
-      return { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 };
+      return emptyCartSnapshot();
     }
     const { supabaseAdmin: supabase } = await import("@/integrations/supabase/client.server");
     const productIds = Array.from(new Set(data.items.map((i) => i.product_id)));

@@ -183,7 +183,7 @@ function PagamentoStep() {
       </div>
 
       <CheckoutSummary
-        cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
+        cart={data?.cart ?? emptyCartSnapshot()}
         selection={selection}
         ctaLabel={mutation.isPending ? "Preparando…" : "Pagar com Mercado Pago"}
         ctaDisabled={!canPay || mutation.isPending}

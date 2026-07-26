@@ -156,7 +156,7 @@ function RevisaoStep() {
       </div>
 
       <CheckoutSummary
-        cart={data?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
+        cart={data?.cart ?? emptyCartSnapshot()}
         selection={selection}
         ctaLabel="Ir para pagamento"
         ctaDisabled={!canContinue}

@@ -229,7 +229,7 @@ function FreteStep() {
       </div>
 
       <CheckoutSummary
-        cart={snap?.cart ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }}
+        cart={snap?.cart ?? emptyCartSnapshot()}
         selection={selection}
         ctaLabel="Revisar pedido"
         ctaDisabled={!canContinue}

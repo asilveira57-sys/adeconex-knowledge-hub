@@ -82,7 +82,7 @@ export function useCart() {
   }, [user?.id]);
 
   const snapshot: CartSnapshot = user
-    ? serverQuery.data ?? { cart_id: null, currency: "BRL", items: [], subtotal: 0, item_count: 0 }
+    ? serverQuery.data ?? emptyCartSnapshot()
     : anonQuery.data ?? buildLocalSnapshot(localItems);
 
   const add = useMutation({
