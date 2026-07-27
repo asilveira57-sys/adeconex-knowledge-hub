@@ -11,6 +11,7 @@ import {
 } from "@/lib/bundles.functions";
 import { money, type BundleOffer, type BundleOfferItem } from "@/lib/bundles.shared";
 import { useSession } from "@/hooks/use-session";
+import { addToLocalCart } from "@/lib/cart.local";
 
 type Props = { productId: string };
 
@@ -95,25 +96,33 @@ function BundleOfferCard({ offer }: { offer: BundleOffer }) {
   );
 
   async function onAdd() {
-    if (!user) {
-      toast.error("Entre para adicionar o conjunto ao carrinho.");
-      return;
-    }
     try {
       setSubmitting(true);
-      await addFn({
-        data: {
-          offer_id: offer.id,
-          selections: offer.items.map((i) => ({
-            offer_item_id: i.id,
-            product_id: i.product_id,
-            variant_id:
-              i.variant_scope === "specific"
-                ? i.variant_id
-                : selections[i.id] ?? null,
-          })),
-        },
-      });
+      const picks = offer.items.map((i) => ({
+        offer_item_id: i.id,
+        product_id: i.product_id,
+        variant_id:
+          i.variant_scope === "specific"
+            ? i.variant_id
+            : selections[i.id] ?? null,
+        quantity: i.quantity,
+      }));
+      if (user) {
+        await addFn({
+          data: {
+            offer_id: offer.id,
+            selections: picks.map(({ quantity: _q, ...rest }) => rest),
+          },
+        });
+      } else {
+        for (const s of picks) {
+          addToLocalCart({
+            product_id: s.product_id,
+            variant_id: s.variant_id ?? null,
+            quantity: s.quantity,
+          });
+        }
+      }
       toast.success("Conjunto adicionado ao carrinho");
       qc.invalidateQueries({ queryKey: ["cart"] });
     } catch (err: any) {
