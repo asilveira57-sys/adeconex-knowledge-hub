@@ -11,6 +11,7 @@ import {
 } from "@/lib/bundles.functions";
 import { money, type BundleOffer, type BundleOfferItem } from "@/lib/bundles.shared";
 import { useSession } from "@/hooks/use-session";
+import { addToLocalCart } from "@/lib/cart.local";
 
 type Props = { productId: string };
 
