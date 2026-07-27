@@ -13,6 +13,7 @@ import { formatCommercialHtml } from "@/lib/format-commercial";
 import { BASE_URL, absoluteUrl } from "@/lib/seo";
 import { Button } from "@/components/ui/button";
 import { ShippingCepQuote } from "@/components/shipping-cep-quote";
+import { BundleOffersSection } from "@/components/bundle-offers-section";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -585,6 +586,9 @@ function ProductPage() {
             </div>
           </div>
         </div>
+
+        {/* Compre junto */}
+        <BundleOffersSection productId={p.id} />
 
         {/* Sobre o produto */}
         {commercialHtml && (
