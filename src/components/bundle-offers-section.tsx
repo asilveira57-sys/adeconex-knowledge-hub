@@ -98,25 +98,28 @@ function BundleOfferCard({ offer }: { offer: BundleOffer }) {
   async function onAdd() {
     try {
       setSubmitting(true);
-      const selections = offer.items.map((i) => ({
+      const picks = offer.items.map((i) => ({
         offer_item_id: i.id,
         product_id: i.product_id,
         variant_id:
           i.variant_scope === "specific"
             ? i.variant_id
-            : selections_get(selections_state(), i.id),
+            : selections[i.id] ?? null,
+        quantity: i.quantity,
       }));
       if (user) {
-        await addFn({ data: { offer_id: offer.id, selections } });
+        await addFn({
+          data: {
+            offer_id: offer.id,
+            selections: picks.map(({ quantity: _q, ...rest }) => rest),
+          },
+        });
       } else {
-        // Anônimo: adiciona itens ao carrinho local. O desconto do "Compre Junto"
-        // é recomputado no snapshot pelo algoritmo de bundles.
-        for (const s of selections) {
+        for (const s of picks) {
           addToLocalCart({
             product_id: s.product_id,
             variant_id: s.variant_id ?? null,
-            quantity:
-              offer.items.find((i) => i.id === s.offer_item_id)?.quantity ?? 1,
+            quantity: s.quantity,
           });
         }
       }
@@ -127,14 +130,6 @@ function BundleOfferCard({ offer }: { offer: BundleOffer }) {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  // Helpers locais para não recomputar selections dentro do map acima
-  function selections_state() {
-    return selections;
-  }
-  function selections_get(state: Record<string, string | null>, id: string) {
-    return state[id] ?? null;
   }
 
   return (
