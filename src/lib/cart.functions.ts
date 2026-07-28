@@ -272,7 +272,7 @@ export const getMyCart = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<CartSnapshot> => {
     const { data: cart } = await context.supabase
       .from("carts")
-      .select("id, currency")
+      .select("id, currency, coupon_code")
       .eq("user_id", context.userId)
       .eq("status", "active")
       .maybeSingle();
@@ -373,7 +373,8 @@ export const getMyCart = createServerFn({ method: "GET" })
       };
     });
 
-    return await finalizeSnapshot(cart.id, cart.currency, lines);
+    const snap = await finalizeSnapshot(cart.id, cart.currency, lines);
+    return await applyCouponToSnapshot(context.supabase, context.userId, (cart as any).coupon_code ?? null, snap);
   });
 
 // ---------- ADD ----------
