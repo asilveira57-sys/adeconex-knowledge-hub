@@ -249,9 +249,10 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         currency: cart.currency ?? "BRL",
         subtotal,
         shipping_total: ship.total,
-        discount_total: 0,
+        discount_total: couponDiscount,
         tax_total: 0,
         total,
+        coupon_code: couponCodeApplied,
         shipping_carrier: ship.carrier,
         shipping_service: ship.service,
         shipping_deadline_days: ship.deadline,
@@ -260,11 +261,31 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         requires_art: items.some((i) => /arte|imprim/i.test(i.product_name)),
         metadata: {
           shipping_option: data.shipping_option,
+          coupon: couponCodeApplied
+            ? { code: couponCodeApplied, discount: couponDiscount, eligible_total: couponEligibleTotal }
+            : null,
         },
       })
       .select("id, order_number, total")
       .single();
     if (orderErr) throw new Error(orderErr.message);
+
+    // 5.1) Registra resgate do cupom (reservado) — se falhar, aborta o pedido
+    if (couponCodeApplied) {
+      const { error: redErr } = await supabase.rpc("redeem_coupon", {
+        _coupon_code: couponCodeApplied,
+        _order_id: order.id,
+        _user_id: context.userId,
+        _original_total: subtotal,
+        _eligible_total: couponEligibleTotal,
+        _discount: couponDiscount,
+        _final_total: total,
+      });
+      if (redErr) {
+        await supabase.from("orders").delete().eq("id", order.id);
+        throw new Error(`Cupom recusado: ${redErr.message}`);
+      }
+    }
 
     // 6) Itens do pedido
     const { error: itemsErr } = await supabase.from("order_items").insert(
