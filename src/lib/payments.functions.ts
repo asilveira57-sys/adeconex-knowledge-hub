@@ -110,7 +110,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     // 3) Carrinho + itens (recalculando preços)
     const { data: cart } = await supabase
       .from("carts")
-      .select("id, currency")
+      .select("id, currency, coupon_code")
       .eq("user_id", context.userId)
       .eq("status", "active")
       .maybeSingle();
@@ -196,7 +196,48 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
       data.shipping_quote_id ?? null,
     );
 
-    const total = Number((subtotal + ship.total).toFixed(2));
+    // 4.1) Cupom (revalida server-side)
+    let couponDiscount = 0;
+    let couponEligibleTotal = 0;
+    let couponCodeApplied: string | null = null;
+    if ((cart as any).coupon_code) {
+      const { evaluateCouponForCheckout } = await import("./coupons.functions");
+      const evalLines = items.map((i, idx) => ({
+        item_id: `pending-${idx}`,
+        product_id: i.product_id,
+        category_ids: [] as string[],
+        quantity: i.quantity,
+        unit_price: i.unit_price,
+        line_total: i.subtotal,
+      }));
+      // Categorias dos produtos elegíveis
+      const { data: pcs } = await supabase
+        .from("product_categories")
+        .select("product_id, category_id")
+        .in("product_id", productIds);
+      const catMap = new Map<string, string[]>();
+      for (const pc of pcs ?? []) {
+        const list = catMap.get(pc.product_id) ?? [];
+        list.push(pc.category_id);
+        catMap.set(pc.product_id, list);
+      }
+      for (const l of evalLines) l.category_ids = catMap.get(l.product_id) ?? [];
+      try {
+        const cp = await evaluateCouponForCheckout(
+          supabase,
+          context.userId,
+          (cart as any).coupon_code,
+          evalLines,
+        );
+        couponDiscount = cp.discount;
+        couponEligibleTotal = cp.eligible_total;
+        couponCodeApplied = cp.code;
+      } catch (e: any) {
+        throw new Error(`Cupom não pode ser aplicado: ${e?.message ?? "erro desconhecido"}`);
+      }
+    }
+
+    const total = Number((subtotal + ship.total - couponDiscount).toFixed(2));
 
     // 5) Cria pedido (aguardando_pagamento) — order_number via trigger/default
     const { data: order, error: orderErr } = await supabase
