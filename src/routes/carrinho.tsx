@@ -1,8 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Minus, Plus, ShoppingBag, Trash2, ImageOff } from "lucide-react";
+import { useState } from "react";
+import { Minus, Plus, ShoppingBag, Trash2, ImageOff, X } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/use-session";
+import { applyCouponToCart, removeCouponFromCart } from "@/lib/coupons.functions";
 
 export const Route = createFileRoute("/carrinho")({
   head: () => ({
@@ -130,12 +135,29 @@ function CartPage() {
               <h2 className="font-display text-lg font-semibold">Resumo</h2>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="tabular-nums font-medium">{money(snapshot.subtotal)}</span>
+                <span className="tabular-nums font-medium">{money(snapshot.subtotal_full)}</span>
               </div>
+              {snapshot.bundle_discount_total > 0 && (
+                <div className="flex justify-between text-sm text-emerald-600">
+                  <span>Compre Junto</span>
+                  <span className="tabular-nums font-medium">- {money(snapshot.bundle_discount_total)}</span>
+                </div>
+              )}
+              {snapshot.coupon && snapshot.coupon_discount_total > 0 && (
+                <div className="flex justify-between text-sm text-emerald-600">
+                  <span>Cupom {snapshot.coupon.code}</span>
+                  <span className="tabular-nums font-medium">- {money(snapshot.coupon_discount_total)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Frete</span>
                 <span className="text-muted-foreground">Calculado no checkout</span>
               </div>
+              <div className="flex items-baseline justify-between border-t hairline pt-3">
+                <span className="font-display text-base font-semibold">Total parcial</span>
+                <span className="font-display text-lg font-semibold tabular-nums">{money(snapshot.subtotal)}</span>
+              </div>
+              {user && <CouponBox snapshot={snapshot} />}
               <div className="border-t hairline pt-4">
                 {user ? (
                   <Button asChild className="w-full" size="lg">
