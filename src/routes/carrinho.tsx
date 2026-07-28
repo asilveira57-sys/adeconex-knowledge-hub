@@ -235,6 +235,79 @@ function QtyStepper({
   );
 }
 
+function CouponBox({ snapshot }: { snapshot: ReturnType<typeof useCart>["snapshot"] }) {
+  const qc = useQueryClient();
+  const applyFn = useServerFn(applyCouponToCart);
+  const removeFn = useServerFn(removeCouponFromCart);
+  const [code, setCode] = useState("");
+
+  const apply = useMutation({
+    mutationFn: async (c: string) => applyFn({ data: { code: c } }),
+    onSuccess: (res: any) => {
+      if (res?.ok) {
+        toast.success(`Cupom ${res.code} aplicado`);
+        setCode("");
+        qc.invalidateQueries({ queryKey: ["cart", "me"] });
+      } else {
+        toast.error(res?.reason ?? "Cupom inválido");
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: async () => removeFn(),
+    onSuccess: () => {
+      toast.success("Cupom removido");
+      qc.invalidateQueries({ queryKey: ["cart", "me"] });
+    },
+  });
+
+  if (snapshot.coupon && !snapshot.coupon.error) {
+    return (
+      <div className="flex items-center justify-between rounded-md border hairline bg-emerald-50 px-3 py-2 text-sm dark:bg-emerald-950/30">
+        <div>
+          <span className="font-mono font-semibold">{snapshot.coupon.code}</span>
+          {snapshot.coupon.name && <span className="ml-2 text-xs text-muted-foreground">{snapshot.coupon.name}</span>}
+        </div>
+        <button
+          type="button"
+          onClick={() => remove.mutate()}
+          className="text-xs text-muted-foreground hover:text-destructive"
+          aria-label="Remover cupom"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {snapshot.coupon?.error && (
+        <p className="text-xs text-destructive">{snapshot.coupon.code}: {snapshot.coupon.error}</p>
+      )}
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (code.trim()) apply.mutate(code.trim().toUpperCase());
+        }}
+      >
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="Cupom de desconto"
+          className="flex-1 rounded-md border hairline bg-background px-3 py-2 text-sm uppercase"
+        />
+        <Button type="submit" variant="outline" size="sm" disabled={apply.isPending || !code.trim()}>
+          Aplicar
+        </Button>
+      </form>
+    </div>
+  );
+}
+
 
 function EmptyState() {
   return (
