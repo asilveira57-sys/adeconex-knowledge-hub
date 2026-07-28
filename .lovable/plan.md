@@ -1,98 +1,72 @@
-## Objetivo
-Adicionar "Compre Junto" ao Adeconex 2030 sem criar módulo separado. Reaproveitar `products`, `product_variants` (kits), `cart_items` e `order_items`. Vantagem = desconto (percentual, fixo, preço fechado, ou desconto só no complementar) aplicado somente quando todos os itens obrigatórios estiverem no carrinho.
+## Estrutura encontrada
 
-## Banco (uma migração)
+Já existem no banco:
+- `coupons` — id, code (único), description, type (`percent | fixed | free_shipping`), value, min_order_amount, max_uses, max_uses_per_user, starts_at, expires_at, is_active. RLS: leitura autenticada + gestão staff.
+- `coupon_redemptions` — coupon_id, order_id, user_id, amount. Único por (coupon_id, order_id).
+- `orders.coupon_code` (text), `orders.discount_total` — já existem no snapshot do pedido.
 
-Reaproveitamos onde possível. Criar apenas:
+Nenhum código no front/back usa cupons hoje (`carrinho`, `checkout`, `payments`, `orders` não referenciam `coupon_*`). Portanto vamos ligar o cupom sem alterar preço/frete/fechamento — só somamos ao `discount_total` e gravamos `orders.coupon_code`.
 
-- `bundle_offers`
-  - `product_id` (produto âncora — onde a oferta aparece)
-  - `name` interno, `slug` opcional, `sort_order`, `is_active`
-  - `discount_type`: `percent | fixed | fixed_price | complement_percent | complement_fixed`
-  - `discount_value numeric` (percentual, valor, ou preço fechado)
-  - `allow_stack_with_coupon boolean default false`
-  - `starts_at`, `ends_at` (opcional)
-  - contadores de telemetria: `impressions`, `add_to_cart_count`, `conversions`, `revenue_total`, `discount_total`
-- `bundle_offer_items`
-  - `offer_id`, `product_id`
-  - `variant_id` (nullable — variação/kit obrigatório)
-  - `variant_scope`: `any | specific | any_kit` (para "todos os kits ativos")
-  - `quantity int` (obrigatória por conjunto)
-  - `is_anchor boolean` (marca o produto principal)
-  - `is_complement_target boolean` (usado por `complement_*` para saber onde aplicar desconto)
-  - `sort_order`
+## Tabelas alteradas (uma migração pequena)
 
-RLS: leitura pública para ofertas ativas dentro da janela; escrita apenas staff. GRANT `select` para `anon` + `authenticated`; `all` para `service_role`.
+Extensão de `coupons` (todas nullable/default seguros — pedidos antigos continuam):
+- `name text` (nome interno)
+- `max_discount_per_order numeric` (limite por utilização)
+- `max_total_discount numeric` (limite geral acumulado em R$)
+- `applies_to_all_customers boolean default true`
+- `applies_to_all_categories boolean default true`
+- `applies_to_all_products boolean default true`
+- `stack_with_promotions boolean default true` (acúmulo com promocional/bundle)
+- `total_discount_used numeric default 0` (contador consolidado para concorrência)
 
-Sem tabela de "aplicações" — a aplicação é derivada no carrinho a partir dos itens presentes; telemetria de vendas é incrementada na conclusão do pedido.
+Extensão de `coupon_redemptions`:
+- `status text default 'reservado'` (`reservado|confirmado|cancelado|estornado`)
+- `original_total`, `eligible_total`, `final_total` numeric
+- índice por status para consultas
 
-Reaproveitamento: nenhuma mudança em `products`. `cart_items.metadata` já é jsonb — usamos `metadata.bundle` para marcar `{ offer_id, role: 'anchor'|'complement' }`. `order_items.metadata` recebe o mesmo snapshot no checkout. `orders.metadata.bundle_discounts` guarda o resumo por oferta (id, nome, conjuntos aplicados, desconto).
+## Tabelas novas (mínimo indispensável)
 
-## Backend
+Vínculos M:N — sem duplicar cadastros:
+- `coupon_customers (coupon_id, user_id)` — clientes permitidos
+- `coupon_categories (coupon_id, category_id, mode: 'include'|'exclude')`
+- `coupon_products (coupon_id, product_id, mode: 'include'|'exclude')`
 
-**`src/lib/bundles.functions.ts`** (novo, client-safe wrapper)
-- `listBundleOffersForProduct(product_id)` — público, retorna ofertas ativas + itens + snapshot de preço/imagem de cada participante (usa cliente publishable server-side).
-- `computeBundleApplications(cartItems)` — helper puro; dado o carrinho, retorna: `[{ offer_id, applications: N, per_conjunto_discount, total_discount, affected_item_ids }]`. Regras:
-  - conta quantos conjuntos completos cabem (min de floor(qty_item / qty_required) para cada item obrigatório, respeitando `variant_scope`);
-  - aplica desconto apenas nas N unidades correspondentes por item; excedente fica com preço cheio;
-  - se duas ofertas competem pelos mesmos itens, escolhe a de maior `total_discount` (greedy por desconto/conjunto desc);
-  - `complement_*` aplica só nos itens marcados `is_complement_target`.
-- `addBundleToCart({ offer_id, selections })` — valida estoque de TODOS os itens antes; insere cada item via lógica existente com `metadata.bundle = { offer_id, role }`; falha atômica (rollback dos inserts já feitos) se algum estoque faltar.
+Todas com RLS: staff gerencia; leitura autenticada (para validação no server fn).
 
-**`src/lib/cart.functions.ts`**
-- Estender `getMyCart`/`hydrateAnonymousCart`: depois de montar linhas, rodar `computeBundleApplications` e devolver no snapshot:
-  - `bundle_discounts: [{ offer_id, name, applications, discount_total, savings_label }]`
-  - `subtotal` = subtotal cheio − soma de descontos de bundle
-  - por linha, `bundle_applied_qty` e `bundle_discount_applied` (para UI)
-- Nenhuma mudança em preços gravados; desconto é calculado, não persistido nas linhas.
+Case-insensitive: unique index em `lower(code)` (o unique atual em `code` continua, mas o server sempre normaliza para UPPER na gravação).
 
-**`src/lib/checkout.functions.ts`**
-- `getCheckoutSnapshot` já usa carrinho — herda os descontos.
-- Ao criar pedido: preencher `orders.discount_total` com soma dos bundles + cupom; gravar `orders.metadata.bundle_discounts` e por item `order_items.metadata.bundle` e `discount` proporcional. Incrementar contadores `conversions/revenue_total/discount_total` na oferta (best-effort, dentro da mesma transação de finalização).
+## Arquivos modificados
 
-**`src/lib/payments.functions.ts`** — nada muda além de já usar o `total` recalculado.
+Backend (novos/alterados):
+- `src/lib/coupons.shared.ts` — novo. Cálculo puro: dado cupom + linhas do carrinho (com product_id/category_ids) + user_id, retorna `{ eligible_total, discount, reason? }`. Ordem: exclui produtos excluídos → produtos incluídos (se houver lista) → exclui categorias excluídas → categorias incluídas → senão tudo. Aplica percent/fixed, respeita `max_discount_per_order` e teto por `max_total_discount - total_discount_used`.
+- `src/lib/coupons.functions.ts` — novo. Server fns: `validateCoupon({ code })` (retorna preview), `applyCouponToCart({ code })` grava `carts.coupon_code`, `removeCouponFromCart()`, `getCartCouponPreview()` (usado pelo snapshot).
+- `src/lib/cart.functions.ts` — `finalizeSnapshot` passa a considerar `carts.coupon_code`: revalida no servidor, calcula `coupon_discount`, expõe no `CartSnapshot` (`coupon: { code, name, discount, error? } | null`, `subtotal_after_discounts`). Nada de preço por linha; só campo agregado.
+- `src/lib/payments.functions.ts` / criação do pedido — na finalização: dentro de uma transação PL/pgSQL (nova RPC `redeem_coupon(...)`), revalida tudo, insere `coupon_redemptions` com status `confirmado`, incrementa `coupons.total_discount_used`, grava `orders.coupon_code` + `discount_total += coupon_discount`. Se pedido cancelado/estornado, `refund_coupon(order_id)` marca redemption como `cancelado` e decrementa contador. Concorrência via `SELECT ... FOR UPDATE` no cupom.
+- `src/lib/admin.functions.ts` — CRUD de cupons: `listCoupons`, `getCoupon`, `upsertCoupon`, `toggleCouponActive`, `duplicateCoupon`, `deleteCoupon` (bloqueia se houver redemptions), `getCouponStats` (utilizações, clientes distintos, total concedido, receita gerada, ticket médio, saldo restante, últimas utilizações), `searchCustomersForCoupon`, `searchProductsForCoupon`.
 
-**`src/lib/admin.functions.ts`**
-- `listBundleOffers(product_id)`, `upsertBundleOffer(offer + items[])`, `deleteBundleOffer`, `duplicateBundleOffer`, `toggleBundleOfferActive`.
-- `searchProductsForBundle(q)` — busca por nome/SKU (limite 20) para o seletor.
+Frontend:
+- `src/routes/_authenticated.admin.cupons.index.tsx` — listagem com busca, filtro por status derivado (Ativo/Agendado/Expirado/Esgotado/Inativo), ações (criar, editar, ativar/desativar, duplicar, excluir, utilizações).
+- `src/routes/_authenticated.admin.cupons.$id.tsx` — editor completo (identificação, tipo/valor, regras financeiras, período, vínculos com clientes/categorias/produtos com busca, acúmulo com promoções) + painel de desempenho.
+- `src/routes/_authenticated.admin.tsx` — adicionar item de nav "Cupons".
+- `src/components/checkout/checkout-summary.tsx` + `src/routes/carrinho.tsx` — campo "Cupom de desconto" com Aplicar/Remover, mensagem de sucesso/erro, linhas Subtotal / Desconto do cupom / Frete / Total. Reaproveita recálculo já disparado pelo snapshot (mudanças de item/quantidade/endereço já invalidam a query do carrinho).
 
-**Frete e conflitos**
-- Frete: nada muda — cada linha continua com seu peso/dimensões/kit.
-- Cupom: no cálculo do cupom, ignorar itens já cobertos por bundle a menos que `allow_stack_with_coupon = true` na oferta. Ordem: promocional do produto → bundle → cupom → desconto geral.
+## Riscos de impacto no Checkout
 
-## Frontend
+- Baixos: cupom entra como campo agregado no snapshot; preço por linha e frete não mudam. Se o cupom ficar inválido durante a jornada, o snapshot devolve `coupon: { error }` e zera o desconto — checkout segue normal.
+- Persistência do pedido: nova RPC transacional evita corrida em `max_uses` e `max_total_discount`. Falha na RPC = pedido não é criado (mantém o comportamento atual de "não perdi carrinho"), e o valor exibido é sempre o recalculado no server antes do Mercado Pago.
+- Pedidos existentes: colunas novas são nullable/default; `orders.coupon_code` já existia.
 
-**Admin — `src/routes/_authenticated.admin.produtos.$id.tsx`**
-- Novo card `BundleOffersCard` abaixo do `KitsCard`. Lista de ofertas com editor inline (drawer/dialog): nome, itens (busca produto → escolher variação/kit ou "qualquer kit ativo" → quantidade → marcar âncora/alvo do desconto complementar), tipo/valor de desconto, datas, ativo, ordem, "permitir acumular com cupom". Mostra preço normal do conjunto e preço final simulado. Ações: editar, duplicar, excluir.
+## Ordem de execução
 
-**Produto — `src/routes/produto.$slug.tsx`**
-- Novo componente `BundleOffersSection` abaixo das informações principais. Para cada oferta ativa: cards dos itens (imagem, nome, variação/kit, quantidade, preço), preço normal, desconto, preço final, economia em R$, botão "Adicionar conjunto ao carrinho". Quando `variant_scope='any'` ou `any_kit`, exigir seleção antes de habilitar o botão. Registra impressão (fire-and-forget) uma vez por sessão.
-
-**Carrinho — `src/routes/carrinho.tsx` + `CheckoutSummary`**
-- Renderizar acima do subtotal um bloco "Oferta Compre Junto aplicada" por oferta, com preço normal, desconto e economia. Nas linhas afetadas, badge discreta "Compre Junto".
-- Se validação quebrar (item removido, quantidade insuficiente, variação trocada), simplesmente parar de exibir o desconto — o cálculo já é derivado; toast informativo apenas quando o próprio usuário reduzir/remover um item marcado como bundle.
-
-**Pedido (cliente/admin)**
-- Exibir seção "Ofertas aplicadas" a partir de `orders.metadata.bundle_discounts`.
-
-## Telemetria
-- Impressão: `impressions++` server fn simples chamada pelo produto (uma vez por sessão por oferta).
-- Adição ao carrinho: `add_to_cart_count++` em `addBundleToCart`.
-- Conversão: incrementos em `conversions`, `revenue_total`, `discount_total` no fechamento do pedido pago.
-- Nada de painel BI agora — só campos prontos.
-
-## Ordem de implementação
-1. Migração (`bundle_offers`, `bundle_offer_items`, grants, RLS, índices por `product_id`, `is_active`).
-2. Server fns públicas de leitura + `computeBundleApplications` puro (com testes rápidos manuais no carrinho).
-3. Integração no snapshot do carrinho (desconto derivado).
-4. Card admin com CRUD.
-5. Seção na página do produto + `addBundleToCart` com validação de estoque.
-6. Renderização no carrinho + resumo do checkout.
-7. Persistência no pedido + interação com cupom (respeitar `allow_stack_with_coupon`).
-8. Contadores de telemetria.
+1. Migração (colunas + 3 tabelas de vínculo + RPCs `redeem_coupon` / `refund_coupon` + unique `lower(code)`).
+2. `coupons.shared.ts` + `coupons.functions.ts` + integração no `finalizeSnapshot`.
+3. UI: campo de cupom no carrinho/resumo do checkout.
+4. Integração na criação do pedido (RPC) e cancelamento/estorno.
+5. Admin: listagem, editor, desempenho.
 
 ## Fora de escopo
-- Novo módulo/rota dedicada de "promoções".
-- Alteração de `products.price`.
-- Painel de BI/relatórios visuais.
-- Mudanças em frete, kits, Mercado Pago ou Melhor Envio além de repassar `total`/`metadata`.
+
+- Cupom de frete grátis (o enum já tem `free_shipping`, mas só disponibilizamos os tipos `percent` e `fixed` na UI agora, conforme pedido).
+- Múltiplos cupons por pedido.
+- Painel/dashboards agregados fora da tela do próprio cupom.
+- Alterações em frete, kits, bundles, Mercado Pago ou Melhor Envio além de repassar `total`/`discount_total`.
