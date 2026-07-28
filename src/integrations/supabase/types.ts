@@ -401,29 +401,139 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_categories: {
+        Row: {
+          category_id: string
+          coupon_id: string
+          created_at: string
+          mode: string
+        }
+        Insert: {
+          category_id: string
+          coupon_id: string
+          created_at?: string
+          mode?: string
+        }
+        Update: {
+          category_id?: string
+          coupon_id?: string
+          created_at?: string
+          mode?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_categories_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupon_customers: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_customers_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupon_products: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          mode: string
+          product_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          mode?: string
+          product_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          mode?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_products_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_redemptions: {
         Row: {
           amount: number
           coupon_id: string
           created_at: string
+          eligible_total: number | null
+          final_total: number | null
           id: string
           order_id: string
+          original_total: number | null
+          status: string
           user_id: string
         }
         Insert: {
           amount: number
           coupon_id: string
           created_at?: string
+          eligible_total?: number | null
+          final_total?: number | null
           id?: string
           order_id: string
+          original_total?: number | null
+          status?: string
           user_id: string
         }
         Update: {
           amount?: number
           coupon_id?: string
           created_at?: string
+          eligible_total?: number | null
+          final_total?: number | null
           id?: string
           order_id?: string
+          original_total?: number | null
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -445,46 +555,70 @@ export type Database = {
       }
       coupons: {
         Row: {
+          applies_to_all_categories: boolean
+          applies_to_all_customers: boolean
+          applies_to_all_products: boolean
           code: string
           created_at: string
           description: string | null
           expires_at: string | null
           id: string
           is_active: boolean
+          max_discount_per_order: number | null
+          max_total_discount: number | null
           max_uses: number | null
           max_uses_per_user: number | null
           min_order_amount: number
+          name: string | null
+          stack_with_promotions: boolean
           starts_at: string | null
+          total_discount_used: number
           type: Database["public"]["Enums"]["coupon_type"]
           updated_at: string
           value: number
         }
         Insert: {
+          applies_to_all_categories?: boolean
+          applies_to_all_customers?: boolean
+          applies_to_all_products?: boolean
           code: string
           created_at?: string
           description?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          max_discount_per_order?: number | null
+          max_total_discount?: number | null
           max_uses?: number | null
           max_uses_per_user?: number | null
           min_order_amount?: number
+          name?: string | null
+          stack_with_promotions?: boolean
           starts_at?: string | null
+          total_discount_used?: number
           type: Database["public"]["Enums"]["coupon_type"]
           updated_at?: string
           value?: number
         }
         Update: {
+          applies_to_all_categories?: boolean
+          applies_to_all_customers?: boolean
+          applies_to_all_products?: boolean
           code?: string
           created_at?: string
           description?: string | null
           expires_at?: string | null
           id?: string
           is_active?: boolean
+          max_discount_per_order?: number | null
+          max_total_discount?: number | null
           max_uses?: number | null
           max_uses_per_user?: number | null
           min_order_amount?: number
+          name?: string | null
+          stack_with_promotions?: boolean
           starts_at?: string | null
+          total_discount_used?: number
           type?: Database["public"]["Enums"]["coupon_type"]
           updated_at?: string
           value?: number
@@ -2165,6 +2299,19 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       next_order_number: { Args: never; Returns: string }
+      redeem_coupon: {
+        Args: {
+          _coupon_code: string
+          _discount: number
+          _eligible_total: number
+          _final_total: number
+          _order_id: string
+          _original_total: number
+          _user_id: string
+        }
+        Returns: string
+      }
+      refund_coupon: { Args: { _order_id: string }; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }

@@ -33,6 +33,8 @@ export function CheckoutSummary({
   const ship = resolveShippingDisplay(selection);
   const total = cart.subtotal + ship.price;
   const hasShipping = !!selection.shipping_option;
+  const bundleDiscount = cart.bundle_discount_total ?? 0;
+  const couponDiscount = cart.coupon_discount_total ?? 0;
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -73,7 +75,13 @@ export function CheckoutSummary({
         </ul>
 
         <div className="space-y-2 border-t hairline pt-4 text-sm">
-          <Row label="Subtotal" value={money(cart.subtotal)} />
+          <Row label="Subtotal" value={money(cart.subtotal_full ?? cart.subtotal)} />
+          {bundleDiscount > 0 && (
+            <Row label="Desconto Compre Junto" value={`- ${money(bundleDiscount)}`} />
+          )}
+          {couponDiscount > 0 && cart.coupon && (
+            <Row label={`Cupom ${cart.coupon.code}`} value={`- ${money(couponDiscount)}`} />
+          )}
           <Row label="Frete" value={ship.label} muted={!hasShipping} />
           <div className="flex items-baseline justify-between border-t hairline pt-3">
             <span className="font-display text-base font-semibold">Total</span>

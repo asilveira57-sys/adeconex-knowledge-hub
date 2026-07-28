@@ -42,12 +42,22 @@ export type CartLine = {
   bundle_applied: boolean;
 };
 
+export type CartCouponSnapshot = {
+  code: string;
+  name: string | null;
+  discount: number;
+  eligible_total: number;
+  error: string | null;
+};
+
 export type CartSnapshot = {
   cart_id: string | null;
   currency: string;
   items: CartLine[];
   subtotal_full: number;
   bundle_discount_total: number;
+  coupon_discount_total: number;
+  coupon: CartCouponSnapshot | null;
   subtotal: number;
   item_count: number;
   bundle_discounts: BundleApplication[];
@@ -60,6 +70,8 @@ export function emptyCartSnapshot(): CartSnapshot {
     items: [],
     subtotal_full: 0,
     bundle_discount_total: 0,
+    coupon_discount_total: 0,
+    coupon: null,
     subtotal: 0,
     item_count: 0,
     bundle_discounts: [],
@@ -110,10 +122,56 @@ async function finalizeSnapshot(
     items: lines,
     subtotal_full,
     bundle_discount_total,
+    coupon_discount_total: 0,
+    coupon: null,
     subtotal,
     item_count,
     bundle_discounts,
   };
+}
+
+/** Aplica cupom persistido em carts.coupon_code por cima do snapshot. */
+async function applyCouponToSnapshot(
+  supabase: any,
+  userId: string,
+  couponCode: string | null,
+  snap: CartSnapshot,
+): Promise<CartSnapshot> {
+  if (!couponCode || snap.items.length === 0) return snap;
+  const { computeCartCouponPreview } = await import("./coupons.functions");
+  const productIds = Array.from(new Set(snap.items.map((l) => l.product_id)));
+  const { data: pcs } = await supabase
+    .from("product_categories")
+    .select("product_id, category_id")
+    .in("product_id", productIds);
+  const catMap = new Map<string, string[]>();
+  for (const pc of pcs ?? []) {
+    const list = catMap.get(pc.product_id) ?? [];
+    list.push(pc.category_id);
+    catMap.set(pc.product_id, list);
+  }
+  const lines = snap.items.map((l) => ({
+    item_id: l.item_id,
+    product_id: l.product_id,
+    category_ids: catMap.get(l.product_id) ?? [],
+    quantity: l.quantity,
+    unit_price: l.unit_price,
+    line_total: l.line_total,
+    bundle_applied: l.bundle_applied,
+  }));
+  try {
+    const preview = await computeCartCouponPreview(supabase, userId, couponCode, lines);
+    if (!preview) return snap;
+    const discount = preview.error ? 0 : preview.discount;
+    return {
+      ...snap,
+      coupon_discount_total: discount,
+      coupon: preview,
+      subtotal: Number((snap.subtotal - discount).toFixed(2)),
+    };
+  } catch {
+    return snap;
+  }
 }
 
 async function ensureCart(supabase: any, userId: string): Promise<string> {
@@ -214,7 +272,7 @@ export const getMyCart = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<CartSnapshot> => {
     const { data: cart } = await context.supabase
       .from("carts")
-      .select("id, currency")
+      .select("id, currency, coupon_code")
       .eq("user_id", context.userId)
       .eq("status", "active")
       .maybeSingle();
@@ -315,7 +373,8 @@ export const getMyCart = createServerFn({ method: "GET" })
       };
     });
 
-    return await finalizeSnapshot(cart.id, cart.currency, lines);
+    const snap = await finalizeSnapshot(cart.id, cart.currency, lines);
+    return await applyCouponToSnapshot(context.supabase, context.userId, (cart as any).coupon_code ?? null, snap);
   });
 
 // ---------- ADD ----------
