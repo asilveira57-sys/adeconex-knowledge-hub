@@ -195,7 +195,7 @@ export const duplicateCoupon = createServerFn({ method: "POST" })
 
     const { data: inserted, error: insErr } = await context.supabase
       .from("coupons")
-      .insert({ ...rest, code, name: src.name ? `${src.name} (cópia)` : null, is_active: false, total_discount_used: 0 })
+      .insert({ ...rest, code, name: src.name ? `${src.name} (cópia)` : null, is_active: false, total_discount_used: 0 } as never)
       .select("id")
       .single();
     if (insErr) throw new Error(insErr.message);
@@ -208,7 +208,7 @@ export const duplicateCoupon = createServerFn({ method: "POST" })
           const { created_at: _cc, ...keep } = l;
           return { ...keep, coupon_id: inserted.id };
         });
-        await context.supabase.from(table).insert(clone);
+        await context.supabase.from(table).insert(clone as never);
       }
     }
 
