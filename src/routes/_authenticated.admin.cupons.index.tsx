@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Loader2, Search, Plus, Copy, Trash2, Pencil, BarChart3, Power } from "lucide-react";
 import {
   listAdminCoupons,
-  upsertCoupon,
   toggleCouponActive,
   duplicateCoupon,
   deleteCoupon,
@@ -15,6 +14,7 @@ import {
   COUPON_STATUS_LABEL,
   type CouponStatus,
 } from "@/lib/coupons.admin.functions";
+import { CouponEditorDialog } from "@/components/admin/coupon-editor-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -278,8 +278,8 @@ function AdminCuponsPage() {
       )}
 
       {editing && (
-        <CouponDialog
-          coupon={editing === "new" ? null : editing}
+        <CouponEditorDialog
+          couponId={editing === "new" ? null : editing.id}
           onClose={() => setEditing(null)}
           onSaved={() => { setEditing(null); invalidate(); }}
         />
@@ -307,151 +307,6 @@ function AdminCuponsPage() {
   );
 }
 
-const toDateInput = (s: string | null) => (s ? new Date(s).toISOString().slice(0, 10) : "");
-const fromDateInput = (s: string) => (s ? new Date(`${s}T00:00:00`).toISOString() : null);
-const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(",", ".")));
-
-function CouponDialog({
-  coupon,
-  onClose,
-  onSaved,
-}: {
-  coupon: CouponRow | null;
-  onClose: () => void;
-  onSaved: () => void;
-}) {
-  const [form, setForm] = useState({
-    code: coupon?.code ?? "",
-    name: coupon?.name ?? "",
-    description: coupon?.description ?? "",
-    type: (coupon?.type === "fixed" ? "fixed" : "percent") as "percent" | "fixed",
-    value: String(coupon?.value ?? ""),
-    min_order_amount: String(coupon?.min_order_amount ?? "0"),
-    max_discount_per_order: coupon?.max_discount_per_order != null ? String(coupon.max_discount_per_order) : "",
-    max_total_discount: coupon?.max_total_discount != null ? String(coupon.max_total_discount) : "",
-    max_uses: coupon?.max_uses != null ? String(coupon.max_uses) : "",
-    max_uses_per_user: coupon?.max_uses_per_user != null ? String(coupon.max_uses_per_user) : "",
-    starts_at: toDateInput(coupon?.starts_at ?? null),
-    expires_at: toDateInput(coupon?.expires_at ?? null),
-    stack_with_promotions: coupon?.stack_with_promotions ?? true,
-    is_active: coupon?.is_active ?? true,
-  });
-
-  const save = useMutation({
-    mutationFn: () =>
-      upsertCoupon({
-        data: {
-          id: coupon?.id,
-          code: form.code,
-          name: form.name || null,
-          description: form.description || null,
-          type: form.type,
-          value: Number(form.value.replace(",", ".")) || 0,
-          min_order_amount: Number(form.min_order_amount.replace(",", ".")) || 0,
-          max_discount_per_order: num(form.max_discount_per_order),
-          max_total_discount: num(form.max_total_discount),
-          max_uses: num(form.max_uses),
-          max_uses_per_user: num(form.max_uses_per_user),
-          starts_at: fromDateInput(form.starts_at),
-          expires_at: fromDateInput(form.expires_at),
-          stack_with_promotions: form.stack_with_promotions,
-          is_active: form.is_active,
-        },
-      }),
-    onSuccess: () => { toast.success("Cupom salvo."); onSaved(); },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const set = (k: keyof typeof form, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
-
-  return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{coupon ? `Editar cupom ${coupon.code}` : "Novo cupom"}</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label>Código</Label>
-            <Input value={form.code} onChange={(e) => set("code", e.target.value.toUpperCase())} placeholder="BEMVINDO10" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Nome interno</Label>
-            <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Campanha de boas-vindas" />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Descrição</Label>
-            <Textarea rows={2} value={form.description} onChange={(e) => set("description", e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Tipo</Label>
-            <Select value={form.type} onValueChange={(v) => set("type", v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="percent">Porcentagem (%)</SelectItem>
-                <SelectItem value="fixed">Valor fixo (R$)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Valor</Label>
-            <Input value={form.value} onChange={(e) => set("value", e.target.value)} inputMode="decimal" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Pedido mínimo (R$)</Label>
-            <Input value={form.min_order_amount} onChange={(e) => set("min_order_amount", e.target.value)} inputMode="decimal" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Desconto máx. por pedido (R$)</Label>
-            <Input value={form.max_discount_per_order} onChange={(e) => set("max_discount_per_order", e.target.value)} placeholder="sem limite" inputMode="decimal" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Teto total de desconto (R$)</Label>
-            <Input value={form.max_total_discount} onChange={(e) => set("max_total_discount", e.target.value)} placeholder="sem limite" inputMode="decimal" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Limite de usos</Label>
-            <Input value={form.max_uses} onChange={(e) => set("max_uses", e.target.value)} placeholder="ilimitado" inputMode="numeric" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Usos por cliente</Label>
-            <Input value={form.max_uses_per_user} onChange={(e) => set("max_uses_per_user", e.target.value)} placeholder="ilimitado" inputMode="numeric" />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Início</Label>
-            <Input type="date" value={form.starts_at} onChange={(e) => set("starts_at", e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Expiração</Label>
-            <Input type="date" value={form.expires_at} onChange={(e) => set("expires_at", e.target.value)} />
-          </div>
-          <div className="flex items-center justify-between rounded-md border p-3 sm:col-span-2">
-            <div>
-              <p className="text-sm font-medium">Acumular com promoções</p>
-              <p className="text-xs text-muted-foreground">Permite aplicar sobre itens já em promoção ou em "Compre Junto".</p>
-            </div>
-            <Switch checked={form.stack_with_promotions} onCheckedChange={(v) => set("stack_with_promotions", v)} />
-          </div>
-          <div className="flex items-center justify-between rounded-md border p-3 sm:col-span-2">
-            <div>
-              <p className="text-sm font-medium">Cupom ativo</p>
-              <p className="text-xs text-muted-foreground">Cupons inativos não podem ser aplicados no carrinho.</p>
-            </div>
-            <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending || form.code.trim().length < 2}>
-            {save.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Salvar
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function UsageDialog({ coupon, onClose }: { coupon: CouponRow; onClose: () => void }) {
   const { data, isLoading } = useQuery({
