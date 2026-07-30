@@ -94,31 +94,200 @@ export const listAdminCoupons = createServerFn({ method: "GET" })
     return { rows: list.slice(from, from + data.pageSize), total };
   });
 
-const couponInput = z.object({
-  id: z.string().uuid().optional(),
-  code: z.string().min(2).max(60),
-  name: z.string().max(120).nullable().optional(),
-  description: z.string().max(500).nullable().optional(),
-  type: z.enum(["percent", "fixed"]),
-  value: z.number().min(0),
-  min_order_amount: z.number().min(0).default(0),
-  max_discount_per_order: z.number().min(0).nullable().optional(),
-  max_total_discount: z.number().min(0).nullable().optional(),
-  max_uses: z.number().int().min(1).nullable().optional(),
-  max_uses_per_user: z.number().int().min(1).nullable().optional(),
-  starts_at: z.string().nullable().optional(),
-  expires_at: z.string().nullable().optional(),
-  stack_with_promotions: z.boolean().default(true),
-  is_active: z.boolean().default(true),
-});
+const linkMode = z.enum(["include", "exclude"]);
+
+export const couponInput = z
+  .object({
+    id: z.string().uuid().optional(),
+    code: z
+      .string()
+      .trim()
+      .min(3, "O código deve ter ao menos 3 caracteres")
+      .max(60)
+      .regex(/^[A-Za-z0-9._-]+$/, "Use apenas letras, números, ponto, hífen ou underline"),
+    name: z.string().trim().max(120).nullable().optional(),
+    description: z.string().trim().max(500).nullable().optional(),
+    type: z.enum(["percent", "fixed"]),
+    value: z.number().positive("O valor do desconto deve ser maior que zero"),
+    min_order_amount: z.number().min(0).default(0),
+    max_discount_per_order: z.number().positive().nullable().optional(),
+    max_total_discount: z.number().positive().nullable().optional(),
+    max_uses: z.number().int().min(1).nullable().optional(),
+    max_uses_per_user: z.number().int().min(1).nullable().optional(),
+    starts_at: z.string().nullable().optional(),
+    expires_at: z.string().nullable().optional(),
+    stack_with_promotions: z.boolean().default(true),
+    is_active: z.boolean().default(true),
+    applies_to_all_customers: z.boolean().default(true),
+    applies_to_all_categories: z.boolean().default(true),
+    applies_to_all_products: z.boolean().default(true),
+    customer_ids: z.array(z.string().uuid()).default([]),
+    categories: z.array(z.object({ category_id: z.string().uuid(), mode: linkMode })).default([]),
+    products: z.array(z.object({ product_id: z.string().uuid(), mode: linkMode })).default([]),
+  })
+  .superRefine((v, ctx) => {
+    if (v.type === "percent" && v.value > 100) {
+      ctx.addIssue({ code: "custom", path: ["value"], message: "Porcentagem não pode ser maior que 100%" });
+    }
+    if (v.starts_at && v.expires_at && new Date(v.expires_at) <= new Date(v.starts_at)) {
+      ctx.addIssue({ code: "custom", path: ["expires_at"], message: "A expiração deve ser posterior ao início" });
+    }
+    if (
+      v.max_total_discount != null &&
+      v.max_discount_per_order != null &&
+      v.max_discount_per_order > v.max_total_discount
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["max_discount_per_order"],
+        message: "O limite por pedido não pode exceder o teto total",
+      });
+    }
+    if (
+      v.max_uses != null &&
+      v.max_uses_per_user != null &&
+      v.max_uses_per_user > v.max_uses
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["max_uses_per_user"],
+        message: "Usos por cliente não podem exceder o limite total de usos",
+      });
+    }
+    if (!v.applies_to_all_customers && v.customer_ids.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["customer_ids"],
+        message: "Selecione ao menos um cliente ou libere para todos",
+      });
+    }
+    if (!v.applies_to_all_categories && !v.categories.some((c) => c.mode === "include")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["categories"],
+        message: "Selecione ao menos uma categoria incluída ou libere para todas",
+      });
+    }
+    if (!v.applies_to_all_products && !v.products.some((p) => p.mode === "include")) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["products"],
+        message: "Selecione ao menos um produto incluído ou libere para todos",
+      });
+    }
+  });
+
+export type CouponInput = z.infer<typeof couponInput>;
+
+export const getCouponDetail = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { data: coupon, error } = await context.supabase
+      .from("coupons")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!coupon) throw new Error("Cupom não encontrado");
+
+    const [customers, categories, products] = await Promise.all([
+      context.supabase.from("coupon_customers").select("user_id").eq("coupon_id", data.id),
+      context.supabase.from("coupon_categories").select("category_id, mode").eq("coupon_id", data.id),
+      context.supabase.from("coupon_products").select("product_id, mode").eq("coupon_id", data.id),
+    ]);
+
+    const customerIds = (customers.data ?? []).map((r: any) => r.user_id);
+    const categoryIds = (categories.data ?? []).map((r: any) => r.category_id);
+    const productIds = (products.data ?? []).map((r: any) => r.product_id);
+
+    const [profiles, cats, prods] = await Promise.all([
+      customerIds.length
+        ? context.supabase.from("profiles").select("id, full_name, cpf").in("id", customerIds)
+        : Promise.resolve({ data: [] as any[] }),
+      categoryIds.length
+        ? context.supabase.from("categories").select("id, name").in("id", categoryIds)
+        : Promise.resolve({ data: [] as any[] }),
+      productIds.length
+        ? context.supabase.from("products").select("id, name, sku").in("id", productIds)
+        : Promise.resolve({ data: [] as any[] }),
+    ]);
+
+    const nameOf = (rows: any[], id: string, key = "name") =>
+      rows.find((r) => r.id === id)?.[key] ?? null;
+
+    return {
+      coupon,
+      customers: customerIds.map((id: string) => ({
+        user_id: id,
+        label: nameOf(profiles.data ?? [], id, "full_name") ?? id.slice(0, 8),
+      })),
+      categories: (categories.data ?? []).map((r: any) => ({
+        category_id: r.category_id,
+        mode: r.mode as "include" | "exclude",
+        label: nameOf(cats.data ?? [], r.category_id) ?? r.category_id.slice(0, 8),
+      })),
+      products: (products.data ?? []).map((r: any) => ({
+        product_id: r.product_id,
+        mode: r.mode as "include" | "exclude",
+        label: nameOf(prods.data ?? [], r.product_id) ?? r.product_id.slice(0, 8),
+      })),
+    };
+  });
+
+export const searchCouponTargets = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z.object({ kind: z.enum(["customer", "category", "product"]), query: z.string().trim().default("") }).parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const s = data.query.replace(/[%,]/g, "");
+
+    if (data.kind === "customer") {
+      let q = context.supabase.from("profiles").select("id, full_name, cpf").limit(20);
+      if (s) q = q.or(`full_name.ilike.%${s}%,cpf.ilike.%${s}%`);
+      const { data: rows, error } = await q;
+      if (error) throw new Error(error.message);
+      return (rows ?? []).map((r: any) => ({
+        id: r.id,
+        label: r.full_name || r.id.slice(0, 8),
+        hint: r.cpf ?? null,
+      }));
+    }
+
+    if (data.kind === "category") {
+      let q = context.supabase.from("categories").select("id, name, slug").order("name").limit(20);
+      if (s) q = q.ilike("name", `%${s}%`);
+      const { data: rows, error } = await q;
+      if (error) throw new Error(error.message);
+      return (rows ?? []).map((r: any) => ({ id: r.id, label: r.name, hint: r.slug }));
+    }
+
+    let q = context.supabase.from("products").select("id, name, sku").order("name").limit(20);
+    if (s) q = q.or(`name.ilike.%${s}%,sku.ilike.%${s}%`);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map((r: any) => ({ id: r.id, label: r.name, hint: r.sku }));
+  });
 
 export const upsertCoupon = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((v) => couponInput.parse(v))
   .handler(async ({ data, context }) => {
     await assertStaff(context);
+    const code = data.code.trim().toUpperCase();
+
+    // código único (case-insensitive)
+    let dup = context.supabase.from("coupons").select("id").ilike("code", code).limit(1);
+    if (data.id) dup = dup.neq("id", data.id);
+    const { data: existing, error: dupErr } = await dup;
+    if (dupErr) throw new Error(dupErr.message);
+    if ((existing ?? []).length > 0) throw new Error("Já existe um cupom com este código.");
+
     const row = {
-      code: data.code.trim().toUpperCase(),
+      code,
       name: data.name || null,
       description: data.description || null,
       type: data.type,
@@ -132,20 +301,52 @@ export const upsertCoupon = createServerFn({ method: "POST" })
       expires_at: data.expires_at || null,
       stack_with_promotions: data.stack_with_promotions,
       is_active: data.is_active,
+      applies_to_all_customers: data.applies_to_all_customers,
+      applies_to_all_categories: data.applies_to_all_categories,
+      applies_to_all_products: data.applies_to_all_products,
     };
-    if (data.id) {
-      const { error } = await context.supabase.from("coupons").update(row).eq("id", data.id);
+
+    let couponId = data.id ?? null;
+    if (couponId) {
+      const { error } = await context.supabase.from("coupons").update(row).eq("id", couponId);
       if (error) throw new Error(error.message);
-      return { ok: true, id: data.id };
+    } else {
+      const { data: inserted, error } = await context.supabase
+        .from("coupons")
+        .insert(row)
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      couponId = inserted.id as string;
     }
-    const { data: inserted, error } = await context.supabase
-      .from("coupons")
-      .insert(row)
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
-    return { ok: true, id: inserted.id };
+
+    // Sincroniza vínculos (substitui o conjunto atual)
+    await context.supabase.from("coupon_customers").delete().eq("coupon_id", couponId);
+    await context.supabase.from("coupon_categories").delete().eq("coupon_id", couponId);
+    await context.supabase.from("coupon_products").delete().eq("coupon_id", couponId);
+
+    if (data.customer_ids.length > 0) {
+      const { error } = await context.supabase
+        .from("coupon_customers")
+        .insert(data.customer_ids.map((user_id) => ({ coupon_id: couponId, user_id })) as never);
+      if (error) throw new Error(error.message);
+    }
+    if (data.categories.length > 0) {
+      const { error } = await context.supabase
+        .from("coupon_categories")
+        .insert(data.categories.map((c) => ({ coupon_id: couponId, ...c })) as never);
+      if (error) throw new Error(error.message);
+    }
+    if (data.products.length > 0) {
+      const { error } = await context.supabase
+        .from("coupon_products")
+        .insert(data.products.map((p) => ({ coupon_id: couponId, ...p })) as never);
+      if (error) throw new Error(error.message);
+    }
+
+    return { ok: true, id: couponId };
   });
+
 
 export const toggleCouponActive = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
