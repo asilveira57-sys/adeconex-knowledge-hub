@@ -1,72 +1,74 @@
-## Estrutura encontrada
+# Edição profissional de produtos no Admin
 
-Já existem no banco:
-- `coupons` — id, code (único), description, type (`percent | fixed | free_shipping`), value, min_order_amount, max_uses, max_uses_per_user, starts_at, expires_at, is_active. RLS: leitura autenticada + gestão staff.
-- `coupon_redemptions` — coupon_id, order_id, user_id, amount. Único por (coupon_id, order_id).
-- `orders.coupon_code` (text), `orders.discount_total` — já existem no snapshot do pedido.
+Hoje `/admin/produtos/$id` é apenas uma tela de **pré-visualização**: mostra dados, edita dimensões e kits, e nada mais. Não existe edição de conteúdo, estoque, status, SEO, "Compre Junto" nem selos (não há hoje nenhuma coluna de selo no banco).
 
-Nenhum código no front/back usa cupons hoje (`carrinho`, `checkout`, `payments`, `orders` não referenciam `coupon_*`). Portanto vamos ligar o cupom sem alterar preço/frete/fechamento — só somamos ao `discount_total` e gravamos `orders.coupon_code`.
+O objetivo é transformar essa página num editor completo de produto, em abas.
 
-## Tabelas alteradas (uma migração pequena)
+## Nova estrutura da página do produto (abas)
 
-Extensão de `coupons` (todas nullable/default seguros — pedidos antigos continuam):
-- `name text` (nome interno)
-- `max_discount_per_order numeric` (limite por utilização)
-- `max_total_discount numeric` (limite geral acumulado em R$)
-- `applies_to_all_customers boolean default true`
-- `applies_to_all_categories boolean default true`
-- `applies_to_all_products boolean default true`
-- `stack_with_promotions boolean default true` (acúmulo com promocional/bundle)
-- `total_discount_used numeric default 0` (contador consolidado para concorrência)
+```text
+[ Visão geral ] [ Conteúdo/CMS ] [ Preço & Estoque ] [ Mídia ] [ SEO ] [ Kits ] [ Compre Junto ] [ Selos ]
+```
 
-Extensão de `coupon_redemptions`:
-- `status text default 'reservado'` (`reservado|confirmado|cancelado|estornado`)
-- `original_total`, `eligible_total`, `final_total` numeric
-- índice por status para consultas
+Barra fixa no topo com: nome do produto, status atual, botões **Salvar**, **Publicar/Ocultar**, **Duplicar**, **Excluir**, e link "Ver na loja".
 
-## Tabelas novas (mínimo indispensável)
+### 1. Visão geral
+Nome, slug (com aviso de que mudar slug gera redirect 301 automático), SKU, EAN, modelo, referência, marca, categorias (principal + secundárias), família, material, aplicação, mercado, descrição curta.
 
-Vínculos M:N — sem duplicar cadastros:
-- `coupon_customers (coupon_id, user_id)` — clientes permitidos
-- `coupon_categories (coupon_id, category_id, mode: 'include'|'exclude')`
-- `coupon_products (coupon_id, product_id, mode: 'include'|'exclude')`
+### 2. Conteúdo / CMS
+Editor rico (TipTap) para descrição comercial e descrição técnica, com:
+- Barra de formatação: títulos H2/H3, negrito, itálico, listas, tabelas, links, imagem, citação.
+- Alternância **Visual ↔ HTML** (edição direta do código para o conteúdo legado importado).
+- Botão "Reprocessar com IA" reaproveitando o enriquecimento já existente.
+- FAQs: adicionar, editar, reordenar, marcar como revisada, excluir.
 
-Todas com RLS: staff gerencia; leitura autenticada (para validação no server fn).
+### 3. Preço & Estoque
+Preço, preço promocional com janela de datas, preço de custo, estoque, estoque mínimo, status de disponibilidade, disponível sim/não, dimensões e peso (card atual reaproveitado), venda por kit.
+Ação rápida de "ajuste de estoque" (definir / somar / subtrair) direto na listagem também.
 
-Case-insensitive: unique index em `lower(code)` (o unique atual em `code` continua, mas o server sempre normaliza para UPPER na gravação).
+### 4. Mídia
+Grade de imagens com reordenação, definir imagem principal, editar alt text/legenda, upload para o bucket `catalog-media` e exclusão. Vídeos (YouTube/Vimeo/MP4) com título e posição.
 
-## Arquivos modificados
+### 5. SEO avançado
+- Título SEO, meta description, palavras-chave, URL canônica, indexável sim/não.
+- Contadores de caracteres com limites recomendados (60 / 160) e barra de saúde SEO (tem H1? descrição mínima? imagem com alt? slug limpo?).
+- Pré-visualização de como aparece no Google e no compartilhamento social.
+- Gerenciar redirects 301 do produto (URL antiga → nova).
+- JSON-LD já gerado na página pública passa a refletir esses campos.
 
-Backend (novos/alterados):
-- `src/lib/coupons.shared.ts` — novo. Cálculo puro: dado cupom + linhas do carrinho (com product_id/category_ids) + user_id, retorna `{ eligible_total, discount, reason? }`. Ordem: exclui produtos excluídos → produtos incluídos (se houver lista) → exclui categorias excluídas → categorias incluídas → senão tudo. Aplica percent/fixed, respeita `max_discount_per_order` e teto por `max_total_discount - total_discount_used`.
-- `src/lib/coupons.functions.ts` — novo. Server fns: `validateCoupon({ code })` (retorna preview), `applyCouponToCart({ code })` grava `carts.coupon_code`, `removeCouponFromCart()`, `getCartCouponPreview()` (usado pelo snapshot).
-- `src/lib/cart.functions.ts` — `finalizeSnapshot` passa a considerar `carts.coupon_code`: revalida no servidor, calcula `coupon_discount`, expõe no `CartSnapshot` (`coupon: { code, name, discount, error? } | null`, `subtotal_after_discounts`). Nada de preço por linha; só campo agregado.
-- `src/lib/payments.functions.ts` / criação do pedido — na finalização: dentro de uma transação PL/pgSQL (nova RPC `redeem_coupon(...)`), revalida tudo, insere `coupon_redemptions` com status `confirmado`, incrementa `coupons.total_discount_used`, grava `orders.coupon_code` + `discount_total += coupon_discount`. Se pedido cancelado/estornado, `refund_coupon(order_id)` marca redemption como `cancelado` e decrementa contador. Concorrência via `SELECT ... FOR UPDATE` no cupom.
-- `src/lib/admin.functions.ts` — CRUD de cupons: `listCoupons`, `getCoupon`, `upsertCoupon`, `toggleCouponActive`, `duplicateCoupon`, `deleteCoupon` (bloqueia se houver redemptions), `getCouponStats` (utilizações, clientes distintos, total concedido, receita gerada, ticket médio, saldo restante, últimas utilizações), `searchCustomersForCoupon`, `searchProductsForCoupon`.
+### 6. Kits
+Card já existente, movido para a aba.
 
-Frontend:
-- `src/routes/_authenticated.admin.cupons.index.tsx` — listagem com busca, filtro por status derivado (Ativo/Agendado/Expirado/Esgotado/Inativo), ações (criar, editar, ativar/desativar, duplicar, excluir, utilizações).
-- `src/routes/_authenticated.admin.cupons.$id.tsx` — editor completo (identificação, tipo/valor, regras financeiras, período, vínculos com clientes/categorias/produtos com busca, acúmulo com promoções) + painel de desempenho.
-- `src/routes/_authenticated.admin.tsx` — adicionar item de nav "Cupons".
-- `src/components/checkout/checkout-summary.tsx` + `src/routes/carrinho.tsx` — campo "Cupom de desconto" com Aplicar/Remover, mensagem de sucesso/erro, linhas Subtotal / Desconto do cupom / Frete / Total. Reaproveita recálculo já disparado pelo snapshot (mudanças de item/quantidade/endereço já invalidam a query do carrinho).
+### 7. Compre Junto
+Gestão das ofertas de bundle do produto (a lógica de cálculo já existe, falta a interface no admin):
+listar ofertas, criar/editar (nome, tipo de desconto, valor, vigência, ativo, ordem), montar os itens (produto, variação ou kit, quantidade, item âncora, alvo do complemento), ativar/desativar, duplicar, excluir. Mostra métricas já gravadas: impressões, adições ao carrinho, conversões, receita e desconto concedido.
 
-## Riscos de impacto no Checkout
+### 8. Selos
+Não existe nada disso hoje — será criado.
+Selos previstos: **Mais vendido**, **Campeão de vendas**, **Últimas unidades**, **Frete grátis**, **Novidade**, **Promoção**, e selos livres criados pelo admin (texto + cor).
 
-- Baixos: cupom entra como campo agregado no snapshot; preço por linha e frete não mudam. Se o cupom ficar inválido durante a jornada, o snapshot devolve `coupon: { error }` e zera o desconto — checkout segue normal.
-- Persistência do pedido: nova RPC transacional evita corrida em `max_uses` e `max_total_discount`. Falha na RPC = pedido não é criado (mantém o comportamento atual de "não perdi carrinho"), e o valor exibido é sempre o recalculado no server antes do Mercado Pago.
-- Pedidos existentes: colunas novas são nullable/default; `orders.coupon_code` já existia.
+Dois modos combináveis por produto:
+- **Automático**, por regra: "Últimas unidades" quando estoque ≤ X; "Mais vendido" pelos N produtos com mais vendas nos últimos 30 dias; "Novidade" nos primeiros N dias após publicação; "Promoção" quando há preço promocional vigente.
+- **Manual**, fixando ou removendo um selo específico no produto, com vigência opcional.
 
-## Ordem de execução
+Exibição: cantos do card no catálogo/carrossel e faixa na página do produto, usando os tokens de cor do design system.
 
-1. Migração (colunas + 3 tabelas de vínculo + RPCs `redeem_coupon` / `refund_coupon` + unique `lower(code)`).
-2. `coupons.shared.ts` + `coupons.functions.ts` + integração no `finalizeSnapshot`.
-3. UI: campo de cupom no carrinho/resumo do checkout.
-4. Integração na criação do pedido (RPC) e cancelamento/estorno.
-5. Admin: listagem, editor, desempenho.
+## Ações de ciclo de vida
+Na página do produto e em lote na listagem: **publicar, ocultar, marcar como descontinuado, ativar/inativar disponibilidade, duplicar, excluir**.
+Exclusão é lógica por padrão (status `discontinued` + fora do sitemap e do catálogo); exclusão definitiva só quando o produto nunca foi vendido, com confirmação digitando o nome.
 
-## Fora de escopo
+## Detalhes técnicos
 
-- Cupom de frete grátis (o enum já tem `free_shipping`, mas só disponibilizamos os tipos `percent` e `fixed` na UI agora, conforme pedido).
-- Múltiplos cupons por pedido.
-- Painel/dashboards agregados fora da tela do próprio cupom.
-- Alterações em frete, kits, bundles, Mercado Pago ou Melhor Envio além de repassar `total`/`discount_total`.
+- **Banco (migração):** tabela `product_badges` (chave do selo, rótulo, cor, prioridade, ativo) e `product_badge_assignments` (produto, selo, manual/automático, vigência); tabela `badge_rules` ou colunas de configuração para os limiares automáticos. Coluna `search_vector`/nada mais é necessário. Todas com GRANT + RLS: leitura pública dos selos ativos, escrita apenas para staff (`is_staff`).
+- **Server functions** novas em `src/lib/admin.functions.ts` (ou um novo `admin.product.functions.ts` para não inchar): `updateProduct`, `updateProductPricing`, `adjustStock`, `updateProductSeo`, `upsertProductFaq`/`deleteProductFaq`, `reorderProductImages`, `uploadProductImage`, `deleteProductImage`, `duplicateProduct`, `deleteProduct`, `setProductBadges`. Todas com `requireSupabaseAuth` + `assertStaff`, validação Zod espelhada no cliente.
+- **Bundles admin** em `src/lib/bundles.admin.functions.ts`: CRUD de `bundle_offers` e `bundle_offer_items`.
+- **Selos no catálogo:** `src/lib/catalog.functions.ts` passa a retornar os selos resolvidos; `product-carousel.tsx`, `/catalogo` e `/produto/$slug` renderizam.
+- **Editor rico:** adicionar `@tiptap/react` + extensões básicas (link, tabela, imagem), carregado só no admin.
+- **Cache:** invalidar `["admin","product-preview",id]` e as queries públicas do catálogo após cada salvamento.
+
+## Entrega sugerida em etapas
+1. Migração (selos) + server functions de escrita e ações de ciclo de vida.
+2. Página em abas com Visão geral, Preço & Estoque, SEO (inclui salvar/publicar/excluir).
+3. Conteúdo/CMS com editor rico e FAQs + Mídia.
+4. Compre Junto no admin.
+5. Selos: configuração, atribuição e exibição na vitrine.
