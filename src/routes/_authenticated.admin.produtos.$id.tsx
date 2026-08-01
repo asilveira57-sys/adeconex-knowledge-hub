@@ -19,23 +19,180 @@ import { ArrowLeft, ExternalLink, ImageOff, Sparkles, Package, Loader2, Boxes, P
 import { toast } from "sonner";
 
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { productEditorOptions } from "@/lib/admin.queries";
+import { BasicsTab } from "@/components/admin/product/basics-tab";
+import { PricingTab } from "@/components/admin/product/pricing-tab";
+import { ContentTab } from "@/components/admin/product/content-tab";
+import { SeoTab } from "@/components/admin/product/seo-tab";
+import { MediaTab } from "@/components/admin/product/media-tab";
+import { BadgesTab } from "@/components/admin/product/badges-tab";
+import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
+import { updateProductStatus } from "@/lib/admin.functions";
+import { useNavigate } from "@tanstack/react-router";
+
 const previewOptions = productPreviewOptions;
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/$id")({
-  head: () => ({ meta: [{ title: "Preview de produto — Admin" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Editar produto — Admin" }, { name: "robots", content: "noindex" }] }),
   loader: ({ params, context }) => context.queryClient.ensureQueryData(previewOptions(params.id)),
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
     return (
       <div className="space-y-3">
-        <p className="text-sm text-destructive">Erro ao carregar preview: {error.message}</p>
+        <p className="text-sm text-destructive">Erro ao carregar produto: {error.message}</p>
         <Button size="sm" variant="outline" onClick={() => { router.invalidate(); reset(); }}>Tentar novamente</Button>
       </div>
     );
   },
   notFoundComponent: () => <p className="text-sm text-muted-foreground">Produto não encontrado.</p>,
-  component: PreviewPage,
+  component: ProductEditorPage,
 });
+
+function ProductEditorPage() {
+  const { id } = Route.useParams();
+  const { data } = useSuspenseQuery(productEditorOptions(id));
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const dup = useServerFn(duplicateProduct);
+  const del = useServerFn(deleteProduct);
+  const setStatus = useServerFn(updateProductStatus);
+  const [busy, setBusy] = useState(false);
+  const product = data.product as any;
+
+  async function act(fn: () => Promise<unknown>, msg: string) {
+    setBusy(true);
+    try {
+      await fn();
+      await qc.invalidateQueries({ queryKey: ["admin"] });
+      toast.success(msg);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <Link to="/admin/produtos" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-3.5 w-3.5" /> Voltar para lista
+          </Link>
+          <h1 className="mt-1 text-xl font-semibold tracking-tight">{product.name}</h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={product.status === "published" ? "default" : "outline"}>{product.status}</Badge>
+          <a
+            href={`/produto/${product.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            Ver na loja <ExternalLink className="h-3 w-3" />
+          </a>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() =>
+              act(
+                () => setStatus({ data: { productId: id, status: product.status === "published" ? "hidden" : "published" } }),
+                product.status === "published" ? "Produto ocultado" : "Produto publicado",
+              )
+            }
+          >
+            {product.status === "published" ? "Ocultar" : "Publicar"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() =>
+              act(async () => {
+                const res = await dup({ data: { productId: id } });
+                navigate({ to: "/admin/produtos/$id", params: { id: res.id } });
+              }, "Produto duplicado")
+            }
+          >
+            Duplicar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={busy}
+            onClick={() => {
+              if (confirm("Descontinuar este produto? Ele sai da loja mas o histórico é preservado."))
+                act(() => del({ data: { productId: id, hard: false } }), "Produto descontinuado");
+            }}
+          >
+            Descontinuar
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            disabled={busy}
+            onClick={() => {
+              const typed = window.prompt(`Digite o nome do produto para excluir definitivamente:\n${product.name}`);
+              if (typed !== product.name) return;
+              act(async () => {
+                await del({ data: { productId: id, hard: true } });
+                navigate({ to: "/admin/produtos" });
+              }, "Produto excluído");
+            }}
+          >
+            <Trash2 className="mr-1 h-3 w-3" /> Excluir
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="basics">
+        <TabsList className="flex flex-wrap">
+          <TabsTrigger value="basics">Visão geral</TabsTrigger>
+          <TabsTrigger value="content">Conteúdo/CMS</TabsTrigger>
+          <TabsTrigger value="pricing">Preço &amp; Estoque</TabsTrigger>
+          <TabsTrigger value="media">Mídia</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="kits">Kits &amp; Frete</TabsTrigger>
+          <TabsTrigger value="badges">Selos</TabsTrigger>
+          <TabsTrigger value="preview">Prévia</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="basics" className="mt-4">
+          <BasicsTab
+            product={product}
+            allCategories={data.allCategories as any}
+            brands={data.brands as any}
+            categoryLinks={data.categoryLinks as any}
+          />
+        </TabsContent>
+        <TabsContent value="content" className="mt-4">
+          <ContentTab product={product} faqs={data.faqs as any} />
+        </TabsContent>
+        <TabsContent value="pricing" className="mt-4">
+          <PricingTab product={product} />
+        </TabsContent>
+        <TabsContent value="media" className="mt-4">
+          <MediaTab productId={id} images={data.images as any} videos={data.videos as any} />
+        </TabsContent>
+        <TabsContent value="seo" className="mt-4">
+          <SeoTab product={product} images={data.images as any} redirects={data.redirects as any} />
+        </TabsContent>
+        <TabsContent value="kits" className="mt-4 space-y-4">
+          <DimensionsCard product={product} />
+          <KitsCard productId={id} sellsByKit={!!product.sells_by_kit} kits={(data.kits ?? []) as KitRow[]} />
+        </TabsContent>
+        <TabsContent value="badges" className="mt-4">
+          <BadgesTab productId={id} badges={data.badges as any} assignments={data.badgeAssignments as any} />
+        </TabsContent>
+        <TabsContent value="preview" className="mt-4">
+          <PreviewPage />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
 
 function PreviewPage() {
   const { id } = Route.useParams();

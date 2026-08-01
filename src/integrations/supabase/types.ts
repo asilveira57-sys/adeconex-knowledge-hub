@@ -1339,6 +1339,96 @@ export type Database = {
           },
         ]
       }
+      product_badge_assignments: {
+        Row: {
+          badge_id: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          product_id: string
+          source: Database["public"]["Enums"]["badge_source"]
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          product_id: string
+          source?: Database["public"]["Enums"]["badge_source"]
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          product_id?: string
+          source?: Database["public"]["Enums"]["badge_source"]
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_badge_assignments_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "product_badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_badge_assignments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_badges: {
+        Row: {
+          auto_rule: Database["public"]["Enums"]["badge_auto_rule"]
+          color: string
+          created_at: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          key: string
+          label: string
+          priority: number
+          rule_threshold: number | null
+          updated_at: string
+        }
+        Insert: {
+          auto_rule?: Database["public"]["Enums"]["badge_auto_rule"]
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          label: string
+          priority?: number
+          rule_threshold?: number | null
+          updated_at?: string
+        }
+        Update: {
+          auto_rule?: Database["public"]["Enums"]["badge_auto_rule"]
+          color?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          label?: string
+          priority?: number
+          rule_threshold?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_categories: {
         Row: {
           category_id: string
@@ -2325,6 +2415,14 @@ export type Database = {
         | "preorder"
         | "discontinued"
         | "made_to_order"
+      badge_auto_rule:
+        | "none"
+        | "best_seller"
+        | "low_stock"
+        | "new_arrival"
+        | "on_sale"
+        | "free_shipping"
+      badge_source: "manual" | "auto"
       bundle_discount_type:
         | "percent"
         | "fixed"
@@ -2548,6 +2646,15 @@ export const Constants = {
         "discontinued",
         "made_to_order",
       ],
+      badge_auto_rule: [
+        "none",
+        "best_seller",
+        "low_stock",
+        "new_arrival",
+        "on_sale",
+        "free_shipping",
+      ],
+      badge_source: ["manual", "auto"],
       bundle_discount_type: [
         "percent",
         "fixed",
