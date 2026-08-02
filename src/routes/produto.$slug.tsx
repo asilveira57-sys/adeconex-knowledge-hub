@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ShippingCepQuote } from "@/components/shipping-cep-quote";
 import { BundleOffersSection } from "@/components/bundle-offers-section";
 import { Badge } from "@/components/ui/badge";
+import { ProductBadgePills } from "@/components/product-badge-pills";
 import {
   Accordion,
   AccordionContent,
@@ -323,6 +324,8 @@ function ProductPage() {
                 {p.categories.map((c) => c.name).join(" · ")}
               </p>
             )}
+
+            <ProductBadgePills badges={p.badges} size="md" />
 
             <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight md:text-4xl lg:text-[2.75rem]">
               {p.name}

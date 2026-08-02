@@ -27,6 +27,7 @@ import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
 import { MediaTab } from "@/components/admin/product/media-tab";
 import { BadgesTab } from "@/components/admin/product/badges-tab";
+import { BundlesTab } from "@/components/admin/product/bundles-tab";
 import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
 import { updateProductStatus } from "@/lib/admin.functions";
 import { useNavigate } from "@tanstack/react-router";
@@ -155,6 +156,7 @@ function ProductEditorPage() {
           <TabsTrigger value="media">Mídia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="kits">Kits &amp; Frete</TabsTrigger>
+          <TabsTrigger value="bundles">Compre Junto</TabsTrigger>
           <TabsTrigger value="badges">Selos</TabsTrigger>
           <TabsTrigger value="preview">Prévia</TabsTrigger>
         </TabsList>
@@ -182,6 +184,9 @@ function ProductEditorPage() {
         <TabsContent value="kits" className="mt-4 space-y-4">
           <DimensionsCard product={product} />
           <KitsCard productId={id} sellsByKit={!!product.sells_by_kit} kits={(data.kits ?? []) as KitRow[]} />
+        </TabsContent>
+        <TabsContent value="bundles" className="mt-4">
+          <BundlesTab productId={id} productName={product.name} />
         </TabsContent>
         <TabsContent value="badges" className="mt-4">
           <BadgesTab productId={id} badges={data.badges as any} assignments={data.badgeAssignments as any} />

@@ -10,6 +10,14 @@ export type ShowcaseProduct = {
   promotional_price: number | null;
   image_url: string | null;
   image_alt: string | null;
+  badges: ProductBadge[];
+};
+
+export type ProductBadge = {
+  key: string;
+  label: string;
+  color: string;
+  priority: number;
 };
 
 export type CatalogCategory = {
@@ -48,6 +56,90 @@ async function attachImages(prods: Array<{ id: string; name: string }>) {
   return map;
 }
 
+type BadgeSourceProduct = {
+  id: string;
+  price?: number | string | null;
+  promotional_price?: number | string | null;
+  stock_quantity?: number | null;
+  published_at?: string | null;
+};
+
+/**
+ * Resolve os selos de cada produto combinando atribuições manuais e regras
+ * automáticas (estoque baixo, novidade, promoção vigente).
+ */
+async function attachBadges(
+  prods: BadgeSourceProduct[],
+): Promise<Map<string, ProductBadge[]>> {
+  const out = new Map<string, ProductBadge[]>();
+  if (prods.length === 0) return out;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const ids = prods.map((p) => p.id);
+
+  const [{ data: badges }, { data: assignments }] = await Promise.all([
+    supabaseAdmin
+      .from("product_badges")
+      .select("id, key, label, color, priority, auto_rule, rule_threshold, is_active")
+      .eq("is_active", true)
+      .order("priority", { ascending: true }),
+    supabaseAdmin
+      .from("product_badge_assignments")
+      .select("product_id, badge_id, starts_at, ends_at")
+      .in("product_id", ids),
+  ]);
+
+  const now = Date.now();
+  const byId = new Map((badges ?? []).map((b: any) => [b.id, b]));
+  const manual = new Map<string, Set<string>>();
+  for (const a of assignments ?? []) {
+    if (a.starts_at && new Date(a.starts_at).getTime() > now) continue;
+    if (a.ends_at && new Date(a.ends_at).getTime() < now) continue;
+    const set = manual.get(a.product_id) ?? new Set<string>();
+    set.add(a.badge_id);
+    manual.set(a.product_id, set);
+  }
+
+  for (const p of prods) {
+    const picked: ProductBadge[] = [];
+    const price = p.price != null ? Number(p.price) : null;
+    const promo = p.promotional_price != null ? Number(p.promotional_price) : null;
+    const stock = p.stock_quantity ?? null;
+    const publishedAt = p.published_at ? new Date(p.published_at).getTime() : null;
+
+    for (const b of (badges ?? []) as any[]) {
+      const isManual = manual.get(p.id)?.has(b.id) ?? false;
+      let auto = false;
+      const threshold = b.rule_threshold != null ? Number(b.rule_threshold) : null;
+      switch (b.auto_rule) {
+        case "low_stock":
+          auto = stock != null && stock > 0 && stock <= (threshold ?? 10);
+          break;
+        case "new_arrival":
+          auto =
+            publishedAt != null &&
+            now - publishedAt <= (threshold ?? 30) * 24 * 60 * 60 * 1000;
+          break;
+        case "on_sale":
+          auto = promo != null && price != null && promo > 0 && promo < price;
+          break;
+        default:
+          auto = false;
+      }
+      if (isManual || auto) {
+        picked.push({
+          key: b.key,
+          label: b.label,
+          color: b.color,
+          priority: Number(b.priority ?? 0),
+        });
+      }
+    }
+    picked.sort((a, b) => a.priority - b.priority);
+    out.set(p.id, picked.slice(0, 3));
+  }
+  return out;
+}
+
 export const getShowcase = createServerFn({ method: "GET" })
   .inputValidator((v) =>
     z
@@ -77,7 +169,7 @@ export const getShowcase = createServerFn({ method: "GET" })
 
     const { data: prods, error } = await supabaseAdmin
       .from("products")
-      .select("id, name, slug, short_description, price, promotional_price")
+      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at")
       .in("id", ids)
       .in("status", ["enriched", "published"])
       .eq("is_available", true)
@@ -86,6 +178,7 @@ export const getShowcase = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const imagesByProduct = await attachImages(prods ?? []);
+    const badgesByProduct = await attachBadges((prods ?? []) as any);
     const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
 
     const products: ShowcaseProduct[] = (prods ?? []).map((p) => {
@@ -100,6 +193,7 @@ export const getShowcase = createServerFn({ method: "GET" })
         promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
         image_url,
         image_alt: img?.alt_text ?? p.name,
+        badges: badgesByProduct.get(p.id) ?? [],
       };
     });
 
@@ -175,7 +269,7 @@ export const listCatalog = createServerFn({ method: "GET" })
 
     let q = supabaseAdmin
       .from("products")
-      .select("id, name, slug, short_description, price, promotional_price", { count: "exact" })
+      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at", { count: "exact" })
       .in("status", ["enriched", "published"])
       .eq("is_available", true)
       .order("updated_at", { ascending: false })
@@ -186,6 +280,7 @@ export const listCatalog = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const imagesByProduct = await attachImages(prods ?? []);
+    const badgesByProduct = await attachBadges((prods ?? []) as any);
     const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
 
     const items: ShowcaseProduct[] = (prods ?? []).map((p) => {
@@ -200,6 +295,7 @@ export const listCatalog = createServerFn({ method: "GET" })
         promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
         image_url,
         image_alt: img?.alt_text ?? p.name,
+        badges: badgesByProduct.get(p.id) ?? [],
       };
     });
 
@@ -230,6 +326,7 @@ export type ProductDetail = {
   variant_options: Array<{ name: string; values: string[] }>;
   sells_by_kit: boolean;
   kits: KitOption[];
+  badges: ProductBadge[];
 };
 
 export type ProductVariantOption = {
@@ -271,7 +368,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status, published_at",
       )
       .eq("slug", data.slug)
       .maybeSingle();
@@ -409,6 +506,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       variant_options,
       sells_by_kit: !!p.sells_by_kit,
       kits,
+      badges: (await attachBadges([p as any])).get(p.id) ?? [],
     };
   });
 
