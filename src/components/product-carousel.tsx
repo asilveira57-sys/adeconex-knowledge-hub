@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { getShowcase, type ShowcaseProduct } from "@/lib/catalog.functions";
+import { ProductBadgePills } from "@/components/product-badge-pills";
 
 export const showcaseOptions = (categorySlug: string, limit = 9) =>
   queryOptions({
@@ -40,6 +41,7 @@ function ProductCard({ p }: { p: ShowcaseProduct }) {
             <ImageOff className="h-8 w-8" />
           </div>
         )}
+        <ProductBadgePills badges={p.badges} className="absolute left-2 top-2" />
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="line-clamp-2 text-sm font-medium leading-snug">{p.name}</h3>
