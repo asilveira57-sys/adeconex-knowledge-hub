@@ -32,11 +32,11 @@ export const Route = createFileRoute("/")({
         content:
           "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
-      { property: "og:title", content: "Adeconex — Plataforma 2030" },
+      { property: "og:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       {
         property: "og:description",
         content:
-          "Autoridade nacional em impressão térmica, identificação, etiquetagem e automação. Conteúdo, ferramentas e produtos em um só lugar.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },

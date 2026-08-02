@@ -116,15 +116,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "google-site-verification",
         content: "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
       },
-      { title: "Adeconex — Plataforma de impressão térmica e identificação" },
+      { title: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       {
         name: "description",
         content:
-          "Adeconex: autoridade nacional em impressão térmica, etiquetas e ribbons. Conteúdo técnico, ferramentas gratuitas e produtos.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
       },
       { property: "og:site_name", content: "Adeconex" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
+      { name: "twitter:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
+      { property: "og:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento." },
+      { name: "twitter:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
     ],
 
     links: [
