@@ -19,6 +19,7 @@ import {
 import heroImg from "@/assets/hero-printer.jpg";
 import labelsImg from "@/assets/labels-macro.jpg";
 import { Section, SectionHeader } from "@/components/ui/section";
+import { getPlaceDetails, type PlaceDetails } from "@/lib/place.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,13 +44,16 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
+  loader: () => getPlaceDetails(),
+  staleTime: 60 * 60 * 1000,
   component: HomePage,
 });
 
 function HomePage() {
+  const place = Route.useLoaderData() as PlaceDetails;
   return (
     <>
-      <Hero />
+      <Hero rating={place.rating} />
       <TrustStrip />
       <Solutions />
       <CatalogTeaser />
@@ -57,7 +61,7 @@ function HomePage() {
       <KnowledgePreview />
       <ToolsPreview />
       <Marketplaces />
-      <ProofAndSocial />
+      <ProofAndSocial place={place} />
       <FinalCta />
     </>
   );
@@ -92,7 +96,7 @@ function Vitrines() {
 }
 
 /* ───────── Hero ───────── */
-function Hero() {
+function Hero({ rating }: { rating: number }) {
   return (
     <section className="relative overflow-hidden ink-surface">
       <div
@@ -133,7 +137,11 @@ function Hero() {
             {[
               { v: "20+", l: "Anos de mercado", to: undefined as string | undefined },
               { v: "5.000+", l: "Clientes B2B", to: undefined },
-              { v: "4,9★", l: "Avaliação Google", to: "/avaliacoes" as const },
+              {
+                v: `${rating.toFixed(1).replace(".", ",")}★`,
+                l: "Avaliação Google",
+                to: "/avaliacoes" as const,
+              },
             ].map((s) => {
               const inner = (
                 <>
@@ -495,24 +503,11 @@ function Marketplaces() {
 }
 
 /* ───────── Proof / social ───────── */
-function ProofAndSocial() {
-  const reviews = [
-    {
-      name: "Carlos M.",
-      role: "Gerente de Logística",
-      body: "Suporte técnico de outra categoria. Resolveram nosso problema de ribbon resinado em menos de uma hora.",
-    },
-    {
-      name: "Patrícia L.",
-      role: "Compras — Indústria alimentícia",
-      body: "Site é praticamente uma enciclopédia. Encontro especificação completa antes de pedir orçamento.",
-    },
-    {
-      name: "Eduardo S.",
-      role: "Comprador — Varejo",
-      body: "Pedido recorrente pela área B2B virou rotina. Economizo tempo todo mês.",
-    },
-  ];
+function ProofAndSocial({ place }: { place: PlaceDetails }) {
+  const reviews = place.reviews
+    .filter((r) => r.text.trim().length > 20)
+    .slice(0, 3);
+  const ratingLabel = place.rating.toFixed(1).replace(".", ",");
   return (
     <Section tone="muted">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
@@ -520,9 +515,11 @@ function ProofAndSocial() {
           <p className="eyebrow">Prova social</p>
           <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
             <Link to="/avaliacoes" className="hover:underline underline-offset-4">
-              4,9 / 5 no Google.
+              {ratingLabel} / 5 no Google.
             </Link>{" "}
-            <span className="text-muted-foreground">Há mais de uma década.</span>
+            <span className="text-muted-foreground">
+              {place.reviewCount} avaliações públicas.
+            </span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Indústrias, papelarias, varejistas, integradoras e operadores
@@ -535,7 +532,14 @@ function ProofAndSocial() {
           >
             <div className="flex">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-ember text-ember" />
+                <Star
+                  key={i}
+                  className={
+                    i < Math.round(place.rating)
+                      ? "h-5 w-5 fill-ember text-ember"
+                      : "h-5 w-5 text-muted-foreground/30"
+                  }
+                />
               ))}
             </div>
             <span className="font-mono text-sm text-ink-soft underline-offset-4 group-hover:underline">
@@ -546,21 +550,28 @@ function ProofAndSocial() {
         <div className="grid gap-4 sm:grid-cols-3">
           {reviews.map((r) => (
             <Link
-              key={r.name}
+              key={r.publishTime}
               to="/avaliacoes"
               className="block rounded-xl border hairline bg-card p-5 transition-shadow hover:shadow-card"
             >
               <div className="flex">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-ember text-ember" />
+                  <Star
+                    key={i}
+                    className={
+                      i < r.rating
+                        ? "h-3.5 w-3.5 fill-ember text-ember"
+                        : "h-3.5 w-3.5 text-muted-foreground/30"
+                    }
+                  />
                 ))}
               </div>
               <blockquote className="mt-3 text-sm leading-relaxed text-foreground">
-                "{r.body}"
+                "{r.text.length > 180 ? r.text.slice(0, 170).trimEnd() + "…" : r.text}"
               </blockquote>
               <figcaption className="mt-4 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">{r.name}</span> ·{" "}
-                {r.role}
+                <span className="font-medium text-foreground">{r.author}</span> ·{" "}
+                {r.relativeTime}
               </figcaption>
             </Link>
           ))}

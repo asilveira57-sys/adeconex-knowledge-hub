@@ -37,21 +37,21 @@ export function SiteFooter() {
             <Link
               to="/avaliacoes"
               className="mt-3 inline-flex items-center gap-2 transition-opacity hover:opacity-80"
-              aria-label="Ver avaliações Google verificadas — 4,9 de 5"
+              aria-label="Ver avaliações Google verificadas"
             >
               <div className="flex">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-ember text-ember" />
                 ))}
               </div>
-              <span className="text-sm font-medium">4,9 / 5</span>
+              <span className="text-sm font-medium">Avaliações Google</span>
             </Link>
             <p className="mt-1 text-xs text-muted-foreground">
-              Baseado em{" "}
+              Nota e depoimentos reais publicados no{" "}
               <Link to="/avaliacoes" className="underline underline-offset-2 hover:text-foreground">
-                avaliações Google
+                perfil do Google
               </Link>{" "}
-              de clientes Adeconex.
+              da Adeconex.
             </p>
           </div>
         </div>
