@@ -43,13 +43,16 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
+  loader: () => getPlaceDetails(),
+  staleTime: 60 * 60 * 1000,
   component: HomePage,
 });
 
 function HomePage() {
+  const place = Route.useLoaderData() as PlaceDetails;
   return (
     <>
-      <Hero />
+      <Hero rating={place.rating} />
       <TrustStrip />
       <Solutions />
       <CatalogTeaser />
@@ -57,7 +60,7 @@ function HomePage() {
       <KnowledgePreview />
       <ToolsPreview />
       <Marketplaces />
-      <ProofAndSocial />
+      <ProofAndSocial place={place} />
       <FinalCta />
     </>
   );
