@@ -19,6 +19,7 @@ import {
 import heroImg from "@/assets/hero-printer.jpg";
 import labelsImg from "@/assets/labels-macro.jpg";
 import { Section, SectionHeader } from "@/components/ui/section";
+import { getPlaceDetails, type PlaceDetails } from "@/lib/place.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
