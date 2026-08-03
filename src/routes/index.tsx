@@ -137,7 +137,11 @@ function Hero({ rating }: { rating: number }) {
             {[
               { v: "20+", l: "Anos de mercado", to: undefined as string | undefined },
               { v: "5.000+", l: "Clientes B2B", to: undefined },
-              { v: "4,9★", l: "Avaliação Google", to: "/avaliacoes" as const },
+              {
+                v: `${rating.toFixed(1).replace(".", ",")}★`,
+                l: "Avaliação Google",
+                to: "/avaliacoes" as const,
+              },
             ].map((s) => {
               const inner = (
                 <>
