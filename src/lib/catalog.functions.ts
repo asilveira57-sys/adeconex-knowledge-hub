@@ -233,11 +233,82 @@ export const getCatalogCategories = createServerFn({ method: "GET" }).handler(as
   return { categories };
 });
 
+/** Lista os selos ativos para uso como filtro na vitrine. */
+export const getCatalogBadges = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("product_badges")
+    .select("key, label, color, priority")
+    .eq("is_active", true)
+    .order("priority", { ascending: true });
+  if (error) throw new Error(error.message);
+  return { badges: (data ?? []).map((b) => ({ key: b.key, label: b.label, color: b.color, priority: Number(b.priority ?? 0) })) };
+});
+
+/**
+ * Resolve os ids de produtos que possuem um determinado selo, combinando
+ * atribuições manuais vigentes e a regra automática do selo.
+ */
+async function productIdsWithBadge(badgeKey: string): Promise<string[]> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: badge } = await supabaseAdmin
+    .from("product_badges")
+    .select("id, auto_rule, rule_threshold, is_active")
+    .eq("key", badgeKey)
+    .maybeSingle();
+  if (!badge || !badge.is_active) return [];
+
+  const ids = new Set<string>();
+  const nowIso = new Date().toISOString();
+
+  const { data: assignments } = await supabaseAdmin
+    .from("product_badge_assignments")
+    .select("product_id, starts_at, ends_at")
+    .eq("badge_id", badge.id);
+  const now = Date.now();
+  for (const a of assignments ?? []) {
+    if (a.starts_at && new Date(a.starts_at).getTime() > now) continue;
+    if (a.ends_at && new Date(a.ends_at).getTime() < now) continue;
+    ids.add(a.product_id);
+  }
+
+  const threshold = badge.rule_threshold != null ? Number(badge.rule_threshold) : null;
+  if (badge.auto_rule === "low_stock") {
+    const { data } = await supabaseAdmin
+      .from("products")
+      .select("id")
+      .gt("stock_quantity", 0)
+      .lte("stock_quantity", threshold ?? 10);
+    for (const p of data ?? []) ids.add(p.id);
+  } else if (badge.auto_rule === "new_arrival") {
+    const since = new Date(now - (threshold ?? 30) * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await supabaseAdmin.from("products").select("id").gte("published_at", since);
+    for (const p of data ?? []) ids.add(p.id);
+  } else if (badge.auto_rule === "on_sale") {
+    const { data } = await supabaseAdmin
+      .from("products")
+      .select("id, price, promotional_price")
+      .not("promotional_price", "is", null);
+    for (const p of data ?? []) {
+      const price = p.price != null ? Number(p.price) : null;
+      const promo = p.promotional_price != null ? Number(p.promotional_price) : null;
+      if (promo && promo > 0 && price != null && promo < price) ids.add(p.id);
+    }
+  }
+  void nowIso;
+  return Array.from(ids);
+}
+
 export const listCatalog = createServerFn({ method: "GET" })
   .inputValidator((v) =>
     z
       .object({
         categorySlug: z.string().optional(),
+        badge: z.string().optional(),
+        freeShipping: z.boolean().optional(),
+        onSale: z.boolean().optional(),
+        availability: z.enum(["all", "in_stock"]).default("all"),
+        sort: z.enum(["relevance", "newest", "price_asc", "price_desc", "name_asc"]).default("relevance"),
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(48).default(12),
       })
@@ -245,24 +316,32 @@ export const listCatalog = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const empty = { items: [] as ShowcaseProduct[], total: 0, page: data.page, pageSize: data.pageSize };
 
     let productIds: string[] | null = null;
+    const intersect = (next: string[]) => {
+      productIds = productIds === null ? next : productIds.filter((id) => next.includes(id));
+    };
+
     if (data.categorySlug) {
       const { data: cat } = await supabaseAdmin
         .from("categories")
         .select("id")
         .eq("slug", data.categorySlug)
         .maybeSingle();
-      if (!cat) return { items: [] as ShowcaseProduct[], total: 0, page: data.page, pageSize: data.pageSize };
+      if (!cat) return empty;
       const { data: pcRows, error: pcErr } = await supabaseAdmin
         .from("product_categories")
         .select("product_id")
         .eq("category_id", cat.id);
       if (pcErr) throw new Error(pcErr.message);
-      productIds = (pcRows ?? []).map((r) => r.product_id);
-      if (productIds.length === 0)
-        return { items: [] as ShowcaseProduct[], total: 0, page: data.page, pageSize: data.pageSize };
+      intersect((pcRows ?? []).map((r) => r.product_id));
     }
+
+    if (data.badge) intersect(await productIdsWithBadge(data.badge));
+    if (data.freeShipping) intersect(await productIdsWithBadge("free_shipping"));
+
+    if (productIds !== null && (productIds as string[]).length === 0) return empty;
 
     const from = (data.page - 1) * data.pageSize;
     const to = from + data.pageSize - 1;
@@ -271,12 +350,19 @@ export const listCatalog = createServerFn({ method: "GET" })
       .from("products")
       .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at", { count: "exact" })
       .in("status", ["enriched", "published"])
-      .eq("is_available", true)
-      .order("updated_at", { ascending: false })
-      .range(from, to);
-    if (productIds) q = q.in("id", productIds);
+      .eq("is_available", true);
 
-    const { data: prods, error, count } = await q;
+    if (productIds) q = q.in("id", productIds);
+    if (data.availability === "in_stock") q = q.gt("stock_quantity", 0);
+    if (data.onSale) q = q.not("promotional_price", "is", null).gt("promotional_price", 0);
+
+    if (data.sort === "newest") q = q.order("published_at", { ascending: false, nullsFirst: false });
+    else if (data.sort === "price_asc") q = q.order("price", { ascending: true, nullsFirst: false });
+    else if (data.sort === "price_desc") q = q.order("price", { ascending: false, nullsFirst: false });
+    else if (data.sort === "name_asc") q = q.order("name", { ascending: true });
+    else q = q.order("updated_at", { ascending: false });
+
+    const { data: prods, error, count } = await q.range(from, to);
     if (error) throw new Error(error.message);
 
     const imagesByProduct = await attachImages(prods ?? []);
@@ -301,6 +387,7 @@ export const listCatalog = createServerFn({ method: "GET" })
 
     return { items, total: count ?? 0, page: data.page, pageSize: data.pageSize };
   });
+
 
 export type ProductDetail = {
   id: string;
