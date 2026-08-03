@@ -96,7 +96,7 @@ function Vitrines() {
 }
 
 /* ───────── Hero ───────── */
-function Hero() {
+function Hero({ rating }: { rating: number }) {
   return (
     <section className="relative overflow-hidden ink-surface">
       <div
