@@ -167,54 +167,122 @@ function ProductCard({ p }: { p: ShowcaseProduct }) {
   );
 }
 
+const pillClass = (active: boolean) =>
+  cn(
+    "rounded-full border hairline px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] transition-colors",
+    active
+      ? "border-signal bg-signal/10 text-signal"
+      : "text-muted-foreground hover:border-signal hover:text-foreground",
+  );
+
 function CategoryFilter({ active }: { active: string | undefined }) {
   const { data } = useSuspenseQuery(categoriesOptions);
+  const navigate = useNavigate({ from: "/catalogo" });
+  const setCat = (slug: string | undefined) =>
+    navigate({ search: (prev: CatalogSearch) => ({ ...prev, cat: slug, page: 1 }) });
+
   return (
-    <div className="mb-8 flex flex-wrap gap-2">
-      <Link
-        to="/catalogo"
-        search={{ page: 1 }}
-        className={cn(
-          "rounded-full border hairline px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] transition-colors",
-          !active
-            ? "border-signal bg-signal/10 text-signal"
-            : "text-muted-foreground hover:border-signal hover:text-foreground",
-        )}
-      >
+    <div className="flex flex-wrap gap-2">
+      <button type="button" onClick={() => setCat(undefined)} className={pillClass(!active)}>
         Todos
-      </Link>
-      {data.categories.map((c) => {
-        const isActive = c.slug === active;
-        return (
-          <Link
-            key={c.slug}
-            to="/catalogo"
-            search={{ cat: c.slug, page: 1 }}
-            className={cn(
-              "rounded-full border hairline px-3 py-1.5 text-xs font-mono uppercase tracking-[0.14em] transition-colors",
-              isActive
-                ? "border-signal bg-signal/10 text-signal"
-                : "text-muted-foreground hover:border-signal hover:text-foreground",
-            )}
+      </button>
+      {data.categories.map((c) => (
+        <button key={c.slug} type="button" onClick={() => setCat(c.slug)} className={pillClass(c.slug === active)}>
+          {c.name} <span className="ml-1 opacity-60">{c.count}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function AdvancedFilters() {
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/catalogo" });
+  const { data } = useSuspenseQuery(badgesOptions);
+
+  const patch = (next: Partial<CatalogSearch>) =>
+    navigate({ search: (prev: CatalogSearch) => ({ ...prev, ...next, page: 1 }) });
+
+  const hasFilters =
+    !!search.cat || !!search.badge || search.frete || search.promo || search.disp !== "all" || search.sort !== "relevance";
+
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-2 border-t hairline pt-4">
+      <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Selo</span>
+      <button type="button" onClick={() => patch({ badge: undefined })} className={pillClass(!search.badge)}>
+        Qualquer
+      </button>
+      {data.badges.map((b) => (
+        <button
+          key={b.key}
+          type="button"
+          onClick={() => patch({ badge: search.badge === b.key ? undefined : b.key })}
+          className={pillClass(search.badge === b.key)}
+        >
+          {b.label}
+        </button>
+      ))}
+
+      <span className="ml-2 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Filtros</span>
+      <button type="button" onClick={() => patch({ frete: !search.frete })} className={pillClass(search.frete)}>
+        Frete grátis
+      </button>
+      <button type="button" onClick={() => patch({ promo: !search.promo })} className={pillClass(search.promo)}>
+        Preço promocional
+      </button>
+      <button
+        type="button"
+        onClick={() => patch({ disp: search.disp === "in_stock" ? "all" : "in_stock" })}
+        className={pillClass(search.disp === "in_stock")}
+      >
+        Em estoque
+      </button>
+
+      <div className="ml-auto flex items-center gap-2">
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() =>
+              navigate({
+                search: () => ({ cat: undefined, badge: undefined, frete: false, promo: false, disp: "all", sort: "relevance", page: 1 }),
+              })
+            }
+            className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
-            {c.name} <span className="ml-1 opacity-60">{c.count}</span>
-          </Link>
-        );
-      })}
+            Limpar filtros
+          </button>
+        )}
+        <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+          Ordenar
+        </label>
+        <select
+          id="catalog-sort"
+          value={search.sort}
+          onChange={(e) => patch({ sort: e.target.value })}
+          className="rounded-md border hairline bg-surface-2 px-3 py-1.5 text-xs"
+        >
+          {SORTS.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
 
 function CatalogGrid() {
-  const { cat, page } = Route.useSearch();
+  const search = Route.useSearch();
+  const { page } = search;
   const navigate = useNavigate({ from: "/catalogo" });
-  const { data } = useSuspenseQuery(listOptions(cat, page));
+  const { data } = useSuspenseQuery(listOptions(search));
   const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
 
   if (data.items.length === 0) {
     return (
       <div className="rounded-lg border hairline bg-surface-2 p-10 text-center text-sm text-muted-foreground">
-        Nenhum produto encontrado nesta categoria.
+        Nenhum produto encontrado com os filtros atuais.
       </div>
     );
   }
@@ -245,7 +313,7 @@ function CatalogGrid() {
             size="sm"
             disabled={page <= 1}
             onClick={() =>
-              navigate({ search: (prev: { cat?: string; page: number }) => ({ ...prev, page: Math.max(1, page - 1) }) })
+              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: Math.max(1, page - 1) }) })
             }
           >
             <ChevronLeft className="h-4 w-4" /> Anterior
@@ -255,7 +323,7 @@ function CatalogGrid() {
             size="sm"
             disabled={page >= totalPages}
             onClick={() =>
-              navigate({ search: (prev: { cat?: string; page: number }) => ({ ...prev, page: Math.min(totalPages, page + 1) }) })
+              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: Math.min(totalPages, page + 1) }) })
             }
           >
             Próxima <ChevronRight className="h-4 w-4" />
@@ -265,6 +333,7 @@ function CatalogGrid() {
     </>
   );
 }
+
 
 function CatalogPage() {
   const { cat } = Route.useSearch();
