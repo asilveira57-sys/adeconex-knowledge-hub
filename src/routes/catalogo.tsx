@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ProductBadgePills } from "@/components/product-badge-pills";
 import {
+  getCatalogBadges,
   getCatalogCategories,
   listCatalog,
   type ShowcaseProduct,
@@ -16,8 +17,31 @@ import {
 
 const searchSchema = z.object({
   cat: fallback(z.string().optional(), undefined).default(undefined as unknown as string),
+  badge: fallback(z.string().optional(), undefined).default(undefined as unknown as string),
+  frete: fallback(z.boolean(), false).default(false),
+  promo: fallback(z.boolean(), false).default(false),
+  disp: fallback(z.string(), "all").default("all"),
+  sort: fallback(z.string(), "relevance").default("relevance"),
   page: fallback(z.number().int().min(1), 1).default(1),
 });
+
+type CatalogSearch = {
+  cat?: string;
+  badge?: string;
+  frete: boolean;
+  promo: boolean;
+  disp: string;
+  sort: string;
+  page: number;
+};
+
+const SORTS = [
+  { value: "relevance", label: "Relevância" },
+  { value: "newest", label: "Mais recentes" },
+  { value: "price_asc", label: "Menor preço" },
+  { value: "price_desc", label: "Maior preço" },
+  { value: "name_asc", label: "A–Z" },
+] as const;
 
 const categoriesOptions = queryOptions({
   queryKey: ["catalog", "categories"],
@@ -25,20 +49,59 @@ const categoriesOptions = queryOptions({
   staleTime: 5 * 60_000,
 });
 
-const listOptions = (cat: string | undefined, page: number) =>
+const badgesOptions = queryOptions({
+  queryKey: ["catalog", "badges"],
+  queryFn: () => getCatalogBadges(),
+  staleTime: 5 * 60_000,
+});
+
+type ListFilters = {
+  cat?: string;
+  badge?: string;
+  frete: boolean;
+  promo: boolean;
+  disp: string;
+  sort: string;
+  page: number;
+};
+
+const listOptions = (f: ListFilters) =>
   queryOptions({
-    queryKey: ["catalog", "list", cat ?? "all", page],
-    queryFn: () => listCatalog({ data: { categorySlug: cat, page, pageSize: 12 } }),
+    queryKey: ["catalog", "list", f],
+    queryFn: () =>
+      listCatalog({
+        data: {
+          categorySlug: f.cat,
+          badge: f.badge,
+          freeShipping: f.frete || undefined,
+          onSale: f.promo || undefined,
+          availability: f.disp === "in_stock" ? "in_stock" : "all",
+          sort: (["relevance", "newest", "price_asc", "price_desc", "name_asc"].includes(f.sort)
+            ? f.sort
+            : "relevance") as "relevance",
+          page: f.page,
+          pageSize: 12,
+        },
+      }),
     staleTime: 60_000,
   });
 
 export const Route = createFileRoute("/catalogo")({
   validateSearch: zodValidator(searchSchema),
-  loaderDeps: ({ search }) => ({ cat: search.cat, page: search.page }),
+  loaderDeps: ({ search }) => ({
+    cat: search.cat,
+    badge: search.badge,
+    frete: search.frete,
+    promo: search.promo,
+    disp: search.disp,
+    sort: search.sort,
+    page: search.page,
+  }),
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(categoriesOptions),
-      context.queryClient.ensureQueryData(listOptions(deps.cat, deps.page)),
+      context.queryClient.ensureQueryData(badgesOptions),
+      context.queryClient.ensureQueryData(listOptions(deps)),
     ]);
   },
   head: () => ({
