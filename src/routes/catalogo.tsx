@@ -353,7 +353,10 @@ function CatalogPage() {
               <div className="py-6 text-sm text-muted-foreground">Carregando filtros…</div>
             }
           >
-            <CategoryFilter active={cat} />
+            <div className="mb-8">
+              <CategoryFilter active={cat} />
+              <AdvancedFilters />
+            </div>
           </Suspense>
           <Suspense
             fallback={
