@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as MarketplacesRouteImport } from './routes/marketplaces'
+import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
 import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
@@ -70,6 +71,11 @@ const RibbonRoute = RibbonRouteImport.update({
 const MarketplacesRoute = MarketplacesRouteImport.update({
   id: '/marketplaces',
   path: '/marketplaces',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GeradorQrcodeRoute = GeradorQrcodeRouteImport.update({
+  id: '/gerador-qrcode',
+  path: '/gerador-qrcode',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FitaDeCetimRoute = FitaDeCetimRouteImport.update({
@@ -324,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
+  '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -370,6 +377,7 @@ export interface FileRoutesByTo {
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
+  '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -418,6 +426,7 @@ export interface FileRoutesById {
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRoute
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
+  '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -468,6 +477,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
+    | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
@@ -514,6 +524,7 @@ export interface FileRouteTypes {
     | '/downloads'
     | '/empresa'
     | '/ferramentas'
+    | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
@@ -561,6 +572,7 @@ export interface FileRouteTypes {
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
+    | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
     | '/sitemap.xml'
@@ -611,6 +623,7 @@ export interface RootRouteChildren {
   EmpresaRoute: typeof EmpresaRoute
   FerramentasRoute: typeof FerramentasRoute
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
+  GeradorQrcodeRoute: typeof GeradorQrcodeRoute
   MarketplacesRoute: typeof MarketplacesRoute
   RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -643,6 +656,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplaces'
       fullPath: '/marketplaces'
       preLoaderRoute: typeof MarketplacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gerador-qrcode': {
+      id: '/gerador-qrcode'
+      path: '/gerador-qrcode'
+      fullPath: '/gerador-qrcode'
+      preLoaderRoute: typeof GeradorQrcodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fita-de-cetim': {
@@ -1065,6 +1085,7 @@ const rootRouteChildren: RootRouteChildren = {
   EmpresaRoute: EmpresaRoute,
   FerramentasRoute: FerramentasRoute,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
+  GeradorQrcodeRoute: GeradorQrcodeRoute,
   MarketplacesRoute: MarketplacesRoute,
   RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

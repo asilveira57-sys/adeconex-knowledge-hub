@@ -7,6 +7,7 @@ export function ModulePlaceholder({
   title,
   description,
   features,
+  links = [],
   primaryCta = { to: "/contato", label: "Solicitar orçamento" },
   secondaryCta = { to: "/", label: "Voltar ao início" },
 }: {
@@ -14,6 +15,7 @@ export function ModulePlaceholder({
   title: string;
   description: string;
   features: string[];
+  links?: { to: string; label: string }[];
   primaryCta?: { to: string; label: string };
   secondaryCta?: { to: string; label: string };
 }) {
@@ -29,6 +31,20 @@ export function ModulePlaceholder({
             <p className="mt-4 text-muted-foreground md:text-lg">
               {description}
             </p>
+            {links.length > 0 ? (
+              <div className="mt-8 flex flex-wrap gap-2">
+                {links.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    className="inline-flex items-center gap-2 rounded-full border hairline bg-card px-4 py-2 text-sm font-medium hover:bg-accent"
+                  >
+                    {l.label}
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to={primaryCta.to}
