@@ -460,8 +460,8 @@ function Marketplaces() {
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
             Você escolhe a melhor experiência de compra. Para pedidos
-            recorrentes ou volume, a Área B2B oferece tabela personalizada,
-            histórico e reposição automática.
+            recorrentes ou volume, fale com o time comercial e receba condições
+            sob medida.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -472,10 +472,10 @@ function Marketplaces() {
               <ShoppingBag className="h-4 w-4" />
             </Link>
             <Link
-              to="/b2b"
+              to="/contato"
               className="inline-flex items-center gap-2 rounded-md border hairline px-5 py-3 text-sm font-medium"
             >
-              Entrar na Área B2B
+              Falar com o comercial
             </Link>
           </div>
         </div>
