@@ -134,7 +134,7 @@ export function QrGenerator() {
     };
   }, [svg, debouncedValue]);
 
-  const canDownload = Boolean(svg) && !built.error && !lowContrast && decodeState !== "fail";
+  const canDownload = Boolean(svg) && !built.error && !lowContrast;
 
   function resetStyle() {
     setStyle((s) => ({ ...DEFAULT_STYLE, logoDataUrl: s.logoDataUrl, ecc: s.logoDataUrl ? "H" : "M" }));
@@ -524,7 +524,7 @@ export function QrGenerator() {
               <dd className="font-medium">
                 {decodeState === "checking" && "Verificando…"}
                 {decodeState === "ok" && "Leitura confirmada"}
-                {decodeState === "fail" && "Não foi possível ler"}
+                {decodeState === "fail" && "Não confirmado — teste no celular"}
                 {decodeState === "unknown" && "Não foi possível concluir o teste"}
                 {decodeState === "idle" && "—"}
               </dd>
@@ -541,8 +541,8 @@ export function QrGenerator() {
           {decodeState === "fail" ? (
             <p role="alert" className="mt-3 flex items-start gap-2 text-xs text-destructive">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              Não conseguimos decodificar este QR Code. Reduza o logotipo, aumente a margem ou use
-              correção de erro H.
+              Não conseguimos confirmar a leitura automaticamente. Teste o código com o celular
+              antes de imprimir — se falhar, reduza o logotipo, aumente a margem ou use correção H.
             </p>
           ) : null}
           {decodeState === "ok" ? (
