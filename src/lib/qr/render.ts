@@ -68,7 +68,7 @@ function markerPath(x: number, y: number, shape: MarkerShape, outer: string, inn
   const rOuter = shape === "circle" ? 3.5 : shape === "rounded" ? 2 : 0;
   const rInner = shape === "circle" ? 1.5 : shape === "rounded" ? 0.9 : 0;
   return [
-    `<rect x="${x}" y="${y}" width="7" height="7" rx="${rOuter}" ry="${rOuter}" fill="none" stroke="${outer}" stroke-width="1"/>`,
+    `<rect x="${x}" y="${y}" width="6" height="6" rx="${rOuter}" ry="${rOuter}" fill="none" stroke="${outer}" stroke-width="1"/>`,
     `<rect x="${x + 2}" y="${y + 2}" width="3" height="3" rx="${rInner}" ry="${rInner}" fill="${inner}"/>`,
   ].join("");
 }
