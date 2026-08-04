@@ -298,7 +298,7 @@ function CatalogTeaser() {
           <p className="mt-4 text-muted-foreground md:text-lg">
             Especificações, aplicações, materiais e impressoras compatíveis,
             vídeos, downloads, FAQ e comparativos. Você escolhe se compra no
-            marketplace, no B2B ou solicita orçamento direto.
+            marketplace, na loja ou solicita orçamento direto.
           </p>
           <ul className="mt-6 grid gap-2 text-sm">
             {[
@@ -306,7 +306,7 @@ function CatalogTeaser() {
               "Compatibilidade com impressoras e materiais",
               "Vídeos de aplicação real",
               "FAQ e comparativos lado a lado",
-              "Botões: orçamento • marketplace • B2B",
+              "Botões: orçamento • marketplace • loja",
             ].map((i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-signal" />
