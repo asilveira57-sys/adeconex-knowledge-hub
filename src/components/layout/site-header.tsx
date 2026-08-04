@@ -38,12 +38,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-2">
-          <Link
-            to="/b2b"
-            className="text-sm font-medium text-ink-soft transition-colors hover:text-foreground"
-          >
-            Área B2B
-          </Link>
+          
           {user ? (
             <Link
               to="/minha-conta"
