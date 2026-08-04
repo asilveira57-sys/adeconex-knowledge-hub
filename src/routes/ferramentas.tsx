@@ -17,6 +17,7 @@ export const Route = createFileRoute("/ferramentas")({
       eyebrow="Ferramentas gratuitas"
       title="Biblioteca de calculadoras e geradores — sem login."
       description="Cada ferramenta terá página própria otimizada para SEO. O objetivo é entregar valor real ao mercado: economizar tempo e evitar erros de especificação."
+      links={[{ to: "/gerador-qrcode", label: "Gerador de QR Code" }]}
       features={[
         "Gerador de QR Code (PNG / SVG)",
         "Gerador de Código de Barras (EAN, Code 128, GS1)",
