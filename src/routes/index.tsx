@@ -298,7 +298,7 @@ function CatalogTeaser() {
           <p className="mt-4 text-muted-foreground md:text-lg">
             Especificações, aplicações, materiais e impressoras compatíveis,
             vídeos, downloads, FAQ e comparativos. Você escolhe se compra no
-            marketplace, no B2B ou solicita orçamento direto.
+            marketplace, na loja ou solicita orçamento direto.
           </p>
           <ul className="mt-6 grid gap-2 text-sm">
             {[
@@ -306,7 +306,7 @@ function CatalogTeaser() {
               "Compatibilidade com impressoras e materiais",
               "Vídeos de aplicação real",
               "FAQ e comparativos lado a lado",
-              "Botões: orçamento • marketplace • B2B",
+              "Botões: orçamento • marketplace • loja",
             ].map((i) => (
               <li key={i} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-signal" />
@@ -460,8 +460,8 @@ function Marketplaces() {
           </h2>
           <p className="mt-4 text-muted-foreground md:text-lg">
             Você escolhe a melhor experiência de compra. Para pedidos
-            recorrentes ou volume, a Área B2B oferece tabela personalizada,
-            histórico e reposição automática.
+            recorrentes ou volume, fale com o time comercial e receba condições
+            sob medida.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -472,10 +472,10 @@ function Marketplaces() {
               <ShoppingBag className="h-4 w-4" />
             </Link>
             <Link
-              to="/b2b"
+              to="/contato"
               className="inline-flex items-center gap-2 rounded-md border hairline px-5 py-3 text-sm font-medium"
             >
-              Entrar na Área B2B
+              Falar com o comercial
             </Link>
           </div>
         </div>
