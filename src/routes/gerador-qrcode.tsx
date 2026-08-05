@@ -6,6 +6,9 @@ import { ArrowRight, ChevronRight } from "lucide-react";
 
 const PATH = "/gerador-qrcode";
 const URL = absoluteUrl(PATH);
+// Cache-busting: incremente ao trocar a arte para forçar novo scrape no Facebook/X.
+const OG_IMAGE_VERSION = "20260805";
+const OG_IMAGE = `${absoluteUrl("/og/gerador-qrcode.png")}?v=${OG_IMAGE_VERSION}`;
 const TITLE = "Gerador de QR Code Grátis com Logo | Adeconex";
 const DESCRIPTION =
   "Crie QR Code grátis para link, WhatsApp, Wi-Fi, PIX, texto e contato. Personalize cores e logo e baixe em PNG ou SVG com fundo transparente.";
