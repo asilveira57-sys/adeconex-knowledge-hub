@@ -122,6 +122,40 @@ export const Route = createFileRoute("/gerador-qrcode")({
   component: QrCodePage,
 });
 
+function ShareVersionButton() {
+  const [copied, setCopied] = useState(false);
+  const shareUrl = `${URL}?v=${OG_IMAGE_VERSION}`;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success("Link copiado!", {
+        description: "Compartilhe sem preview antigo.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Não foi possível copiar o link.");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="mt-6 inline-flex items-center gap-2 rounded-md border hairline bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      aria-label="Copiar link de compartilhamento com versão atualizada"
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-green-500" aria-hidden />
+      ) : (
+        <Copy className="h-4 w-4" aria-hidden />
+      )}
+      {copied ? "Link copiado" : "Copiar link de compartilhamento"}
+    </button>
+  );
+}
+
 function QrCodePage() {
   return (
     <>
