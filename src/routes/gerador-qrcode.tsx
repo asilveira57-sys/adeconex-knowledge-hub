@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { QrGenerator } from "@/components/tools/qr-generator";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { absoluteUrl } from "@/lib/seo";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight, Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const PATH = "/gerador-qrcode";
 const URL = absoluteUrl(PATH);
