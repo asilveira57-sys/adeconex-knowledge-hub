@@ -210,7 +210,10 @@ function QrCodePage() {
             Crie seu QR Code personalizado para links, WhatsApp, Wi-Fi, PIX, contatos e outros
             conteúdos. Adicione seu logotipo, escolha as cores e faça o download em PNG ou SVG.
           </p>
-          <ShareVersionButton />
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <ShareVersionButton />
+            <WhatsAppShareButton />
+          </div>
         </div>
       </section>
 
