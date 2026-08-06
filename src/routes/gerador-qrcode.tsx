@@ -143,7 +143,7 @@ function ShareVersionButton() {
     <button
       type="button"
       onClick={handleCopy}
-      className="mt-6 inline-flex items-center gap-2 rounded-md border hairline bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="inline-flex items-center gap-2 rounded-md border hairline bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       aria-label="Copiar link de compartilhamento com versão atualizada"
     >
       {copied ? (
@@ -151,8 +151,36 @@ function ShareVersionButton() {
       ) : (
         <Copy className="h-4 w-4" aria-hidden />
       )}
-      {copied ? "Link copiado" : "Copiar link de compartilhamento"}
+      {copied ? "Link copiado" : "Copiar link"}
     </button>
+  );
+}
+
+function WhatsAppShareButton() {
+  const shareUrl = `${URL}?v=${OG_IMAGE_VERSION}`;
+  const text = encodeURIComponent(
+    `Crie QR Code grátis para link, WhatsApp, Wi-Fi, PIX e mais na Adeconex: ${shareUrl}`
+  );
+  const whatsappUrl = `https://wa.me/?text=${text}`;
+
+  return (
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      aria-label="Compartilhar link versionado pelo WhatsApp"
+    >
+      <svg
+        className="h-4 w-4"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M17.472 14.382c-.297-.596-1.058-.872-1.634-.602l-.51.237c-.247.113-.54.04-.692-.167l-.723-.99a.57.57 0 0 1 .1-.803 8.2 8.2 0 0 0 1.68-2.037 8.24 8.24 0 0 0 .948-3.535.57.57 0 0 0-.568-.633h-1.14a.57.57 0 0 0-.568.515 6.74 6.74 0 0 1-.78 2.94 6.76 6.76 0 0 1-1.905 2.25.57.57 0 0 1-.8-.1l-.648-.89a.57.57 0 0 1 .08-.79 4.94 4.94 0 0 0 1.17-1.545 4.97 4.97 0 0 0 .55-2.19A5.01 5.01 0 0 0 10.5 3a5.02 5.02 0 0 0-4.97 4.41.57.57 0 0 1-.568.515H3.822a.57.57 0 0 1-.568-.633 8.24 8.24 0 0 0 .948 3.535 8.2 8.2 0 0 0 1.68 2.037.57.57 0 0 1 .1.803l-.723.99c-.152.207-.445.28-.692.167l-.51-.237c-.576-.27-1.337.006-1.634.602C1.57 15.69 1.14 16.73 1.14 17.83c0 .16.013.32.04.477.165 1.03 1.02 1.79 2.06 1.9l.37.04c.34.037.68-.06.97-.27l1.15-.83a.57.57 0 0 1 .67 0l1.15.83c.29.21.63.307.97.27l.37-.04c1.04-.11 1.895-.87 2.06-1.9.027-.157.04-.317.04-.477 0-1.1-.43-2.14-1.21-2.948zM12 21.5a9.5 9.5 0 1 1 0-19 9.5 9.5 0 0 1 0 19z" />
+      </svg>
+      WhatsApp
+    </a>
   );
 }
 
@@ -182,7 +210,10 @@ function QrCodePage() {
             Crie seu QR Code personalizado para links, WhatsApp, Wi-Fi, PIX, contatos e outros
             conteúdos. Adicione seu logotipo, escolha as cores e faça o download em PNG ou SVG.
           </p>
-          <ShareVersionButton />
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <ShareVersionButton />
+            <WhatsAppShareButton />
+          </div>
         </div>
       </section>
 
