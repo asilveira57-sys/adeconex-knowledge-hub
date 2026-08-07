@@ -31,19 +31,23 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
+import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
 import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
 import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
+import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
@@ -167,6 +171,11 @@ const FitaDeCetimIndexRoute = FitaDeCetimIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FitaDeCetimRoute,
 } as any)
+const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FerramentasRoute,
+} as any)
 const BrindesIndexRoute = BrindesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -198,6 +207,12 @@ const FitaDeCetimImpressoraParaCetimRoute =
     path: '/impressora-para-cetim',
     getParentRoute: () => FitaDeCetimRoute,
   } as any)
+const FerramentasGeradorDeCodigoDeBarrasRoute =
+  FerramentasGeradorDeCodigoDeBarrasRouteImport.update({
+    id: '/gerador-de-codigo-de-barras',
+    path: '/gerador-de-codigo-de-barras',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
 const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   id: '/etiquetas/preco',
   path: '/etiquetas/preco',
@@ -224,6 +239,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const FerramentasGeradorDeCodigoDeBarrasIndexRoute =
+  FerramentasGeradorDeCodigoDeBarrasIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
 const AuthenticatedCheckoutIndexRoute =
   AuthenticatedCheckoutIndexRouteImport.update({
     id: '/',
@@ -235,6 +256,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
+  FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport.update({
+    id: '/$padrao',
+    path: '/$padrao',
+    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
 const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   id: '/pedido/$id',
   path: '/pedido/$id',
@@ -328,7 +355,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
+  '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -339,12 +366,14 @@ export interface FileRoutesByFullPath {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -353,8 +382,10 @@ export interface FileRoutesByFullPath {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -376,7 +407,6 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
@@ -390,6 +420,7 @@ export interface FileRoutesByTo {
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes': typeof BrindesIndexRoute
+  '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -398,8 +429,10 @@ export interface FileRoutesByTo {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
+  '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -424,7 +457,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
+  '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -435,12 +468,14 @@ export interface FileRoutesById {
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -449,8 +484,10 @@ export interface FileRoutesById {
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/_authenticated/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
@@ -486,12 +523,14 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/gerador-de-codigo-de-barras'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
+    | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/enriquecimento'
     | '/admin/importacao'
@@ -500,8 +539,10 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
     | '/checkout/'
+    | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
@@ -523,7 +564,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/downloads'
     | '/empresa'
-    | '/ferramentas'
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
@@ -537,6 +577,7 @@ export interface FileRouteTypes {
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes'
+    | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/enriquecimento'
     | '/admin/importacao'
@@ -545,8 +586,10 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
     | '/checkout'
+    | '/ferramentas/gerador-de-codigo-de-barras'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
@@ -581,12 +624,14 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/gerador-de-codigo-de-barras'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
+    | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
@@ -595,8 +640,10 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/pagamento'
     | '/_authenticated/checkout/revisao'
     | '/_authenticated/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
+    | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/_authenticated/admin/pedidos/$id'
     | '/_authenticated/admin/produtos/$id'
     | '/api/public/webhooks/mercadopago'
@@ -621,7 +668,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   DownloadsRoute: typeof DownloadsRoute
   EmpresaRoute: typeof EmpresaRoute
-  FerramentasRoute: typeof FerramentasRoute
+  FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
   MarketplacesRoute: typeof MarketplacesRoute
@@ -791,6 +838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FitaDeCetimIndexRouteImport
       parentRoute: typeof FitaDeCetimRoute
     }
+    '/ferramentas/': {
+      id: '/ferramentas/'
+      path: '/'
+      fullPath: '/ferramentas/'
+      preLoaderRoute: typeof FerramentasIndexRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
     '/brindes/': {
       id: '/brindes/'
       path: '/'
@@ -833,6 +887,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
       parentRoute: typeof FitaDeCetimRoute
     }
+    '/ferramentas/gerador-de-codigo-de-barras': {
+      id: '/ferramentas/gerador-de-codigo-de-barras'
+      path: '/gerador-de-codigo-de-barras'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
     '/etiquetas/preco': {
       id: '/etiquetas/preco'
       path: '/etiquetas/preco'
@@ -868,6 +929,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/ferramentas/gerador-de-codigo-de-barras/': {
+      id: '/ferramentas/gerador-de-codigo-de-barras/'
+      path: '/'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras/'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRouteImport
+      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
     '/_authenticated/checkout/': {
       id: '/_authenticated/checkout/'
       path: '/'
@@ -881,6 +949,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/ferramentas/gerador-de-codigo-de-barras/$padrao': {
+      id: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      path: '/$padrao'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
+      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
     }
     '/_authenticated/pedido/$id': {
       id: '/_authenticated/pedido/$id'
@@ -1053,6 +1128,39 @@ const BrindesRouteChildren: BrindesRouteChildren = {
 const BrindesRouteWithChildren =
   BrindesRoute._addFileChildren(BrindesRouteChildren)
 
+interface FerramentasGeradorDeCodigoDeBarrasRouteChildren {
+  FerramentasGeradorDeCodigoDeBarrasPadraoRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
+  FerramentasGeradorDeCodigoDeBarrasIndexRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+}
+
+const FerramentasGeradorDeCodigoDeBarrasRouteChildren: FerramentasGeradorDeCodigoDeBarrasRouteChildren =
+  {
+    FerramentasGeradorDeCodigoDeBarrasPadraoRoute:
+      FerramentasGeradorDeCodigoDeBarrasPadraoRoute,
+    FerramentasGeradorDeCodigoDeBarrasIndexRoute:
+      FerramentasGeradorDeCodigoDeBarrasIndexRoute,
+  }
+
+const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
+  FerramentasGeradorDeCodigoDeBarrasRoute._addFileChildren(
+    FerramentasGeradorDeCodigoDeBarrasRouteChildren,
+  )
+
+interface FerramentasRouteChildren {
+  FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
+  FerramentasIndexRoute: typeof FerramentasIndexRoute
+}
+
+const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasGeradorDeCodigoDeBarrasRoute:
+    FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
+  FerramentasIndexRoute: FerramentasIndexRoute,
+}
+
+const FerramentasRouteWithChildren = FerramentasRoute._addFileChildren(
+  FerramentasRouteChildren,
+)
+
 interface FitaDeCetimRouteChildren {
   FitaDeCetimImpressoraParaCetimRoute: typeof FitaDeCetimImpressoraParaCetimRoute
   FitaDeCetimIndexRoute: typeof FitaDeCetimIndexRoute
@@ -1083,7 +1191,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   DownloadsRoute: DownloadsRoute,
   EmpresaRoute: EmpresaRoute,
-  FerramentasRoute: FerramentasRoute,
+  FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
   GeradorQrcodeRoute: GeradorQrcodeRoute,
   MarketplacesRoute: MarketplacesRoute,
@@ -1099,13 +1207,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
