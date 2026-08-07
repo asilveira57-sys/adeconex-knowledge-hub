@@ -31,6 +31,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
+import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
@@ -166,6 +167,11 @@ const FitaDeCetimIndexRoute = FitaDeCetimIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FitaDeCetimRoute,
+} as any)
+const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FerramentasRoute,
 } as any)
 const BrindesIndexRoute = BrindesIndexRouteImport.update({
   id: '/',
@@ -328,7 +334,7 @@ export interface FileRoutesByFullPath {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
+  '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -376,7 +383,6 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
@@ -390,6 +396,7 @@ export interface FileRoutesByTo {
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes': typeof BrindesIndexRoute
+  '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -424,7 +431,7 @@ export interface FileRoutesById {
   '/contato': typeof ContatoRoute
   '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
-  '/ferramentas': typeof FerramentasRoute
+  '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -441,6 +448,7 @@ export interface FileRoutesById {
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
@@ -492,6 +500,7 @@ export interface FileRouteTypes {
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
+    | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/enriquecimento'
     | '/admin/importacao'
@@ -523,7 +532,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/downloads'
     | '/empresa'
-    | '/ferramentas'
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
@@ -537,6 +545,7 @@ export interface FileRouteTypes {
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes'
+    | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/enriquecimento'
     | '/admin/importacao'
@@ -587,6 +596,7 @@ export interface FileRouteTypes {
     | '/pagamento/recusado'
     | '/produto/$slug'
     | '/brindes/'
+    | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
@@ -621,7 +631,7 @@ export interface RootRouteChildren {
   ContatoRoute: typeof ContatoRoute
   DownloadsRoute: typeof DownloadsRoute
   EmpresaRoute: typeof EmpresaRoute
-  FerramentasRoute: typeof FerramentasRoute
+  FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
   MarketplacesRoute: typeof MarketplacesRoute
@@ -790,6 +800,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/fita-de-cetim/'
       preLoaderRoute: typeof FitaDeCetimIndexRouteImport
       parentRoute: typeof FitaDeCetimRoute
+    }
+    '/ferramentas/': {
+      id: '/ferramentas/'
+      path: '/'
+      fullPath: '/ferramentas/'
+      preLoaderRoute: typeof FerramentasIndexRouteImport
+      parentRoute: typeof FerramentasRoute
     }
     '/brindes/': {
       id: '/brindes/'
@@ -1053,6 +1070,18 @@ const BrindesRouteChildren: BrindesRouteChildren = {
 const BrindesRouteWithChildren =
   BrindesRoute._addFileChildren(BrindesRouteChildren)
 
+interface FerramentasRouteChildren {
+  FerramentasIndexRoute: typeof FerramentasIndexRoute
+}
+
+const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasIndexRoute: FerramentasIndexRoute,
+}
+
+const FerramentasRouteWithChildren = FerramentasRoute._addFileChildren(
+  FerramentasRouteChildren,
+)
+
 interface FitaDeCetimRouteChildren {
   FitaDeCetimImpressoraParaCetimRoute: typeof FitaDeCetimImpressoraParaCetimRoute
   FitaDeCetimIndexRoute: typeof FitaDeCetimIndexRoute
@@ -1083,7 +1112,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContatoRoute: ContatoRoute,
   DownloadsRoute: DownloadsRoute,
   EmpresaRoute: EmpresaRoute,
-  FerramentasRoute: FerramentasRoute,
+  FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
   GeradorQrcodeRoute: GeradorQrcodeRoute,
   MarketplacesRoute: MarketplacesRoute,
