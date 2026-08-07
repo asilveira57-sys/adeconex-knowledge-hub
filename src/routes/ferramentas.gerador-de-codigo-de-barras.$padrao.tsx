@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { BarcodeToolPage, BARCODE_FAQ, TOOL_PATH } from "@/components/tools/barcode-tool-page";
-import { SLUG_TO_SYMBOLOGY, SYMBOLOGY_BY_ID } from "@/lib/barcode/symbologies";
+import { SLUG_TO_SYMBOLOGY, SYMBOLOGY_BY_ID, type SymbologyId } from "@/lib/barcode/symbologies";
 import { absoluteUrl } from "@/lib/seo";
 
 export const Route = createFileRoute("/ferramentas/gerador-de-codigo-de-barras/$padrao")({
@@ -76,7 +76,7 @@ export const Route = createFileRoute("/ferramentas/gerador-de-codigo-de-barras/$
 });
 
 function PadraoPage() {
-  const { id } = Route.useLoaderData();
+  const { id } = Route.useLoaderData() as { id: SymbologyId };
   const sym = SYMBOLOGY_BY_ID[id];
   return (
     <BarcodeToolPage

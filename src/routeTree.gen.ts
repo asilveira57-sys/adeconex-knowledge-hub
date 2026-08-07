@@ -47,6 +47,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
+import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
@@ -255,6 +256,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
+  FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport.update({
+    id: '/$padrao',
+    path: '/$padrao',
+    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
 const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   id: '/pedido/$id',
   path: '/pedido/$id',
@@ -375,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
@@ -421,6 +429,7 @@ export interface FileRoutesByTo {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
@@ -475,6 +484,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
     | '/checkout/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
@@ -575,6 +586,7 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
     | '/checkout'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -628,6 +640,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/pagamento'
     | '/_authenticated/checkout/revisao'
     | '/_authenticated/pedido/$id'
+    | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
@@ -937,6 +950,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/ferramentas/gerador-de-codigo-de-barras/$padrao': {
+      id: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      path: '/$padrao'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
+      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
     '/_authenticated/pedido/$id': {
       id: '/_authenticated/pedido/$id'
       path: '/pedido/$id'
@@ -1109,11 +1129,14 @@ const BrindesRouteWithChildren =
   BrindesRoute._addFileChildren(BrindesRouteChildren)
 
 interface FerramentasGeradorDeCodigoDeBarrasRouteChildren {
+  FerramentasGeradorDeCodigoDeBarrasPadraoRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   FerramentasGeradorDeCodigoDeBarrasIndexRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
 }
 
 const FerramentasGeradorDeCodigoDeBarrasRouteChildren: FerramentasGeradorDeCodigoDeBarrasRouteChildren =
   {
+    FerramentasGeradorDeCodigoDeBarrasPadraoRoute:
+      FerramentasGeradorDeCodigoDeBarrasPadraoRoute,
     FerramentasGeradorDeCodigoDeBarrasIndexRoute:
       FerramentasGeradorDeCodigoDeBarrasIndexRoute,
   }

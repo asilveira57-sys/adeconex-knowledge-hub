@@ -32,6 +32,15 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/conhecimento", changefreq: "weekly", priority: "0.85" },
           { path: "/ferramentas", changefreq: "weekly", priority: "0.8" },
           { path: "/gerador-qrcode", changefreq: "monthly", priority: "0.85" },
+          { path: "/ferramentas/gerador-de-codigo-de-barras", changefreq: "monthly", priority: "0.9" },
+          ...[
+            "ean-13", "ean-8", "code-128", "itf-14", "gs1-128",
+            "sscc", "code-39", "qr-code", "gs1-datamatrix",
+          ].map((slug) => ({
+            path: `/ferramentas/gerador-de-codigo-de-barras/${slug}`,
+            changefreq: "monthly" as const,
+            priority: "0.8",
+          })),
           { path: "/downloads", changefreq: "weekly", priority: "0.7" },
           { path: "/marketplaces", changefreq: "monthly", priority: "0.8" },
           { path: "/blog", changefreq: "daily", priority: "0.8" },
