@@ -41,6 +41,7 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "monthly" as const,
             priority: "0.8",
           })),
+          { path: "/ferramentas/gerador-zpl", changefreq: "monthly", priority: "0.85" },
           { path: "/downloads", changefreq: "weekly", priority: "0.7" },
           { path: "/marketplaces", changefreq: "monthly", priority: "0.8" },
           { path: "/blog", changefreq: "daily", priority: "0.8" },
