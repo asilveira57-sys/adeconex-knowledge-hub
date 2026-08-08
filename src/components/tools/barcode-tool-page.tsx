@@ -64,7 +64,8 @@ export function BarcodeToolPage({
             {SYMBOLOGIES.filter((s) => s.slug).map((s) => (
               <Link
                 key={s.id}
-                to={`${TOOL_PATH}/${s.slug}`}
+                to="/ferramentas/gerador-de-codigo-de-barras/$padrao"
+                params={{ padrao: s.slug! }}
                 className="rounded-full border hairline bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent"
               >
                 {s.label}

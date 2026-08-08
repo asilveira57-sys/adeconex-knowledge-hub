@@ -38,6 +38,7 @@ import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusa
 import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
 import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
@@ -207,6 +208,11 @@ const FitaDeCetimImpressoraParaCetimRoute =
     path: '/impressora-para-cetim',
     getParentRoute: () => FitaDeCetimRoute,
   } as any)
+const FerramentasGeradorZplRoute = FerramentasGeradorZplRouteImport.update({
+  id: '/gerador-zpl',
+  path: '/gerador-zpl',
+  getParentRoute: () => FerramentasRoute,
+} as any)
 const FerramentasGeradorDeCodigoDeBarrasRoute =
   FerramentasGeradorDeCodigoDeBarrasRouteImport.update({
     id: '/gerador-de-codigo-de-barras',
@@ -367,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
+  '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -414,6 +421,7 @@ export interface FileRoutesByTo {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -469,6 +477,7 @@ export interface FileRoutesById {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
+  '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/gerador-de-codigo-de-barras'
+    | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -571,6 +581,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -625,6 +636,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/gerador-de-codigo-de-barras'
+    | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -887,6 +899,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
       parentRoute: typeof FitaDeCetimRoute
     }
+    '/ferramentas/gerador-zpl': {
+      id: '/ferramentas/gerador-zpl'
+      path: '/gerador-zpl'
+      fullPath: '/ferramentas/gerador-zpl'
+      preLoaderRoute: typeof FerramentasGeradorZplRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
     '/ferramentas/gerador-de-codigo-de-barras': {
       id: '/ferramentas/gerador-de-codigo-de-barras'
       path: '/gerador-de-codigo-de-barras'
@@ -1148,12 +1167,14 @@ const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
 
 interface FerramentasRouteChildren {
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
+  FerramentasGeradorZplRoute: typeof FerramentasGeradorZplRoute
   FerramentasIndexRoute: typeof FerramentasIndexRoute
 }
 
 const FerramentasRouteChildren: FerramentasRouteChildren = {
   FerramentasGeradorDeCodigoDeBarrasRoute:
     FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
+  FerramentasGeradorZplRoute: FerramentasGeradorZplRoute,
   FerramentasIndexRoute: FerramentasIndexRoute,
 }
 

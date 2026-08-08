@@ -20,6 +20,7 @@ export const Route = createFileRoute("/ferramentas/")({
       links={[
         { to: "/gerador-qrcode", label: "Gerador de QR Code" },
         { to: "/ferramentas/gerador-de-codigo-de-barras", label: "Gerador de Código de Barras" },
+        { to: "/ferramentas/gerador-zpl", label: "Gerador de ZPL" },
       ]}
       features={[
         "Gerador de Código de Barras (EAN, Code 128, GS1-128, ITF-14, SSCC, DataMatrix)",
