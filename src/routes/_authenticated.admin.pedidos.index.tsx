@@ -20,7 +20,7 @@ const searchSchema = z.object({
 });
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/")({
-  validateSearch: (s: Partial<z.input<typeof searchSchema>>) => searchSchema.parse(s),
+  validateSearch: (s?: Partial<z.input<typeof searchSchema>>) => searchSchema.parse(s ?? {}),
   component: AdminPedidosPage,
 });
 
