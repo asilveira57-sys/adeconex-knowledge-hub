@@ -24,7 +24,18 @@ const FAQ: { q: string; a: string }[] = [
   { q: "Quem faz a renderização das etiquetas?", a: "A pré-visualização usa a API pública da Labelary, referência de mercado na interpretação de ZPL, garantindo fidelidade ao que a impressora Zebra produz." },
 ];
 
+const searchSchema = z.object({
+  v: z.enum(["1"]).optional(),
+  zpl: z.string().optional(),
+  dpmm: z.enum(["6dpmm", "8dpmm", "12dpmm", "24dpmm"]).optional(),
+  w: z.coerce.number().min(0.5).max(15).optional(),
+  h: z.coerce.number().min(0.5).max(30).optional(),
+  r: z.enum(["0", "90", "180", "270"]).optional(),
+  t: z.string().optional(),
+});
+
 export const Route = createFileRoute("/ferramentas/gerador-zpl")({
+  validateSearch: (search) => searchSchema.parse(search),
   head: () => ({
     meta: [
       { title: TITLE },
