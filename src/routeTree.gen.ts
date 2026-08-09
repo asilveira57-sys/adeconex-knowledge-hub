@@ -33,6 +33,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
 import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
 import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
@@ -42,6 +43,7 @@ import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
@@ -182,6 +184,11 @@ const BrindesIndexRoute = BrindesIndexRouteImport.update({
   path: '/',
   getParentRoute: () => BrindesRoute,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
 const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
   id: '/produto/$slug',
   path: '/produto/$slug',
@@ -230,6 +237,11 @@ const BrindesAgendaPersonalizadaRoute =
     path: '/agenda-personalizada',
     getParentRoute: () => BrindesRoute,
   } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   id: '/minha-conta',
   path: '/minha-conta',
@@ -352,7 +364,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
@@ -370,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -379,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/pagamento/pendente': typeof PagamentoPendenteRoute
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -406,7 +420,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
-  '/blog': typeof BlogRoute
   '/bopp': typeof BoppRoute
   '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
@@ -419,6 +432,7 @@ export interface FileRoutesByTo {
   '/ribbon': typeof RibbonRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -427,6 +441,7 @@ export interface FileRoutesByTo {
   '/pagamento/pendente': typeof PagamentoPendenteRoute
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
+  '/blog': typeof BlogIndexRoute
   '/brindes': typeof BrindesIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
@@ -456,7 +471,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
@@ -474,6 +489,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -483,6 +499,7 @@ export interface FileRoutesById {
   '/pagamento/pendente': typeof PagamentoPendenteRoute
   '/pagamento/recusado': typeof PagamentoRecusadoRoute
   '/produto/$slug': typeof ProdutoSlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -530,6 +547,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/minha-conta'
+    | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -539,6 +557,7 @@ export interface FileRouteTypes {
     | '/pagamento/pendente'
     | '/pagamento/recusado'
     | '/produto/$slug'
+    | '/blog/'
     | '/brindes/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -566,7 +585,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/avaliacoes'
     | '/b2b'
-    | '/blog'
     | '/bopp'
     | '/carrinho'
     | '/catalogo'
@@ -579,6 +597,7 @@ export interface FileRouteTypes {
     | '/ribbon'
     | '/sitemap.xml'
     | '/minha-conta'
+    | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/gerador-zpl'
@@ -587,6 +606,7 @@ export interface FileRouteTypes {
     | '/pagamento/pendente'
     | '/pagamento/recusado'
     | '/produto/$slug'
+    | '/blog'
     | '/brindes'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -633,6 +653,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/minha-conta'
+    | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -642,6 +663,7 @@ export interface FileRouteTypes {
     | '/pagamento/pendente'
     | '/pagamento/recusado'
     | '/produto/$slug'
+    | '/blog/'
     | '/brindes/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -671,7 +693,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AvaliacoesRoute: typeof AvaliacoesRoute
   B2bRoute: typeof B2bRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   BoppRoute: typeof BoppRoute
   BrindesRoute: typeof BrindesRouteWithChildren
   CarrinhoRoute: typeof CarrinhoRoute
@@ -864,6 +886,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrindesIndexRouteImport
       parentRoute: typeof BrindesRoute
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/produto/$slug': {
       id: '/produto/$slug'
       path: '/produto/$slug'
@@ -926,6 +955,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/brindes/agenda-personalizada'
       preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
       parentRoute: typeof BrindesRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/_authenticated/minha-conta': {
       id: '/_authenticated/minha-conta'
@@ -1134,6 +1170,18 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface BrindesRouteChildren {
   BrindesAgendaPersonalizadaRoute: typeof BrindesAgendaPersonalizadaRoute
   BrindesIndexRoute: typeof BrindesIndexRoute
@@ -1203,7 +1251,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AvaliacoesRoute: AvaliacoesRoute,
   B2bRoute: B2bRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   BoppRoute: BoppRoute,
   BrindesRoute: BrindesRouteWithChildren,
   CarrinhoRoute: CarrinhoRoute,
