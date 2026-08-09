@@ -25,12 +25,12 @@ const FAQ: { q: string; a: string }[] = [
 ];
 
 const searchSchema = z.object({
-  v: z.enum(["1"]).optional(),
+  v: z.coerce.string().pipe(z.literal("1")).optional(),
   zpl: z.string().optional(),
   dpmm: z.enum(["6dpmm", "8dpmm", "12dpmm", "24dpmm"]).optional(),
   w: z.coerce.number().min(0.5).max(15).optional(),
   h: z.coerce.number().min(0.5).max(30).optional(),
-  r: z.enum(["0", "90", "180", "270"]).optional(),
+  r: z.coerce.string().pipe(z.enum(["0", "90", "180", "270"])).optional(),
   t: z.string().optional(),
 });
 
