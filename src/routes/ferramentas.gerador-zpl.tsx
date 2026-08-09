@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { z } from "zod";
 import { ChevronRight, ArrowRight } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { ZplGenerator } from "@/components/tools/zpl-generator";
@@ -23,7 +24,35 @@ const FAQ: { q: string; a: string }[] = [
   { q: "Quem faz a renderização das etiquetas?", a: "A pré-visualização usa a API pública da Labelary, referência de mercado na interpretação de ZPL, garantindo fidelidade ao que a impressora Zebra produz." },
 ];
 
+const searchSchema = z.object({
+  v: z
+    .union([
+      z.literal("1"),
+      z.literal(1).transform(() => "1" as const),
+    ])
+    .optional(),
+  zpl: z.string().optional(),
+  dpmm: z.enum(["6dpmm", "8dpmm", "12dpmm", "24dpmm"]).optional(),
+  w: z.coerce.number().min(0.5).max(15).optional(),
+  h: z.coerce.number().min(0.5).max(30).optional(),
+  r: z
+    .union([
+      z.enum(["0", "90", "180", "270"]),
+      z
+        .union([
+          z.literal(0),
+          z.literal(90),
+          z.literal(180),
+          z.literal(270),
+        ])
+        .transform((n) => String(n) as "0" | "90" | "180" | "270"),
+    ])
+    .optional(),
+  t: z.string().optional(),
+});
+
 export const Route = createFileRoute("/ferramentas/gerador-zpl")({
+  validateSearch: (search) => searchSchema.parse(search),
   head: () => ({
     meta: [
       { title: TITLE },
@@ -95,6 +124,7 @@ const COMMANDS: { cmd: string; desc: string }[] = [
 ];
 
 function ZplToolPage() {
+  const search = Route.useSearch();
   return (
     <>
       <section className="border-b hairline bg-surface-2">
@@ -135,7 +165,7 @@ function ZplToolPage() {
 
       <div className="container-page py-10 md:py-14">
         <h2 className="sr-only">Editor de ZPL</h2>
-        <ZplGenerator />
+        <ZplGenerator initialSearch={search} />
       </div>
 
       <Section tone="muted">
