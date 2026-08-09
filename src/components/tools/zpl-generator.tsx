@@ -22,6 +22,7 @@ import {
   Upload,
   ChevronLeft,
   ChevronRight,
+  Share2,
 } from "lucide-react";
 
 const DPMM_OPTIONS = [
@@ -99,21 +100,82 @@ const TEMPLATES: { id: string; label: string; zpl: string }[] = [
   },
 ];
 
+const SHARE_VERSION = "1";
+
+function decodeSharedZpl(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+function WhatsAppIcon(props: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={props.className}
+      aria-hidden="true"
+    >
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.297.298-.496.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
+
 type Dpmm = (typeof DPMM_OPTIONS)[number]["value"];
 
-export function ZplGenerator() {
+export interface ZplGeneratorSearchState {
+  v?: string;
+  zpl?: string;
+  dpmm?: Dpmm;
+  w?: number;
+  h?: number;
+  r?: "0" | "90" | "180" | "270";
+  t?: string;
+}
+
+export interface ZplGeneratorProps {
+  initialSearch?: ZplGeneratorSearchState;
+}
+
+export function ZplGenerator({ initialSearch }: ZplGeneratorProps) {
   const render = useServerFn(renderZpl);
-  const [zpl, setZpl] = useState(TEMPLATES[0].zpl);
-  const [dpmm, setDpmm] = useState<Dpmm>("8dpmm");
-  const [width, setWidth] = useState(4);
-  const [height, setHeight] = useState(6);
-  const [rotation, setRotation] = useState<"0" | "90" | "180" | "270">("0");
+
+  const initialZpl =
+    initialSearch?.v === SHARE_VERSION && initialSearch.zpl
+      ? (decodeSharedZpl(initialSearch.zpl) ?? TEMPLATES[0].zpl)
+      : initialSearch?.t
+        ? (TEMPLATES.find((x) => x.id === initialSearch.t)?.zpl ?? TEMPLATES[0].zpl)
+        : TEMPLATES[0].zpl;
+
+  const [zpl, setZpl] = useState(initialZpl);
+  const [dpmm, setDpmm] = useState<Dpmm>(initialSearch?.dpmm ?? "8dpmm");
+  const [width, setWidth] = useState(initialSearch?.w ?? 4);
+  const [height, setHeight] = useState(initialSearch?.h ?? 6);
+  const [rotation, setRotation] = useState<"0" | "90" | "180" | "270">(
+    initialSearch?.r ?? "0",
+  );
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState(1);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Sincroniza a URL com o estado atual (parâmetros versionados).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("v", SHARE_VERSION);
+    url.searchParams.set("zpl", encodeURIComponent(zpl));
+    url.searchParams.set("dpmm", dpmm);
+    url.searchParams.set("w", String(width));
+    url.searchParams.set("h", String(height));
+    url.searchParams.set("r", rotation);
+    window.history.replaceState({}, "", url.toString());
+  }, [zpl, dpmm, width, height, rotation]);
 
   const run = useCallback(
     async (format: "png" | "pdf") => {
@@ -187,6 +249,23 @@ export function ZplGenerator() {
     toast.success("Arquivo ZPL carregado.");
   };
 
+  const shareWhatsApp = () => {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    const text = `Veja essa etiqueta ZPL pronta para imprimir no Gerador Adeconex: ${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener,noreferrer");
+  };
+
+  const copyLink = async () => {
+    if (typeof window === "undefined") return;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copiado para a área de transferência.");
+    } catch {
+      toast.error("Não foi possível copiar o link.");
+    }
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
       {/* Editor */}
@@ -256,6 +335,14 @@ export function ZplGenerator() {
           <Button type="button" variant="outline" size="sm" onClick={() => void preview$()}>
             <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
             Atualizar pré-visualização
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={copyLink}>
+            <Share2 className="mr-1.5 h-3.5 w-3.5" />
+            Copiar link
+          </Button>
+          <Button type="button" size="sm" onClick={shareWhatsApp}>
+            <WhatsAppIcon className="mr-1.5 h-3.5 w-3.5" />
+            WhatsApp
           </Button>
         </div>
       </div>
