@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section } from "@/components/ui/section";
-import { blogPosts, getPost, type BlogBlock } from "@/content/blog-posts";
+import { blogPosts, getPost, type BlogBlock, type BlogPost } from "@/content/blog-posts";
 import { absoluteUrl } from "@/lib/seo";
 
 const fmtDate = (iso: string) =>
@@ -114,10 +114,10 @@ function Block({ block }: { block: BlogBlock }) {
 }
 
 function BlogPostPage() {
-  const post = Route.useLoaderData();
+  const post = Route.useLoaderData() as BlogPost;
   const related = (post.related ?? [])
     .map((s) => blogPosts.find((p) => p.slug === s))
-    .filter((p): p is (typeof blogPosts)[number] => Boolean(p));
+    .filter((p): p is BlogPost => Boolean(p));
 
   const jsonLd = [
     {
