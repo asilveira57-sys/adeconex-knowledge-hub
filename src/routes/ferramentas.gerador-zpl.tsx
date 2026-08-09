@@ -107,6 +107,7 @@ const COMMANDS: { cmd: string; desc: string }[] = [
 ];
 
 function ZplToolPage() {
+  const search = Route.useSearch();
   return (
     <>
       <section className="border-b hairline bg-surface-2">
@@ -147,7 +148,7 @@ function ZplToolPage() {
 
       <div className="container-page py-10 md:py-14">
         <h2 className="sr-only">Editor de ZPL</h2>
-        <ZplGenerator />
+        <ZplGenerator initialSearch={search} />
       </div>
 
       <Section tone="muted">
