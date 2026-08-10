@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
-import { getHub, hubPath, relatedHubs } from "@/content/blog-hubs";
+import { getHub, hubPath, relatedHubs, type BlogHub } from "@/content/blog-hubs";
 import { facetLabel } from "@/content/blog-facets";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -78,7 +78,7 @@ export const Route = createFileRoute("/blog/filtro/$hub")({
 });
 
 function BlogHubPage() {
-  const hub = Route.useLoaderData();
+  const hub = Route.useLoaderData() as BlogHub;
   const related = relatedHubs(hub);
 
   return (
