@@ -11,7 +11,9 @@ import {
   type BlogFilterState,
   type FacetGroupKey,
 } from "@/content/blog-facets";
+import { BLOG_HUBS } from "@/content/blog-hubs";
 import { absoluteUrl } from "@/lib/seo";
+
 import { cn } from "@/lib/utils";
 
 const fmtDate = (iso: string) =>
