@@ -6,7 +6,6 @@ import { Section, SectionHeader } from "@/components/ui/section";
 import { BLOG_CATEGORIES, sortedPosts } from "@/content/blog-posts";
 import {
   FACET_GROUPS,
-  facetLabel,
   filterPosts,
   countFor,
   type BlogFilterState,
@@ -85,7 +84,7 @@ function BlogIndex() {
   };
 
   const patch = (next: Partial<BlogFilterState>) =>
-    navigate({ search: (prev) => ({ ...prev, ...next }) });
+    navigate({ search: (prev: BlogFilterState) => ({ ...prev, ...next }) });
 
   const posts = filterPosts(sortedPosts, state);
   const [featured, ...rest] = posts;
@@ -273,5 +272,3 @@ function BlogIndex() {
     </>
   );
 }
-
-export { facetLabel };
