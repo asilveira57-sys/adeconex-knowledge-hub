@@ -50,6 +50,12 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "monthly" as const,
             priority: "0.7",
           })),
+          ...(await import("@/content/blog-hubs")).BLOG_HUBS.map((h) => ({
+            path: `/blog/filtro/${h.slug}`,
+            changefreq: "weekly" as const,
+            priority: h.facets.length === 1 ? "0.75" : "0.65",
+          })),
+          
           
         ];
 
