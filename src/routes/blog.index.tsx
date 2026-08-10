@@ -11,7 +11,9 @@ import {
   type BlogFilterState,
   type FacetGroupKey,
 } from "@/content/blog-facets";
+import { BLOG_HUBS } from "@/content/blog-hubs";
 import { absoluteUrl } from "@/lib/seo";
+
 import { cn } from "@/lib/utils";
 
 const fmtDate = (iso: string) =>
@@ -249,7 +251,28 @@ function BlogIndex() {
         )}
       </Section>
 
+      <Section className="border-t hairline">
+        <SectionHeader
+          eyebrow="Navegue por combinação"
+          title="Páginas temáticas por impressora, material, tecnologia e ribbon"
+        />
+        <div className="mt-6 flex flex-wrap gap-2">
+          {BLOG_HUBS.map((h) => (
+            <Link
+              key={h.slug}
+              to="/blog/filtro/$hub"
+              params={{ hub: h.slug }}
+              className="rounded-full border hairline bg-card px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
+            >
+              {h.heading.replace("Artigos sobre ", "")}
+              <span className="ml-1.5 opacity-60">{h.posts.length}</span>
+            </Link>
+          ))}
+        </div>
+      </Section>
+
       <Section className="border-t hairline bg-surface-2">
+
         <SectionHeader
           eyebrow="Precisa de ajuda técnica?"
           title="Nossa equipe valida material, ribbon e compatibilidade antes do pedido"

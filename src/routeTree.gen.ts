@@ -51,6 +51,7 @@ import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './r
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
+import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
@@ -280,6 +281,11 @@ const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
     path: '/$padrao',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
   } as any)
+const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
+  id: '/filtro/$hub',
+  path: '/filtro/$hub',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   id: '/pedido/$id',
   path: '/pedido/$id',
@@ -403,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
@@ -452,6 +459,7 @@ export interface FileRoutesByTo {
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
@@ -510,6 +518,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
@@ -568,6 +577,7 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
     | '/checkout/'
@@ -617,6 +627,7 @@ export interface FileRouteTypes {
     | '/checkout/pagamento'
     | '/checkout/revisao'
     | '/pedido/$id'
+    | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
     | '/checkout'
@@ -674,6 +685,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/pagamento'
     | '/_authenticated/checkout/revisao'
     | '/_authenticated/pedido/$id'
+    | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
@@ -1012,6 +1024,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
     }
+    '/blog/filtro/$hub': {
+      id: '/blog/filtro/$hub'
+      path: '/filtro/$hub'
+      fullPath: '/blog/filtro/$hub'
+      preLoaderRoute: typeof BlogFiltroHubRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/_authenticated/pedido/$id': {
       id: '/_authenticated/pedido/$id'
       path: '/pedido/$id'
@@ -1173,11 +1192,13 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 interface BlogRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  BlogFiltroHubRoute: typeof BlogFiltroHubRoute
 }
 
 const BlogRouteChildren: BlogRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
+  BlogFiltroHubRoute: BlogFiltroHubRoute,
 }
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
