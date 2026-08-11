@@ -279,8 +279,8 @@ function PreviewPage() {
           <div className="flex items-baseline gap-3">
             {price != null ? (
               <>
-                <span className="text-2xl font-semibold tabular-nums">R$ {Number(price).toFixed(2)}</span>
-                {hasPromo && <span className="text-sm text-muted-foreground line-through">R$ {Number(product.price).toFixed(2)}</span>}
+                <span className="text-2xl font-semibold tabular-nums">{Number(price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+                {hasPromo && <span className="text-sm text-muted-foreground line-through">{Number(product.price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>}
               </>
             ) : (
               <span className="text-sm text-muted-foreground">Preço a consultar</span>
