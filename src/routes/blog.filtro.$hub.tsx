@@ -1,9 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { getHub, hubPath, relatedHubs, type BlogHub } from "@/content/blog-hubs";
+import type { BlogPost } from "@/content/blog-posts";
 import { facetLabel } from "@/content/blog-facets";
 import { absoluteUrl } from "@/lib/seo";
+
+const PER_PAGE = 6;
 
 const fmtDate = (iso: string) =>
   new Date(`${iso}T12:00:00Z`).toLocaleDateString("pt-BR", {
@@ -12,47 +17,74 @@ const fmtDate = (iso: string) =>
     year: "numeric",
   });
 
+const searchSchema = z.object({
+  page: fallback(z.number().int(), 1).default(1),
+});
+
+const pageUrl = (slug: string, page: number) =>
+  absoluteUrl(`${hubPath({ slug })}${page > 1 ? `?page=${page}` : ""}`);
+
 export const Route = createFileRoute("/blog/filtro/$hub")({
-  loader: ({ params }) => {
+  validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search }) => ({ page: search.page }),
+  loader: ({ params, deps }): { hub: BlogHub; posts: BlogPost[]; page: number; totalPages: number } => {
     const hub = getHub(params.hub);
     if (!hub) throw notFound();
-    return hub;
+    const totalPages = Math.max(1, Math.ceil(hub.posts.length / PER_PAGE));
+    const page = Math.min(Math.max(1, Math.floor(deps.page || 1)), totalPages);
+    const posts = hub.posts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+    return { hub, posts, page, totalPages };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Filtro não encontrado — Blog Adeconex" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Filtro não encontrado — Blog Adeconex" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
-    const url = absoluteUrl(hubPath(loaderData));
+    const { hub, posts, page, totalPages } = loaderData;
+    const url = pageUrl(hub.slug, page);
+    const suffix = page > 1 ? ` — página ${page} de ${totalPages}` : "";
+    const title = page > 1 ? `${hub.title}${suffix}`.slice(0, 90) : hub.title;
+    const description =
+      page > 1
+        ? `Página ${page} de ${totalPages} — ${hub.description}`.slice(0, 158)
+        : hub.description;
+
+    const links: { rel: string; href: string }[] = [{ rel: "canonical", href: url }];
+    if (page > 1) links.push({ rel: "prev", href: pageUrl(hub.slug, page - 1) });
+    if (page < totalPages) links.push({ rel: "next", href: pageUrl(hub.slug, page + 1) });
+
     return {
       meta: [
-        { title: loaderData.title },
-        { name: "description", content: loaderData.description },
-        { name: "keywords", content: loaderData.keywords.join(", ") },
-        { property: "og:title", content: loaderData.heading },
-        { property: "og:description", content: loaderData.description },
+        { title },
+        { name: "description", content: description },
+        { name: "keywords", content: hub.keywords.join(", ") },
+        { property: "og:title", content: `${hub.heading}${suffix}` },
+        { property: "og:description", content: description },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
         { name: "twitter:card", content: "summary_large_image" },
       ],
-      links: [{ rel: "canonical", href: url }],
+      links,
       scripts: [
         {
           type: "application/ld+json",
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            name: loaderData.heading,
-            description: loaderData.description,
+            name: `${hub.heading}${suffix}`,
+            description,
             url,
             isPartOf: { "@type": "Blog", name: "Blog Adeconex", url: absoluteUrl("/blog") },
             mainEntity: {
               "@type": "ItemList",
-              numberOfItems: loaderData.posts.length,
-              itemListElement: loaderData.posts.map((p, i) => ({
+              numberOfItems: posts.length,
+              itemListElement: posts.map((p, i) => ({
                 "@type": "ListItem",
-                position: i + 1,
+                position: (page - 1) * PER_PAGE + i + 1,
                 url: absoluteUrl(`/blog/${p.slug}`),
                 name: p.title,
               })),
@@ -67,7 +99,12 @@ export const Route = createFileRoute("/blog/filtro/$hub")({
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Início", item: absoluteUrl("/") },
               { "@type": "ListItem", position: 2, name: "Blog", item: absoluteUrl("/blog") },
-              { "@type": "ListItem", position: 3, name: loaderData.heading, item: url },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: `${hub.heading}${suffix}`,
+                item: url,
+              },
             ],
           }),
         },
@@ -78,8 +115,14 @@ export const Route = createFileRoute("/blog/filtro/$hub")({
 });
 
 function BlogHubPage() {
-  const hub = Route.useLoaderData() as BlogHub;
+  const { hub, posts, page, totalPages } = Route.useLoaderData() as {
+    hub: BlogHub;
+    posts: BlogPost[];
+    page: number;
+    totalPages: number;
+  };
   const related = relatedHubs(hub);
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <>
@@ -95,6 +138,9 @@ function BlogHubPage() {
           <p className="eyebrow mt-4">Coleção técnica</p>
           <h1 className="mt-3 max-w-3xl font-display text-3xl font-semibold tracking-tight md:text-5xl">
             {hub.heading}
+            {page > 1 && (
+              <span className="text-muted-foreground"> — página {page}</span>
+            )}
           </h1>
           <p className="mt-4 max-w-2xl text-muted-foreground md:text-lg">{hub.description}</p>
 
@@ -120,7 +166,7 @@ function BlogHubPage() {
 
       <Section>
         <div className="grid gap-px overflow-hidden rounded-xl border hairline bg-hairline md:grid-cols-2 lg:grid-cols-3">
-          {hub.posts.map((p) => (
+          {posts.map((p) => (
             <Link
               key={p.slug}
               to="/blog/$slug"
@@ -143,6 +189,52 @@ function BlogHubPage() {
             </Link>
           ))}
         </div>
+
+        {totalPages > 1 && (
+          <nav
+            className="mt-8 flex flex-wrap items-center justify-center gap-2"
+            aria-label="Paginação"
+          >
+            {page > 1 && (
+              <Link
+                to="/blog/filtro/$hub"
+                params={{ hub: hub.slug }}
+                search={{ page: page - 1 }}
+                rel="prev"
+                className="rounded-md border hairline px-3.5 py-2 text-sm hover:bg-accent"
+              >
+                Anterior
+              </Link>
+            )}
+            {pages.map((n) => (
+              <Link
+                key={n}
+                to="/blog/filtro/$hub"
+                params={{ hub: hub.slug }}
+                search={{ page: n }}
+                aria-current={n === page ? "page" : undefined}
+                className={
+                  n === page
+                    ? "rounded-md bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground"
+                    : "rounded-md border hairline px-3.5 py-2 text-sm hover:bg-accent"
+                }
+              >
+                {n}
+              </Link>
+            ))}
+            {page < totalPages && (
+              <Link
+                to="/blog/filtro/$hub"
+                params={{ hub: hub.slug }}
+                search={{ page: page + 1 }}
+                rel="next"
+                className="rounded-md border hairline px-3.5 py-2 text-sm hover:bg-accent"
+              >
+                Próxima
+              </Link>
+            )}
+          </nav>
+        )}
       </Section>
 
       {related.length > 0 && (
@@ -154,6 +246,7 @@ function BlogHubPage() {
                 key={h.slug}
                 to="/blog/filtro/$hub"
                 params={{ hub: h.slug }}
+                search={{ page: 1 }}
                 className="rounded-full border hairline bg-card px-3.5 py-1.5 text-xs font-medium hover:bg-accent"
               >
                 {h.heading.replace("Artigos sobre ", "")}
