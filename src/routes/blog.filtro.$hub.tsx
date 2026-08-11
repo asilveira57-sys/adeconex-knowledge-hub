@@ -115,7 +115,12 @@ export const Route = createFileRoute("/blog/filtro/$hub")({
 });
 
 function BlogHubPage() {
-  const { hub, posts, page, totalPages } = Route.useLoaderData();
+  const { hub, posts, page, totalPages } = Route.useLoaderData() as {
+    hub: BlogHub;
+    posts: BlogPost[];
+    page: number;
+    totalPages: number;
+  };
   const related = relatedHubs(hub);
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
