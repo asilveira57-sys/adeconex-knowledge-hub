@@ -50,11 +50,15 @@ export const Route = createFileRoute("/sitemap.xml")({
             changefreq: "monthly" as const,
             priority: "0.7",
           })),
-          ...(await import("@/content/blog-hubs")).BLOG_HUBS.map((h) => ({
-            path: `/blog/filtro/${h.slug}`,
-            changefreq: "weekly" as const,
-            priority: h.facets.length === 1 ? "0.75" : "0.65",
-          })),
+          ...(await import("@/content/blog-hubs")).BLOG_HUBS.flatMap((h) => {
+            const totalPages = Math.max(1, Math.ceil(h.posts.length / 6));
+            return Array.from({ length: totalPages }, (_, i) => ({
+              path: `/blog/filtro/${h.slug}${i > 0 ? `?page=${i + 1}` : ""}`,
+              changefreq: "weekly" as const,
+              priority: i > 0 ? "0.5" : h.facets.length === 1 ? "0.75" : "0.65",
+            }));
+          }),
+
           
           
         ];
