@@ -3,7 +3,8 @@ import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
-import { getHub, hubPath, relatedHubs } from "@/content/blog-hubs";
+import { getHub, hubPath, relatedHubs, type BlogHub } from "@/content/blog-hubs";
+import type { BlogPost } from "@/content/blog-posts";
 import { facetLabel } from "@/content/blog-facets";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -26,7 +27,7 @@ const pageUrl = (slug: string, page: number) =>
 export const Route = createFileRoute("/blog/filtro/$hub")({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({ page: search.page }),
-  loader: ({ params, deps }) => {
+  loader: ({ params, deps }): { hub: BlogHub; posts: BlogPost[]; page: number; totalPages: number } => {
     const hub = getHub(params.hub);
     if (!hub) throw notFound();
     const totalPages = Math.max(1, Math.ceil(hub.posts.length / PER_PAGE));
