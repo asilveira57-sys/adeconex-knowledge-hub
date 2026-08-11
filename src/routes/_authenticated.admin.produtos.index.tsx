@@ -187,7 +187,11 @@ function ProductsAdmin() {
                       <div className="text-xs text-muted-foreground">{row.slug}</div>
                     </TableCell>
 
-                    <TableCell className="tabular-nums">{row.price ? `R$ ${Number(row.price).toFixed(2)}` : "—"}</TableCell>
+                    <TableCell className="tabular-nums">
+                      {row.price
+                        ? Number(row.price).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                        : "—"}
+                    </TableCell>
                     <TableCell className="tabular-nums">{row.stock_quantity ?? "—"}</TableCell>
                     <TableCell>
                       <Badge variant={st.tone === "success" ? "default" : st.tone === "warning" ? "destructive" : "secondary"}>{st.label}</Badge>
