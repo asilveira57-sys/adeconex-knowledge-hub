@@ -39,8 +39,11 @@ import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusa
 import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
 import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as FerramentasPlanejadorDeFolhaRouteImport } from './routes/ferramentas.planejador-de-folha'
+import { Route as FerramentasPlanejadorDeBobinaRouteImport } from './routes/ferramentas.planejador-de-bobina'
 import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
+import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -216,6 +219,18 @@ const FitaDeCetimImpressoraParaCetimRoute =
     path: '/impressora-para-cetim',
     getParentRoute: () => FitaDeCetimRoute,
   } as any)
+const FerramentasPlanejadorDeFolhaRoute =
+  FerramentasPlanejadorDeFolhaRouteImport.update({
+    id: '/planejador-de-folha',
+    path: '/planejador-de-folha',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
+const FerramentasPlanejadorDeBobinaRoute =
+  FerramentasPlanejadorDeBobinaRouteImport.update({
+    id: '/planejador-de-bobina',
+    path: '/planejador-de-bobina',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
 const FerramentasGeradorZplRoute = FerramentasGeradorZplRouteImport.update({
   id: '/gerador-zpl',
   path: '/gerador-zpl',
@@ -225,6 +240,12 @@ const FerramentasGeradorDeCodigoDeBarrasRoute =
   FerramentasGeradorDeCodigoDeBarrasRouteImport.update({
     id: '/gerador-de-codigo-de-barras',
     path: '/gerador-de-codigo-de-barras',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
+const FerramentasConversorDeMedidasRoute =
+  FerramentasConversorDeMedidasRouteImport.update({
+    id: '/conversor-de-medidas',
+    path: '/conversor-de-medidas',
     getParentRoute: () => FerramentasRoute,
   } as any)
 const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
@@ -391,8 +412,11 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-bobina': typeof FerramentasPlanejadorDeBobinaRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -442,7 +466,10 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-bobina': typeof FerramentasPlanejadorDeBobinaRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -500,8 +527,11 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-bobina': typeof FerramentasPlanejadorDeBobinaRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -559,8 +589,11 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-bobina'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -610,7 +643,10 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-bobina'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -667,8 +703,11 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-bobina'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -940,6 +979,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
       parentRoute: typeof FitaDeCetimRoute
     }
+    '/ferramentas/planejador-de-folha': {
+      id: '/ferramentas/planejador-de-folha'
+      path: '/planejador-de-folha'
+      fullPath: '/ferramentas/planejador-de-folha'
+      preLoaderRoute: typeof FerramentasPlanejadorDeFolhaRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/planejador-de-bobina': {
+      id: '/ferramentas/planejador-de-bobina'
+      path: '/planejador-de-bobina'
+      fullPath: '/ferramentas/planejador-de-bobina'
+      preLoaderRoute: typeof FerramentasPlanejadorDeBobinaRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
     '/ferramentas/gerador-zpl': {
       id: '/ferramentas/gerador-zpl'
       path: '/gerador-zpl'
@@ -952,6 +1005,13 @@ declare module '@tanstack/react-router' {
       path: '/gerador-de-codigo-de-barras'
       fullPath: '/ferramentas/gerador-de-codigo-de-barras'
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/conversor-de-medidas': {
+      id: '/ferramentas/conversor-de-medidas'
+      path: '/conversor-de-medidas'
+      fullPath: '/ferramentas/conversor-de-medidas'
+      preLoaderRoute: typeof FerramentasConversorDeMedidasRouteImport
       parentRoute: typeof FerramentasRoute
     }
     '/etiquetas/preco': {
@@ -1235,15 +1295,21 @@ const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
   )
 
 interface FerramentasRouteChildren {
+  FerramentasConversorDeMedidasRoute: typeof FerramentasConversorDeMedidasRoute
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   FerramentasGeradorZplRoute: typeof FerramentasGeradorZplRoute
+  FerramentasPlanejadorDeBobinaRoute: typeof FerramentasPlanejadorDeBobinaRoute
+  FerramentasPlanejadorDeFolhaRoute: typeof FerramentasPlanejadorDeFolhaRoute
   FerramentasIndexRoute: typeof FerramentasIndexRoute
 }
 
 const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasConversorDeMedidasRoute: FerramentasConversorDeMedidasRoute,
   FerramentasGeradorDeCodigoDeBarrasRoute:
     FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
   FerramentasGeradorZplRoute: FerramentasGeradorZplRoute,
+  FerramentasPlanejadorDeBobinaRoute: FerramentasPlanejadorDeBobinaRoute,
+  FerramentasPlanejadorDeFolhaRoute: FerramentasPlanejadorDeFolhaRoute,
   FerramentasIndexRoute: FerramentasIndexRoute,
 }
 
