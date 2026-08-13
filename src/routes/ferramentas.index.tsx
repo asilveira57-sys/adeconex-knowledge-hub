@@ -21,17 +21,20 @@ export const Route = createFileRoute("/ferramentas/")({
         { to: "/gerador-qrcode", label: "Gerador de QR Code" },
         { to: "/ferramentas/gerador-de-codigo-de-barras", label: "Gerador de Código de Barras" },
         { to: "/ferramentas/gerador-zpl", label: "Gerador de ZPL" },
+        { to: "/ferramentas/planejador-de-folha", label: "Planejador de Corte em Folha" },
+        { to: "/ferramentas/planejador-de-bobina", label: "Planejador de Corte em Bobina" },
+        { to: "/ferramentas/conversor-de-medidas", label: "Conversor de Medidas" },
       ]}
       features={[
         "Gerador de Código de Barras (EAN, Code 128, GS1-128, ITF-14, SSCC, DataMatrix)",
         "Gerador de QR Code (PNG / SVG)",
+        "Planejador de corte em folha (quantas peças cabem no A4/A3)",
+        "Planejador de corte em bobina (rendimento e metros consumidos)",
+        "Conversor de medidas e formatos série A",
         "Calculadora de Ribbon (metragem por rolo)",
-        "Calculadora de Etiquetas por Rolo",
         "Calculadora de Consumo mensal",
-        "Conversores (unidades, dpi)",
         "Gerador ZPL com preview",
         "Validador GS1",
-        "Simuladores de aplicação",
       ]}
     />
   ),
