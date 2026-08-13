@@ -39,6 +39,7 @@ import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusa
 import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
 import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as FerramentasPlanejadorDeFolhaRouteImport } from './routes/ferramentas.planejador-de-folha'
 import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
@@ -216,6 +217,12 @@ const FitaDeCetimImpressoraParaCetimRoute =
     id: '/impressora-para-cetim',
     path: '/impressora-para-cetim',
     getParentRoute: () => FitaDeCetimRoute,
+  } as any)
+const FerramentasPlanejadorDeFolhaRoute =
+  FerramentasPlanejadorDeFolhaRouteImport.update({
+    id: '/planejador-de-folha',
+    path: '/planejador-de-folha',
+    getParentRoute: () => FerramentasRoute,
   } as any)
 const FerramentasGeradorZplRoute = FerramentasGeradorZplRouteImport.update({
   id: '/gerador-zpl',
@@ -401,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -452,6 +460,7 @@ export interface FileRoutesByTo {
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -512,6 +521,7 @@ export interface FileRoutesById {
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
+  '/ferramentas/planejador-de-folha': typeof FerramentasPlanejadorDeFolhaRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
   '/pagamento/pendente': typeof PagamentoPendenteRoute
@@ -572,6 +582,7 @@ export interface FileRouteTypes {
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -623,6 +634,7 @@ export interface FileRouteTypes {
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -682,6 +694,7 @@ export interface FileRouteTypes {
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
+    | '/ferramentas/planejador-de-folha'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
     | '/pagamento/pendente'
@@ -952,6 +965,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/fita-de-cetim/impressora-para-cetim'
       preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
       parentRoute: typeof FitaDeCetimRoute
+    }
+    '/ferramentas/planejador-de-folha': {
+      id: '/ferramentas/planejador-de-folha'
+      path: '/planejador-de-folha'
+      fullPath: '/ferramentas/planejador-de-folha'
+      preLoaderRoute: typeof FerramentasPlanejadorDeFolhaRouteImport
+      parentRoute: typeof FerramentasRoute
     }
     '/ferramentas/gerador-zpl': {
       id: '/ferramentas/gerador-zpl'
@@ -1258,6 +1278,7 @@ interface FerramentasRouteChildren {
   FerramentasConversorDeMedidasRoute: typeof FerramentasConversorDeMedidasRoute
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   FerramentasGeradorZplRoute: typeof FerramentasGeradorZplRoute
+  FerramentasPlanejadorDeFolhaRoute: typeof FerramentasPlanejadorDeFolhaRoute
   FerramentasIndexRoute: typeof FerramentasIndexRoute
 }
 
@@ -1266,6 +1287,7 @@ const FerramentasRouteChildren: FerramentasRouteChildren = {
   FerramentasGeradorDeCodigoDeBarrasRoute:
     FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
   FerramentasGeradorZplRoute: FerramentasGeradorZplRoute,
+  FerramentasPlanejadorDeFolhaRoute: FerramentasPlanejadorDeFolhaRoute,
   FerramentasIndexRoute: FerramentasIndexRoute,
 }
 
