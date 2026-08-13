@@ -88,7 +88,7 @@ function AdminPedidoDetail() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2">
-            <Link to="/admin/pedidos" search={{}}><ArrowLeft className="h-4 w-4" /> Pedidos</Link>
+            <Link to="/admin/pedidos" search={{ page: 1 }}><ArrowLeft className="h-4 w-4" /> Pedidos</Link>
           </Button>
           <h1 className="text-2xl font-semibold tracking-tight">{order.order_number}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Criado em {fmt(order.created_at)}</p>
