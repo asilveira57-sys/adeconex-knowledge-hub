@@ -41,6 +41,7 @@ import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprova
 import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
 import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
+import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -227,6 +228,12 @@ const FerramentasGeradorDeCodigoDeBarrasRoute =
     path: '/gerador-de-codigo-de-barras',
     getParentRoute: () => FerramentasRoute,
   } as any)
+const FerramentasConversorDeMedidasRoute =
+  FerramentasConversorDeMedidasRouteImport.update({
+    id: '/conversor-de-medidas',
+    path: '/conversor-de-medidas',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
 const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   id: '/etiquetas/preco',
   path: '/etiquetas/preco',
@@ -391,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
@@ -442,6 +450,7 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
   '/pagamento/aprovado': typeof PagamentoAprovadoRoute
@@ -500,6 +509,7 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/fita-de-cetim/impressora-para-cetim': typeof FitaDeCetimImpressoraParaCetimRoute
@@ -559,6 +569,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
@@ -610,6 +621,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
     | '/pagamento/aprovado'
@@ -667,6 +679,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/etiquetas/preco'
+    | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
     | '/fita-de-cetim/impressora-para-cetim'
@@ -954,6 +967,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteImport
       parentRoute: typeof FerramentasRoute
     }
+    '/ferramentas/conversor-de-medidas': {
+      id: '/ferramentas/conversor-de-medidas'
+      path: '/conversor-de-medidas'
+      fullPath: '/ferramentas/conversor-de-medidas'
+      preLoaderRoute: typeof FerramentasConversorDeMedidasRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
     '/etiquetas/preco': {
       id: '/etiquetas/preco'
       path: '/etiquetas/preco'
@@ -1235,12 +1255,14 @@ const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
   )
 
 interface FerramentasRouteChildren {
+  FerramentasConversorDeMedidasRoute: typeof FerramentasConversorDeMedidasRoute
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   FerramentasGeradorZplRoute: typeof FerramentasGeradorZplRoute
   FerramentasIndexRoute: typeof FerramentasIndexRoute
 }
 
 const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasConversorDeMedidasRoute: FerramentasConversorDeMedidasRoute,
   FerramentasGeradorDeCodigoDeBarrasRoute:
     FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
   FerramentasGeradorZplRoute: FerramentasGeradorZplRoute,
