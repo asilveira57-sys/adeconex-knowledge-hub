@@ -49,6 +49,7 @@ export function SiteHeader() {
           ) : (
             <Link
               to="/auth"
+              search={{ redirect: undefined }}
               className="inline-flex items-center gap-1.5 rounded-md border hairline px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
             >
               <User className="h-4 w-4" /> Entrar
