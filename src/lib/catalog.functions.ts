@@ -414,6 +414,9 @@ export type ProductDetail = {
   sells_by_kit: boolean;
   kits: KitOption[];
   badges: ProductBadge[];
+  /** Link para a loja oficial no Mercado Livre (busca pelo título) — null quando desativado. */
+  mercado_livre_url: string | null;
+  mercado_livre_label: string;
 };
 
 export type ProductVariantOption = {
