@@ -839,6 +839,36 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_settings: {
+        Row: {
+          id: string
+          ml_button_label: string
+          ml_enabled: boolean
+          ml_search_url_template: string
+          ml_store_slug: string
+          ml_store_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          ml_button_label?: string
+          ml_enabled?: boolean
+          ml_search_url_template?: string
+          ml_store_slug?: string
+          ml_store_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          ml_button_label?: string
+          ml_enabled?: boolean
+          ml_search_url_template?: string
+          ml_store_slug?: string
+          ml_store_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       markets: {
         Row: {
           created_at: string
@@ -1938,6 +1968,9 @@ export type Database = {
           market_id: string | null
           material_id: string | null
           min_stock: number | null
+          ml_enabled: boolean
+          ml_search_term: string | null
+          ml_url: string | null
           model: string | null
           name: string
           new_url: string | null
@@ -1996,6 +2029,9 @@ export type Database = {
           market_id?: string | null
           material_id?: string | null
           min_stock?: number | null
+          ml_enabled?: boolean
+          ml_search_term?: string | null
+          ml_url?: string | null
           model?: string | null
           name: string
           new_url?: string | null
@@ -2054,6 +2090,9 @@ export type Database = {
           market_id?: string | null
           material_id?: string | null
           min_stock?: number | null
+          ml_enabled?: boolean
+          ml_search_term?: string | null
+          ml_url?: string | null
           model?: string | null
           name?: string
           new_url?: string | null
