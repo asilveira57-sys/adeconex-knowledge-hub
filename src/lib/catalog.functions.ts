@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { DEFAULT_MARKETPLACE_SETTINGS, mercadoLivreUrl } from "@/lib/marketplaces";
 
 export type ShowcaseProduct = {
   id: string;
