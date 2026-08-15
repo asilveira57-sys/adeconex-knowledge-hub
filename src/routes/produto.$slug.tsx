@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus } from "lucide-react";
+import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus, ExternalLink } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import {
@@ -549,6 +549,14 @@ function ProductPage() {
 
                 quantity={qty}
               />
+
+              {p.mercado_livre_url && (
+                <Button asChild size="lg" variant="secondary" className="mt-3 w-full">
+                  <a href={p.mercado_livre_url} target="_blank" rel="nofollow noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> {p.mercado_livre_label}
+                  </a>
+                </Button>
+              )}
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="lg" className="flex-1">

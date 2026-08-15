@@ -821,3 +821,68 @@ export const setProductBadges = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// ============================================================================
+// Marketplaces (Mercado Livre)
+// ============================================================================
+
+export const getMarketplaceSettings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertStaff(context as Ctx);
+    const { data, error } = await context.supabase
+      .from("marketplace_settings")
+      .select("ml_enabled, ml_store_slug, ml_search_url_template, ml_store_url, ml_button_label")
+      .eq("id", "default")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data ?? null;
+  });
+
+export const updateMarketplaceSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z
+      .object({
+        ml_enabled: z.boolean(),
+        ml_store_slug: z.string().trim().min(1).max(120),
+        ml_search_url_template: z.string().trim().url().max(300),
+        ml_store_url: z.string().trim().url().max(300).nullable(),
+        ml_button_label: z.string().trim().min(2).max(60),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as Ctx);
+    const { error } = await context.supabase
+      .from("marketplace_settings")
+      .upsert({ id: "default", ...data, updated_at: new Date().toISOString() } as any);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const updateProductMarketplace = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) =>
+    z
+      .object({
+        productId: z.string().uuid(),
+        ml_enabled: z.boolean(),
+        ml_search_term: z.string().trim().max(200).nullable(),
+        ml_url: z.string().trim().url().max(500).nullable(),
+      })
+      .parse(v),
+  )
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as Ctx);
+    const { error } = await context.supabase
+      .from("products")
+      .update({
+        ml_enabled: data.ml_enabled,
+        ml_search_term: data.ml_search_term,
+        ml_url: data.ml_url,
+      })
+      .eq("id", data.productId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

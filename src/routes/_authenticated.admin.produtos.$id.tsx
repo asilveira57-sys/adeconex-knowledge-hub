@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { productEditorOptions } from "@/lib/admin.queries";
 import { BasicsTab } from "@/components/admin/product/basics-tab";
+import { MarketplacesTab } from "@/components/admin/product/marketplaces-tab";
 import { PricingTab } from "@/components/admin/product/pricing-tab";
 import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
@@ -158,6 +159,7 @@ function ProductEditorPage() {
           <TabsTrigger value="kits">Kits &amp; Frete</TabsTrigger>
           <TabsTrigger value="bundles">Compre Junto</TabsTrigger>
           <TabsTrigger value="badges">Selos</TabsTrigger>
+          <TabsTrigger value="marketplaces">Marketplaces</TabsTrigger>
           <TabsTrigger value="preview">Prévia</TabsTrigger>
         </TabsList>
 
@@ -190,6 +192,9 @@ function ProductEditorPage() {
         </TabsContent>
         <TabsContent value="badges" className="mt-4">
           <BadgesTab productId={id} badges={data.badges as any} assignments={data.badgeAssignments as any} />
+        </TabsContent>
+        <TabsContent value="marketplaces" className="mt-4">
+          <MarketplacesTab product={product} />
         </TabsContent>
         <TabsContent value="preview" className="mt-4">
           <PreviewPage />
