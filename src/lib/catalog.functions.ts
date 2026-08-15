@@ -458,7 +458,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status, published_at",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status, published_at, ml_search_term, ml_url, ml_enabled",
       )
       .eq("slug", data.slug)
       .maybeSingle();
@@ -489,6 +489,13 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .eq("product_id", p.id)
         .order("sort_order", { ascending: true }),
     ]);
+
+    const { data: mlRow } = await supabaseAdmin
+      .from("marketplace_settings")
+      .select("ml_enabled, ml_store_slug, ml_search_url_template, ml_store_url, ml_button_label")
+      .eq("id", "default")
+      .maybeSingle();
+    const mlSettings = { ...DEFAULT_MARKETPLACE_SETTINGS, ...(mlRow ?? {}) };
 
     const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
     const images = (imgs ?? [])
@@ -597,6 +604,8 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       sells_by_kit: !!p.sells_by_kit,
       kits,
       badges: (await attachBadges([p as any])).get(p.id) ?? [],
+      mercado_livre_url: mercadoLivreUrl(p as any, mlSettings),
+      mercado_livre_label: mlSettings.ml_button_label,
     };
   });
 
