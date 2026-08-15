@@ -550,6 +550,14 @@ function ProductPage() {
                 quantity={qty}
               />
 
+              {p.mercado_livre_url && (
+                <Button asChild size="lg" variant="secondary" className="mt-3 w-full">
+                  <a href={p.mercado_livre_url} target="_blank" rel="nofollow noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" /> {p.mercado_livre_label}
+                  </a>
+                </Button>
+              )}
+
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="lg" className="flex-1">
                   <a
