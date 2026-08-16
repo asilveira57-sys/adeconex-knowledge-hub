@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus, ExternalLink } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { trackMarketplaceClick } from "@/lib/analytics";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import {
   isNonAdhesiveProduct,
