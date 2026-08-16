@@ -3,6 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus, ExternalLink } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
+import { trackMarketplaceClick } from "@/lib/analytics";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import {
   isNonAdhesiveProduct,
@@ -552,7 +553,22 @@ function ProductPage() {
 
               {p.mercado_livre_url && (
                 <Button asChild size="lg" variant="secondary" className="mt-3 w-full">
-                  <a href={p.mercado_livre_url} target="_blank" rel="nofollow noopener noreferrer">
+                  <a
+                    href={p.mercado_livre_url}
+                    target="_blank"
+                    rel="nofollow noopener noreferrer"
+                    data-analytics-id="marketplace-mercado-livre"
+                    onClick={() =>
+                      trackMarketplaceClick({
+                        marketplace: "mercado_livre",
+                        productId: p.id,
+                        productName: p.name,
+                        sku: effSku,
+                        price: effPromo ?? effPrice,
+                        url: p.mercado_livre_url!,
+                      })
+                    }
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" /> {p.mercado_livre_label}
                   </a>
                 </Button>
@@ -560,7 +576,22 @@ function ProductPage() {
 
               {p.shopee_url && (
                 <Button asChild size="lg" variant="secondary" className="mt-3 w-full">
-                  <a href={p.shopee_url} target="_blank" rel="nofollow noopener noreferrer">
+                  <a
+                    href={p.shopee_url}
+                    target="_blank"
+                    rel="nofollow noopener noreferrer"
+                    data-analytics-id="marketplace-shopee"
+                    onClick={() =>
+                      trackMarketplaceClick({
+                        marketplace: "shopee",
+                        productId: p.id,
+                        productName: p.name,
+                        sku: effSku,
+                        price: effPromo ?? effPrice,
+                        url: p.shopee_url!,
+                      })
+                    }
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" /> {p.shopee_label}
                   </a>
                 </Button>
