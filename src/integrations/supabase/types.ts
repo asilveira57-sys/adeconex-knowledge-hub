@@ -847,6 +847,11 @@ export type Database = {
           ml_search_url_template: string
           ml_store_slug: string
           ml_store_url: string | null
+          shopee_button_label: string
+          shopee_enabled: boolean
+          shopee_search_url_template: string
+          shopee_store_slug: string
+          shopee_store_url: string | null
           updated_at: string
         }
         Insert: {
@@ -856,6 +861,11 @@ export type Database = {
           ml_search_url_template?: string
           ml_store_slug?: string
           ml_store_url?: string | null
+          shopee_button_label?: string
+          shopee_enabled?: boolean
+          shopee_search_url_template?: string
+          shopee_store_slug?: string
+          shopee_store_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -865,6 +875,11 @@ export type Database = {
           ml_search_url_template?: string
           ml_store_slug?: string
           ml_store_url?: string | null
+          shopee_button_label?: string
+          shopee_enabled?: boolean
+          shopee_search_url_template?: string
+          shopee_store_slug?: string
+          shopee_store_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1990,6 +2005,9 @@ export type Database = {
           seo_description: string | null
           seo_keywords: string | null
           seo_title: string | null
+          shopee_enabled: boolean
+          shopee_search_term: string | null
+          shopee_url: string | null
           short_description: string | null
           sku: string | null
           slug: string
@@ -2051,6 +2069,9 @@ export type Database = {
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
+          shopee_enabled?: boolean
+          shopee_search_term?: string | null
+          shopee_url?: string | null
           short_description?: string | null
           sku?: string | null
           slug: string
@@ -2112,6 +2133,9 @@ export type Database = {
           seo_description?: string | null
           seo_keywords?: string | null
           seo_title?: string | null
+          shopee_enabled?: boolean
+          shopee_search_term?: string | null
+          shopee_url?: string | null
           short_description?: string | null
           sku?: string | null
           slug?: string
