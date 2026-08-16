@@ -12,9 +12,11 @@ import {
   Outlet,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { initAnalytics, trackEvent } from "@/lib/analytics";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
