@@ -51,7 +51,45 @@ export type MarketplaceProduct = {
   ml_search_term?: string | null;
   ml_url?: string | null;
   ml_enabled?: boolean | null;
+  shopee_search_term?: string | null;
+  shopee_url?: string | null;
+  shopee_enabled?: boolean | null;
 };
+
+/** Normaliza o termo para a busca da Shopee (palavras separadas, sem acento, URL-encoded). */
+export function shopeeSearchQuery(term: string): string {
+  return term
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 10)
+    .join(" ");
+}
+
+/** URL final do botão "Comprar na Shopee" — ou null quando desativado. */
+export function shopeeUrl(
+  product: MarketplaceProduct,
+  settings: MarketplaceSettings = DEFAULT_MARKETPLACE_SETTINGS,
+): string | null {
+  if (!settings.shopee_enabled) return null;
+  if (product.shopee_enabled === false) return null;
+  if (product.shopee_url && /^https?:\/\//i.test(product.shopee_url)) return product.shopee_url;
+
+  const term = (product.shopee_search_term || product.name || "").trim();
+  const q = shopeeSearchQuery(term);
+  if (!q) return settings.shopee_store_url || null;
+
+  const store = (settings.shopee_store_slug || "").trim();
+  const template = settings.shopee_search_url_template || DEFAULT_MARKETPLACE_SETTINGS.shopee_search_url_template;
+  return template
+    .replace(/\{q\}/g, encodeURIComponent(q))
+    .replace(/\{store\}/g, encodeURIComponent(store));
+}
+
 
 /** URL final do botão "Comprar no Mercado Livre" — ou null quando desativado. */
 export function mercadoLivreUrl(
