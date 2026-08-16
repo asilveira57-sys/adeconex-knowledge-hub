@@ -13,6 +13,7 @@ import {
 import {
   DEFAULT_MARKETPLACE_SETTINGS,
   mercadoLivreUrl,
+  shopeeUrl,
   type MarketplaceSettings,
 } from "@/lib/marketplaces";
 import { Field, nullable, str, useInvalidateProduct } from "./fields";
@@ -37,6 +38,9 @@ export function MarketplacesTab({ product }: { product: any }) {
     ml_enabled: product.ml_enabled !== false,
     ml_search_term: str(product.ml_search_term),
     ml_url: str(product.ml_url),
+    shopee_enabled: product.shopee_enabled !== false,
+    shopee_search_term: str(product.shopee_search_term),
+    shopee_url: str(product.shopee_url),
   });
   const [savingProduct, setSavingProduct] = useState(false);
 
@@ -54,6 +58,16 @@ export function MarketplacesTab({ product }: { product: any }) {
     form,
   );
 
+  const shopeePreviewUrl = shopeeUrl(
+    {
+      name: product.name,
+      shopee_search_term: prod.shopee_search_term || null,
+      shopee_url: prod.shopee_url || null,
+      shopee_enabled: prod.shopee_enabled,
+    },
+    form,
+  );
+
   async function onSaveProduct() {
     setSavingProduct(true);
     try {
@@ -63,6 +77,9 @@ export function MarketplacesTab({ product }: { product: any }) {
           ml_enabled: prod.ml_enabled,
           ml_search_term: nullable(prod.ml_search_term),
           ml_url: nullable(prod.ml_url),
+          shopee_enabled: prod.shopee_enabled,
+          shopee_search_term: nullable(prod.shopee_search_term),
+          shopee_url: nullable(prod.shopee_url),
         },
       });
       await invalidate();
@@ -84,6 +101,11 @@ export function MarketplacesTab({ product }: { product: any }) {
           ml_search_url_template: form.ml_search_url_template,
           ml_store_url: form.ml_store_url || null,
           ml_button_label: form.ml_button_label,
+          shopee_enabled: form.shopee_enabled,
+          shopee_store_slug: form.shopee_store_slug,
+          shopee_search_url_template: form.shopee_search_url_template,
+          shopee_store_url: form.shopee_store_url || null,
+          shopee_button_label: form.shopee_button_label,
         },
       });
       await settingsQuery.refetch();
@@ -144,16 +166,63 @@ export function MarketplacesTab({ product }: { product: any }) {
             )}
           </div>
 
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm">Shopee neste produto</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={prod.shopee_enabled}
+              onChange={(e) => setProd((s) => ({ ...s, shopee_enabled: e.target.checked }))}
+            />
+            Exibir botão "{form.shopee_button_label}" na página deste produto
+          </label>
+
+          <Field
+            label="Termo de busca (opcional)"
+            value={prod.shopee_search_term}
+            onChange={(v) => setProd((s) => ({ ...s, shopee_search_term: v }))}
+            maxLength={200}
+            hint="Se vazio, usamos o título do produto. A busca é feita dentro da loja oficial Adeconex na Shopee."
+          />
+          <Field
+            label="Link direto do anúncio (opcional)"
+            value={prod.shopee_url}
+            onChange={(v) => setProd((s) => ({ ...s, shopee_url: v }))}
+            hint="Use apenas em exceções. Preenchido, ele substitui a busca."
+          />
+
+          <div className="rounded-md border bg-muted/30 p-3 text-xs">
+            <p className="mb-1 font-medium">Link que o cliente vai abrir</p>
+            {shopeePreviewUrl ? (
+              <a
+                href={shopeePreviewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 break-all text-primary hover:underline"
+              >
+                {shopeePreviewUrl} <ExternalLink className="h-3 w-3 shrink-0" />
+              </a>
+            ) : (
+              <span className="text-muted-foreground">Botão desativado para este produto.</span>
+            )}
+          </div>
+
           <Button onClick={onSaveProduct} disabled={savingProduct}>
             {savingProduct ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
-            Salvar marketplace do produto
+            Salvar marketplaces do produto
           </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Loja oficial (vale para todos os produtos)</CardTitle>
+          <CardTitle className="text-sm">Lojas oficiais (vale para todos os produtos)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <label className="flex items-center gap-2 text-sm">
@@ -185,6 +254,38 @@ export function MarketplacesTab({ product }: { product: any }) {
             label="Texto do botão"
             value={form.ml_button_label}
             onChange={(v) => setForm({ ml_button_label: v })}
+            maxLength={60}
+          />
+          <div className="border-t pt-3" />
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={form.shopee_enabled}
+              onChange={(e) => setForm({ shopee_enabled: e.target.checked })}
+            />
+            Shopee ativa no site
+          </label>
+          <Field
+            label="Identificador da loja oficial na Shopee"
+            value={form.shopee_store_slug}
+            onChange={(v) => setForm({ shopee_store_slug: v })}
+            hint="Nome de usuário/ID da loja usado no filtro de busca da Shopee."
+          />
+          <Field
+            label="Modelo da URL de busca (Shopee)"
+            value={form.shopee_search_url_template}
+            onChange={(v) => setForm({ shopee_search_url_template: v })}
+            hint="Use {q} para o termo e {store} para a loja."
+          />
+          <Field
+            label="URL da loja oficial na Shopee (fallback)"
+            value={str(form.shopee_store_url)}
+            onChange={(v) => setForm({ shopee_store_url: v })}
+          />
+          <Field
+            label="Texto do botão (Shopee)"
+            value={form.shopee_button_label}
+            onChange={(v) => setForm({ shopee_button_label: v })}
             maxLength={60}
           />
           <Button variant="outline" onClick={onSaveStore} disabled={savingStore}>

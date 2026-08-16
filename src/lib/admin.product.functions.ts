@@ -823,8 +823,11 @@ export const setProductBadges = createServerFn({ method: "POST" })
   });
 
 // ============================================================================
-// Marketplaces (Mercado Livre)
+// Marketplaces (Mercado Livre, Shopee)
 // ============================================================================
+
+const MARKETPLACE_COLUMNS =
+  "ml_enabled, ml_store_slug, ml_search_url_template, ml_store_url, ml_button_label, shopee_enabled, shopee_store_slug, shopee_search_url_template, shopee_store_url, shopee_button_label";
 
 export const getMarketplaceSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -832,7 +835,7 @@ export const getMarketplaceSettings = createServerFn({ method: "GET" })
     await assertStaff(context as Ctx);
     const { data, error } = await context.supabase
       .from("marketplace_settings")
-      .select("ml_enabled, ml_store_slug, ml_search_url_template, ml_store_url, ml_button_label")
+      .select(MARKETPLACE_COLUMNS)
       .eq("id", "default")
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -849,6 +852,11 @@ export const updateMarketplaceSettings = createServerFn({ method: "POST" })
         ml_search_url_template: z.string().trim().url().max(300),
         ml_store_url: z.string().trim().url().max(300).nullable(),
         ml_button_label: z.string().trim().min(2).max(60),
+        shopee_enabled: z.boolean(),
+        shopee_store_slug: z.string().trim().min(1).max(120),
+        shopee_search_url_template: z.string().trim().url().max(300),
+        shopee_store_url: z.string().trim().url().max(300).nullable(),
+        shopee_button_label: z.string().trim().min(2).max(60),
       })
       .parse(v),
   )
@@ -870,6 +878,9 @@ export const updateProductMarketplace = createServerFn({ method: "POST" })
         ml_enabled: z.boolean(),
         ml_search_term: z.string().trim().max(200).nullable(),
         ml_url: z.string().trim().url().max(500).nullable(),
+        shopee_enabled: z.boolean(),
+        shopee_search_term: z.string().trim().max(200).nullable(),
+        shopee_url: z.string().trim().url().max(500).nullable(),
       })
       .parse(v),
   )
@@ -881,8 +892,12 @@ export const updateProductMarketplace = createServerFn({ method: "POST" })
         ml_enabled: data.ml_enabled,
         ml_search_term: data.ml_search_term,
         ml_url: data.ml_url,
-      })
+        shopee_enabled: data.shopee_enabled,
+        shopee_search_term: data.shopee_search_term,
+        shopee_url: data.shopee_url,
+      } as any)
       .eq("id", data.productId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
