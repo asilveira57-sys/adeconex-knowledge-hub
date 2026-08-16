@@ -166,10 +166,6 @@ export function MarketplacesTab({ product }: { product: any }) {
             )}
           </div>
 
-          <Button onClick={onSaveProduct} disabled={savingProduct}>
-            {savingProduct ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
-            Salvar marketplaces do produto
-          </Button>
         </CardContent>
       </Card>
 
@@ -216,6 +212,11 @@ export function MarketplacesTab({ product }: { product: any }) {
               <span className="text-muted-foreground">Botão desativado para este produto.</span>
             )}
           </div>
+
+          <Button onClick={onSaveProduct} disabled={savingProduct}>
+            {savingProduct ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
+            Salvar marketplaces do produto
+          </Button>
         </CardContent>
       </Card>
 
