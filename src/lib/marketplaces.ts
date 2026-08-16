@@ -12,6 +12,11 @@ export type MarketplaceSettings = {
   ml_search_url_template: string;
   ml_store_url: string | null;
   ml_button_label: string;
+  shopee_enabled: boolean;
+  shopee_store_slug: string;
+  shopee_search_url_template: string;
+  shopee_store_url: string | null;
+  shopee_button_label: string;
 };
 
 export const DEFAULT_MARKETPLACE_SETTINGS: MarketplaceSettings = {
@@ -20,7 +25,13 @@ export const DEFAULT_MARKETPLACE_SETTINGS: MarketplaceSettings = {
   ml_search_url_template: "https://lista.mercadolivre.com.br/{q}_Loja_{store}",
   ml_store_url: null,
   ml_button_label: "Comprar no Mercado Livre",
+  shopee_enabled: true,
+  shopee_store_slug: "adeconex",
+  shopee_search_url_template: "https://shopee.com.br/search?keyword={q}&shop={store}",
+  shopee_store_url: null,
+  shopee_button_label: "Comprar na Shopee",
 };
+
 
 /** Normaliza o termo para o formato de busca do Mercado Livre (hífens, sem acento). */
 export function mlSearchSlug(term: string): string {
