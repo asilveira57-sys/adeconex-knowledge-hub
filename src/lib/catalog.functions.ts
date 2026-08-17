@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { DEFAULT_MARKETPLACE_SETTINGS, mercadoLivreUrl, shopeeUrl } from "@/lib/marketplaces";
+import { DEFAULT_MARKETPLACE_SETTINGS, mercadoLivreUrl, shopeeUrl, shopeeUrlVariants, type ShopeeAttempt } from "@/lib/marketplaces";
 
 export type ShowcaseProduct = {
   id: string;
@@ -421,6 +421,7 @@ export type ProductDetail = {
   /** Link para a loja oficial na Shopee (busca pelo título) — null quando desativado. */
   shopee_url: string | null;
   shopee_label: string;
+  shopee_alternatives: ShopeeAttempt[];
 };
 
 export type ProductVariantOption = {
@@ -614,6 +615,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       mercado_livre_label: mlSettings.ml_button_label,
       shopee_url: shopeeUrl(p as any, mlSettings),
       shopee_label: mlSettings.shopee_button_label,
+      shopee_alternatives: shopeeUrlVariants(p as any, mlSettings).slice(1),
     };
   });
 

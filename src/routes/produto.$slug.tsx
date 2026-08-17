@@ -597,6 +597,37 @@ function ProductPage() {
                 </Button>
               )}
 
+              {p.shopee_url && p.shopee_alternatives?.length > 0 && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Não encontrou na Shopee? Tente{" "}
+                  {p.shopee_alternatives.map((alt, i) => (
+                    <span key={alt.url}>
+                      {i > 0 && " · "}
+                      <a
+                        href={alt.url}
+                        target="_blank"
+                        rel="nofollow noopener noreferrer"
+                        className="text-primary hover:underline"
+                        onClick={() =>
+                          trackMarketplaceClick({
+                            marketplace: "shopee",
+                            productId: p.id,
+                            productName: p.name,
+                            sku: effSku,
+                            price: effPromo ?? effPrice,
+                            url: alt.url,
+                          })
+                        }
+                      >
+                        {alt.query ? `"${alt.query}"` : "a loja oficial"}
+                      </a>
+                    </span>
+                  ))}
+                </p>
+              )}
+
+
+
 
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="lg" className="flex-1">

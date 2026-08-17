@@ -72,6 +72,11 @@ const SHOPEE_STOPWORDS = new Set([
  * sem conectores/unidades) e limitamos a 4 termos.
  */
 export function shopeeSearchQuery(term: string): string {
+  return shopeeSearchQueryVariants(term)[0] ?? "";
+}
+
+/** Palavras-chave normalizadas do título, da mais relevante para a menos. */
+function shopeeKeywords(term: string): string[] {
   const words = term
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -85,7 +90,25 @@ export function shopeeSearchQuery(term: string): string {
     (w) => w.length > 2 && !SHOPEE_STOPWORDS.has(w) && !/^\d+$/.test(w),
   );
 
-  return (keywords.length ? keywords : words).slice(0, 4).join(" ");
+  return keywords.length ? keywords : words;
+}
+
+/**
+ * Variações progressivas do termo: 4 → 3 → 2 → 1 palavra-chave.
+ *
+ * A Shopee costuma não retornar nada para títulos longos; quando a primeira
+ * variação falha, o cliente pode tentar a seguinte (mais curta e mais ampla).
+ */
+export function shopeeSearchQueryVariants(term: string): string[] {
+  const keywords = shopeeKeywords(term);
+  if (!keywords.length) return [];
+
+  const variants: string[] = [];
+  for (let n = Math.min(4, keywords.length); n >= 1; n--) {
+    const q = keywords.slice(0, n).join(" ");
+    if (!variants.includes(q)) variants.push(q);
+  }
+  return variants;
 }
 
 
@@ -127,6 +150,42 @@ export function shopeeUrl(
     .replace(/\{store\}/g, encodeURIComponent(store));
   // Segurança: se o modelo não escopa a loja, não abre busca global.
   return url.includes(store) ? url : shopeeStoreFallback(settings);
+}
+
+export type ShopeeAttempt = { query: string | null; url: string; label: string };
+
+/**
+ * Cadeia de tentativas: termo completo → variações mais curtas → loja oficial.
+ * Usada para oferecer alternativas quando a primeira busca não retorna nada.
+ */
+export function shopeeUrlVariants(
+  product: MarketplaceProduct,
+  settings: MarketplaceSettings = DEFAULT_MARKETPLACE_SETTINGS,
+): ShopeeAttempt[] {
+  const primary = shopeeUrl(product, settings);
+  if (!primary) return [];
+  if (product.shopee_url && /^https?:\/\//i.test(product.shopee_url)) {
+    return [{ query: null, url: primary, label: "Link direto do anúncio" }];
+  }
+
+  const store = (settings.shopee_store_slug || "").trim();
+  const storeUrl = shopeeStoreFallback(settings);
+  const attempts: ShopeeAttempt[] = [];
+
+  if (/^\d+$/.test(store)) {
+    const template =
+      settings.shopee_search_url_template || DEFAULT_MARKETPLACE_SETTINGS.shopee_search_url_template;
+    const term = (product.shopee_search_term || product.name || "").trim();
+    for (const q of shopeeSearchQueryVariants(term)) {
+      const url = template
+        .replace(/\{q\}/g, encodeURIComponent(q))
+        .replace(/\{store\}/g, encodeURIComponent(store));
+      if (url.includes(store)) attempts.push({ query: q, url, label: `Buscar por "${q}"` });
+    }
+  }
+
+  if (storeUrl) attempts.push({ query: null, url: storeUrl, label: "Ver a loja oficial" });
+  return attempts.length ? attempts : [{ query: null, url: primary, label: "Comprar na Shopee" }];
 }
 
 
