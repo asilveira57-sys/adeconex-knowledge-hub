@@ -152,6 +152,42 @@ export function shopeeUrl(
   return url.includes(store) ? url : shopeeStoreFallback(settings);
 }
 
+export type ShopeeAttempt = { query: string | null; url: string; label: string };
+
+/**
+ * Cadeia de tentativas: termo completo → variações mais curtas → loja oficial.
+ * Usada para oferecer alternativas quando a primeira busca não retorna nada.
+ */
+export function shopeeUrlVariants(
+  product: MarketplaceProduct,
+  settings: MarketplaceSettings = DEFAULT_MARKETPLACE_SETTINGS,
+): ShopeeAttempt[] {
+  const primary = shopeeUrl(product, settings);
+  if (!primary) return [];
+  if (product.shopee_url && /^https?:\/\//i.test(product.shopee_url)) {
+    return [{ query: null, url: primary, label: "Link direto do anúncio" }];
+  }
+
+  const store = (settings.shopee_store_slug || "").trim();
+  const storeUrl = shopeeStoreFallback(settings);
+  const attempts: ShopeeAttempt[] = [];
+
+  if (/^\d+$/.test(store)) {
+    const template =
+      settings.shopee_search_url_template || DEFAULT_MARKETPLACE_SETTINGS.shopee_search_url_template;
+    const term = (product.shopee_search_term || product.name || "").trim();
+    for (const q of shopeeSearchQueryVariants(term)) {
+      const url = template
+        .replace(/\{q\}/g, encodeURIComponent(q))
+        .replace(/\{store\}/g, encodeURIComponent(store));
+      if (url.includes(store)) attempts.push({ query: q, url, label: `Buscar por "${q}"` });
+    }
+  }
+
+  if (storeUrl) attempts.push({ query: null, url: storeUrl, label: "Ver a loja oficial" });
+  return attempts.length ? attempts : [{ query: null, url: primary, label: "Comprar na Shopee" }];
+}
+
 
 /** URL final do botão "Comprar no Mercado Livre" — ou null quando desativado. */
 export function mercadoLivreUrl(
