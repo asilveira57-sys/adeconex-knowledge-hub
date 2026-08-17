@@ -56,19 +56,38 @@ export type MarketplaceProduct = {
   shopee_enabled?: boolean | null;
 };
 
-/** Normaliza o termo para a busca da Shopee (palavras separadas, sem acento, URL-encoded). */
+/** Palavras que não ajudam na busca da Shopee (unidades, quantidades, conectores). */
+const SHOPEE_STOPWORDS = new Set([
+  "de", "da", "do", "das", "dos", "com", "sem", "para", "por", "em", "e", "a", "o", "as", "os",
+  "un", "und", "unid", "unidade", "unidades", "pct", "pacote", "caixa", "cx", "rolo", "rolos",
+  "milheiro", "milheiros", "mil", "kit", "kits", "pcs", "pc", "cm", "mm", "mt", "mts", "metro",
+  "metros", "x",
+]);
+
+/**
+ * Normaliza o termo para a busca da Shopee.
+ *
+ * Títulos longos não retornam resultados dentro da loja, então reduzimos a
+ * consulta às palavras-chave mais relevantes (sem acento, sem números soltos,
+ * sem conectores/unidades) e limitamos a 4 termos.
+ */
 export function shopeeSearchQuery(term: string): string {
-  return term
+  const words = term
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim()
     .split(" ")
-    .filter(Boolean)
-    .slice(0, 10)
-    .join(" ");
+    .filter(Boolean);
+
+  const keywords = words.filter(
+    (w) => w.length > 2 && !SHOPEE_STOPWORDS.has(w) && !/^\d+$/.test(w),
+  );
+
+  return (keywords.length ? keywords : words).slice(0, 4).join(" ");
 }
+
 
 /** Página da loja oficial na Shopee (sem busca), usada como fallback seguro. */
 function shopeeStoreFallback(settings: MarketplaceSettings): string | null {
