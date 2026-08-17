@@ -614,6 +614,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       mercado_livre_label: mlSettings.ml_button_label,
       shopee_url: shopeeUrl(p as any, mlSettings),
       shopee_label: mlSettings.shopee_button_label,
+      shopee_alternatives: shopeeUrlVariants(p as any, mlSettings).slice(1),
     };
   });
 
