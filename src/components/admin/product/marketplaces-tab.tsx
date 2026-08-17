@@ -14,6 +14,7 @@ import {
   DEFAULT_MARKETPLACE_SETTINGS,
   mercadoLivreUrl,
   shopeeUrl,
+  shopeeUrlVariants,
   type MarketplaceSettings,
 } from "@/lib/marketplaces";
 import { Field, nullable, str, useInvalidateProduct } from "./fields";
@@ -59,6 +60,16 @@ export function MarketplacesTab({ product }: { product: any }) {
   );
 
   const shopeePreviewUrl = shopeeUrl(
+    {
+      name: product.name,
+      shopee_search_term: prod.shopee_search_term || null,
+      shopee_url: prod.shopee_url || null,
+      shopee_enabled: prod.shopee_enabled,
+    },
+    form,
+  );
+
+  const shopeeAttempts = shopeeUrlVariants(
     {
       name: product.name,
       shopee_search_term: prod.shopee_search_term || null,
@@ -210,6 +221,25 @@ export function MarketplacesTab({ product }: { product: any }) {
               </a>
             ) : (
               <span className="text-muted-foreground">Botão desativado para este produto.</span>
+            )}
+            {shopeeAttempts.length > 1 && (
+              <div className="mt-3 border-t pt-2">
+                <p className="mb-1 font-medium">Tentativas alternativas (termo progressivamente menor)</p>
+                <ul className="space-y-1">
+                  {shopeeAttempts.slice(1).map((alt) => (
+                    <li key={alt.url}>
+                      <a
+                        href={alt.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="break-all text-primary hover:underline"
+                      >
+                        {alt.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
 
