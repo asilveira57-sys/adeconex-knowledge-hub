@@ -27,7 +27,7 @@ export const DEFAULT_MARKETPLACE_SETTINGS: MarketplaceSettings = {
   ml_button_label: "Comprar no Mercado Livre",
   shopee_enabled: true,
   shopee_store_slug: "adeconex",
-  shopee_search_url_template: "https://shopee.com.br/search?keyword={q}&shop={store}",
+  shopee_search_url_template: "https://shopee.com.br/shop/{store}/search?keyword={q}",
   shopee_store_url: null,
   shopee_button_label: "Comprar na Shopee",
 };
