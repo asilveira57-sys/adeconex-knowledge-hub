@@ -266,16 +266,16 @@ export function MarketplacesTab({ product }: { product: any }) {
             Shopee ativa no site
           </label>
           <Field
-            label="Identificador da loja oficial na Shopee"
+            label="ID numérico da loja na Shopee (shopId)"
             value={form.shopee_store_slug}
             onChange={(v) => setForm({ shopee_store_slug: v })}
-            hint="Nome de usuário/ID da loja usado no filtro de busca da Shopee."
+            hint="Só o ID numérico restringe a busca à nossa loja (ex.: 123456789). Com nome de usuário, o botão abre a página da loja em vez de uma busca aberta a todos os vendedores."
           />
           <Field
             label="Modelo da URL de busca (Shopee)"
             value={form.shopee_search_url_template}
             onChange={(v) => setForm({ shopee_search_url_template: v })}
-            hint="Use {q} para o termo e {store} para a loja."
+            hint="Use {q} para o termo e {store} para o shopId. Padrão: https://shopee.com.br/shop/{store}/search?keyword={q}"
           />
           <Field
             label="URL da loja oficial na Shopee (fallback)"
