@@ -113,9 +113,9 @@ async function evaluateCode(supabase: any, code: string, userId: string): Promis
   const rules = hydrateCouponRules(row, links);
 
   const [{ count: usesTotal }, { count: usesUser }, cart] = await Promise.all([
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).in("status", ["reservado", "confirmado"]),
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).eq("user_id", userId).in("status", ["reservado", "confirmado"]),
     loadCartLinesForCoupon(supabase, userId),
   ]);
@@ -210,9 +210,9 @@ export async function computeCartCouponPreview(
   const rules = hydrateCouponRules(row, links);
 
   const [{ count: usesTotal }, { count: usesUser }] = await Promise.all([
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).in("status", ["reservado", "confirmado"]),
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).eq("user_id", userId).in("status", ["reservado", "confirmado"]),
   ]);
 
