@@ -70,7 +70,23 @@ export function shopeeSearchQuery(term: string): string {
     .join(" ");
 }
 
-/** URL final do botão "Comprar na Shopee" — ou null quando desativado. */
+/** Página da loja oficial na Shopee (sem busca), usada como fallback seguro. */
+function shopeeStoreFallback(settings: MarketplaceSettings): string | null {
+  if (settings.shopee_store_url) return settings.shopee_store_url;
+  const slug = (settings.shopee_store_slug || "").trim();
+  if (!slug) return null;
+  return /^\d+$/.test(slug)
+    ? `https://shopee.com.br/shop/${slug}`
+    : `https://shopee.com.br/${encodeURIComponent(slug)}`;
+}
+
+/**
+ * URL final do botão "Comprar na Shopee" — ou null quando desativado.
+ *
+ * A Shopee só aceita busca restrita à loja pelo ID numérico da loja
+ * (`/shop/{shopId}/search?keyword=`). Sem esse ID, a busca sairia aberta para
+ * qualquer vendedor, então caímos na página da loja oficial.
+ */
 export function shopeeUrl(
   product: MarketplaceProduct,
   settings: MarketplaceSettings = DEFAULT_MARKETPLACE_SETTINGS,
@@ -81,13 +97,17 @@ export function shopeeUrl(
 
   const term = (product.shopee_search_term || product.name || "").trim();
   const q = shopeeSearchQuery(term);
-  if (!q) return settings.shopee_store_url || null;
-
   const store = (settings.shopee_store_slug || "").trim();
+
+  // Busca dentro da loja exige shopId numérico; caso contrário, loja oficial.
+  if (!q || !/^\d+$/.test(store)) return shopeeStoreFallback(settings);
+
   const template = settings.shopee_search_url_template || DEFAULT_MARKETPLACE_SETTINGS.shopee_search_url_template;
-  return template
+  const url = template
     .replace(/\{q\}/g, encodeURIComponent(q))
     .replace(/\{store\}/g, encodeURIComponent(store));
+  // Segurança: se o modelo não escopa a loja, não abre busca global.
+  return url.includes(store) ? url : shopeeStoreFallback(settings);
 }
 
 
