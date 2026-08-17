@@ -72,6 +72,11 @@ const SHOPEE_STOPWORDS = new Set([
  * sem conectores/unidades) e limitamos a 4 termos.
  */
 export function shopeeSearchQuery(term: string): string {
+  return shopeeSearchQueryVariants(term)[0] ?? "";
+}
+
+/** Palavras-chave normalizadas do título, da mais relevante para a menos. */
+function shopeeKeywords(term: string): string[] {
   const words = term
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -85,7 +90,25 @@ export function shopeeSearchQuery(term: string): string {
     (w) => w.length > 2 && !SHOPEE_STOPWORDS.has(w) && !/^\d+$/.test(w),
   );
 
-  return (keywords.length ? keywords : words).slice(0, 4).join(" ");
+  return keywords.length ? keywords : words;
+}
+
+/**
+ * Variações progressivas do termo: 4 → 3 → 2 → 1 palavra-chave.
+ *
+ * A Shopee costuma não retornar nada para títulos longos; quando a primeira
+ * variação falha, o cliente pode tentar a seguinte (mais curta e mais ampla).
+ */
+export function shopeeSearchQueryVariants(term: string): string[] {
+  const keywords = shopeeKeywords(term);
+  if (!keywords.length) return [];
+
+  const variants: string[] = [];
+  for (let n = Math.min(4, keywords.length); n >= 1; n--) {
+    const q = keywords.slice(0, n).join(" ");
+    if (!variants.includes(q)) variants.push(q);
+  }
+  return variants;
 }
 
 
