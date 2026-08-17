@@ -272,7 +272,8 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
 
     // 5.1) Registra resgate do cupom (reservado) — se falhar, aborta o pedido
     if (couponCodeApplied) {
-      const { error: redErr } = await supabase.rpc("redeem_coupon", {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error: redErr } = await (supabaseAdmin as any).rpc("redeem_coupon", {
         _coupon_code: couponCodeApplied,
         _order_id: order.id,
         _user_id: context.userId,

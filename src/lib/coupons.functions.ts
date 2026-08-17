@@ -10,10 +10,17 @@ import { evaluateCoupon, hydrateCouponRules, type CouponEvaluation, type CouponL
  * O front apenas exibe o resultado que já veio do snapshot do carrinho.
  */
 
-async function loadCouponByCode(supabase: any, code: string) {
+/** Regras de cupom são dados internos: leitura só com cliente privilegiado no servidor. */
+async function couponReader() {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return supabaseAdmin as any;
+}
+
+async function loadCouponByCode(_supabase: any, code: string) {
   const normalized = code.trim();
   if (!normalized) return null;
-  const { data } = await supabase
+  const admin = await couponReader();
+  const { data } = await admin
     .from("coupons")
     .select("*")
     .ilike("code", normalized)
@@ -21,11 +28,12 @@ async function loadCouponByCode(supabase: any, code: string) {
   return data ?? null;
 }
 
-async function loadCouponLinks(supabase: any, couponId: string) {
+async function loadCouponLinks(_supabase: any, couponId: string) {
+  const admin = await couponReader();
   const [{ data: customers }, { data: categories }, { data: products }] = await Promise.all([
-    supabase.from("coupon_customers").select("user_id").eq("coupon_id", couponId),
-    supabase.from("coupon_categories").select("category_id, mode").eq("coupon_id", couponId),
-    supabase.from("coupon_products").select("product_id, mode").eq("coupon_id", couponId),
+    admin.from("coupon_customers").select("user_id").eq("coupon_id", couponId),
+    admin.from("coupon_categories").select("category_id, mode").eq("coupon_id", couponId),
+    admin.from("coupon_products").select("product_id, mode").eq("coupon_id", couponId),
   ]);
   return {
     customers: (customers ?? []) as Array<{ user_id: string }>,
@@ -33,6 +41,7 @@ async function loadCouponLinks(supabase: any, couponId: string) {
     products: (products ?? []) as Array<{ product_id: string; mode: "include" | "exclude" }>,
   };
 }
+
 
 /**
  * Retorna as linhas do carrinho ativas hoje anotadas com category_ids.
@@ -104,9 +113,9 @@ async function evaluateCode(supabase: any, code: string, userId: string): Promis
   const rules = hydrateCouponRules(row, links);
 
   const [{ count: usesTotal }, { count: usesUser }, cart] = await Promise.all([
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).in("status", ["reservado", "confirmado"]),
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).eq("user_id", userId).in("status", ["reservado", "confirmado"]),
     loadCartLinesForCoupon(supabase, userId),
   ]);
@@ -201,9 +210,9 @@ export async function computeCartCouponPreview(
   const rules = hydrateCouponRules(row, links);
 
   const [{ count: usesTotal }, { count: usesUser }] = await Promise.all([
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).in("status", ["reservado", "confirmado"]),
-    supabase.from("coupon_redemptions").select("*", { count: "exact", head: true })
+    (await couponReader()).from("coupon_redemptions").select("*", { count: "exact", head: true })
       .eq("coupon_id", row.id).eq("user_id", userId).in("status", ["reservado", "confirmado"]),
   ]);
 
