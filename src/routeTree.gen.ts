@@ -45,6 +45,7 @@ import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
+import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
@@ -254,6 +255,11 @@ const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   path: '/etiquetas/preco',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
+  id: '/etiquetas/personalizada',
+  path: '/etiquetas/personalizada',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrindesAgendaPersonalizadaRoute =
   BrindesAgendaPersonalizadaRouteImport.update({
     id: '/agenda-personalizada',
@@ -418,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -473,6 +480,7 @@ export interface FileRoutesByTo {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -535,6 +543,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -598,6 +607,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
@@ -714,6 +725,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -772,6 +784,7 @@ export interface RootRouteChildren {
   MarketplacesRoute: typeof MarketplacesRoute
   RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
@@ -1032,6 +1045,13 @@ declare module '@tanstack/react-router' {
       path: '/etiquetas/preco'
       fullPath: '/etiquetas/preco'
       preLoaderRoute: typeof EtiquetasPrecoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiquetas/personalizada': {
+      id: '/etiquetas/personalizada'
+      path: '/etiquetas/personalizada'
+      fullPath: '/etiquetas/personalizada'
+      preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brindes/agenda-personalizada': {
@@ -1375,6 +1395,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplacesRoute: MarketplacesRoute,
   RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
