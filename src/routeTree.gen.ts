@@ -64,6 +64,7 @@ import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authen
 import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
+import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
 import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
 import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
@@ -361,6 +362,11 @@ const AuthenticatedAdminEnriquecimentoRoute =
     path: '/enriquecimento',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
+  id: '/artes',
+  path: '/artes',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
     id: '/produtos/',
@@ -440,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/brindes/': typeof BrindesIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -495,6 +502,7 @@ export interface FileRoutesByTo {
   '/brindes': typeof BrindesIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
+  '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/brindes/': typeof BrindesIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
+  '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -623,6 +632,7 @@ export interface FileRouteTypes {
     | '/brindes/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
+    | '/admin/artes'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -678,6 +688,7 @@ export interface FileRouteTypes {
     | '/brindes'
     | '/ferramentas'
     | '/fita-de-cetim'
+    | '/admin/artes'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -741,6 +752,7 @@ export interface FileRouteTypes {
     | '/brindes/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
+    | '/_authenticated/admin/artes'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/checkout/endereco'
@@ -1180,6 +1192,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/artes': {
+      id: '/_authenticated/admin/artes'
+      path: '/artes'
+      fullPath: '/admin/artes'
+      preLoaderRoute: typeof AuthenticatedAdminArtesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/produtos/': {
       id: '/_authenticated/admin/produtos/'
       path: '/produtos'
@@ -1226,6 +1245,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminArtesRoute: typeof AuthenticatedAdminArtesRoute
   AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1237,6 +1257,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminArtesRoute: AuthenticatedAdminArtesRoute,
   AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
