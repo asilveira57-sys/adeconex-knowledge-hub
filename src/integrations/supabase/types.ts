@@ -625,6 +625,33 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_label_price_tiers: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          min_quantity: number
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_quantity: number
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_quantity?: number
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           city: string
@@ -745,6 +772,62 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      label_designs: {
+        Row: {
+          background_color: string
+          base_product_id: string | null
+          created_at: string
+          height_mm: number
+          id: string
+          layout: Json
+          material: string
+          name: string
+          ribbon_color: string
+          thumbnail: string | null
+          updated_at: string
+          user_id: string
+          width_mm: number
+        }
+        Insert: {
+          background_color?: string
+          base_product_id?: string | null
+          created_at?: string
+          height_mm?: number
+          id?: string
+          layout?: Json
+          material?: string
+          name: string
+          ribbon_color?: string
+          thumbnail?: string | null
+          updated_at?: string
+          user_id: string
+          width_mm?: number
+        }
+        Update: {
+          background_color?: string
+          base_product_id?: string | null
+          created_at?: string
+          height_mm?: number
+          id?: string
+          layout?: Json
+          material?: string
+          name?: string
+          ribbon_color?: string
+          thumbnail?: string | null
+          updated_at?: string
+          user_id?: string
+          width_mm?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_designs_base_product_id_fkey"
+            columns: ["base_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
