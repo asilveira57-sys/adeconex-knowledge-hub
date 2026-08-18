@@ -45,6 +45,7 @@ import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
+import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
@@ -56,6 +57,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
+import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
 import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
@@ -253,6 +255,11 @@ const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   path: '/etiquetas/preco',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
+  id: '/etiquetas/personalizada',
+  path: '/etiquetas/personalizada',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrindesAgendaPersonalizadaRoute =
   BrindesAgendaPersonalizadaRouteImport.update({
     id: '/agenda-personalizada',
@@ -312,6 +319,12 @@ const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   path: '/pedido/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedEtiquetasEditorRoute =
+  AuthenticatedEtiquetasEditorRouteImport.update({
+    id: '/etiquetas/editor',
+    path: '/etiquetas/editor',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCheckoutRevisaoRoute =
   AuthenticatedCheckoutRevisaoRouteImport.update({
     id: '/revisao',
@@ -411,6 +424,7 @@ export interface FileRoutesByFullPath {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -432,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -465,6 +480,7 @@ export interface FileRoutesByTo {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -485,6 +501,7 @@ export interface FileRoutesByTo {
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -526,6 +543,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -547,6 +565,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
+  '/_authenticated/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -588,6 +607,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -609,6 +629,7 @@ export interface FileRouteTypes {
     | '/checkout/frete'
     | '/checkout/pagamento'
     | '/checkout/revisao'
+    | '/etiquetas/editor'
     | '/pedido/$id'
     | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -642,6 +663,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
@@ -662,6 +684,7 @@ export interface FileRouteTypes {
     | '/checkout/frete'
     | '/checkout/pagamento'
     | '/checkout/revisao'
+    | '/etiquetas/editor'
     | '/pedido/$id'
     | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -702,6 +725,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -723,6 +747,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/frete'
     | '/_authenticated/checkout/pagamento'
     | '/_authenticated/checkout/revisao'
+    | '/_authenticated/etiquetas/editor'
     | '/_authenticated/pedido/$id'
     | '/blog/filtro/$hub'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -759,6 +784,7 @@ export interface RootRouteChildren {
   MarketplacesRoute: typeof MarketplacesRoute
   RibbonRoute: typeof RibbonRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
@@ -1021,6 +1047,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EtiquetasPrecoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/etiquetas/personalizada': {
+      id: '/etiquetas/personalizada'
+      path: '/etiquetas/personalizada'
+      fullPath: '/etiquetas/personalizada'
+      preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/brindes/agenda-personalizada': {
       id: '/brindes/agenda-personalizada'
       path: '/agenda-personalizada'
@@ -1096,6 +1129,13 @@ declare module '@tanstack/react-router' {
       path: '/pedido/$id'
       fullPath: '/pedido/$id'
       preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/etiquetas/editor': {
+      id: '/_authenticated/etiquetas/editor'
+      path: '/etiquetas/editor'
+      fullPath: '/etiquetas/editor'
+      preLoaderRoute: typeof AuthenticatedEtiquetasEditorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/checkout/revisao': {
@@ -1235,6 +1275,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRouteWithChildren
   AuthenticatedMinhaContaRoute: typeof AuthenticatedMinhaContaRoute
+  AuthenticatedEtiquetasEditorRoute: typeof AuthenticatedEtiquetasEditorRoute
   AuthenticatedPedidoIdRoute: typeof AuthenticatedPedidoIdRoute
 }
 
@@ -1242,6 +1283,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRouteWithChildren,
   AuthenticatedMinhaContaRoute: AuthenticatedMinhaContaRoute,
+  AuthenticatedEtiquetasEditorRoute: AuthenticatedEtiquetasEditorRoute,
   AuthenticatedPedidoIdRoute: AuthenticatedPedidoIdRoute,
 }
 
@@ -1353,6 +1395,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplacesRoute: MarketplacesRoute,
   RibbonRoute: RibbonRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,

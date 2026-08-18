@@ -340,6 +340,10 @@ export const getMyCart = createServerFn({ method: "GET" })
               .join(" · ") || null
         : null;
       const unit = Number(r.unit_price);
+      const meta = (r.metadata ?? {}) as Record<string, any>;
+      const customLabel = meta.custom_label
+        ? `Personalizada: ${meta.design_name ?? "modelo"} · ${meta.width_mm}×${meta.height_mm} mm`
+        : null;
       // Max stock em CAIXAS (kit) ou UNIDADES (avulso)
       let maxStock: number | null = v?.stock_quantity ?? p?.stock_quantity ?? null;
       if (isKit) {
@@ -357,15 +361,15 @@ export const getMyCart = createServerFn({ method: "GET" })
         item_id: r.id,
         product_id: r.product_id,
         variant_id: r.variant_id,
-        product_name: p?.name ?? "Produto",
+        product_name: customLabel ? `${p?.name ?? "Etiqueta"} (personalizada)` : (p?.name ?? "Produto"),
         product_slug: p?.slug ?? "",
-        variant_label,
+        variant_label: customLabel ?? variant_label,
         sku: v?.sku ?? p?.sku ?? null,
         unit_price: unit,
         quantity: r.quantity,
         line_total: Number((unit * r.quantity).toFixed(2)),
         image_url: imgMap.get(r.product_id) ?? null,
-        max_stock: maxStock,
+        max_stock: customLabel ? null : maxStock,
         units_per_pack,
         sells_by_kit: !!p?.sells_by_kit,
       bundle_offer_id: null,

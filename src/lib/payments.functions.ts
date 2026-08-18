@@ -118,7 +118,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
 
     const { data: rows } = await supabase
       .from("cart_items")
-      .select("id, product_id, variant_id, quantity")
+      .select("id, product_id, variant_id, quantity, unit_price, metadata")
       .eq("cart_id", cart.id);
     const cartRows = rows ?? [];
     if (cartRows.length === 0) throw new Error("Carrinho vazio");
@@ -156,33 +156,57 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
       unit_price: number;
       subtotal: number;
       weight_kg: number | null;
+      metadata: Record<string, unknown>;
     };
+
+    // Etiquetas personalizadas usam a tabela de preço por quantidade
+    const hasCustom = cartRows.some((r: any) => r.metadata?.custom_label);
+    let customTiers: { min_quantity: number; unit_price: number }[] = [];
+    if (hasCustom) {
+      const { data: tierRows } = await supabase
+        .from("custom_label_price_tiers")
+        .select("min_quantity, unit_price")
+        .eq("is_active", true);
+      customTiers = (tierRows ?? []).map((t: any) => ({
+        min_quantity: Number(t.min_quantity),
+        unit_price: Number(t.unit_price),
+      }));
+      if (customTiers.length === 0) throw new Error("Tabela de preços da etiqueta personalizada indisponível");
+    }
+    const { unitPriceForQuantity } = await import("./labels/shared");
 
     const items: Prepared[] = cartRows.map((r: any) => {
       const p = pMap.get(r.product_id);
       if (!p) throw new Error("Produto do carrinho não encontrado");
       if (!p.is_available) throw new Error(`"${p.name}" está indisponível`);
       const v = r.variant_id ? vMap.get(r.variant_id) : null;
-      const unit = Number(v?.promotional_price ?? v?.price ?? p.promotional_price ?? p.price ?? 0);
+      const meta = (r.metadata ?? {}) as Record<string, any>;
+      const isCustom = !!meta.custom_label;
+      const unit = isCustom
+        ? Number(unitPriceForQuantity(customTiers, Number(r.quantity)).toFixed(4))
+        : Number(v?.promotional_price ?? v?.price ?? p.promotional_price ?? p.price ?? 0);
       if (unit <= 0) throw new Error(`"${p.name}" está sem preço configurado`);
-      const label = v
-        ? [
-            v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
-            v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || null
-        : null;
+      const label = isCustom
+        ? `Personalizada: ${meta.design_name ?? "modelo"} · ${meta.width_mm}×${meta.height_mm} mm`
+        : v
+          ? [
+              v.option1_name && v.option1_value ? `${v.option1_name}: ${v.option1_value}` : null,
+              v.option2_name && v.option2_value ? `${v.option2_name}: ${v.option2_value}` : null,
+            ]
+              .filter(Boolean)
+              .join(" · ") || null
+          : null;
       return {
         product_id: p.id,
         variant_id: r.variant_id ?? null,
-        product_name: p.name,
+        product_name: isCustom ? `${p.name} (personalizada)` : p.name,
         product_sku: v?.sku ?? p.sku ?? null,
         variant_label: label,
         quantity: Number(r.quantity),
         unit_price: Number(unit.toFixed(2)),
         subtotal: Number((unit * r.quantity).toFixed(2)),
         weight_kg: v?.weight_kg ?? p.weight_kg ?? null,
+        metadata: meta,
       };
     });
 
@@ -301,6 +325,8 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         unit_price: i.unit_price,
         subtotal: i.subtotal,
         weight_kg: i.weight_kg,
+        requires_art: !!i.metadata?.custom_label,
+        metadata: (i.metadata ?? {}) as never,
       })),
     );
     if (itemsErr) throw new Error(itemsErr.message);
