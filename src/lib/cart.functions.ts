@@ -340,6 +340,10 @@ export const getMyCart = createServerFn({ method: "GET" })
               .join(" · ") || null
         : null;
       const unit = Number(r.unit_price);
+      const meta = (r.metadata ?? {}) as Record<string, any>;
+      const customLabel = meta.custom_label
+        ? `Personalizada: ${meta.design_name ?? "modelo"} · ${meta.width_mm}×${meta.height_mm} mm`
+        : null;
       // Max stock em CAIXAS (kit) ou UNIDADES (avulso)
       let maxStock: number | null = v?.stock_quantity ?? p?.stock_quantity ?? null;
       if (isKit) {
