@@ -326,7 +326,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         subtotal: i.subtotal,
         weight_kg: i.weight_kg,
         requires_art: !!i.metadata?.custom_label,
-        metadata: i.metadata ?? {},
+        metadata: (i.metadata ?? {}) as never,
       })),
     );
     if (itemsErr) throw new Error(itemsErr.message);
