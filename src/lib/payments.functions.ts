@@ -118,7 +118,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
 
     const { data: rows } = await supabase
       .from("cart_items")
-      .select("id, product_id, variant_id, quantity")
+      .select("id, product_id, variant_id, quantity, unit_price, metadata")
       .eq("cart_id", cart.id);
     const cartRows = rows ?? [];
     if (cartRows.length === 0) throw new Error("Carrinho vazio");
