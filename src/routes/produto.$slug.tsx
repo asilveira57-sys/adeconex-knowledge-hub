@@ -544,6 +544,12 @@ function ProductPage() {
                 </div>
               )}
 
+              <Button asChild size="lg" variant="outline" className="mt-3 w-full">
+                <Link to="/etiquetas/editor" search={{ design: undefined, produto: p.slug }}>
+                  <Wand2 className="mr-2 h-4 w-4" /> Personalizar esta etiqueta
+                </Link>
+              </Button>
+
               <ShippingCepQuote
                 productId={p.id}
                 variantId={activeVariantId}
