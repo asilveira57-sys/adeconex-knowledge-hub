@@ -62,6 +62,8 @@ export const designInputSchema = z.object({
   base_product_id: z.string().uuid().nullable().optional(),
   width_mm: z.number().min(10).max(400),
   height_mm: z.number().min(10).max(400),
+  shape: z.enum(["rect", "rounded", "circle", "oval"]).default("rect"),
+  corner_radius_mm: z.number().min(0).max(100).nullable().optional(),
   material: z.string().max(40),
   ribbon_color: hex,
   background_color: hex,
