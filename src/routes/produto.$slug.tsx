@@ -544,11 +544,27 @@ function ProductPage() {
                 </div>
               )}
 
-              <Button asChild size="lg" variant="outline" className="mt-3 w-full">
-                <Link to="/etiquetas/editor" search={{ design: undefined, produto: p.slug }}>
-                  <Wand2 className="mr-2 h-4 w-4" /> Personalizar esta etiqueta
-                </Link>
-              </Button>
+              {p.is_customizable && (
+                <>
+                  <Button asChild size="lg" variant="outline" className="mt-3 w-full">
+                    <Link to="/etiquetas/editor" search={{ design: undefined, produto: p.slug }}>
+                      <Wand2 className="mr-2 h-4 w-4" /> Personalizar esta etiqueta
+                    </Link>
+                  </Button>
+                  {p.custom_width_mm && p.custom_height_mm && (
+                    <p className="mt-1 text-center text-xs text-muted-foreground">
+                      Mockup já configurado: {p.custom_width_mm} × {p.custom_height_mm} mm
+                      {p.custom_shape === "circle"
+                        ? " (redonda)"
+                        : p.custom_shape === "oval"
+                          ? " (oval)"
+                          : p.custom_shape === "rounded"
+                            ? " (cantos arredondados)"
+                            : " (retangular)"}
+                    </p>
+                  )}
+                </>
+              )}
 
               <ShippingCepQuote
                 productId={p.id}
