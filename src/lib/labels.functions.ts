@@ -97,7 +97,7 @@ export const listMyDesigns = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("label_designs")
       .select(
-        "id, name, base_product_id, width_mm, height_mm, material, ribbon_color, background_color, layout, thumbnail, updated_at",
+        "id, name, base_product_id, width_mm, height_mm, shape, corner_radius_mm, material, ribbon_color, background_color, layout, thumbnail, updated_at",
       )
       .eq("user_id", context.userId)
       .order("updated_at", { ascending: false });
@@ -115,6 +115,8 @@ export const saveDesign = createServerFn({ method: "POST" })
       base_product_id: data.base_product_id ?? null,
       width_mm: data.width_mm,
       height_mm: data.height_mm,
+      shape: data.shape ?? "rect",
+      corner_radius_mm: data.corner_radius_mm ?? null,
       material: data.material,
       ribbon_color: data.ribbon_color,
       background_color: data.background_color,
@@ -163,7 +165,7 @@ export const addDesignToCart = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { data: design, error: designErr } = await context.supabase
       .from("label_designs")
-      .select("id, name, base_product_id, width_mm, height_mm, material, ribbon_color")
+      .select("id, name, base_product_id, width_mm, height_mm, shape, corner_radius_mm, material, ribbon_color")
       .eq("id", data.design_id)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -215,6 +217,7 @@ export const addDesignToCart = createServerFn({ method: "POST" })
         design_name: design.name,
         width_mm: Number(design.width_mm),
         height_mm: Number(design.height_mm),
+        shape: design.shape,
         material: design.material,
         ribbon_color: design.ribbon_color,
       },
