@@ -205,6 +205,13 @@ export function QrGenerator() {
         blob = doc.output("blob");
         filename = `${base}-${mm}mm.pdf`;
       } else {
+        const custom = Number(customSize);
+        const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
+        blob = await svgToPngBlob(svg, size);
+        filename = `${base}-${size}px.png`;
+      }
+
+
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
