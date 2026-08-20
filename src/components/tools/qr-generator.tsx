@@ -83,7 +83,7 @@ export function QrGenerator() {
   const [pngSize, setPngSize] = useState(1000);
   const [customSize, setCustomSize] = useState("");
   const [format, setFormat] = useState<"png" | "svg" | "pdf">("png");
-  const [pdfSizeMm, setPdfSizeMm] = useState("80");
+  
 
   const [downloading, setDownloading] = useState(false);
   const [decodeState, setDecodeState] = useState<"idle" | "checking" | "ok" | "fail" | "unknown">("idle");
