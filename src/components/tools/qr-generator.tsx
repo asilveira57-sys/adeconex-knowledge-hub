@@ -83,7 +83,7 @@ export function QrGenerator() {
   const [pngSize, setPngSize] = useState(1000);
   const [customSize, setCustomSize] = useState("");
   const [format, setFormat] = useState<"png" | "svg" | "pdf">("png");
-  const [pdfSizeMm, setPdfSizeMm] = useState("80");
+  
 
   const [downloading, setDownloading] = useState(false);
   const [decodeState, setDecodeState] = useState<"idle" | "checking" | "ok" | "fail" | "unknown">("idle");
@@ -204,22 +204,28 @@ export function QrGenerator() {
         blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
         filename = `${base}.svg`;
       } else if (format === "pdf") {
-        const mm = Math.min(190, Math.max(10, Number(pdfSizeMm) || 80));
-        const png = await svgToPngBlob(svg, 2000);
+        const custom = Number(customSize);
+        const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
+        const png = await svgToPngBlob(svg, size);
         const dataUrl = await blobToDataUrl(png);
         const { jsPDF } = await import("jspdf");
-        const doc = new jsPDF({ unit: "mm", format: "a4" });
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-        doc.addImage(dataUrl, "PNG", (pageW - mm) / 2, (pageH - mm) / 2, mm, mm);
+        const doc = new jsPDF({
+          unit: "px",
+          format: [size, size],
+          orientation: "portrait",
+          hotfixes: ["px_scaling"],
+          compress: false,
+        });
+        doc.addImage(dataUrl, "PNG", 0, 0, size, size, undefined, "NONE");
         blob = doc.output("blob");
-        filename = `${base}-${mm}mm.pdf`;
+        filename = `${base}-${size}px.pdf`;
       } else {
         const custom = Number(customSize);
         const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
         blob = await svgToPngBlob(svg, size);
         filename = `${base}-${size}px.png`;
       }
+
 
 
 
@@ -588,10 +594,10 @@ export function QrGenerator() {
                 options={[
                   { value: "png", label: "PNG (imagem)" },
                   { value: "svg", label: "SVG (vetorial)" },
-                  { value: "pdf", label: "PDF (A4 para imprimir)" },
+                  { value: "pdf", label: "PDF (alta resolução)" },
                 ]}
               />
-              {format === "png" ? (
+              {format !== "svg" ? (
                 <SelectField
                   id="qr-resolution"
                   label="Resolução"
@@ -610,21 +616,9 @@ export function QrGenerator() {
                   ]}
                 />
               ) : null}
-              {format === "pdf" ? (
-                <div>
-                  <Label htmlFor="qr-pdf-size">Tamanho no PDF (10 a 190 mm)</Label>
-                  <Input
-                    id="qr-pdf-size"
-                    className="mt-2"
-                    inputMode="numeric"
-                    value={pdfSizeMm}
-                    onChange={(e) => setPdfSizeMm(e.target.value.replace(/\D/g, "").slice(0, 3))}
-                  />
-                </div>
-              ) : null}
-
             </div>
-            {format === "png" && customSize ? (
+            {format !== "svg" && customSize ? (
+
               <div>
                 <Label htmlFor="qr-custom-size">Tamanho personalizado (200 a 4000 px)</Label>
                 <Input
