@@ -56,7 +56,17 @@ function track(event: string, params: Record<string, string | number | boolean> 
   w.dataLayer.push({ event: `qrcode_${event}`, tool: "gerador-qrcode", ...params });
 }
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Falha ao processar a imagem."));
+    reader.readAsDataURL(blob);
+  });
+}
+
 function useDebounced<T>(value: T, delay = 250): T {
+
   const [v, setV] = useState(value);
   useEffect(() => {
     const t = setTimeout(() => setV(value), delay);
@@ -72,7 +82,9 @@ export function QrGenerator() {
   const [showPassword, setShowPassword] = useState(false);
   const [pngSize, setPngSize] = useState(1000);
   const [customSize, setCustomSize] = useState("");
-  const [format, setFormat] = useState<"png" | "svg">("png");
+  const [format, setFormat] = useState<"png" | "svg" | "pdf">("png");
+  const [pdfSizeMm, setPdfSizeMm] = useState("80");
+
   const [downloading, setDownloading] = useState(false);
   const [decodeState, setDecodeState] = useState<"idle" | "checking" | "ok" | "fail" | "unknown">("idle");
   const [logoName, setLogoName] = useState<string | null>(null);
@@ -191,12 +203,26 @@ export function QrGenerator() {
       if (format === "svg") {
         blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
         filename = `${base}.svg`;
+      } else if (format === "pdf") {
+        const mm = Math.min(190, Math.max(10, Number(pdfSizeMm) || 80));
+        const png = await svgToPngBlob(svg, 2000);
+        const dataUrl = await blobToDataUrl(png);
+        const { jsPDF } = await import("jspdf");
+        const doc = new jsPDF({ unit: "mm", format: "a4" });
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+        doc.addImage(dataUrl, "PNG", (pageW - mm) / 2, (pageH - mm) / 2, mm, mm);
+        blob = doc.output("blob");
+        filename = `${base}-${mm}mm.pdf`;
       } else {
         const custom = Number(customSize);
         const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
         blob = await svgToPngBlob(svg, size);
         filename = `${base}-${size}px.png`;
       }
+
+
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -558,10 +584,11 @@ export function QrGenerator() {
                 id="qr-format"
                 label="Formato"
                 value={format}
-                onChange={(v) => setFormat(v as "png" | "svg")}
+                onChange={(v) => setFormat(v as "png" | "svg" | "pdf")}
                 options={[
                   { value: "png", label: "PNG (imagem)" },
                   { value: "svg", label: "SVG (vetorial)" },
+                  { value: "pdf", label: "PDF (A4 para imprimir)" },
                 ]}
               />
               {format === "png" ? (
@@ -583,6 +610,19 @@ export function QrGenerator() {
                   ]}
                 />
               ) : null}
+              {format === "pdf" ? (
+                <div>
+                  <Label htmlFor="qr-pdf-size">Tamanho no PDF (10 a 190 mm)</Label>
+                  <Input
+                    id="qr-pdf-size"
+                    className="mt-2"
+                    inputMode="numeric"
+                    value={pdfSizeMm}
+                    onChange={(e) => setPdfSizeMm(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                  />
+                </div>
+              ) : null}
+
             </div>
             {format === "png" && customSize ? (
               <div>
