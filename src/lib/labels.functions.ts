@@ -3,7 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { addDesignToCartSchema, designInputSchema } from "@/lib/labels/schema";
-import { unitPriceForQuantity, type LabelLayer, type PriceTier } from "@/lib/labels/shared";
+import {
+  unitPriceForQuantity,
+  type LabelLayer,
+  type LabelShape,
+  type PriceTier,
+  type ProductLabelSpec,
+} from "@/lib/labels/shared";
 
 export type SavedDesign = {
   id: string;
@@ -11,6 +17,8 @@ export type SavedDesign = {
   base_product_id: string | null;
   width_mm: number;
   height_mm: number;
+  shape: LabelShape;
+  corner_radius_mm: number | null;
   material: string;
   ribbon_color: string;
   background_color: string;
@@ -19,7 +27,8 @@ export type SavedDesign = {
   updated_at: string;
 };
 
-export type CustomizableProduct = { id: string; name: string; slug: string };
+export type CustomizableProduct = ProductLabelSpec;
+
 
 /** Faixas de preço da etiqueta personalizada (leitura pública). */
 export const getLabelPricing = createServerFn({ method: "GET" }).handler(
