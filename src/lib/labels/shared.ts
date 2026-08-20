@@ -51,19 +51,75 @@ export type LabelLayer =
       rotation: 0 | 90 | 180 | 270;
     };
 
+export type LabelShape = "rect" | "rounded" | "circle" | "oval";
+
 export type LabelDesign = {
   id: string | null;
   name: string;
   base_product_id: string | null;
   width_mm: number;
   height_mm: number;
+  shape: LabelShape;
+  corner_radius_mm: number | null;
   material: string;
   ribbon_color: string;
   background_color: string;
   layout: LabelLayer[];
 };
 
+/** Configuração de personalização definida no cadastro do produto. */
+export type ProductLabelSpec = {
+  id: string;
+  name: string;
+  slug: string;
+  shape: LabelShape;
+  width_mm: number;
+  height_mm: number;
+  corner_radius_mm: number | null;
+  columns: number;
+  rows: number;
+  gap_x_mm: number;
+  gap_y_mm: number;
+  margin_mm: number;
+  safe_margin_mm: number;
+  notes: string | null;
+};
+
+export const SHAPE_LABELS: Record<LabelShape, string> = {
+  rect: "Retangular",
+  rounded: "Cantos arredondados",
+  circle: "Redonda",
+  oval: "Oval",
+};
+
+/** CSS border-radius correspondente ao formato/raio da etiqueta. */
+export function shapeRadiusCss(
+  shape: LabelShape,
+  cornerRadiusMm: number | null | undefined,
+  scale: number,
+): string {
+  if (shape === "circle" || shape === "oval") return "50%";
+  if (shape === "rounded") return `${Math.max(0, (cornerRadiusMm ?? 3)) * scale}px`;
+  return "0px";
+}
+
+/** Cria um design já ajustado ao formato/medidas do produto-base. */
+export function designFromSpec(spec: ProductLabelSpec, base?: Partial<LabelDesign>): LabelDesign {
+  return {
+    ...emptyDesign(),
+    ...base,
+    base_product_id: spec.id,
+    name: base?.name ?? `Personalização — ${spec.name}`,
+    width_mm: spec.width_mm,
+    height_mm: spec.height_mm,
+    shape: spec.shape,
+    corner_radius_mm: spec.corner_radius_mm,
+    layout: base?.layout ?? [],
+  };
+}
+
 export type PriceTier = { min_quantity: number; unit_price: number };
+
 
 /** Materiais disponíveis (cor/base do substrato). */
 export const MATERIALS: { value: string; label: string; background: string; hint: string }[] = [
