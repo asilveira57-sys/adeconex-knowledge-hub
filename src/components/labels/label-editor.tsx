@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { LabelCanvas } from "@/components/labels/label-canvas";
+import { LabelMockup } from "@/components/labels/label-mockup";
 import { SYMBOLOGIES } from "@/lib/barcode/symbologies";
 import {
   LABEL_FONTS,
@@ -31,12 +32,15 @@ import {
   MATERIALS,
   MIN_CUSTOM_QUANTITY,
   RIBBON_COLORS,
+  SHAPE_LABELS,
+  designFromSpec,
   materialBackground,
   newLayerId,
   unitPriceForQuantity,
   type LabelDesign,
   type LabelLayer,
   type PriceTier,
+  type ProductLabelSpec,
 } from "@/lib/labels/shared";
 
 const brl = (v: number) =>
@@ -45,7 +49,7 @@ const brl = (v: number) =>
 type Props = {
   design: LabelDesign;
   onChange: (next: LabelDesign) => void;
-  products: { id: string; name: string; slug: string }[];
+  products: ProductLabelSpec[];
   tiers: PriceTier[];
   quantity: number;
   onQuantityChange: (q: number) => void;
@@ -70,7 +74,10 @@ export function LabelEditor({
   canAddToCart,
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showMockup, setShowMockup] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const spec = products.find((p) => p.id === design.base_product_id) ?? null;
 
   const selected = design.layout.find((l) => l.id === selectedId) ?? null;
   const scale = useMemo(() => {
@@ -226,7 +233,20 @@ export function LabelEditor({
                 type="button"
                 onClick={() => {
                   const base = t.build();
-                  onChange({ ...base, id: design.id, base_product_id: design.base_product_id });
+                  const next = {
+                    ...base,
+                    id: design.id,
+                    base_product_id: design.base_product_id,
+                    ...(spec
+                      ? {
+                          width_mm: spec.width_mm,
+                          height_mm: spec.height_mm,
+                          shape: spec.shape,
+                          corner_radius_mm: spec.corner_radius_mm,
+                        }
+                      : {}),
+                  };
+                  onChange(next);
                   setSelectedId(null);
                   toast.success(`Modelo “${t.name}” carregado`);
                 }}
@@ -278,6 +298,7 @@ export function LabelEditor({
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
+            safeMarginMm={spec?.safe_margin_mm ?? 0}
             scale={scale}
             selectedId={selectedId}
             onSelect={setSelectedId}
@@ -291,6 +312,20 @@ export function LabelEditor({
           a cor escolhida do ribbon. Fotos e degradês são convertidos para traço nessa cor.
           Arraste os elementos para posicionar.
         </p>
+
+        {spec && (
+          <div className="rounded-lg border hairline bg-card p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                Mockup do material
+              </h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowMockup((v) => !v)}>
+                {showMockup ? "Ocultar" : "Ver como fica impresso"}
+              </Button>
+            </div>
+            {showMockup && <LabelMockup design={design} spec={spec} />}
+          </div>
+        )}
 
         {/* Propriedades do elemento selecionado */}
         {selected && (
@@ -497,6 +532,7 @@ export function LabelEditor({
               <Input
                 id="w"
                 type="number"
+                disabled={!!spec}
                 value={design.width_mm}
                 onChange={(e) => patch({ width_mm: clamp(Number(e.target.value), 10, 400) })}
               />
@@ -506,10 +542,22 @@ export function LabelEditor({
               <Input
                 id="h"
                 type="number"
+                disabled={!!spec}
                 value={design.height_mm}
                 onChange={(e) => patch({ height_mm: clamp(Number(e.target.value), 10, 400) })}
               />
             </div>
+          </div>
+          <div className="rounded-md bg-surface-2 p-3 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Formato: {SHAPE_LABELS[design.shape]}</span>
+            {spec ? (
+              <>
+                {" "}— medidas e formato vêm da etiqueta-base escolhida ({spec.width_mm} × {spec.height_mm} mm).
+                {spec.notes ? <span className="mt-1 block">{spec.notes}</span> : null}
+              </>
+            ) : (
+              " — escolha a etiqueta-base para carregar as medidas reais do produto."
+            )}
           </div>
           <div>
             <Label>Material / cor da etiqueta</Label>
@@ -559,15 +607,26 @@ export function LabelEditor({
             <Label>Etiqueta-base (matéria-prima)</Label>
             <Select
               value={design.base_product_id ?? ""}
-              onValueChange={(v) => patch({ base_product_id: v })}
+              onValueChange={(v) => {
+                const s = products.find((p) => p.id === v);
+                if (!s) return;
+                onChange(designFromSpec(s, { ...design, name: design.name }));
+              }}
             >
               <SelectTrigger><SelectValue placeholder="Escolha a etiqueta em branco" /></SelectTrigger>
               <SelectContent className="max-h-72">
                 {products.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name} — {p.width_mm}×{p.height_mm} mm ({SHAPE_LABELS[p.shape]})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {products.length === 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Nenhuma etiqueta habilitada para personalização no momento.
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor="qty">Quantidade (etiquetas)</Label>
