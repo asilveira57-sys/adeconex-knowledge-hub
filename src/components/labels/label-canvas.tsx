@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { buildMatrix, renderSvg, DEFAULT_STYLE } from "@/lib/qr/render";
-import type { LabelDesign, LabelLayer } from "@/lib/labels/shared";
+import { shapeRadiusCss, type LabelDesign, type LabelLayer } from "@/lib/labels/shared";
 
 /** 1 pt = 0,3528 mm */
 const PT_TO_MM = 25.4 / 72;
@@ -13,8 +13,11 @@ type Props = {
   selectedId?: string | null;
   onSelect?: (id: string | null) => void;
   onMove?: (id: string, x: number, y: number) => void;
+  /** margem de segurança (mm) exibida como guia tracejada */
+  safeMarginMm?: number;
   className?: string;
 };
+
 
 export function LabelCanvas({ design, scale, selectedId, onSelect, onMove, className }: Props) {
   const ref = useRef<HTMLDivElement>(null);
