@@ -204,22 +204,28 @@ export function QrGenerator() {
         blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
         filename = `${base}.svg`;
       } else if (format === "pdf") {
-        const mm = Math.min(190, Math.max(10, Number(pdfSizeMm) || 80));
-        const png = await svgToPngBlob(svg, 2000);
+        const custom = Number(customSize);
+        const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
+        const png = await svgToPngBlob(svg, size);
         const dataUrl = await blobToDataUrl(png);
         const { jsPDF } = await import("jspdf");
-        const doc = new jsPDF({ unit: "mm", format: "a4" });
-        const pageW = doc.internal.pageSize.getWidth();
-        const pageH = doc.internal.pageSize.getHeight();
-        doc.addImage(dataUrl, "PNG", (pageW - mm) / 2, (pageH - mm) / 2, mm, mm);
+        const doc = new jsPDF({
+          unit: "px",
+          format: [size, size],
+          orientation: "portrait",
+          hotfixes: ["px_scaling"],
+          compress: false,
+        });
+        doc.addImage(dataUrl, "PNG", 0, 0, size, size, undefined, "NONE");
         blob = doc.output("blob");
-        filename = `${base}-${mm}mm.pdf`;
+        filename = `${base}-${size}px.pdf`;
       } else {
         const custom = Number(customSize);
         const size = customSize ? Math.min(4000, Math.max(200, custom || 1000)) : pngSize;
         blob = await svgToPngBlob(svg, size);
         filename = `${base}-${size}px.png`;
       }
+
 
 
 
