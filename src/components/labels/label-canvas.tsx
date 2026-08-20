@@ -19,7 +19,15 @@ type Props = {
 };
 
 
-export function LabelCanvas({ design, scale, selectedId, onSelect, onMove, className }: Props) {
+export function LabelCanvas({
+  design,
+  scale,
+  selectedId,
+  onSelect,
+  onMove,
+  safeMarginMm = 0,
+  className,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; startX: number; startY: number; ox: number; oy: number } | null>(null);
 
@@ -43,19 +51,36 @@ export function LabelCanvas({ design, scale, selectedId, onSelect, onMove, class
     };
   }, [onMove, scale]);
 
+  const radius = shapeRadiusCss(design.shape, design.corner_radius_mm, scale);
+
   return (
     <div
       ref={ref}
       onPointerDown={(e) => {
         if (e.target === ref.current) onSelect?.(null);
       }}
-      className={cn("relative overflow-hidden rounded-sm border hairline shadow-card", className)}
+      className={cn("relative overflow-hidden border hairline shadow-card", className)}
       style={{
         width: design.width_mm * scale,
         height: design.height_mm * scale,
         background: design.background_color,
+        borderRadius: radius,
       }}
     >
+      {safeMarginMm > 0 && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute border border-dashed border-primary/40"
+          style={{
+            left: safeMarginMm * scale,
+            top: safeMarginMm * scale,
+            width: Math.max(0, (design.width_mm - safeMarginMm * 2) * scale),
+            height: Math.max(0, (design.height_mm - safeMarginMm * 2) * scale),
+            borderRadius: radius,
+          }}
+        />
+      )}
+
       {design.layout.map((layer) => (
         <div
           key={layer.id}
