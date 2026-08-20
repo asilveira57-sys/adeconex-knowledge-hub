@@ -780,6 +780,7 @@ export type Database = {
         Row: {
           background_color: string
           base_product_id: string | null
+          corner_radius_mm: number | null
           created_at: string
           height_mm: number
           id: string
@@ -787,6 +788,7 @@ export type Database = {
           material: string
           name: string
           ribbon_color: string
+          shape: string
           thumbnail: string | null
           updated_at: string
           user_id: string
@@ -795,6 +797,7 @@ export type Database = {
         Insert: {
           background_color?: string
           base_product_id?: string | null
+          corner_radius_mm?: number | null
           created_at?: string
           height_mm?: number
           id?: string
@@ -802,6 +805,7 @@ export type Database = {
           material?: string
           name: string
           ribbon_color?: string
+          shape?: string
           thumbnail?: string | null
           updated_at?: string
           user_id: string
@@ -810,6 +814,7 @@ export type Database = {
         Update: {
           background_color?: string
           base_product_id?: string | null
+          corner_radius_mm?: number | null
           created_at?: string
           height_mm?: number
           id?: string
@@ -817,6 +822,7 @@ export type Database = {
           material?: string
           name?: string
           ribbon_color?: string
+          shape?: string
           thumbnail?: string | null
           updated_at?: string
           user_id?: string
@@ -2050,6 +2056,17 @@ export type Database = {
           core_diameter_mm: number | null
           cost_price: number | null
           created_at: string
+          custom_columns: number
+          custom_corner_radius_mm: number | null
+          custom_gap_x_mm: number
+          custom_gap_y_mm: number
+          custom_height_mm: number | null
+          custom_margin_mm: number
+          custom_notes: string | null
+          custom_rows: number
+          custom_safe_margin_mm: number
+          custom_shape: string
+          custom_width_mm: number | null
           ean: string | null
           family_id: string | null
           height_cm: number | null
@@ -2059,6 +2076,7 @@ export type Database = {
           included_items: string | null
           insurance_value: number | null
           is_available: boolean
+          is_customizable: boolean
           legacy_id: number | null
           legacy_store_id: number | null
           length_cm: number | null
@@ -2114,6 +2132,17 @@ export type Database = {
           core_diameter_mm?: number | null
           cost_price?: number | null
           created_at?: string
+          custom_columns?: number
+          custom_corner_radius_mm?: number | null
+          custom_gap_x_mm?: number
+          custom_gap_y_mm?: number
+          custom_height_mm?: number | null
+          custom_margin_mm?: number
+          custom_notes?: string | null
+          custom_rows?: number
+          custom_safe_margin_mm?: number
+          custom_shape?: string
+          custom_width_mm?: number | null
           ean?: string | null
           family_id?: string | null
           height_cm?: number | null
@@ -2123,6 +2152,7 @@ export type Database = {
           included_items?: string | null
           insurance_value?: number | null
           is_available?: boolean
+          is_customizable?: boolean
           legacy_id?: number | null
           legacy_store_id?: number | null
           length_cm?: number | null
@@ -2178,6 +2208,17 @@ export type Database = {
           core_diameter_mm?: number | null
           cost_price?: number | null
           created_at?: string
+          custom_columns?: number
+          custom_corner_radius_mm?: number | null
+          custom_gap_x_mm?: number
+          custom_gap_y_mm?: number
+          custom_height_mm?: number | null
+          custom_margin_mm?: number
+          custom_notes?: string | null
+          custom_rows?: number
+          custom_safe_margin_mm?: number
+          custom_shape?: string
+          custom_width_mm?: number | null
           ean?: string | null
           family_id?: string | null
           height_cm?: number | null
@@ -2187,6 +2228,7 @@ export type Database = {
           included_items?: string | null
           insurance_value?: number | null
           is_available?: boolean
+          is_customizable?: boolean
           legacy_id?: number | null
           legacy_store_id?: number | null
           length_cm?: number | null
