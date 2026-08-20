@@ -584,10 +584,11 @@ export function QrGenerator() {
                 id="qr-format"
                 label="Formato"
                 value={format}
-                onChange={(v) => setFormat(v as "png" | "svg")}
+                onChange={(v) => setFormat(v as "png" | "svg" | "pdf")}
                 options={[
                   { value: "png", label: "PNG (imagem)" },
                   { value: "svg", label: "SVG (vetorial)" },
+                  { value: "pdf", label: "PDF (A4 para imprimir)" },
                 ]}
               />
               {format === "png" ? (
@@ -609,6 +610,19 @@ export function QrGenerator() {
                   ]}
                 />
               ) : null}
+              {format === "pdf" ? (
+                <div>
+                  <Label htmlFor="qr-pdf-size">Tamanho no PDF (10 a 190 mm)</Label>
+                  <Input
+                    id="qr-pdf-size"
+                    className="mt-2"
+                    inputMode="numeric"
+                    value={pdfSizeMm}
+                    onChange={(e) => setPdfSizeMm(e.target.value.replace(/\D/g, "").slice(0, 3))}
+                  />
+                </div>
+              ) : null}
+
             </div>
             {format === "png" && customSize ? (
               <div>
