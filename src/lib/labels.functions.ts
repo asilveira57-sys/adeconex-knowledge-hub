@@ -50,7 +50,7 @@ export const getLabelPricing = createServerFn({ method: "GET" }).handler(
   },
 );
 
-/** Produtos-base que podem receber personalização (etiquetas em branco). */
+/** Produtos-base marcados como personalizáveis no cadastro, com a ficha do mockup. */
 export const listCustomizableProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<CustomizableProduct[]> => {
     const client = createClient(
@@ -60,14 +60,36 @@ export const listCustomizableProducts = createServerFn({ method: "GET" }).handle
     );
     const { data } = await client
       .from("products")
-      .select("id, name, slug")
+      .select(
+        "id, name, slug, custom_shape, custom_width_mm, custom_height_mm, custom_corner_radius_mm, custom_columns, custom_rows, custom_gap_x_mm, custom_gap_y_mm, custom_margin_mm, custom_safe_margin_mm, custom_notes",
+      )
       .eq("is_available", true)
-      .ilike("name", "%etiqueta%")
+      .eq("is_customizable", true)
       .order("name", { ascending: true })
-      .limit(120);
-    return (data ?? []) as CustomizableProduct[];
+      .limit(200);
+    return (data ?? []).map(toSpec);
   },
 );
+
+function toSpec(p: any): ProductLabelSpec {
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    shape: (p.custom_shape ?? "rect") as LabelShape,
+    width_mm: Number(p.custom_width_mm ?? 100),
+    height_mm: Number(p.custom_height_mm ?? 50),
+    corner_radius_mm: p.custom_corner_radius_mm == null ? null : Number(p.custom_corner_radius_mm),
+    columns: Number(p.custom_columns ?? 1),
+    rows: Number(p.custom_rows ?? 1),
+    gap_x_mm: Number(p.custom_gap_x_mm ?? 3),
+    gap_y_mm: Number(p.custom_gap_y_mm ?? 3),
+    margin_mm: Number(p.custom_margin_mm ?? 2),
+    safe_margin_mm: Number(p.custom_safe_margin_mm ?? 2),
+    notes: p.custom_notes ?? null,
+  };
+}
+
 
 export const listMyDesigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
