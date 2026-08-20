@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CustomizationTab } from "@/components/admin/product/customization-tab";
 import { productEditorOptions } from "@/lib/admin.queries";
 import { BasicsTab } from "@/components/admin/product/basics-tab";
 import { MarketplacesTab } from "@/components/admin/product/marketplaces-tab";
@@ -156,6 +157,7 @@ function ProductEditorPage() {
           <TabsTrigger value="pricing">Preço &amp; Estoque</TabsTrigger>
           <TabsTrigger value="media">Mídia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="custom">Personalização</TabsTrigger>
           <TabsTrigger value="kits">Kits &amp; Frete</TabsTrigger>
           <TabsTrigger value="bundles">Compre Junto</TabsTrigger>
           <TabsTrigger value="badges">Selos</TabsTrigger>
@@ -182,6 +184,9 @@ function ProductEditorPage() {
         </TabsContent>
         <TabsContent value="seo" className="mt-4">
           <SeoTab product={product} images={data.images as any} redirects={data.redirects as any} />
+        </TabsContent>
+        <TabsContent value="custom" className="mt-4">
+          <CustomizationTab product={product} />
         </TabsContent>
         <TabsContent value="kits" className="mt-4 space-y-4">
           <DimensionsCard product={product} />

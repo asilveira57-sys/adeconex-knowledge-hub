@@ -901,3 +901,37 @@ export const updateProductMarketplace = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+// ============================================================================
+// Personalização (mockup da etiqueta)
+// ============================================================================
+
+const customizationInput = z.object({
+  productId: z.string().uuid(),
+  is_customizable: z.boolean(),
+  custom_shape: z.enum(["rect", "rounded", "circle", "oval"]),
+  custom_width_mm: z.number().min(5).max(600).nullable(),
+  custom_height_mm: z.number().min(5).max(600).nullable(),
+  custom_corner_radius_mm: z.number().min(0).max(100).nullable(),
+  custom_columns: z.number().int().min(1).max(24),
+  custom_rows: z.number().int().min(1).max(24),
+  custom_gap_x_mm: z.number().min(0).max(100),
+  custom_gap_y_mm: z.number().min(0).max(100),
+  custom_margin_mm: z.number().min(0).max(100),
+  custom_safe_margin_mm: z.number().min(0).max(50),
+  custom_notes: z.string().max(600).nullable(),
+});
+
+export const updateProductCustomization = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => customizationInput.parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    if (data.is_customizable && (!data.custom_width_mm || !data.custom_height_mm)) {
+      throw new Error("Informe largura e altura da etiqueta para permitir personalização");
+    }
+    const { productId, ...fields } = data;
+    const { error } = await context.supabase.from("products").update(fields).eq("id", productId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

@@ -14,7 +14,13 @@ import {
   listMyDesigns,
   saveDesign,
 } from "@/lib/labels.functions";
-import { emptyDesign, type LabelDesign, type LabelLayer } from "@/lib/labels/shared";
+import {
+  designFromSpec,
+  emptyDesign,
+  type LabelDesign,
+  type LabelLayer,
+  type LabelShape,
+} from "@/lib/labels/shared";
 
 export const Route = createFileRoute("/_authenticated/etiquetas/editor")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -62,6 +68,8 @@ function EditorPage() {
         base_product_id: found.base_product_id,
         width_mm: Number(found.width_mm),
         height_mm: Number(found.height_mm),
+        shape: (found.shape ?? "rect") as LabelShape,
+        corner_radius_mm: found.corner_radius_mm == null ? null : Number(found.corner_radius_mm),
         material: found.material,
         ribbon_color: found.ribbon_color,
         background_color: found.background_color,
@@ -73,7 +81,7 @@ function EditorPage() {
     if (produto) {
       const match = products.data?.find((p) => p.slug === produto || p.id === produto);
       if (!match) return;
-      setDesign((d) => ({ ...d, base_product_id: match.id, name: `Personalização — ${match.name}` }));
+      setDesign((d) => designFromSpec(match, d));
       setHydrated(true);
       return;
     }
@@ -151,6 +159,8 @@ function EditorPage() {
                       base_product_id: d.base_product_id,
                       width_mm: Number(d.width_mm),
                       height_mm: Number(d.height_mm),
+                      shape: (d.shape ?? "rect") as LabelShape,
+                      corner_radius_mm: d.corner_radius_mm == null ? null : Number(d.corner_radius_mm),
                       material: d.material,
                       ribbon_color: d.ribbon_color,
                       background_color: d.background_color,

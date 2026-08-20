@@ -421,6 +421,11 @@ export type ProductDetail = {
   /** Link para a loja oficial na Shopee (busca pelo título) — null quando desativado. */
   shopee_url: string | null;
   shopee_label: string;
+  /** Personalização habilitada no cadastro do produto. */
+  is_customizable: boolean;
+  custom_shape: string | null;
+  custom_width_mm: number | null;
+  custom_height_mm: number | null;
   shopee_alternatives: ShopeeAttempt[];
 };
 
@@ -463,7 +468,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
     const { data: p, error } = await supabaseAdmin
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status, published_at, ml_search_term, ml_url, ml_enabled, shopee_search_term, shopee_url, shopee_enabled",
+        "id, name, slug, sku, model, reference, price, promotional_price, is_available, stock_quantity, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, sells_by_kit, status, published_at, ml_search_term, ml_url, ml_enabled, shopee_search_term, shopee_url, shopee_enabled, is_customizable, custom_shape, custom_width_mm, custom_height_mm",
       )
       .eq("slug", data.slug)
       .maybeSingle();
@@ -616,6 +621,10 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       shopee_url: shopeeUrl(p as any, mlSettings),
       shopee_label: mlSettings.shopee_button_label,
       shopee_alternatives: shopeeUrlVariants(p as any, mlSettings).slice(1),
+      is_customizable: !!(p as any).is_customizable,
+      custom_shape: (p as any).custom_shape ?? null,
+      custom_width_mm: (p as any).custom_width_mm == null ? null : Number((p as any).custom_width_mm),
+      custom_height_mm: (p as any).custom_height_mm == null ? null : Number((p as any).custom_height_mm),
     };
   });
 

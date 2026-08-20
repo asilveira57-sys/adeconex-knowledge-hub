@@ -3,7 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { addDesignToCartSchema, designInputSchema } from "@/lib/labels/schema";
-import { unitPriceForQuantity, type LabelLayer, type PriceTier } from "@/lib/labels/shared";
+import {
+  unitPriceForQuantity,
+  type LabelLayer,
+  type LabelShape,
+  type PriceTier,
+  type ProductLabelSpec,
+} from "@/lib/labels/shared";
 
 export type SavedDesign = {
   id: string;
@@ -11,6 +17,8 @@ export type SavedDesign = {
   base_product_id: string | null;
   width_mm: number;
   height_mm: number;
+  shape: LabelShape;
+  corner_radius_mm: number | null;
   material: string;
   ribbon_color: string;
   background_color: string;
@@ -19,7 +27,8 @@ export type SavedDesign = {
   updated_at: string;
 };
 
-export type CustomizableProduct = { id: string; name: string; slug: string };
+export type CustomizableProduct = ProductLabelSpec;
+
 
 /** Faixas de preço da etiqueta personalizada (leitura pública). */
 export const getLabelPricing = createServerFn({ method: "GET" }).handler(
@@ -41,7 +50,7 @@ export const getLabelPricing = createServerFn({ method: "GET" }).handler(
   },
 );
 
-/** Produtos-base que podem receber personalização (etiquetas em branco). */
+/** Produtos-base marcados como personalizáveis no cadastro, com a ficha do mockup. */
 export const listCustomizableProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<CustomizableProduct[]> => {
     const client = createClient(
@@ -51,14 +60,36 @@ export const listCustomizableProducts = createServerFn({ method: "GET" }).handle
     );
     const { data } = await client
       .from("products")
-      .select("id, name, slug")
+      .select(
+        "id, name, slug, custom_shape, custom_width_mm, custom_height_mm, custom_corner_radius_mm, custom_columns, custom_rows, custom_gap_x_mm, custom_gap_y_mm, custom_margin_mm, custom_safe_margin_mm, custom_notes",
+      )
       .eq("is_available", true)
-      .ilike("name", "%etiqueta%")
+      .eq("is_customizable", true)
       .order("name", { ascending: true })
-      .limit(120);
-    return (data ?? []) as CustomizableProduct[];
+      .limit(200);
+    return (data ?? []).map(toSpec);
   },
 );
+
+function toSpec(p: any): ProductLabelSpec {
+  return {
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    shape: (p.custom_shape ?? "rect") as LabelShape,
+    width_mm: Number(p.custom_width_mm ?? 100),
+    height_mm: Number(p.custom_height_mm ?? 50),
+    corner_radius_mm: p.custom_corner_radius_mm == null ? null : Number(p.custom_corner_radius_mm),
+    columns: Number(p.custom_columns ?? 1),
+    rows: Number(p.custom_rows ?? 1),
+    gap_x_mm: Number(p.custom_gap_x_mm ?? 3),
+    gap_y_mm: Number(p.custom_gap_y_mm ?? 3),
+    margin_mm: Number(p.custom_margin_mm ?? 2),
+    safe_margin_mm: Number(p.custom_safe_margin_mm ?? 2),
+    notes: p.custom_notes ?? null,
+  };
+}
+
 
 export const listMyDesigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -66,7 +97,7 @@ export const listMyDesigns = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("label_designs")
       .select(
-        "id, name, base_product_id, width_mm, height_mm, material, ribbon_color, background_color, layout, thumbnail, updated_at",
+        "id, name, base_product_id, width_mm, height_mm, shape, corner_radius_mm, material, ribbon_color, background_color, layout, thumbnail, updated_at",
       )
       .eq("user_id", context.userId)
       .order("updated_at", { ascending: false });
@@ -84,6 +115,8 @@ export const saveDesign = createServerFn({ method: "POST" })
       base_product_id: data.base_product_id ?? null,
       width_mm: data.width_mm,
       height_mm: data.height_mm,
+      shape: data.shape ?? "rect",
+      corner_radius_mm: data.corner_radius_mm ?? null,
       material: data.material,
       ribbon_color: data.ribbon_color,
       background_color: data.background_color,
@@ -132,7 +165,7 @@ export const addDesignToCart = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { data: design, error: designErr } = await context.supabase
       .from("label_designs")
-      .select("id, name, base_product_id, width_mm, height_mm, material, ribbon_color")
+      .select("id, name, base_product_id, width_mm, height_mm, shape, corner_radius_mm, material, ribbon_color")
       .eq("id", data.design_id)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -184,6 +217,7 @@ export const addDesignToCart = createServerFn({ method: "POST" })
         design_name: design.name,
         width_mm: Number(design.width_mm),
         height_mm: Number(design.height_mm),
+        shape: design.shape,
         material: design.material,
         ribbon_color: design.ribbon_color,
       },
