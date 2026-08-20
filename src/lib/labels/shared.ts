@@ -181,6 +181,8 @@ export function emptyDesign(): LabelDesign {
     base_product_id: null,
     width_mm: 100,
     height_mm: 50,
+    shape: "rect",
+    corner_radius_mm: null,
     material: "couche_branco",
     ribbon_color: "#111111",
     background_color: materialBackground("couche_branco"),
