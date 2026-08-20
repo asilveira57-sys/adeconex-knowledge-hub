@@ -56,7 +56,17 @@ function track(event: string, params: Record<string, string | number | boolean> 
   w.dataLayer.push({ event: `qrcode_${event}`, tool: "gerador-qrcode", ...params });
 }
 
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Falha ao processar a imagem."));
+    reader.readAsDataURL(blob);
+  });
+}
+
 function useDebounced<T>(value: T, delay = 250): T {
+
   const [v, setV] = useState(value);
   useEffect(() => {
     const t = setTimeout(() => setV(value), delay);
