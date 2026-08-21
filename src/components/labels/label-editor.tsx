@@ -74,7 +74,7 @@ export function LabelEditor({
   canAddToCart,
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showMockup, setShowMockup] = useState(false);
+  const [showMockup, setShowMockup] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const spec = products.find((p) => p.id === design.base_product_id) ?? null;
