@@ -218,7 +218,7 @@ function EditorPage() {
       <LabelEditor
         design={design}
         onChange={setDesign}
-        products={products.data ?? []}
+        products={productList}
         tiers={tiers.data ?? []}
         quantity={quantity}
         onQuantityChange={setQuantity}
