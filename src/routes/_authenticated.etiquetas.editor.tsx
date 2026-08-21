@@ -9,6 +9,7 @@ import { LabelEditor } from "@/components/labels/label-editor";
 import {
   addDesignToCart,
   deleteDesign,
+  getCustomizableProduct,
   getLabelPricing,
   listCustomizableProducts,
   listMyDesigns,
