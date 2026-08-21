@@ -295,6 +295,37 @@ export function LabelEditor({
 
       {/* Área de edição */}
       <section className="space-y-4">
+        {spec && (
+          <div className="rounded-lg border hairline bg-card p-4">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+              Personalizando
+            </p>
+            <p className="mt-1 font-medium">{spec.name}</p>
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
+              <div>
+                <dt className="text-muted-foreground">Formato</dt>
+                <dd className="font-medium">{SHAPE_LABELS[spec.shape]}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Medidas</dt>
+                <dd className="font-medium">{spec.width_mm} × {spec.height_mm} mm</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Colunas × linhas</dt>
+                <dd className="font-medium">{spec.columns} × {spec.rows}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">Espaçamento</dt>
+                <dd className="font-medium">{spec.gap_x_mm} / {spec.gap_y_mm} mm</dd>
+              </div>
+            </dl>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Margem do material {spec.margin_mm} mm · margem de segurança {spec.safe_margin_mm} mm
+              {spec.corner_radius_mm ? ` · raio de canto ${spec.corner_radius_mm} mm` : ""}.
+              {spec.notes ? ` ${spec.notes}` : ""}
+            </p>
+          </div>
+        )}
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
