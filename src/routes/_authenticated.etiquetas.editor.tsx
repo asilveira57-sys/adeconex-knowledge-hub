@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -14,10 +14,12 @@ import {
   listCustomizableProducts,
   listMyDesigns,
   saveDesign,
+  type SavedDesign,
 } from "@/lib/labels.functions";
 import {
   designFromSpec,
   emptyDesign,
+  SHAPE_LABELS,
   type LabelDesign,
   type LabelLayer,
   type LabelShape,
@@ -37,6 +39,38 @@ export const Route = createFileRoute("/_authenticated/etiquetas/editor")({
   component: EditorPage,
 });
 
+const DRAFT_KEY = "adeconex:label-draft";
+
+type Draft = { design: LabelDesign; specKey: string | null; quantity: number; savedAt: string };
+
+function readDraft(): Draft | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Draft;
+    return parsed?.design ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function designFromSaved(d: SavedDesign): LabelDesign {
+  return {
+    id: d.id,
+    name: d.name,
+    base_product_id: d.base_product_id,
+    width_mm: Number(d.width_mm),
+    height_mm: Number(d.height_mm),
+    shape: (d.shape ?? "rect") as LabelShape,
+    corner_radius_mm: d.corner_radius_mm == null ? null : Number(d.corner_radius_mm),
+    material: d.material,
+    ribbon_color: d.ribbon_color,
+    background_color: d.background_color,
+    layout: (d.layout ?? []) as LabelLayer[],
+  };
+}
+
 function EditorPage() {
   const { design: designId, produto } = Route.useSearch();
   const navigate = useNavigate();
@@ -53,43 +87,40 @@ function EditorPage() {
   const tiers = useQuery({ queryKey: ["label-pricing"], queryFn: () => pricingFn(), staleTime: 300_000 });
   const products = useQuery({ queryKey: ["label-products"], queryFn: () => productsFn(), staleTime: 300_000 });
   const designs = useQuery({ queryKey: ["label-designs"], queryFn: () => designsFn() });
-  const baseProduct = useQuery({
-    queryKey: ["label-product", produto],
-    queryFn: () => productFn({ data: { slug: produto! } }),
-    enabled: !!produto,
-    staleTime: 300_000,
-  });
 
   const [design, setDesign] = useState<LabelDesign>(() => emptyDesign());
   const [quantity, setQuantity] = useState(1000);
   const [hydrated, setHydrated] = useState(false);
+  // Slug (URL) ou id do produto-base — garante que a ficha (grade/espaçamentos) volte junto
+  const [specKey, setSpecKey] = useState<string | null>(produto ?? null);
+  const [draft, setDraft] = useState<Draft | null>(null);
 
-  // Lista de etiquetas-base + a ficha do produto vindo da URL (pode não estar na lista)
+  const baseProduct = useQuery({
+    queryKey: ["label-product", specKey],
+    queryFn: () => productFn({ data: { slug: specKey! } }),
+    enabled: !!specKey,
+    staleTime: 300_000,
+  });
+
+  // Lista de etiquetas-base + a ficha do produto atual (pode não estar na lista)
   const productList = useMemo(() => {
     const list = products.data ?? [];
     const extra = baseProduct.data;
     return extra && !list.some((p) => p.id === extra.id) ? [extra, ...list] : list;
   }, [products.data, baseProduct.data]);
 
-  // Carrega modelo salvo ou pré-configura o editor com a ficha do produto escolhido
+  const loadSaved = useCallback((d: SavedDesign) => {
+    setDesign(designFromSaved(d));
+    setSpecKey(d.base_product_id ?? null);
+  }, []);
+
+  // Carrega modelo salvo, rascunho local ou pré-configura pela ficha do produto da URL
   useEffect(() => {
     if (hydrated) return;
     if (designId) {
       const found = designs.data?.find((d) => d.id === designId);
       if (!found) return;
-      setDesign({
-        id: found.id,
-        name: found.name,
-        base_product_id: found.base_product_id,
-        width_mm: Number(found.width_mm),
-        height_mm: Number(found.height_mm),
-        shape: (found.shape ?? "rect") as LabelShape,
-        corner_radius_mm: found.corner_radius_mm == null ? null : Number(found.corner_radius_mm),
-        material: found.material,
-        ribbon_color: found.ribbon_color,
-        background_color: found.background_color,
-        layout: (found.layout ?? []) as LabelLayer[],
-      });
+      loadSaved(found);
       setHydrated(true);
       return;
     }
@@ -100,8 +131,41 @@ function EditorPage() {
       setHydrated(true);
       return;
     }
+    setDraft(readDraft());
     setHydrated(true);
-  }, [designId, produto, designs.data, baseProduct.data, baseProduct.isPending, hydrated]);
+  }, [designId, produto, designs.data, baseProduct.data, baseProduct.isPending, hydrated, loadSaved]);
+
+  // Rascunho automático no navegador (não perde a arte ao fechar a aba)
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const payload: Draft = { design, specKey, quantity, savedAt: new Date().toISOString() };
+      try {
+        window.localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+      } catch {
+        /* quota — ignora */
+      }
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [design, specKey, quantity, hydrated]);
+
+  function restoreDraft() {
+    if (!draft) return;
+    setDesign(draft.design);
+    setSpecKey(draft.specKey);
+    setQuantity(draft.quantity || 1000);
+    setDraft(null);
+    toast.success("Rascunho restaurado com as mesmas medidas e formato");
+  }
+
+  function discardDraft() {
+    if (typeof window !== "undefined") window.localStorage.removeItem(DRAFT_KEY);
+    setDraft(null);
+  }
 
   const missingProduct = !!produto && !baseProduct.isPending && !baseProduct.data;
 
@@ -113,7 +177,7 @@ function EditorPage() {
     onSuccess: (id) => {
       setDesign((d) => ({ ...d, id }));
       qc.invalidateQueries({ queryKey: ["label-designs"] });
-      toast.success("Modelo salvo");
+      toast.success("Rascunho salvo — você pode voltar depois e continuar de onde parou");
     },
     onError: (e: Error) => toast.error(e.message || "Não foi possível salvar"),
   });
@@ -127,6 +191,7 @@ function EditorPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["cart", "me"] });
       qc.invalidateQueries({ queryKey: ["label-designs"] });
+      discardDraft();
       toast.success("Etiqueta personalizada adicionada ao carrinho");
       navigate({ to: "/carrinho" });
     },
@@ -137,7 +202,7 @@ function EditorPage() {
     mutationFn: (id: string) => deleteFn({ data: { id } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["label-designs"] });
-      toast.success("Modelo excluído");
+      toast.success("Rascunho excluído");
     },
     onError: (e: Error) => toast.error(e.message || "Não foi possível excluir"),
   });
@@ -150,7 +215,8 @@ function EditorPage() {
             Editor de etiqueta personalizada
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monte a arte, escolha material e cor do ribbon, salve e finalize com frete no carrinho.
+            Monte a arte, salve como rascunho e volte depois — medidas, formato, grade e espaçamentos
+            voltam exatamente como estavam.
           </p>
         </div>
         <Button variant="ghost" asChild>
@@ -170,36 +236,48 @@ function EditorPage() {
         </div>
       )}
 
+      {draft && (
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border hairline bg-card p-4 text-sm">
+          <div>
+            <p className="font-medium">Rascunho não salvo encontrado neste navegador</p>
+            <p className="text-muted-foreground">
+              “{draft.design.name}” · {draft.design.width_mm} × {draft.design.height_mm} mm ·{" "}
+              {SHAPE_LABELS[draft.design.shape]} ·{" "}
+              {new Date(draft.savedAt).toLocaleString("pt-BR")}
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={restoreDraft}>
+              Continuar rascunho
+            </Button>
+            <Button size="sm" variant="ghost" onClick={discardDraft}>
+              Descartar
+            </Button>
+          </div>
+        </div>
+      )}
 
       {(designs.data?.length ?? 0) > 0 && (
         <section className="mb-8 rounded-lg border hairline bg-card p-4">
           <h2 className="mb-3 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
-            Meus modelos salvos
+            Meus rascunhos salvos
           </h2>
           <ul className="flex flex-wrap gap-2">
             {designs.data!.map((d) => (
-              <li key={d.id} className="flex items-center gap-1 rounded-md border hairline px-2 py-1">
+              <li key={d.id} className="flex items-center gap-2 rounded-md border hairline px-2 py-1">
                 <button
                   type="button"
-                  className="text-sm hover:text-primary"
+                  className="text-left text-sm hover:text-primary"
                   onClick={() => {
-                    setDesign({
-                      id: d.id,
-                      name: d.name,
-                      base_product_id: d.base_product_id,
-                      width_mm: Number(d.width_mm),
-                      height_mm: Number(d.height_mm),
-                      shape: (d.shape ?? "rect") as LabelShape,
-                      corner_radius_mm: d.corner_radius_mm == null ? null : Number(d.corner_radius_mm),
-                      material: d.material,
-                      ribbon_color: d.ribbon_color,
-                      background_color: d.background_color,
-                      layout: (d.layout ?? []) as LabelLayer[],
-                    });
-                    toast.success(`Modelo “${d.name}” carregado`);
+                    loadSaved(d);
+                    toast.success(`Rascunho “${d.name}” carregado`);
                   }}
                 >
-                  {d.name}
+                  <span className="block">{d.name}</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    {Number(d.width_mm)} × {Number(d.height_mm)} mm ·{" "}
+                    {SHAPE_LABELS[(d.shape ?? "rect") as LabelShape]}
+                  </span>
                 </button>
                 <button
                   type="button"
