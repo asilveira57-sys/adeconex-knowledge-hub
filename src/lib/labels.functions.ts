@@ -50,19 +50,17 @@ export const getLabelPricing = createServerFn({ method: "GET" }).handler(
   },
 );
 
+const SPEC_COLUMNS =
+  "id, name, slug, custom_shape, custom_width_mm, custom_height_mm, custom_corner_radius_mm, custom_columns, custom_rows, custom_gap_x_mm, custom_gap_y_mm, custom_margin_mm, custom_safe_margin_mm, custom_notes";
+
 /** Produtos-base marcados como personalizáveis no cadastro, com a ficha do mockup. */
 export const listCustomizableProducts = createServerFn({ method: "GET" }).handler(
   async (): Promise<CustomizableProduct[]> => {
-    const client = createClient(
-      process.env["SUPABASE_URL"]!,
-      process.env["SUPABASE_PUBLISHABLE_KEY"]!,
-      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-    );
-    const { data } = await client
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
       .from("products")
-      .select(
-        "id, name, slug, custom_shape, custom_width_mm, custom_height_mm, custom_corner_radius_mm, custom_columns, custom_rows, custom_gap_x_mm, custom_gap_y_mm, custom_margin_mm, custom_safe_margin_mm, custom_notes",
-      )
+      .select(SPEC_COLUMNS)
+      .in("status", ["enriched", "published"])
       .eq("is_available", true)
       .eq("is_customizable", true)
       .order("name", { ascending: true })
@@ -70,6 +68,23 @@ export const listCustomizableProducts = createServerFn({ method: "GET" }).handle
     return (data ?? []).map(toSpec);
   },
 );
+
+/** Ficha de personalização de um único produto (slug ou id vindo da página do produto). */
+export const getCustomizableProduct = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) =>
+    z.object({ slug: z.string().min(1).max(200) }).parse(data),
+  )
+  .handler(async ({ data }): Promise<CustomizableProduct | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.slug);
+    const { data: row } = await supabaseAdmin
+      .from("products")
+      .select(SPEC_COLUMNS)
+      .eq(isUuid ? "id" : "slug", data.slug)
+      .eq("is_customizable", true)
+      .maybeSingle();
+    return row ? toSpec(row) : null;
+  });
 
 function toSpec(p: any): ProductLabelSpec {
   return {

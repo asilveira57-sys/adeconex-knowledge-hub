@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { LabelEditor } from "@/components/labels/label-editor";
 import {
   addDesignToCart,
   deleteDesign,
+  getCustomizableProduct,
   getLabelPricing,
   listCustomizableProducts,
   listMyDesigns,
@@ -43,6 +44,7 @@ function EditorPage() {
 
   const pricingFn = useServerFn(getLabelPricing);
   const productsFn = useServerFn(listCustomizableProducts);
+  const productFn = useServerFn(getCustomizableProduct);
   const designsFn = useServerFn(listMyDesigns);
   const saveFn = useServerFn(saveDesign);
   const deleteFn = useServerFn(deleteDesign);
@@ -51,12 +53,25 @@ function EditorPage() {
   const tiers = useQuery({ queryKey: ["label-pricing"], queryFn: () => pricingFn(), staleTime: 300_000 });
   const products = useQuery({ queryKey: ["label-products"], queryFn: () => productsFn(), staleTime: 300_000 });
   const designs = useQuery({ queryKey: ["label-designs"], queryFn: () => designsFn() });
+  const baseProduct = useQuery({
+    queryKey: ["label-product", produto],
+    queryFn: () => productFn({ data: { slug: produto! } }),
+    enabled: !!produto,
+    staleTime: 300_000,
+  });
 
   const [design, setDesign] = useState<LabelDesign>(() => emptyDesign());
   const [quantity, setQuantity] = useState(1000);
   const [hydrated, setHydrated] = useState(false);
 
-  // Carrega modelo salvo ou pré-seleciona o produto vindo da página do produto
+  // Lista de etiquetas-base + a ficha do produto vindo da URL (pode não estar na lista)
+  const productList = useMemo(() => {
+    const list = products.data ?? [];
+    const extra = baseProduct.data;
+    return extra && !list.some((p) => p.id === extra.id) ? [extra, ...list] : list;
+  }, [products.data, baseProduct.data]);
+
+  // Carrega modelo salvo ou pré-configura o editor com a ficha do produto escolhido
   useEffect(() => {
     if (hydrated) return;
     if (designId) {
@@ -79,14 +94,16 @@ function EditorPage() {
       return;
     }
     if (produto) {
-      const match = products.data?.find((p) => p.slug === produto || p.id === produto);
-      if (!match) return;
-      setDesign((d) => designFromSpec(match, d));
+      if (baseProduct.isPending) return;
+      const match = baseProduct.data;
+      if (match) setDesign((d) => designFromSpec(match, d));
       setHydrated(true);
       return;
     }
     setHydrated(true);
-  }, [designId, produto, designs.data, products.data, hydrated]);
+  }, [designId, produto, designs.data, baseProduct.data, baseProduct.isPending, hydrated]);
+
+  const missingProduct = !!produto && !baseProduct.isPending && !baseProduct.data;
 
   const save = useMutation({
     mutationFn: async () => {
@@ -141,6 +158,19 @@ function EditorPage() {
         </Button>
       </header>
 
+      {missingProduct && (
+        <div className="mb-8 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <p className="font-medium">Esta etiqueta não está habilitada para personalização.</p>
+          <p className="mt-1 text-muted-foreground">
+            Escolha uma etiqueta-base abaixo ou volte ao catálogo para selecionar outro produto.
+          </p>
+          <Button variant="outline" size="sm" className="mt-3" asChild>
+            <Link to="/catalogo">Ver catálogo</Link>
+          </Button>
+        </div>
+      )}
+
+
       {(designs.data?.length ?? 0) > 0 && (
         <section className="mb-8 rounded-lg border hairline bg-card p-4">
           <h2 className="mb-3 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
@@ -188,7 +218,7 @@ function EditorPage() {
       <LabelEditor
         design={design}
         onChange={setDesign}
-        products={products.data ?? []}
+        products={productList}
         tiers={tiers.data ?? []}
         quantity={quantity}
         onQuantityChange={setQuantity}
