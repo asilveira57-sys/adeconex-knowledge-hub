@@ -158,6 +158,19 @@ function EditorPage() {
         </Button>
       </header>
 
+      {missingProduct && (
+        <div className="mb-8 rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm">
+          <p className="font-medium">Esta etiqueta não está habilitada para personalização.</p>
+          <p className="mt-1 text-muted-foreground">
+            Escolha uma etiqueta-base abaixo ou volte ao catálogo para selecionar outro produto.
+          </p>
+          <Button variant="outline" size="sm" className="mt-3" asChild>
+            <Link to="/catalogo">Ver catálogo</Link>
+          </Button>
+        </div>
+      )}
+
+
       {(designs.data?.length ?? 0) > 0 && (
         <section className="mb-8 rounded-lg border hairline bg-card p-4">
           <h2 className="mb-3 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
