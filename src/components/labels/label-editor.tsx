@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Trash2,
   Type as TypeIcon,
+  Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import {
   RIBBON_COLORS,
   SHAPE_LABELS,
   designFromSpec,
+  fitLayoutToLabel,
   materialBackground,
   newLayerId,
   unitPriceForQuantity,
@@ -78,6 +80,7 @@ export function LabelEditor({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const spec = products.find((p) => p.id === design.base_product_id) ?? null;
+  const safeMargin = spec?.safe_margin_mm ?? 0;
 
   const selected = design.layout.find((l) => l.id === selectedId) ?? null;
   const scale = useMemo(() => {
@@ -91,6 +94,12 @@ export function LabelEditor({
 
   function patch(next: Partial<LabelDesign>) {
     onChange({ ...design, ...next });
+  }
+
+  /** Ao mudar medidas/formato, reajusta a arte para continuar dentro da área útil. */
+  function resize(next: Partial<LabelDesign>) {
+    const merged = { ...design, ...next };
+    onChange({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
   }
 
   function addLayer(layer: LabelLayer) {
@@ -246,7 +255,10 @@ export function LabelEditor({
                         }
                       : {}),
                   };
-                  onChange(next);
+                  onChange({
+                    ...next,
+                    layout: fitLayoutToLabel(next.layout, next, safeMargin),
+                  });
                   setSelectedId(null);
                   toast.success(`Modelo “${t.name}” carregado`);
                 }}
@@ -329,7 +341,7 @@ export function LabelEditor({
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
-            safeMarginMm={spec?.safe_margin_mm ?? 0}
+            safeMarginMm={safeMargin}
             scale={scale}
             selectedId={selectedId}
             onSelect={setSelectedId}
