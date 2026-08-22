@@ -195,6 +195,25 @@ export function LabelEditor({
     return () => window.removeEventListener("keydown", onKeyDown);
   });
 
+  /** Reaplica a conversão para preto a partir da imagem original enviada. */
+  async function applyBlack(id: string, threshold: number) {
+    const layer = design.layout.find((l) => l.id === id);
+    if (!layer || layer.kind !== "image") return;
+    const source = originals.current.get(id) ?? layer.dataUrl;
+    if (source.startsWith("data:image/svg+xml")) {
+      toast.info("SVG já é vetor: envie em traço preto para impressão em 1 cor.");
+      return;
+    }
+    originals.current.set(id, source);
+    try {
+      const dataUrl = await binarizeImage(source, threshold);
+      patchLayer(id, { dataUrl } as Partial<LabelLayer>);
+    } catch {
+      toast.error("Não foi possível converter a imagem.");
+    }
+  }
+
+
   async function handleImage(file: File) {
     if (!file.type.startsWith("image/")) {
       toast.error("Envie um arquivo de imagem (PNG, JPG ou SVG).");
