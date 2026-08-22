@@ -565,7 +565,7 @@ export function LabelEditor({
                 type="number"
                 disabled={!!spec}
                 value={design.width_mm}
-                onChange={(e) => patch({ width_mm: clamp(Number(e.target.value), 10, 400) })}
+                onChange={(e) => resize({ width_mm: clamp(Number(e.target.value), 10, 400) })}
               />
             </div>
             <div>
@@ -575,10 +575,24 @@ export function LabelEditor({
                 type="number"
                 disabled={!!spec}
                 value={design.height_mm}
-                onChange={(e) => patch({ height_mm: clamp(Number(e.target.value), 10, 400) })}
+                onChange={(e) => resize({ height_mm: clamp(Number(e.target.value), 10, 400) })}
               />
             </div>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            disabled={design.layout.length === 0}
+            onClick={() => {
+              onChange({ ...design, layout: fitLayoutToLabel(design.layout, design, safeMargin) });
+              toast.success("Arte ajustada à área útil da etiqueta");
+            }}
+          >
+            <Wand2 className="mr-1.5 h-4 w-4" /> Ajustar arte automaticamente
+          </Button>
+
           <div className="rounded-md bg-surface-2 p-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">Formato: {SHAPE_LABELS[design.shape]}</span>
             {spec ? (
