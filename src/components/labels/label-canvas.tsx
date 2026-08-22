@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { buildMatrix, renderSvg, DEFAULT_STYLE } from "@/lib/qr/render";
-import { shapeRadiusCss, type LabelDesign, type LabelLayer } from "@/lib/labels/shared";
+import { shapeRadiusCss, layerBoxHeight, type LabelDesign, type LabelLayer } from "@/lib/labels/shared";
 
 /** 1 pt = 0,3528 mm */
 const PT_TO_MM = 25.4 / 72;
@@ -13,6 +13,8 @@ type Props = {
   selectedId?: string | null;
   onSelect?: (id: string | null) => void;
   onMove?: (id: string, x: number, y: number) => void;
+  /** redimensionamento por alça (estilo Canva) */
+  onResize?: (id: string, patch: Partial<LabelLayer>) => void;
   /** margem de segurança (mm) exibida como guia tracejada */
   safeMarginMm?: number;
   className?: string;
@@ -25,23 +27,44 @@ export function LabelCanvas({
   selectedId,
   onSelect,
   onMove,
+  onResize,
   safeMarginMm = 0,
   className,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<{ id: string; startX: number; startY: number; ox: number; oy: number } | null>(null);
+  const resize = useRef<
+    { layer: LabelLayer; startX: number; startY: number; w: number; h: number } | null
+  >(null);
 
   useEffect(() => {
-    if (!onMove) return;
     function onPointerMove(e: PointerEvent) {
+      const r = resize.current;
+      if (r && onResize) {
+        const dx = (e.clientX - r.startX) / scale;
+        const dy = (e.clientY - r.startY) / scale;
+        const w = Math.max(3, round(r.w + dx));
+        const l = r.layer;
+        if (l.kind === "text") {
+          const factor = w / Math.max(1, r.w);
+          onResize(l.id, { w, fontSize: Math.min(200, Math.max(3, round(l.fontSize * factor))) } as Partial<LabelLayer>);
+        } else if (l.kind === "qrcode") {
+          onResize(l.id, { w } as Partial<LabelLayer>);
+        } else {
+          const h = Math.max(3, round(r.h + dy));
+          onResize(l.id, { w, h } as Partial<LabelLayer>);
+        }
+        return;
+      }
       const d = drag.current;
-      if (!d) return;
+      if (!d || !onMove) return;
       const dx = (e.clientX - d.startX) / scale;
       const dy = (e.clientY - d.startY) / scale;
-      onMove!(d.id, round(d.ox + dx), round(d.oy + dy));
+      onMove(d.id, round(d.ox + dx), round(d.oy + dy));
     }
     function onPointerUp() {
       drag.current = null;
+      resize.current = null;
     }
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
@@ -49,7 +72,7 @@ export function LabelCanvas({
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
     };
-  }, [onMove, scale]);
+  }, [onMove, onResize, scale]);
 
   const radius = shapeRadiusCss(design.shape, design.corner_radius_mm, scale);
 
@@ -105,11 +128,33 @@ export function LabelCanvas({
           }}
         >
           <LayerContent layer={layer} scale={scale} color={design.ribbon_color} />
+
+          {onResize && selectedId === layer.id && (
+            <span
+              role="presentation"
+              title="Arraste para redimensionar"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                drag.current = null;
+                resize.current = {
+                  layer,
+                  startX: e.clientX,
+                  startY: e.clientY,
+                  w: layer.w,
+                  h: layerBoxHeight(layer),
+                };
+              }}
+              className="absolute -bottom-1.5 -right-1.5 h-3 w-3 cursor-nwse-resize rounded-full border-2 border-primary bg-background"
+              style={{ top: layerBoxHeight(layer) * scale - 6, bottom: "auto" }}
+            />
+          )}
         </div>
       ))}
     </div>
   );
 }
+
 
 function round(v: number) {
   return Math.round(v * 10) / 10;
