@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Trash2,
   Type as TypeIcon,
+  Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ import {
   RIBBON_COLORS,
   SHAPE_LABELS,
   designFromSpec,
+  fitLayoutToLabel,
   materialBackground,
   newLayerId,
   unitPriceForQuantity,
@@ -78,6 +80,7 @@ export function LabelEditor({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const spec = products.find((p) => p.id === design.base_product_id) ?? null;
+  const safeMargin = spec?.safe_margin_mm ?? 0;
 
   const selected = design.layout.find((l) => l.id === selectedId) ?? null;
   const scale = useMemo(() => {
@@ -91,6 +94,12 @@ export function LabelEditor({
 
   function patch(next: Partial<LabelDesign>) {
     onChange({ ...design, ...next });
+  }
+
+  /** Ao mudar medidas/formato, reajusta a arte para continuar dentro da área útil. */
+  function resize(next: Partial<LabelDesign>) {
+    const merged = { ...design, ...next };
+    onChange({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
   }
 
   function addLayer(layer: LabelLayer) {
@@ -246,7 +255,10 @@ export function LabelEditor({
                         }
                       : {}),
                   };
-                  onChange(next);
+                  onChange({
+                    ...next,
+                    layout: fitLayoutToLabel(next.layout, next, safeMargin),
+                  });
                   setSelectedId(null);
                   toast.success(`Modelo “${t.name}” carregado`);
                 }}
@@ -329,7 +341,7 @@ export function LabelEditor({
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
-            safeMarginMm={spec?.safe_margin_mm ?? 0}
+            safeMarginMm={safeMargin}
             scale={scale}
             selectedId={selectedId}
             onSelect={setSelectedId}
@@ -565,7 +577,7 @@ export function LabelEditor({
                 type="number"
                 disabled={!!spec}
                 value={design.width_mm}
-                onChange={(e) => patch({ width_mm: clamp(Number(e.target.value), 10, 400) })}
+                onChange={(e) => resize({ width_mm: clamp(Number(e.target.value), 10, 400) })}
               />
             </div>
             <div>
@@ -575,10 +587,24 @@ export function LabelEditor({
                 type="number"
                 disabled={!!spec}
                 value={design.height_mm}
-                onChange={(e) => patch({ height_mm: clamp(Number(e.target.value), 10, 400) })}
+                onChange={(e) => resize({ height_mm: clamp(Number(e.target.value), 10, 400) })}
               />
             </div>
           </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            disabled={design.layout.length === 0}
+            onClick={() => {
+              onChange({ ...design, layout: fitLayoutToLabel(design.layout, design, safeMargin) });
+              toast.success("Arte ajustada à área útil da etiqueta");
+            }}
+          >
+            <Wand2 className="mr-1.5 h-4 w-4" /> Ajustar arte automaticamente
+          </Button>
+
           <div className="rounded-md bg-surface-2 p-3 text-xs text-muted-foreground">
             <span className="font-medium text-foreground">Formato: {SHAPE_LABELS[design.shape]}</span>
             {spec ? (
