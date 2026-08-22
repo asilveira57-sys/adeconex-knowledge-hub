@@ -643,7 +643,32 @@ export function LabelEditor({
                     onChange={(e) => patchLayer(selected.id, { h: clamp(Number(e.target.value), 5, design.height_mm) })}
                   />
                 </div>
+                <div className="sm:col-span-2 rounded-md bg-surface-2 p-3">
+                  <Label className="text-xs">Conversão para preto (impressão em 1 cor)</Label>
+                  <Slider
+                    className="mt-3"
+                    min={40}
+                    max={240}
+                    step={5}
+                    value={[imageThreshold]}
+                    onValueChange={(v) => setImageThreshold(v[0] ?? 160)}
+                    onValueCommit={(v) => void applyBlack(selected.id, v[0] ?? 160)}
+                  />
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      Limiar {imageThreshold} — quanto maior, mais áreas viram preto.
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void applyBlack(selected.id, imageThreshold)}
+                    >
+                      <ImageIcon className="mr-1.5 h-4 w-4" /> Deixar a imagem preta
+                    </Button>
+                  </div>
+                </div>
               </div>
+
             )}
 
             <div className="mt-4 flex justify-end">
