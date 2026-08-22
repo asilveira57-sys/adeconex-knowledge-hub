@@ -1,13 +1,15 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Barcode,
   Image as ImageIcon,
   Info,
   QrCode,
+  Redo2,
   Save,
   ShoppingCart,
   Trash2,
   Type as TypeIcon,
+  Undo2,
   Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -77,7 +80,14 @@ export function LabelEditor({
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showMockup, setShowMockup] = useState(true);
+  const [past, setPast] = useState<LabelDesign[]>([]);
+  const [future, setFuture] = useState<LabelDesign[]>([]);
+  const [imageThreshold, setImageThreshold] = useState(160);
+
+  const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
+  /** imagens originais (antes da conversão para preto), por camada */
+  const originals = useRef<Map<string, string>>(new Map());
 
   const spec = products.find((p) => p.id === design.base_product_id) ?? null;
   const safeMargin = spec?.safe_margin_mm ?? 0;
@@ -92,32 +102,117 @@ export function LabelEditor({
   const unitPrice = unitPriceForQuantity(tiers, quantity);
   const total = unitPrice * quantity;
 
+  /** Aplica uma mudança registrando o estado anterior no histórico (Desfazer). */
+  const commit = useCallback(
+    (next: LabelDesign, tag = "") => {
+      const now = Date.now();
+      const coalesce = !!tag && lastPush.current.tag === tag && now - lastPush.current.at < 700;
+      lastPush.current = { tag, at: now };
+      if (!coalesce) setPast((p) => [...p.slice(-49), design]);
+      setFuture([]);
+      onChange(next);
+    },
+    [design, onChange],
+  );
+
+  const undo = useCallback(() => {
+    setPast((p) => {
+      if (p.length === 0) return p;
+      const prev = p[p.length - 1];
+      setFuture((f) => [design, ...f].slice(0, 50));
+      lastPush.current = { tag: "", at: 0 };
+      onChange(prev);
+      return p.slice(0, -1);
+    });
+  }, [design, onChange]);
+
+  const redo = useCallback(() => {
+    setFuture((f) => {
+      if (f.length === 0) return f;
+      const next = f[0];
+      setPast((p) => [...p, design]);
+      lastPush.current = { tag: "", at: 0 };
+      onChange(next);
+      return f.slice(1);
+    });
+  }, [design, onChange]);
+
   function patch(next: Partial<LabelDesign>) {
-    onChange({ ...design, ...next });
+    commit({ ...design, ...next });
   }
 
   /** Ao mudar medidas/formato, reajusta a arte para continuar dentro da área útil. */
   function resize(next: Partial<LabelDesign>) {
     const merged = { ...design, ...next };
-    onChange({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
+    commit({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
   }
 
   function addLayer(layer: LabelLayer) {
-    onChange({ ...design, layout: [...design.layout, layer] });
+    commit({ ...design, layout: [...design.layout, layer] });
     setSelectedId(layer.id);
   }
 
-  function patchLayer(id: string, next: Partial<LabelLayer>) {
-    onChange({
-      ...design,
-      layout: design.layout.map((l) => (l.id === id ? ({ ...l, ...next } as LabelLayer) : l)),
-    });
+  function patchLayer(id: string, next: Partial<LabelLayer>, tag = "") {
+    commit(
+      {
+        ...design,
+        layout: design.layout.map((l) => (l.id === id ? ({ ...l, ...next } as LabelLayer) : l)),
+      },
+      tag,
+    );
   }
 
   function removeLayer(id: string) {
-    onChange({ ...design, layout: design.layout.filter((l) => l.id !== id) });
+    commit({ ...design, layout: design.layout.filter((l) => l.id !== id) });
     setSelectedId(null);
   }
+
+  /** Delete apaga o elemento selecionado; Ctrl/Cmd+Z desfaz e Ctrl+Shift+Z refaz. */
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const el = e.target as HTMLElement | null;
+      const typing =
+        !!el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+      const mod = e.metaKey || e.ctrlKey;
+
+      if (mod && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (mod && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      if (!typing && selectedId && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        removeLayer(selectedId);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
+
+  /** Reaplica a conversão para preto a partir da imagem original enviada. */
+  async function applyBlack(id: string, threshold: number) {
+    const layer = design.layout.find((l) => l.id === id);
+    if (!layer || layer.kind !== "image") return;
+    const source = originals.current.get(id) ?? layer.dataUrl;
+    if (source.startsWith("data:image/svg+xml")) {
+      toast.info("SVG já é vetor: envie em traço preto para impressão em 1 cor.");
+      return;
+    }
+    originals.current.set(id, source);
+    try {
+      const dataUrl = await binarizeImage(source, threshold);
+      patchLayer(id, { dataUrl } as Partial<LabelLayer>);
+    } catch {
+      toast.error("Não foi possível converter a imagem.");
+    }
+  }
+
 
   async function handleImage(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -129,9 +224,12 @@ export function LabelEditor({
       return;
     }
     try {
-      const dataUrl = await downscaleImage(file);
+      const original = await downscaleImage(file);
+      const dataUrl = file.type === "image/svg+xml" ? original : await binarizeImage(original, 160);
+      const id = newLayerId();
+      originals.current.set(id, original);
       addLayer({
-        id: newLayerId(),
+        id,
         kind: "image",
         x: 5,
         y: 5,
@@ -140,10 +238,12 @@ export function LabelEditor({
         dataUrl,
         rotation: 0,
       });
+      toast.success("Imagem convertida para preto (pronta para impressão em 1 cor).");
     } catch {
       toast.error("Não foi possível processar a imagem.");
     }
   }
+
 
   return (
     <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)_300px]">
@@ -338,6 +438,25 @@ export function LabelEditor({
             </p>
           </div>
         )}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={undo} disabled={past.length === 0}>
+            <Undo2 className="mr-1.5 h-4 w-4" /> Voltar
+          </Button>
+          <Button variant="outline" size="sm" onClick={redo} disabled={future.length === 0}>
+            <Redo2 className="mr-1.5 h-4 w-4" /> Refazer
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => selectedId && removeLayer(selectedId)}
+            disabled={!selectedId}
+          >
+            <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Atalhos: Delete apaga · Ctrl+Z volta · Ctrl+Shift+Z refaz
+          </span>
+        </div>
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
@@ -345,7 +464,8 @@ export function LabelEditor({
             scale={scale}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            onMove={(id, x, y) => patchLayer(id, { x, y } as Partial<LabelLayer>)}
+            onMove={(id, x, y) => patchLayer(id, { x, y } as Partial<LabelLayer>, `move:${id}`)}
+            onResize={(id, next) => patchLayer(id, next, `resize:${id}`)}
           />
         </div>
 
@@ -353,8 +473,10 @@ export function LabelEditor({
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           A impressão é feita em <strong className="mx-1 text-foreground">uma única cor</strong> —
           a cor escolhida do ribbon. Fotos e degradês são convertidos para traço nessa cor.
-          Arraste os elementos para posicionar.
+          Arraste os elementos para posicionar e use a alça no canto para redimensionar (o texto
+          aumenta a fonte junto).
         </p>
+
 
         {spec && (
           <div className="rounded-lg border hairline bg-card p-4">
@@ -542,7 +664,32 @@ export function LabelEditor({
                     onChange={(e) => patchLayer(selected.id, { h: clamp(Number(e.target.value), 5, design.height_mm) })}
                   />
                 </div>
+                <div className="sm:col-span-2 rounded-md bg-surface-2 p-3">
+                  <Label className="text-xs">Conversão para preto (impressão em 1 cor)</Label>
+                  <Slider
+                    className="mt-3"
+                    min={40}
+                    max={240}
+                    step={5}
+                    value={[imageThreshold]}
+                    onValueChange={(v) => setImageThreshold(v[0] ?? 160)}
+                    onValueCommit={(v) => void applyBlack(selected.id, v[0] ?? 160)}
+                  />
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      Limiar {imageThreshold} — quanto maior, mais áreas viram preto.
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => void applyBlack(selected.id, imageThreshold)}
+                    >
+                      <ImageIcon className="mr-1.5 h-4 w-4" /> Deixar a imagem preta
+                    </Button>
+                  </div>
+                </div>
               </div>
+
             )}
 
             <div className="mt-4 flex justify-end">
@@ -772,5 +919,34 @@ async function downscaleImage(file: File): Promise<string> {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas indisponível");
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
+}
+
+/**
+ * Converte a imagem para preto puro sobre fundo transparente (1 bit),
+ * que é o formato ideal para impressão térmica monocromática.
+ */
+async function binarizeImage(dataUrl: string, threshold: number): Promise<string> {
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas indisponível");
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const alpha = px[i + 3];
+    const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    const ink = alpha > 24 && lum < threshold;
+    px[i] = 0;
+    px[i + 1] = 0;
+    px[i + 2] = 0;
+    px[i + 3] = ink ? 255 : 0;
+  }
+  ctx.putImageData(data, 0, 0);
   return canvas.toDataURL("image/png");
 }
