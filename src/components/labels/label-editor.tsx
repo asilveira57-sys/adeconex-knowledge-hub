@@ -921,3 +921,32 @@ async function downscaleImage(file: File): Promise<string> {
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/png");
 }
+
+/**
+ * Converte a imagem para preto puro sobre fundo transparente (1 bit),
+ * que é o formato ideal para impressão térmica monocromática.
+ */
+async function binarizeImage(dataUrl: string, threshold: number): Promise<string> {
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas indisponível");
+  ctx.drawImage(img, 0, 0);
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const px = data.data;
+  for (let i = 0; i < px.length; i += 4) {
+    const alpha = px[i + 3];
+    const lum = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    const ink = alpha > 24 && lum < threshold;
+    px[i] = 0;
+    px[i + 1] = 0;
+    px[i + 2] = 0;
+    px[i + 3] = ink ? 255 : 0;
+  }
+  ctx.putImageData(data, 0, 0);
+  return canvas.toDataURL("image/png");
+}
