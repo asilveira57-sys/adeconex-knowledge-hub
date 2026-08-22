@@ -128,10 +128,22 @@ function cornerHint(w: number, h: number) {
 }
 
 /** Altura aproximada ocupada por uma camada (mm). */
-function layerHeight(l: LabelLayer): number {
+export function layerBoxHeight(l: LabelLayer): number {
   if (l.kind === "text") return Math.max(2, l.fontSize * PT_TO_MM * 1.25);
   if (l.kind === "qrcode") return l.w;
   return l.h;
+}
+
+const layerHeight = layerBoxHeight;
+
+/** Largura realmente ocupada (mm) — texto usa estimativa do glifo, não a caixa. */
+function layerWidth(l: LabelLayer): number {
+  if (l.kind === "text") {
+    const chars = Math.max(1, l.text.replace(/\n.*/s, "").length);
+    const est = chars * l.fontSize * PT_TO_MM * (l.bold ? 0.62 : 0.56);
+    return Math.min(l.w, Math.max(2, est));
+  }
+  return l.w;
 }
 
 /**
@@ -150,10 +162,10 @@ export function fitLayoutToLabel(
 
   const ordered = [...layers].sort((a, b) => a.y - b.y || a.x - b.x);
 
-  // caixa original da arte
+  // caixa original da arte (usando a largura realmente ocupada)
   const minX = Math.min(...ordered.map((l) => l.x));
   const minY = Math.min(...ordered.map((l) => l.y));
-  const maxX = Math.max(...ordered.map((l) => l.x + l.w));
+  const maxX = Math.max(...ordered.map((l) => l.x + layerWidth(l)));
   const maxY = Math.max(...ordered.map((l) => l.y + layerHeight(l)));
   const srcW = Math.max(1, maxX - minX);
   const srcH = Math.max(1, maxY - minY);
@@ -169,10 +181,15 @@ export function fitLayoutToLabel(
 
     if (l.kind === "text") {
       const fontSize = Math.max(3, round1(l.fontSize * s));
-      if (centered) {
-        return { ...base, kind: "text", x: round1(box.x), w: round1(box.w), align: "center", fontSize } as LabelLayer;
-      }
-      return { ...base, kind: "text", x: round1(offX + (l.x - minX) * s), w, fontSize } as LabelLayer;
+      // texto sempre usa a largura útil disponível para não quebrar linha
+      return {
+        ...base,
+        kind: "text",
+        x: round1(box.x),
+        w: round1(box.w),
+        align: centered ? "center" : l.align,
+        fontSize,
+      } as LabelLayer;
     }
 
     const x = centered
@@ -183,6 +200,7 @@ export function fitLayoutToLabel(
     return { ...base, x, w, h: Math.max(2, round1(l.h * s)) } as LabelLayer;
   });
 }
+
 
 function round1(v: number) {
   return Math.round(v * 10) / 10;
