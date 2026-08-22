@@ -82,6 +82,8 @@ export function LabelEditor({
   const [showMockup, setShowMockup] = useState(true);
   const [past, setPast] = useState<LabelDesign[]>([]);
   const [future, setFuture] = useState<LabelDesign[]>([]);
+  const [imageThreshold, setImageThreshold] = useState(160);
+
   const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
   /** imagens originais (antes da conversão para preto), por camada */
