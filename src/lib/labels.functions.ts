@@ -241,3 +241,73 @@ export const addDesignToCart = createServerFn({ method: "POST" })
 
     return { ok: true, unit_price, total: Number((unit_price * data.quantity).toFixed(2)) };
   });
+
+export type CustomOrderItem = {
+  item_id: string;
+  order_id: string;
+  order_number: string;
+  order_status: string;
+  created_at: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+  design_id: string | null;
+  design_name: string | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  shape: string | null;
+  material: string | null;
+  ribbon_color: string | null;
+  thumbnail: string | null;
+};
+
+/** Itens personalizados já comprados pelo usuário, com a arte usada. */
+export const listMyCustomOrderItems = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CustomOrderItem[]> => {
+    const { data, error } = await context.supabase
+      .from("order_items")
+      .select(
+        "id, order_id, product_name, quantity, unit_price, subtotal, metadata, orders!inner(order_number, status, created_at, user_id)",
+      )
+      .eq("orders.user_id", context.userId)
+      .eq("metadata->>custom_label", "true")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+
+    const rows = (data ?? []) as any[];
+    const designIds = Array.from(
+      new Set(rows.map((r) => r.metadata?.design_id).filter(Boolean) as string[]),
+    );
+
+    const thumbs = new Map<string, string | null>();
+    if (designIds.length > 0) {
+      const { data: designs } = await context.supabase
+        .from("label_designs")
+        .select("id, thumbnail")
+        .in("id", designIds)
+        .eq("user_id", context.userId);
+      for (const d of designs ?? []) thumbs.set(d.id as string, (d.thumbnail as string) ?? null);
+    }
+
+    return rows.map((r) => ({
+      item_id: r.id,
+      order_id: r.order_id,
+      order_number: r.orders?.order_number ?? "",
+      order_status: r.orders?.status ?? "",
+      created_at: r.orders?.created_at ?? "",
+      product_name: r.product_name,
+      quantity: Number(r.quantity),
+      unit_price: Number(r.unit_price),
+      subtotal: Number(r.subtotal),
+      design_id: r.metadata?.design_id ?? null,
+      design_name: r.metadata?.design_name ?? null,
+      width_mm: r.metadata?.width_mm ?? null,
+      height_mm: r.metadata?.height_mm ?? null,
+      shape: r.metadata?.shape ?? null,
+      material: r.metadata?.material ?? null,
+      ribbon_color: r.metadata?.ribbon_color ?? null,
+      thumbnail: r.metadata?.design_id ? (thumbs.get(r.metadata.design_id) ?? null) : null,
+    }));
+  });

@@ -13,6 +13,7 @@ import {
   Trash2,
   Star,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +34,8 @@ import {
   fetchViaCep,
 } from "@/lib/account.validation";
 import { listMyOrders, ORDER_STATUS_LABEL } from "@/lib/orders.functions";
+import { listMyDesigns, listMyCustomOrderItems, deleteDesign } from "@/lib/labels.functions";
+import { SHAPE_LABELS, type LabelShape } from "@/lib/labels/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -118,12 +121,14 @@ function MinhaContaPage() {
           <TabsTrigger value="empresas"><Building2 className="h-4 w-4 mr-1.5" />Empresas</TabsTrigger>
           <TabsTrigger value="enderecos"><MapPin className="h-4 w-4 mr-1.5" />Endereços</TabsTrigger>
           <TabsTrigger value="pedidos"><Package className="h-4 w-4 mr-1.5" />Pedidos</TabsTrigger>
+          <TabsTrigger value="personalizado"><Sparkles className="h-4 w-4 mr-1.5" />Personalizado</TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil"><PerfilTab account={data} /></TabsContent>
         <TabsContent value="empresas"><EmpresasTab account={data} /></TabsContent>
         <TabsContent value="enderecos"><EnderecosTab account={data} /></TabsContent>
         <TabsContent value="pedidos"><PedidosTab /></TabsContent>
+        <TabsContent value="personalizado"><PersonalizadoTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -760,6 +765,210 @@ function PedidosTab() {
           </div>
         </Link>
       ))}
+    </div>
+  );
+}
+
+// ============================================================
+// PERSONALIZADO (artes, rascunhos e pedidos personalizados)
+// ============================================================
+const DRAFT_KEY = "adeconex:label-draft";
+
+const brlFmt = (n: number | string) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(n) || 0);
+
+function PersonalizadoTab() {
+  const qc = useQueryClient();
+  const [draft, setDraft] = useState<
+    { design: { name: string; width_mm: number; height_mm: number; shape: LabelShape }; quantity: number; savedAt: string } | null
+  >(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(DRAFT_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed?.design) setDraft(parsed);
+    } catch {
+      setDraft(null);
+    }
+  }, []);
+
+  const designs = useQuery({ queryKey: ["label-designs"], queryFn: () => listMyDesigns() });
+  const items = useQuery({
+    queryKey: ["label-custom-orders"],
+    queryFn: () => listMyCustomOrderItems(),
+  });
+
+  const del = useMutation({
+    mutationFn: (id: string) => deleteDesign({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Arte excluída");
+      qc.invalidateQueries({ queryKey: ["label-designs"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao excluir"),
+  });
+
+  const orderItems = items.data ?? [];
+  const savedDesigns = designs.data ?? [];
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Rascunho automático</CardTitle>
+          <CardDescription>O editor salva sua arte em andamento neste navegador.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {draft ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4">
+              <div className="min-w-0">
+                <p className="font-medium">{draft.design.name || "Rascunho sem nome"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {draft.design.width_mm} × {draft.design.height_mm} mm ·{" "}
+                  {SHAPE_LABELS[draft.design.shape]} · {draft.quantity} un ·{" "}
+                  {new Date(draft.savedAt).toLocaleString("pt-BR")}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    window.localStorage.removeItem(DRAFT_KEY);
+                    setDraft(null);
+                  }}
+                >
+                  Descartar
+                </Button>
+                <Link to="/etiquetas/editor" search={{ design: undefined, produto: undefined }}>
+                  <Button>Continuar rascunho</Button>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <EmptyState
+              icon={Sparkles}
+              title="Nenhum rascunho em andamento"
+              description="Comece uma arte no editor e ela ficará salva automaticamente aqui."
+              action={
+                <Link to="/etiquetas/editor" search={{ design: undefined, produto: undefined }}>
+                  <Button variant="outline">Abrir editor</Button>
+                </Link>
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Minhas artes salvas</CardTitle>
+          <CardDescription>Reabra no editor com as mesmas medidas, grade e formato.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {designs.isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : savedDesigns.length === 0 ? (
+            <EmptyState
+              icon={Sparkles}
+              title="Você ainda não salvou nenhuma arte"
+              description="As artes salvas no editor de etiquetas aparecem aqui."
+            />
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {savedDesigns.map((d) => (
+                <div key={d.id} className="flex items-center gap-3 rounded-lg border p-3">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded border bg-muted">
+                    {d.thumbnail ? (
+                      <img src={d.thumbnail} alt={`Arte ${d.name}`} className="h-full w-full object-contain" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium">{d.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {Number(d.width_mm)} × {Number(d.height_mm)} mm ·{" "}
+                      {SHAPE_LABELS[(d.shape ?? "rect") as LabelShape]}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Atualizada em {new Date(d.updated_at).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <Link to="/etiquetas/editor" search={{ design: d.id, produto: undefined }}>
+                      <Button size="sm" variant="outline">Abrir</Button>
+                    </Link>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Excluir arte"
+                      onClick={() => del.mutate(d.id)}
+                      disabled={del.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Pedidos personalizados</CardTitle>
+          <CardDescription>Pedidos com etiqueta personalizada, arte, quantidade e valor.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {items.isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : orderItems.length === 0 ? (
+            <EmptyState
+              icon={Package}
+              title="Nenhum pedido personalizado ainda"
+              description="Quando você comprar uma etiqueta personalizada, ela aparecerá aqui com a arte."
+            />
+          ) : (
+            <div className="space-y-3">
+              {orderItems.map((it) => (
+                <div key={it.item_id} className="flex flex-wrap items-center gap-3 rounded-lg border p-4">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded border bg-muted">
+                    {it.thumbnail ? (
+                      <img src={it.thumbnail} alt={`Arte do pedido ${it.order_number}`} className="h-full w-full object-contain" />
+                    ) : null}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{it.design_name || it.product_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Pedido {it.order_number} ·{" "}
+                      {it.created_at ? new Date(it.created_at).toLocaleDateString("pt-BR") : ""}
+                      {it.width_mm ? ` · ${it.width_mm} × ${it.height_mm} mm` : ""}
+                      {it.material ? ` · ${it.material}` : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {it.quantity} un × {brlFmt(it.unit_price)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {it.order_status && (
+                      <Badge variant="outline">
+                        {ORDER_STATUS_LABEL[it.order_status as keyof typeof ORDER_STATUS_LABEL] ?? it.order_status}
+                      </Badge>
+                    )}
+                    <span className="tabular-nums font-medium">{brlFmt(it.subtotal)}</span>
+                    <Link to="/pedido/$id" params={{ id: it.order_id }}>
+                      <Button size="sm" variant="outline">Ver pedido</Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
