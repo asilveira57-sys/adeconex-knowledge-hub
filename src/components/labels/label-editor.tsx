@@ -1,13 +1,15 @@
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Barcode,
   Image as ImageIcon,
   Info,
   QrCode,
+  Redo2,
   Save,
   ShoppingCart,
   Trash2,
   Type as TypeIcon,
+  Undo2,
   Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -77,7 +80,12 @@ export function LabelEditor({
 }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showMockup, setShowMockup] = useState(true);
+  const [past, setPast] = useState<LabelDesign[]>([]);
+  const [future, setFuture] = useState<LabelDesign[]>([]);
+  const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
+  /** imagens originais (antes da conversão para preto), por camada */
+  const originals = useRef<Map<string, string>>(new Map());
 
   const spec = products.find((p) => p.id === design.base_product_id) ?? null;
   const safeMargin = spec?.safe_margin_mm ?? 0;
@@ -92,32 +100,98 @@ export function LabelEditor({
   const unitPrice = unitPriceForQuantity(tiers, quantity);
   const total = unitPrice * quantity;
 
+  /** Aplica uma mudança registrando o estado anterior no histórico (Desfazer). */
+  const commit = useCallback(
+    (next: LabelDesign, tag = "") => {
+      const now = Date.now();
+      const coalesce = !!tag && lastPush.current.tag === tag && now - lastPush.current.at < 700;
+      lastPush.current = { tag, at: now };
+      if (!coalesce) setPast((p) => [...p.slice(-49), design]);
+      setFuture([]);
+      onChange(next);
+    },
+    [design, onChange],
+  );
+
+  const undo = useCallback(() => {
+    setPast((p) => {
+      if (p.length === 0) return p;
+      const prev = p[p.length - 1];
+      setFuture((f) => [design, ...f].slice(0, 50));
+      lastPush.current = { tag: "", at: 0 };
+      onChange(prev);
+      return p.slice(0, -1);
+    });
+  }, [design, onChange]);
+
+  const redo = useCallback(() => {
+    setFuture((f) => {
+      if (f.length === 0) return f;
+      const next = f[0];
+      setPast((p) => [...p, design]);
+      lastPush.current = { tag: "", at: 0 };
+      onChange(next);
+      return f.slice(1);
+    });
+  }, [design, onChange]);
+
   function patch(next: Partial<LabelDesign>) {
-    onChange({ ...design, ...next });
+    commit({ ...design, ...next });
   }
 
   /** Ao mudar medidas/formato, reajusta a arte para continuar dentro da área útil. */
   function resize(next: Partial<LabelDesign>) {
     const merged = { ...design, ...next };
-    onChange({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
+    commit({ ...merged, layout: fitLayoutToLabel(merged.layout, merged, safeMargin) });
   }
 
   function addLayer(layer: LabelLayer) {
-    onChange({ ...design, layout: [...design.layout, layer] });
+    commit({ ...design, layout: [...design.layout, layer] });
     setSelectedId(layer.id);
   }
 
-  function patchLayer(id: string, next: Partial<LabelLayer>) {
-    onChange({
-      ...design,
-      layout: design.layout.map((l) => (l.id === id ? ({ ...l, ...next } as LabelLayer) : l)),
-    });
+  function patchLayer(id: string, next: Partial<LabelLayer>, tag = "") {
+    commit(
+      {
+        ...design,
+        layout: design.layout.map((l) => (l.id === id ? ({ ...l, ...next } as LabelLayer) : l)),
+      },
+      tag,
+    );
   }
 
   function removeLayer(id: string) {
-    onChange({ ...design, layout: design.layout.filter((l) => l.id !== id) });
+    commit({ ...design, layout: design.layout.filter((l) => l.id !== id) });
     setSelectedId(null);
   }
+
+  /** Delete apaga o elemento selecionado; Ctrl/Cmd+Z desfaz e Ctrl+Shift+Z refaz. */
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const el = e.target as HTMLElement | null;
+      const typing =
+        !!el && (el.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName));
+      const mod = e.metaKey || e.ctrlKey;
+
+      if (mod && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (mod && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+        return;
+      }
+      if (!typing && selectedId && (e.key === "Delete" || e.key === "Backspace")) {
+        e.preventDefault();
+        removeLayer(selectedId);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  });
 
   async function handleImage(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -129,9 +203,12 @@ export function LabelEditor({
       return;
     }
     try {
-      const dataUrl = await downscaleImage(file);
+      const original = await downscaleImage(file);
+      const dataUrl = file.type === "image/svg+xml" ? original : await binarizeImage(original, 160);
+      const id = newLayerId();
+      originals.current.set(id, original);
       addLayer({
-        id: newLayerId(),
+        id,
         kind: "image",
         x: 5,
         y: 5,
@@ -140,10 +217,12 @@ export function LabelEditor({
         dataUrl,
         rotation: 0,
       });
+      toast.success("Imagem convertida para preto (pronta para impressão em 1 cor).");
     } catch {
       toast.error("Não foi possível processar a imagem.");
     }
   }
+
 
   return (
     <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)_300px]">
