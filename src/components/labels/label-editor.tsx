@@ -417,6 +417,25 @@ export function LabelEditor({
             </p>
           </div>
         )}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" onClick={undo} disabled={past.length === 0}>
+            <Undo2 className="mr-1.5 h-4 w-4" /> Voltar
+          </Button>
+          <Button variant="outline" size="sm" onClick={redo} disabled={future.length === 0}>
+            <Redo2 className="mr-1.5 h-4 w-4" /> Refazer
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => selectedId && removeLayer(selectedId)}
+            disabled={!selectedId}
+          >
+            <Trash2 className="mr-1.5 h-4 w-4" /> Excluir
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Atalhos: Delete apaga · Ctrl+Z volta · Ctrl+Shift+Z refaz
+          </span>
+        </div>
         <div className="flex min-h-[420px] items-center justify-center rounded-lg border hairline bg-surface-2 p-6">
           <LabelCanvas
             design={design}
@@ -424,7 +443,8 @@ export function LabelEditor({
             scale={scale}
             selectedId={selectedId}
             onSelect={setSelectedId}
-            onMove={(id, x, y) => patchLayer(id, { x, y } as Partial<LabelLayer>)}
+            onMove={(id, x, y) => patchLayer(id, { x, y } as Partial<LabelLayer>, `move:${id}`)}
+            onResize={(id, next) => patchLayer(id, next, `resize:${id}`)}
           />
         </div>
 
@@ -432,8 +452,10 @@ export function LabelEditor({
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           A impressão é feita em <strong className="mx-1 text-foreground">uma única cor</strong> —
           a cor escolhida do ribbon. Fotos e degradês são convertidos para traço nessa cor.
-          Arraste os elementos para posicionar.
+          Arraste os elementos para posicionar e use a alça no canto para redimensionar (o texto
+          aumenta a fonte junto).
         </p>
+
 
         {spec && (
           <div className="rounded-lg border hairline bg-card p-4">
