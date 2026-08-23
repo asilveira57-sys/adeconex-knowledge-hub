@@ -83,13 +83,9 @@ export function LabelEditor({
   const [past, setPast] = useState<LabelDesign[]>([]);
   const [future, setFuture] = useState<LabelDesign[]>([]);
   const [imageThreshold, setImageThreshold] = useState(160);
+  const [imageKind, setImageKind] = useState<ImageKindId>("label");
+  const IMAGE_KINDS = IMAGE_KIND_PRESETS;
 
-  const THRESHOLD_PRESETS = [
-    { label: "Texto nítido", value: 200, description: "Ideal para textos escuros e linhas finas." },
-    { label: "Alto contraste", value: 160, description: "Equilíbrio para logotipos e ícones." },
-    { label: "Rótulos", value: 120, description: "Preserva detalhes em imagens com sombras." },
-    { label: "Foto", value: 90, description: "Mais áreas escuras, útil para fotos em preto." },
-  ];
 
   const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
