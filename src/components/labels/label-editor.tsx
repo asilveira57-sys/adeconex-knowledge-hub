@@ -668,20 +668,17 @@ export function LabelEditor({
                   />
                 </div>
                 <div className="sm:col-span-2 rounded-md bg-surface-2 p-3 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Conversão para preto (impressão em 1 cor)</Label>
+                  <div className="flex items-center justify-between gap-2">
+                    <Label className="text-xs">Tipo de imagem (limiar otimizado)</Label>
                     <div className="flex gap-1">
-                      {THRESHOLD_PRESETS.map((p) => (
+                      {IMAGE_KINDS.map((p) => (
                         <Button
-                          key={p.value}
+                          key={p.id}
                           type="button"
-                          variant={imageThreshold === p.value ? "default" : "outline"}
+                          variant={imageKind === p.id ? "default" : "outline"}
                           size="sm"
                           className="h-6 px-2 text-[10px]"
-                          onClick={() => {
-                            setImageThreshold(p.value);
-                            void applyBlack(selected.id, p.value);
-                          }}
+                          onClick={() => void applyKind(selected.id, p.id)}
                           title={p.description}
                         >
                           {p.label}
@@ -703,8 +700,9 @@ export function LabelEditor({
                   />
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">
-                      Limiar {imageThreshold} — {THRESHOLD_PRESETS.find((p) => p.value === imageThreshold)?.description ?? "quanto maior, mais áreas viram preto."}
+                      Limiar {imageThreshold} — {IMAGE_KINDS.find((p) => p.id === imageKind)?.description ?? "quanto maior, mais áreas viram preto."}
                     </span>
+
                     <Button
                       variant="outline"
                       size="sm"
