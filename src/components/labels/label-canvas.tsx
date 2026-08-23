@@ -187,7 +187,7 @@ function LayerContent({ layer, scale, color }: { layer: LabelLayer; scale: numbe
         alt=""
         draggable={false}
         className="block h-full w-full object-contain select-none"
-        style={{ height: layer.h * scale, filter: "grayscale(1) contrast(1.4)" }}
+        style={{ height: layer.h * scale }}
       />
     );
   }

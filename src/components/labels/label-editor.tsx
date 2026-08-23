@@ -321,7 +321,7 @@ export function LabelEditor({
           <input
             ref={fileRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg"
             className="hidden"
             onChange={(e) => {
               const f = e.target.files?.[0];
