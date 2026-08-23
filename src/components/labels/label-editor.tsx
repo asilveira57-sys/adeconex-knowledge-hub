@@ -972,7 +972,96 @@ async function downscaleImage(file: File): Promise<string> {
  * Converte a imagem para preto puro sobre fundo transparente (1 bit),
  * que é o formato ideal para impressão térmica monocromática.
  */
+export type ImageKindId = "text" | "label" | "photo";
+
+/** Tipos de imagem com viés aplicado sobre o limiar calculado automaticamente. */
+export const IMAGE_KIND_PRESETS: {
+  id: ImageKindId;
+  label: string;
+  description: string;
+  bias: number;
+  min: number;
+  max: number;
+}[] = [
+  {
+    id: "text",
+    label: "Texto",
+    description: "Texto e traços finos: preserva letras e linhas sem engrossar.",
+    bias: 24,
+    min: 120,
+    max: 235,
+  },
+  {
+    id: "label",
+    label: "Rótulo",
+    description: "Logotipos e rótulos: equilíbrio entre detalhe e preenchimento.",
+    bias: 0,
+    min: 90,
+    max: 200,
+  },
+  {
+    id: "photo",
+    label: "Foto",
+    description: "Fotos: corta meios-tons e mantém apenas as áreas mais escuras.",
+    bias: -22,
+    min: 60,
+    max: 170,
+  },
+];
+
+/**
+ * Calcula o limiar ótimo pelo método de Otsu (histograma da imagem)
+ * e aplica o viés do tipo de imagem escolhido.
+ */
+async function suggestThreshold(dataUrl: string, kind: ImageKindId): Promise<number> {
+  const preset = IMAGE_KIND_PRESETS.find((p) => p.id === kind) ?? IMAGE_KIND_PRESETS[1]!;
+  const img = new Image();
+  img.src = dataUrl;
+  await img.decode();
+  const scale = Math.min(1, 240 / Math.max(img.naturalWidth, img.naturalHeight, 1));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return 160;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+  const hist = new Array<number>(256).fill(0);
+  let total = 0;
+  for (let i = 0; i < px.length; i += 4) {
+    if (px[i + 3]! <= 24) continue;
+    const lum = Math.round(0.299 * px[i]! + 0.587 * px[i + 1]! + 0.114 * px[i + 2]!);
+    hist[lum]! += 1;
+    total += 1;
+  }
+  if (!total) return 160;
+
+  let sum = 0;
+  for (let t = 0; t < 256; t += 1) sum += t * hist[t]!;
+  let sumB = 0;
+  let wB = 0;
+  let best = 0;
+  let otsu = 128;
+  for (let t = 0; t < 256; t += 1) {
+    wB += hist[t]!;
+    if (!wB) continue;
+    const wF = total - wB;
+    if (!wF) break;
+    sumB += t * hist[t]!;
+    const mB = sumB / wB;
+    const mF = (sum - sumB) / wF;
+    const between = wB * wF * (mB - mF) * (mB - mF);
+    if (between > best) {
+      best = between;
+      otsu = t;
+    }
+  }
+  return Math.round(clamp(otsu + preset.bias, preset.min, preset.max) / 5) * 5;
+}
+
 async function binarizeImage(dataUrl: string, threshold: number): Promise<string> {
+
   const img = new Image();
   img.src = dataUrl;
   await img.decode();
