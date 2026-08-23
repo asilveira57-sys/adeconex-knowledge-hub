@@ -672,7 +672,11 @@ export function LabelEditor({
                     max={240}
                     step={5}
                     value={[imageThreshold]}
-                    onValueChange={(v) => setImageThreshold(v[0] ?? 160)}
+                    onValueChange={(v) => {
+                      const t = v[0] ?? 160;
+                      setImageThreshold(t);
+                      void applyBlack(selected.id, t);
+                    }}
                     onValueCommit={(v) => void applyBlack(selected.id, v[0] ?? 160)}
                   />
                   <div className="mt-2 flex items-center justify-between">
