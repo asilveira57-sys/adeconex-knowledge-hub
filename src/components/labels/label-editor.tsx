@@ -216,6 +216,24 @@ export function LabelEditor({
     }
   }
 
+  /** Escolhe o tipo de imagem e calcula o limiar ótimo a partir da própria imagem. */
+  async function applyKind(id: string, kind: ImageKindId) {
+    const layer = design.layout.find((l) => l.id === id);
+    if (!layer || layer.kind !== "image") return;
+    const source = originals.current.get(id) ?? layer.dataUrl;
+    setImageKind(kind);
+    if (source.startsWith("data:image/svg+xml")) {
+      toast.info("SVG já é vetor: envie em traço preto para impressão em 1 cor.");
+      return;
+    }
+    try {
+      const t = await suggestThreshold(source, kind);
+      setImageThreshold(t);
+      await applyBlack(id, t);
+    } catch {
+      toast.error("Não foi possível analisar a imagem.");
+    }
+  }
 
   async function handleImage(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -228,7 +246,11 @@ export function LabelEditor({
     }
     try {
       const original = await downscaleImage(file);
-      const dataUrl = file.type === "image/svg+xml" ? original : await binarizeImage(original, 160);
+      const auto =
+        file.type === "image/svg+xml" ? 160 : await suggestThreshold(original, imageKind);
+      setImageThreshold(auto);
+      const dataUrl = file.type === "image/svg+xml" ? original : await binarizeImage(original, auto);
+
       const id = newLayerId();
       originals.current.set(id, original);
       addLayer({
