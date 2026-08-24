@@ -945,22 +945,164 @@ export function LabelEditor({
   );
 }
 
+type ViewState = { zoom: number; x: number; y: number };
+const INITIAL_VIEW: ViewState = { zoom: 1, x: 0, y: 0 };
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 12;
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+
+function ImageCompare({
+  originalSrc,
+  resultSrc,
+  ribbonColor,
+}: {
+  originalSrc: string;
+  resultSrc: string;
+  ribbonColor: string;
+}) {
+  const [view, setView] = useState<ViewState>(INITIAL_VIEW);
+
+  const zoomAt = useCallback((factor: number, px: number, py: number) => {
+    setView((v) => {
+      const next = clampZoom(v.zoom * factor);
+      if (next === v.zoom) return v;
+      const k = next / v.zoom;
+      return { zoom: next, x: px - (px - v.x) * k, y: py - (py - v.y) * k };
+    });
+  }, []);
+
+  const zoomCenter = useCallback(
+    (factor: number) => {
+      // caixas quadradas: usa o centro relativo (0.5) do tamanho renderizado
+      const el = document.getElementById("label-compare-original");
+      const r = el?.getBoundingClientRect();
+      zoomAt(factor, (r?.width ?? 200) / 2, (r?.height ?? 200) / 2);
+    },
+    [zoomAt],
+  );
+
+  const pan = useCallback((dx: number, dy: number) => {
+    setView((v) => (v.zoom <= 1 ? v : { ...v, x: v.x + dx, y: v.y + dy }));
+  }, []);
+
+  return (
+    <div className="space-y-2 pt-1">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-muted-foreground">
+          Zoom {view.zoom.toFixed(1)}× — role o mouse e arraste para inspecionar
+        </span>
+        <div className="flex items-center gap-1">
+          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => zoomCenter(1 / 1.4)} title="Menos zoom">
+            <ZoomOut className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => zoomCenter(1.4)} title="Mais zoom">
+            <ZoomIn className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setView(INITIAL_VIEW)} title="Restaurar">
+            <Maximize2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <ImagePreviewBox
+          id="label-compare-original"
+          title="Original"
+          src={originalSrc}
+          ribbonColor={ribbonColor}
+          view={view}
+          onZoomAt={zoomAt}
+          onPan={pan}
+        />
+        <ImagePreviewBox
+          title="Preto puro"
+          src={resultSrc}
+          ribbonColor={ribbonColor}
+          view={view}
+          onZoomAt={zoomAt}
+          onPan={pan}
+          isResult
+        />
+      </div>
+      <p className="text-[11px] text-muted-foreground">
+        Compare as duas versões — o zoom e o deslocamento são sincronizados. O resultado à direita é o que será
+        impresso na cor do ribbon.
+      </p>
+    </div>
+  );
+}
+
 function ImagePreviewBox({
+  id,
   title,
   src,
   ribbonColor,
   isResult = false,
+  view,
+  onZoomAt,
+  onPan,
 }: {
+  id?: string;
   title: string;
   src: string;
   ribbonColor: string;
   isResult?: boolean;
+  view: ViewState;
+  onZoomAt: (factor: number, px: number, py: number) => void;
+  onPan: (dx: number, dy: number) => void;
 }) {
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  const handlersRef = useRef({ onZoomAt, onPan });
+  handlersRef.current = { onZoomAt, onPan };
+  const dragging = useRef<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 100 : 1);
+      const rect = el.getBoundingClientRect();
+      handlersRef.current.onZoomAt(
+        Math.exp(-dy * 0.0018),
+        e.clientX - rect.left,
+        e.clientY - rect.top,
+      );
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
   return (
     <div className="space-y-1.5">
       <span className="text-[11px] font-medium text-muted-foreground">{title}</span>
       <div
-        className="relative aspect-square overflow-hidden rounded-md border hairline"
+        id={id}
+        ref={boxRef}
+        className={cn(
+          "relative aspect-square overflow-hidden rounded-md border hairline touch-none",
+          view.zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-zoom-in",
+        )}
+        onPointerDown={(e) => {
+          if (view.zoom <= 1) return;
+          dragging.current = { x: e.clientX, y: e.clientY };
+          e.currentTarget.setPointerCapture(e.pointerId);
+        }}
+        onPointerMove={(e) => {
+          const d = dragging.current;
+          if (!d) return;
+          dragging.current = { x: e.clientX, y: e.clientY };
+          onPan(e.clientX - d.x, e.clientY - d.y);
+        }}
+        onPointerUp={() => {
+          dragging.current = null;
+        }}
+        onPointerLeave={() => {
+          dragging.current = null;
+        }}
+        onDoubleClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          onZoomAt(2, e.clientX - rect.left, e.clientY - rect.top);
+        }}
         style={{
           backgroundImage:
             "linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)",
@@ -969,16 +1111,29 @@ function ImagePreviewBox({
           backgroundColor: "#ffffff",
         }}
       >
-        <img
-          src={src}
-          alt={title}
-          className="absolute inset-0 m-auto max-h-full max-w-full object-contain"
-          style={isResult ? { filter: `drop-shadow(0 0 0 ${ribbonColor})` } : undefined}
-        />
+        <div
+          className="absolute inset-0"
+          style={{
+            transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`,
+            transformOrigin: "0 0",
+          }}
+        >
+          <img
+            src={src}
+            alt={title}
+            draggable={false}
+            className="absolute inset-0 m-auto max-h-full max-w-full object-contain select-none"
+            style={{
+              imageRendering: view.zoom > 2 ? "pixelated" : undefined,
+              ...(isResult ? { filter: `drop-shadow(0 0 0 ${ribbonColor})` } : {}),
+            }}
+          />
+        </div>
       </div>
     </div>
   );
 }
+
 
 function layerTitle(l: LabelLayer): string {
   if (l.kind === "text") return `Texto — ${l.text.slice(0, 18) || "vazio"}`;
