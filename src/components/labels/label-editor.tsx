@@ -733,6 +733,23 @@ export function LabelEditor({
                       <ImageIcon className="mr-1.5 h-4 w-4" /> Aplicar preto
                     </Button>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <ImagePreviewBox
+                      title="Original"
+                      src={originals.current.get(selected.id) ?? selected.dataUrl}
+                      ribbonColor={design.ribbon_color}
+                    />
+                    <ImagePreviewBox
+                      title="Preto puro"
+                      src={selected.dataUrl}
+                      ribbonColor={design.ribbon_color}
+                      isResult
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Compare as duas versões. O resultado à direita é o que será impresso na cor do ribbon.
+                  </p>
                 </div>
               </div>
 
