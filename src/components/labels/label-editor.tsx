@@ -3,6 +3,10 @@ import {
   Barcode,
   Image as ImageIcon,
   Info,
+  Maximize2,
+  ZoomIn,
+  ZoomOut,
+
   QrCode,
   Redo2,
   Save,
