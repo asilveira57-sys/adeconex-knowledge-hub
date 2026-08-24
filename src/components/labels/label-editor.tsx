@@ -733,6 +733,23 @@ export function LabelEditor({
                       <ImageIcon className="mr-1.5 h-4 w-4" /> Aplicar preto
                     </Button>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <ImagePreviewBox
+                      title="Original"
+                      src={originals.current.get(selected.id) ?? selected.dataUrl}
+                      ribbonColor={design.ribbon_color}
+                    />
+                    <ImagePreviewBox
+                      title="Preto puro"
+                      src={selected.dataUrl}
+                      ribbonColor={design.ribbon_color}
+                      isResult
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Compare as duas versões. O resultado à direita é o que será impresso na cor do ribbon.
+                  </p>
                 </div>
               </div>
 
@@ -934,6 +951,41 @@ export function LabelEditor({
           )}
         </div>
       </aside>
+    </div>
+  );
+}
+
+function ImagePreviewBox({
+  title,
+  src,
+  ribbonColor,
+  isResult = false,
+}: {
+  title: string;
+  src: string;
+  ribbonColor: string;
+  isResult?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span className="text-[11px] font-medium text-muted-foreground">{title}</span>
+      <div
+        className="relative aspect-square overflow-hidden rounded-md border hairline"
+        style={{
+          backgroundImage:
+            "linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)",
+          backgroundSize: "16px 16px",
+          backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <img
+          src={src}
+          alt={title}
+          className="absolute inset-0 m-auto max-h-full max-w-full object-contain"
+          style={isResult ? { filter: `drop-shadow(0 0 0 ${ribbonColor})` } : undefined}
+        />
+      </div>
     </div>
   );
 }
