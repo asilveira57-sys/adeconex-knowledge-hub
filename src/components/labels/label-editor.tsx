@@ -955,6 +955,41 @@ export function LabelEditor({
   );
 }
 
+function ImagePreviewBox({
+  title,
+  src,
+  ribbonColor,
+  isResult = false,
+}: {
+  title: string;
+  src: string;
+  ribbonColor: string;
+  isResult?: boolean;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <span className="text-[11px] font-medium text-muted-foreground">{title}</span>
+      <div
+        className="relative aspect-square overflow-hidden rounded-md border hairline"
+        style={{
+          backgroundImage:
+            "linear-gradient(45deg,#e5e7eb 25%,transparent 25%),linear-gradient(-45deg,#e5e7eb 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e5e7eb 75%),linear-gradient(-45deg,transparent 75%,#e5e7eb 75%)",
+          backgroundSize: "16px 16px",
+          backgroundPosition: "0 0, 0 8px, 8px -8px, -8px 0px",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <img
+          src={src}
+          alt={title}
+          className="absolute inset-0 m-auto max-h-full max-w-full object-contain"
+          style={isResult ? { filter: `drop-shadow(0 0 0 ${ribbonColor})` } : undefined}
+        />
+      </div>
+    </div>
+  );
+}
+
 function layerTitle(l: LabelLayer): string {
   if (l.kind === "text") return `Texto — ${l.text.slice(0, 18) || "vazio"}`;
   if (l.kind === "barcode") return `Código — ${l.value.slice(0, 14)}`;
