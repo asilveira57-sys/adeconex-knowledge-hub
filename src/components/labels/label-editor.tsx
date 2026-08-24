@@ -734,22 +734,12 @@ export function LabelEditor({
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <ImagePreviewBox
-                      title="Original"
-                      src={originals.current.get(selected.id) ?? selected.dataUrl}
-                      ribbonColor={design.ribbon_color}
-                    />
-                    <ImagePreviewBox
-                      title="Preto puro"
-                      src={selected.dataUrl}
-                      ribbonColor={design.ribbon_color}
-                      isResult
-                    />
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">
-                    Compare as duas versões. O resultado à direita é o que será impresso na cor do ribbon.
-                  </p>
+                  <ImageCompare
+                    originalSrc={originals.current.get(selected.id) ?? selected.dataUrl}
+                    resultSrc={selected.dataUrl}
+                    ribbonColor={design.ribbon_color}
+                  />
+
                 </div>
               </div>
 
