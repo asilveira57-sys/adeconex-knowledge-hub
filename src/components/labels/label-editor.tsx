@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Barcode,
   Image as ImageIcon,
+  Download,
   Info,
   Maximize2,
   ZoomIn,
