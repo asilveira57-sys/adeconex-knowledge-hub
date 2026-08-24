@@ -989,6 +989,35 @@ function ImageCompare({
     setView((v) => (v.zoom <= 1 ? v : { ...v, x: v.x + dx, y: v.y + dy }));
   }, []);
 
+  const exportPng = useCallback(async () => {
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("load"));
+        img.src = resultSrc;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth || 512;
+      canvas.height = img.naturalHeight || 512;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("ctx");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `adeconex-preto-puro-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast.success("PNG com transparência baixado.");
+    } catch {
+      toast.error("Não foi possível exportar o PNG.");
+    }
+  }, [resultSrc]);
+
   return (
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between">
@@ -1005,8 +1034,18 @@ function ImageCompare({
           <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => setView(INITIAL_VIEW)} title="Restaurar">
             <Maximize2 className="h-3.5 w-3.5" />
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 px-2 text-[10px]"
+            onClick={() => void exportPng()}
+            title="Baixar a camada preto puro em PNG com fundo transparente"
+          >
+            <Download className="mr-1 h-3.5 w-3.5" /> PNG
+          </Button>
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-3">
         <ImagePreviewBox
           id="label-compare-original"
