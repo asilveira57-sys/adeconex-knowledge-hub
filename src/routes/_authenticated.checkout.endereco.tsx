@@ -2,8 +2,10 @@ import { emptyCartSnapshot } from "@/lib/cart.functions";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef } from "react";
 import { MapPin, Plus, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackBeginCheckout } from "@/lib/analytics";
 import { getCheckoutSnapshot } from "@/lib/checkout.functions";
 import { useCheckoutSelection, useAutoSelectAddress } from "@/hooks/use-checkout";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
@@ -55,7 +57,7 @@ function EnderecoStep() {
         price: i.unit_price,
         quantity: i.quantity,
       })),
-      cart.total,
+      cart.subtotal,
       cart.coupon?.code ?? null,
     );
   }, [data]);

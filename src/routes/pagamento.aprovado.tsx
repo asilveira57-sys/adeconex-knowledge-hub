@@ -39,6 +39,27 @@ function Aprovado() {
 
   const approved = data?.payment_status === "approved" || data?.status === "pago";
 
+  // purchase — dispara uma única vez quando a aprovação é confirmada.
+  const purchaseFiredRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!approved || !data || purchaseFiredRef.current === data.order_id) return;
+    purchaseFiredRef.current = data.order_id;
+    trackPurchase({
+      transaction_id: data.order_number,
+      value: data.total,
+      shipping: data.shipping_total,
+      coupon: data.coupon_code,
+      payment_method: data.payment_method,
+      items: data.items.map((i) => ({
+        item_id: i.sku ?? i.product_id,
+        item_name: i.product_name,
+        item_variant: i.variant_label ?? undefined,
+        price: i.unit_price,
+        quantity: i.quantity,
+      })),
+    });
+  }, [approved, data]);
+
   return (
     <div className="container-page py-16">
       <div className="mx-auto max-w-xl rounded-xl border hairline bg-card p-8 text-center shadow-card">

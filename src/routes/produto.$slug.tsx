@@ -220,6 +220,23 @@ function ProductPage() {
   const activeVariantId = selectedKit?.id ?? selectedVariant?.id ?? null;
   const qtyUnitLabel = selectedKit ? (qty === 1 ? "caixa" : "caixas") : "un.";
 
+  // view_item — dispara na carga da PDP e ao trocar variação/kit.
+  const effUnitPrice = effPromo ?? effPrice;
+  const lastViewedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const key = `${p.id}:${activeVariantId ?? "base"}`;
+    if (effUnitPrice == null || lastViewedRef.current === key) return;
+    lastViewedRef.current = key;
+    trackViewItem({
+      item_id: effSku ?? p.id,
+      item_name: p.name,
+      item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
+      item_category: p.categories[0]?.name,
+      price: effUnitPrice,
+      quantity: 1,
+    });
+  }, [p.id, p.name, effSku, effUnitPrice, activeVariantId, selectedKit, selectedOpts, p.categories]);
+
 
   const price = money(effPromo ?? effPrice);
   const strike =
