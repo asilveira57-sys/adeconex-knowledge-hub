@@ -3,10 +3,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { CreditCard, Loader2, MessageCircle, ShieldCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CreditCard,
+  Loader2,
+  MessageCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getCheckoutSnapshot } from "@/lib/checkout.functions";
-import { createOrderAndPreference } from "@/lib/payments.functions";
+import { createOrderAndPreference, getMercadoPagoEnvironment } from "@/lib/payments.functions";
 import { useCheckoutSelection } from "@/hooks/use-checkout";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { FALLBACK_SHIPPING, clearCheckout } from "@/lib/checkout.local";
