@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as MarketplacesRouteImport } from './routes/marketplaces'
 import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
@@ -75,6 +76,11 @@ import { Route as AuthenticatedAdminPedidosIdRouteImport } from './routes/_authe
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RibbonRoute = RibbonRouteImport.update({
@@ -424,6 +430,7 @@ export interface FileRoutesByFullPath {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -483,6 +490,7 @@ export interface FileRoutesByTo {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -545,6 +553,7 @@ export interface FileRoutesById {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -610,6 +619,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/admin'
     | '/checkout'
@@ -669,6 +679,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/minha-conta'
     | '/blog/$slug'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
@@ -795,6 +807,7 @@ export interface RootRouteChildren {
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
   MarketplacesRoute: typeof MarketplacesRoute
   RibbonRoute: typeof RibbonRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
@@ -812,6 +825,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ribbon': {
@@ -1415,6 +1435,7 @@ const rootRouteChildren: RootRouteChildren = {
   GeradorQrcodeRoute: GeradorQrcodeRoute,
   MarketplacesRoute: MarketplacesRoute,
   RibbonRoute: RibbonRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,

@@ -189,3 +189,70 @@ export const getPublicTrackingConfig = createServerFn({ method: "GET" }).handler
   const settings = await fetchSettingsMap(supabaseAdmin);
   return buildPublicTrackingConfig(settings);
 });
+
+export const listSeoPagesAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("seo_pages")
+      .select(
+        "id, entity_type, path, title, meta_description, keywords, canonical_url, indexable, robots_meta, og_title, og_description, og_image, twitter_title, twitter_description, twitter_image, seo_priority, internal_notes, is_published, updated_at",
+      )
+      .eq("entity_type", "page")
+      .order("path", { ascending: true });
+    if (error) throw new Error(error.message);
+    return { pages: data ?? [] };
+  });
+
+const seoPageSchema = z.object({
+  id: z.string().uuid().optional(),
+  path: z.string().min(1).max(500),
+  title: z.string().min(1).max(200),
+  meta_description: z.string().max(400).nullable().optional(),
+  keywords: z.string().max(400).nullable().optional(),
+  canonical_url: z.string().max(500).nullable().optional(),
+  indexable: z.boolean(),
+  robots_meta: z.enum(["index,follow", "index,nofollow", "noindex,follow", "noindex,nofollow"]),
+  og_title: z.string().max(200).nullable().optional(),
+  og_description: z.string().max(400).nullable().optional(),
+  og_image: z.string().max(500).nullable().optional(),
+  twitter_title: z.string().max(200).nullable().optional(),
+  twitter_description: z.string().max(400).nullable().optional(),
+  twitter_image: z.string().max(500).nullable().optional(),
+  seo_priority: z.number().min(0).max(1).nullable().optional(),
+  internal_notes: z.string().max(1000).nullable().optional(),
+});
+
+export const upsertSeoPageAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => seoPageSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { id, ...rest } = data;
+    const payload = {
+      ...rest,
+      entity_type: "page" as const,
+      is_published: true,
+      updated_at: new Date().toISOString(),
+    };
+    const q = id
+      ? supabaseAdmin.from("seo_pages").update(payload).eq("id", id).select("id").single()
+      : supabaseAdmin.from("seo_pages").insert(payload).select("id").single();
+    const { data: row, error } = await q;
+    if (error) throw new Error(error.message);
+    return { id: row.id as string };
+  });
+
+export const deleteSeoPageAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { id: string }) => z.object({ id: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("seo_pages").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
