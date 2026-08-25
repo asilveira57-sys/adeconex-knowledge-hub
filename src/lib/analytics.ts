@@ -1,35 +1,141 @@
 /**
- * Google Analytics (gtag.js) — carregamento sob demanda e envio de eventos.
- * Se a medição não estiver configurada, as funções viram no-op.
+ * Tracking runtime — GA4 (gtag), Google Tag Manager e Meta Pixel.
+ * A configuração vem da Central de SEO (site_settings) via getPublicTrackingConfig,
+ * com fallback para o Measurement ID do ambiente (conector Google Analytics).
+ * Se a configuração não puder ser lida, cai no comportamento anterior (GA4 via env).
  */
+
+import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
+import type { PublicTrackingConfig, TrackingEnvironment } from "@/lib/seo-central.shared";
 
 declare global {
   interface Window {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    fbq?: (...args: unknown[]) => void;
+    _fbq?: unknown;
   }
 }
 
-const MEASUREMENT_ID = import.meta.env
+const FALLBACK_GA4_ID = import.meta.env
   .VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY as string | undefined;
 
 let initialized = false;
 
-export function initAnalytics() {
-  if (typeof window === "undefined" || initialized || !MEASUREMENT_ID) return;
-  initialized = true;
+function environmentMatches(env: TrackingEnvironment, canonicalDomain: string): boolean {
+  if (env === "both") return true;
+  let canonicalHost = "";
+  try {
+    canonicalHost = new URL(canonicalDomain).hostname;
+  } catch {
+    canonicalHost = "";
+  }
+  const isProduction = canonicalHost !== "" && window.location.hostname === canonicalHost;
+  return env === "production" ? isProduction : !isProduction;
+}
 
+function ensureDataLayer() {
+  window.dataLayer = window.dataLayer || [];
+  if (!window.gtag) {
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer!.push(args);
+    };
+  }
+}
+
+function loadScript(src: string) {
   const script = document.createElement("script");
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
+  script.src = src;
   document.head.appendChild(script);
+}
 
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer!.push(args);
+function installGtm(containerId: string) {
+  ensureDataLayer();
+  window.dataLayer!.push({ "gtm.start": Date.now(), event: "gtm.js" });
+  loadScript(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(containerId)}`);
+}
+
+function installGtag(measurementId: string, adsId?: string) {
+  ensureDataLayer();
+  loadScript(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`);
+  window.gtag!("js", new Date());
+  window.gtag!("config", measurementId);
+  if (adsId) window.gtag!("config", adsId);
+}
+
+type Fbq = ((...args: unknown[]) => void) & { queue?: unknown[]; loaded?: boolean; version?: string };
+
+function installMetaPixel(pixelId: string) {
+  if (window.fbq) return;
+  const fbq: Fbq = (...args: unknown[]) => {
+    if (fbq.queue) fbq.queue.push(args);
+    else fbq.queue = [args];
   };
-  window.gtag("js", new Date());
-  window.gtag("config", MEASUREMENT_ID);
+  fbq.loaded = true;
+  fbq.version = "2.0";
+  fbq.queue = [];
+  window.fbq = fbq;
+  window._fbq = fbq;
+  loadScript("https://connect.facebook.net/en_US/fbevents.js");
+  fbq("init", pixelId);
+  fbq("track", "PageView");
+}
+
+function applyConfig(config: PublicTrackingConfig) {
+  const domain = config.canonical_domain || "https://www.adeconex.com.br";
+
+  const gtmActive =
+    config.gtm.enabled &&
+    !!config.gtm.container_id &&
+    environmentMatches(config.gtm.environment, domain);
+  if (gtmActive) installGtm(config.gtm.container_id);
+
+  // GA4 direto via gtag apenas quando NÃO controlado pelo GTM (evita duplicação).
+  const ga4Id = config.ga4.measurement_id || FALLBACK_GA4_ID || "";
+  const ga4ViaGtm = gtmActive && (config.gtm.ga4_via_gtm || config.ga4.install_method === "gtm");
+  if (
+    config.ga4.enabled &&
+    ga4Id &&
+    !ga4ViaGtm &&
+    environmentMatches(config.ga4.environment, domain)
+  ) {
+    const adsActive =
+      config.google_ads.enabled &&
+      !!config.google_ads.ads_id &&
+      environmentMatches(config.google_ads.environment, domain);
+    installGtag(ga4Id, adsActive ? config.google_ads.ads_id : undefined);
+  } else if (
+    config.google_ads.enabled &&
+    config.google_ads.ads_id &&
+    !gtmActive &&
+    !config.ga4.enabled &&
+    environmentMatches(config.google_ads.environment, domain)
+  ) {
+    // Google Ads sozinho (sem GA4 e sem GTM) ainda precisa da gtag base.
+    installGtag(config.google_ads.ads_id);
+  }
+
+  if (
+    config.meta_pixel.enabled &&
+    config.meta_pixel.pixel_id &&
+    environmentMatches(config.meta_pixel.environment, domain)
+  ) {
+    installMetaPixel(config.meta_pixel.pixel_id);
+  }
+}
+
+export function initAnalytics() {
+  if (typeof window === "undefined" || initialized) return;
+  initialized = true;
+
+  getPublicTrackingConfig()
+    .then((config) => applyConfig(config))
+    .catch(() => {
+      // Fallback: comportamento anterior (GA4 via env do conector).
+      if (!FALLBACK_GA4_ID) return;
+      installGtag(FALLBACK_GA4_ID);
+    });
 }
 
 export function trackEvent(name: string, params: Record<string, unknown> = {}) {

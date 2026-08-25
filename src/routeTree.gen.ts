@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as MarketplacesRouteImport } from './routes/marketplaces'
 import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
@@ -65,16 +66,27 @@ import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
+import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
 import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
 import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
+import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
+import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
+import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_authenticated.admin.seo.paginas'
+import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_authenticated.admin.seo.integracoes'
+import { Route as AuthenticatedAdminSeoConfiguracoesRouteImport } from './routes/_authenticated.admin.seo.configuracoes'
 import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
 import { Route as AuthenticatedAdminPedidosIdRouteImport } from './routes/_authenticated.admin.pedidos.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RibbonRoute = RibbonRouteImport.update({
@@ -367,6 +379,12 @@ const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
   path: '/artes',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminSeoIndexRoute =
+  AuthenticatedAdminSeoIndexRouteImport.update({
+    id: '/seo/',
+    path: '/seo/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminProdutosIndexRoute =
   AuthenticatedAdminProdutosIndexRouteImport.update({
     id: '/produtos/',
@@ -390,6 +408,36 @@ const ApiPublicWebhooksMercadopagoRoute =
     id: '/api/public/webhooks/mercadopago',
     path: '/api/public/webhooks/mercadopago',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAdminSeoTecnicoRoute =
+  AuthenticatedAdminSeoTecnicoRouteImport.update({
+    id: '/seo/tecnico',
+    path: '/seo/tecnico',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoRedirecionamentosRoute =
+  AuthenticatedAdminSeoRedirecionamentosRouteImport.update({
+    id: '/seo/redirecionamentos',
+    path: '/seo/redirecionamentos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoPaginasRoute =
+  AuthenticatedAdminSeoPaginasRouteImport.update({
+    id: '/seo/paginas',
+    path: '/seo/paginas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoIntegracoesRoute =
+  AuthenticatedAdminSeoIntegracoesRouteImport.update({
+    id: '/seo/integracoes',
+    path: '/seo/integracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoConfiguracoesRoute =
+  AuthenticatedAdminSeoConfiguracoesRouteImport.update({
+    id: '/seo/configuracoes',
+    path: '/seo/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminProdutosIdRoute =
   AuthenticatedAdminProdutosIdRouteImport.update({
@@ -424,6 +472,7 @@ export interface FileRoutesByFullPath {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -462,10 +511,16 @@ export interface FileRoutesByFullPath {
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
+  '/admin/seo/integracoes': typeof AuthenticatedAdminSeoIntegracoesRoute
+  '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
+  '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
+  '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -483,6 +538,7 @@ export interface FileRoutesByTo {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -518,10 +574,16 @@ export interface FileRoutesByTo {
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
+  '/admin/seo/integracoes': typeof AuthenticatedAdminSeoIntegracoesRoute
+  '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
+  '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
+  '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/cupons': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
+  '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -545,6 +607,7 @@ export interface FileRoutesById {
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
   '/ribbon': typeof RibbonRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
@@ -583,10 +646,16 @@ export interface FileRoutesById {
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/_authenticated/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
+  '/_authenticated/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
+  '/_authenticated/admin/seo/integracoes': typeof AuthenticatedAdminSeoIntegracoesRoute
+  '/_authenticated/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
+  '/_authenticated/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
+  '/_authenticated/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/_authenticated/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
+  '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -610,6 +679,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/admin'
     | '/checkout'
@@ -648,10 +718,16 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
+    | '/admin/seo/configuracoes'
+    | '/admin/seo/integracoes'
+    | '/admin/seo/paginas'
+    | '/admin/seo/redirecionamentos'
+    | '/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
     | '/admin/cupons/'
     | '/admin/pedidos/'
     | '/admin/produtos/'
+    | '/admin/seo/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -669,6 +745,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/minha-conta'
     | '/blog/$slug'
@@ -704,10 +781,16 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
+    | '/admin/seo/configuracoes'
+    | '/admin/seo/integracoes'
+    | '/admin/seo/paginas'
+    | '/admin/seo/redirecionamentos'
+    | '/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
     | '/admin/cupons'
     | '/admin/pedidos'
     | '/admin/produtos'
+    | '/admin/seo'
   id:
     | '__root__'
     | '/'
@@ -730,6 +813,7 @@ export interface FileRouteTypes {
     | '/gerador-qrcode'
     | '/marketplaces'
     | '/ribbon'
+    | '/robots.txt'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
@@ -768,10 +852,16 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/_authenticated/admin/pedidos/$id'
     | '/_authenticated/admin/produtos/$id'
+    | '/_authenticated/admin/seo/configuracoes'
+    | '/_authenticated/admin/seo/integracoes'
+    | '/_authenticated/admin/seo/paginas'
+    | '/_authenticated/admin/seo/redirecionamentos'
+    | '/_authenticated/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
     | '/_authenticated/admin/cupons/'
     | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
+    | '/_authenticated/admin/seo/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -795,6 +885,7 @@ export interface RootRouteChildren {
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
   MarketplacesRoute: typeof MarketplacesRoute
   RibbonRoute: typeof RibbonRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
@@ -812,6 +903,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ribbon': {
@@ -1199,6 +1297,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminArtesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/seo/': {
+      id: '/_authenticated/admin/seo/'
+      path: '/seo'
+      fullPath: '/admin/seo/'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/produtos/': {
       id: '/_authenticated/admin/produtos/'
       path: '/produtos'
@@ -1227,6 +1332,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/seo/tecnico': {
+      id: '/_authenticated/admin/seo/tecnico'
+      path: '/seo/tecnico'
+      fullPath: '/admin/seo/tecnico'
+      preLoaderRoute: typeof AuthenticatedAdminSeoTecnicoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/redirecionamentos': {
+      id: '/_authenticated/admin/seo/redirecionamentos'
+      path: '/seo/redirecionamentos'
+      fullPath: '/admin/seo/redirecionamentos'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRedirecionamentosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/paginas': {
+      id: '/_authenticated/admin/seo/paginas'
+      path: '/seo/paginas'
+      fullPath: '/admin/seo/paginas'
+      preLoaderRoute: typeof AuthenticatedAdminSeoPaginasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/integracoes': {
+      id: '/_authenticated/admin/seo/integracoes'
+      path: '/seo/integracoes'
+      fullPath: '/admin/seo/integracoes'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIntegracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/configuracoes': {
+      id: '/_authenticated/admin/seo/configuracoes'
+      path: '/seo/configuracoes'
+      fullPath: '/admin/seo/configuracoes'
+      preLoaderRoute: typeof AuthenticatedAdminSeoConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/produtos/$id': {
       id: '/_authenticated/admin/produtos/$id'
       path: '/produtos/$id'
@@ -1251,9 +1391,15 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminPedidosIdRoute: typeof AuthenticatedAdminPedidosIdRoute
   AuthenticatedAdminProdutosIdRoute: typeof AuthenticatedAdminProdutosIdRoute
+  AuthenticatedAdminSeoConfiguracoesRoute: typeof AuthenticatedAdminSeoConfiguracoesRoute
+  AuthenticatedAdminSeoIntegracoesRoute: typeof AuthenticatedAdminSeoIntegracoesRoute
+  AuthenticatedAdminSeoPaginasRoute: typeof AuthenticatedAdminSeoPaginasRoute
+  AuthenticatedAdminSeoRedirecionamentosRoute: typeof AuthenticatedAdminSeoRedirecionamentosRoute
+  AuthenticatedAdminSeoTecnicoRoute: typeof AuthenticatedAdminSeoTecnicoRoute
   AuthenticatedAdminCuponsIndexRoute: typeof AuthenticatedAdminCuponsIndexRoute
   AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
+  AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -1263,9 +1409,17 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminPedidosIdRoute: AuthenticatedAdminPedidosIdRoute,
   AuthenticatedAdminProdutosIdRoute: AuthenticatedAdminProdutosIdRoute,
+  AuthenticatedAdminSeoConfiguracoesRoute:
+    AuthenticatedAdminSeoConfiguracoesRoute,
+  AuthenticatedAdminSeoIntegracoesRoute: AuthenticatedAdminSeoIntegracoesRoute,
+  AuthenticatedAdminSeoPaginasRoute: AuthenticatedAdminSeoPaginasRoute,
+  AuthenticatedAdminSeoRedirecionamentosRoute:
+    AuthenticatedAdminSeoRedirecionamentosRoute,
+  AuthenticatedAdminSeoTecnicoRoute: AuthenticatedAdminSeoTecnicoRoute,
   AuthenticatedAdminCuponsIndexRoute: AuthenticatedAdminCuponsIndexRoute,
   AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
+  AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -1415,6 +1569,7 @@ const rootRouteChildren: RootRouteChildren = {
   GeradorQrcodeRoute: GeradorQrcodeRoute,
   MarketplacesRoute: MarketplacesRoute,
   RibbonRoute: RibbonRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,

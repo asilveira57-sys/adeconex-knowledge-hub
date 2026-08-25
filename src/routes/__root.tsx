@@ -17,6 +17,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { initAnalytics, trackEvent } from "@/lib/analytics";
+import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
@@ -107,16 +108,22 @@ const organizationJsonLd = {
 };
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  loader: ({ context }) =>
+    context.queryClient.ensureQueryData({
+      queryKey: ["public-tracking-config"],
+      queryFn: () => getPublicTrackingConfig(),
+      staleTime: 5 * 60 * 1000,
+    }),
+  head: ({ loaderData }) => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#e63946" },
-      // Google Search Console — propriedade https://www.adeconex.com.br/
-      // Validação será concluída assim que o DNS apontar para esta build.
+      // Google Search Console — meta tag gerenciada pela Central de SEO (Admin → SEO & Tracking).
       {
         name: "google-site-verification",
-        content: "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
+        content:
+          loaderData?.search_console_verification || "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
       },
       { title: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       {

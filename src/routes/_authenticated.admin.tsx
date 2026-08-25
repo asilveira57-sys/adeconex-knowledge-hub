@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { getMyRoles } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette } from "lucide-react";
+import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -32,6 +32,7 @@ const navItems = [
   { to: "/admin/artes", label: "Artes", icon: Palette, exact: false },
   { to: "/admin/produtos", label: "Produtos", icon: PackageSearch, exact: false },
   { to: "/admin/cupons", label: "Cupons", icon: TicketPercent, exact: false },
+  { to: "/admin/seo", label: "SEO & Tracking", icon: Globe2, exact: false },
   { to: "/admin/importacao", label: "Importação", icon: UploadCloud, exact: false },
   { to: "/admin/enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
 ] as const;
