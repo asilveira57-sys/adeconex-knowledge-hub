@@ -109,6 +109,34 @@ function PagamentoStep() {
             <h2 className="font-display text-lg font-semibold">Pagamento</h2>
           </header>
 
+          {mpEnv && (
+            <div
+              className={`mb-4 flex items-start gap-3 rounded-lg border p-4 ${
+                mpEnv.mode === "production"
+                  ? "border-green-200 bg-green-50 text-green-900 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-100"
+                  : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
+              }`}
+            >
+              {mpEnv.mode === "production" ? (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              )}
+              <div className="text-sm">
+                <p className="font-semibold">
+                  {mpEnv.mode === "production"
+                    ? "Mercado Pago em produção"
+                    : "Mercado Pago em sandbox (teste)"}
+                </p>
+                <p className="mt-0.5 opacity-90">
+                  {mpEnv.mode === "production"
+                    ? "Este pagamento será processado com valor real e aparecerá no painel do Mercado Pago."
+                    : "Este pagamento é apenas uma simulação. Nenhum valor real será cobrado."}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-lg border hairline bg-surface-2 p-4">
             <div className="flex items-start gap-3">
               <ShieldCheck className="mt-0.5 h-5 w-5 text-primary" />
