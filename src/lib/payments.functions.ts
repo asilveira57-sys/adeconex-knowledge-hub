@@ -21,8 +21,11 @@ export type CreatePreferenceResult = {
   order_id: string;
   order_number: string;
   preference_id: string;
+  /** URL correta conforme o token: produção (APP_USR-) => init_point; teste (TEST-) => sandbox_init_point */
+  checkout_url: string;
   init_point: string;
   sandbox_init_point: string | null;
+  is_sandbox: boolean;
   total: number;
 };
 
@@ -442,12 +445,20 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     // 11) Fecha carrinho
     await supabase.from("carts").update({ status: "converted" }).eq("id", cart.id);
 
+    // Token TEST- => sandbox; APP_USR- => produção
+    const isSandbox = token.startsWith("TEST-");
+    const checkoutUrl = isSandbox
+      ? (prefJson.sandbox_init_point ?? prefJson.init_point)
+      : prefJson.init_point;
+
     return {
       order_id: order.id,
       order_number: order.order_number,
       preference_id: prefJson.id,
+      checkout_url: checkoutUrl,
       init_point: prefJson.init_point,
       sandbox_init_point: prefJson.sandbox_init_point ?? null,
+      is_sandbox: isSandbox,
       total,
     };
   });
