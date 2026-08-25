@@ -32,6 +32,7 @@ const navItems = [
   { to: "/admin/artes", label: "Artes", icon: Palette, exact: false },
   { to: "/admin/produtos", label: "Produtos", icon: PackageSearch, exact: false },
   { to: "/admin/cupons", label: "Cupons", icon: TicketPercent, exact: false },
+  { to: "/admin/seo", label: "SEO & Tracking", icon: Globe2, exact: false },
   { to: "/admin/importacao", label: "Importação", icon: UploadCloud, exact: false },
   { to: "/admin/enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
 ] as const;
