@@ -463,6 +463,16 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     };
   });
 
+export const getMercadoPagoEnvironment = createServerFn({ method: "GET" })
+  .handler(async (): Promise<{ mode: "sandbox" | "production"; label: string }> => {
+    const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    const isSandbox = !token || token.startsWith("TEST-");
+    return {
+      mode: isSandbox ? "sandbox" : "production",
+      label: isSandbox ? "Ambiente de teste (sandbox)" : "Ambiente de produção",
+    };
+  });
+
 export type OrderPaymentStatus = {
   order_id: string;
   order_number: string;
