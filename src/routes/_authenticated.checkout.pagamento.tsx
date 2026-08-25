@@ -25,11 +25,17 @@ export const Route = createFileRoute("/_authenticated/checkout/pagamento")({
 function PagamentoStep() {
   const fetchSnap = useServerFn(getCheckoutSnapshot);
   const createPref = useServerFn(createOrderAndPreference);
+  const fetchMpEnv = useServerFn(getMercadoPagoEnvironment);
   const navigate = useNavigate();
   const { data } = useQuery({
     queryKey: ["checkout", "snapshot"],
     queryFn: () => fetchSnap(),
     staleTime: 5_000,
+  });
+  const { data: mpEnv } = useQuery({
+    queryKey: ["mercado-pago", "environment"],
+    queryFn: () => fetchMpEnv(),
+    staleTime: Infinity,
   });
   const { selection } = useCheckoutSelection();
   const [notes, setNotes] = useState(selection.customer_notes ?? "");
