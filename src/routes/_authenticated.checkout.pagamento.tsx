@@ -52,9 +52,8 @@ function PagamentoStep() {
       }),
     onSuccess: (res) => {
       clearCheckout();
-      // sandbox_init_point quando token for de teste; caso contrário init_point (produção)
-      const target = res.sandbox_init_point ?? res.init_point;
-      window.location.href = target;
+      // O servidor escolhe init_point (produção) ou sandbox_init_point (teste) conforme o token
+      window.location.href = res.checkout_url;
     },
     onError: (err: any) => {
       const msg = err?.message ?? "Não foi possível iniciar o pagamento";
