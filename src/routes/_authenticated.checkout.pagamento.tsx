@@ -3,10 +3,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { CreditCard, Loader2, MessageCircle, ShieldCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CreditCard,
+  Loader2,
+  MessageCircle,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { getCheckoutSnapshot } from "@/lib/checkout.functions";
-import { createOrderAndPreference } from "@/lib/payments.functions";
+import { createOrderAndPreference, getMercadoPagoEnvironment } from "@/lib/payments.functions";
 import { useCheckoutSelection } from "@/hooks/use-checkout";
 import { CheckoutSummary } from "@/components/checkout/checkout-summary";
 import { FALLBACK_SHIPPING, clearCheckout } from "@/lib/checkout.local";
@@ -18,11 +25,17 @@ export const Route = createFileRoute("/_authenticated/checkout/pagamento")({
 function PagamentoStep() {
   const fetchSnap = useServerFn(getCheckoutSnapshot);
   const createPref = useServerFn(createOrderAndPreference);
+  const fetchMpEnv = useServerFn(getMercadoPagoEnvironment);
   const navigate = useNavigate();
   const { data } = useQuery({
     queryKey: ["checkout", "snapshot"],
     queryFn: () => fetchSnap(),
     staleTime: 5_000,
+  });
+  const { data: mpEnv } = useQuery({
+    queryKey: ["mercado-pago", "environment"],
+    queryFn: () => fetchMpEnv(),
+    staleTime: Infinity,
   });
   const { selection } = useCheckoutSelection();
   const [notes, setNotes] = useState(selection.customer_notes ?? "");
@@ -95,6 +108,34 @@ function PagamentoStep() {
             <CreditCard className="h-5 w-5 text-primary" />
             <h2 className="font-display text-lg font-semibold">Pagamento</h2>
           </header>
+
+          {mpEnv && (
+            <div
+              className={`mb-4 flex items-start gap-3 rounded-lg border p-4 ${
+                mpEnv.mode === "production"
+                  ? "border-green-200 bg-green-50 text-green-900 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-100"
+                  : "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100"
+              }`}
+            >
+              {mpEnv.mode === "production" ? (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
+              ) : (
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              )}
+              <div className="text-sm">
+                <p className="font-semibold">
+                  {mpEnv.mode === "production"
+                    ? "Mercado Pago em produção"
+                    : "Mercado Pago em sandbox (teste)"}
+                </p>
+                <p className="mt-0.5 opacity-90">
+                  {mpEnv.mode === "production"
+                    ? "Este pagamento será processado com valor real e aparecerá no painel do Mercado Pago."
+                    : "Este pagamento é apenas uma simulação. Nenhum valor real será cobrado."}
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-lg border hairline bg-surface-2 p-4">
             <div className="flex items-start gap-3">
