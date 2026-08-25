@@ -17,6 +17,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { initAnalytics, trackEvent } from "@/lib/analytics";
+import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
