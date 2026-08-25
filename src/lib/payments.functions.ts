@@ -477,10 +477,21 @@ export type OrderPaymentStatus = {
   order_id: string;
   order_number: string;
   total: number;
+  shipping_total: number;
+  discount_total: number;
+  coupon_code: string | null;
   status: string;
   payment_status: string | null;
   payment_method: string | null;
   paid_at: string | null;
+  items: Array<{
+    product_id: string;
+    product_name: string;
+    sku: string | null;
+    variant_label: string | null;
+    quantity: number;
+    unit_price: number;
+  }>;
 };
 
 export const getOrderPaymentStatus = createServerFn({ method: "GET" })
@@ -489,27 +500,44 @@ export const getOrderPaymentStatus = createServerFn({ method: "GET" })
   .handler(async ({ context, data }): Promise<OrderPaymentStatus> => {
     const { data: order } = await context.supabase
       .from("orders")
-      .select("id, order_number, total, status, paid_at, payment_method")
+      .select("id, order_number, total, shipping_total, discount_total, coupon_code, status, paid_at, payment_method")
       .eq("id", data.order_id)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!order) throw new Error("Pedido não encontrado");
 
-    const { data: pay } = await context.supabase
-      .from("payments")
-      .select("status")
-      .eq("order_id", order.id)
-      .order("updated_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const [{ data: pay }, { data: items }] = await Promise.all([
+      context.supabase
+        .from("payments")
+        .select("status")
+        .eq("order_id", order.id)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      context.supabase
+        .from("order_items")
+        .select("product_id, product_name, product_sku, variant_label, quantity, unit_price")
+        .eq("order_id", order.id),
+    ]);
 
     return {
       order_id: order.id,
       order_number: order.order_number,
       total: Number(order.total),
+      shipping_total: Number(order.shipping_total),
+      discount_total: Number(order.discount_total),
+      coupon_code: (order.coupon_code as string | null) ?? null,
       status: order.status as string,
       payment_status: (pay?.status as string | null) ?? null,
       payment_method: (order.payment_method as string | null) ?? null,
       paid_at: order.paid_at as string | null,
+      items: (items ?? []).map((i) => ({
+        product_id: i.product_id as string,
+        product_name: i.product_name as string,
+        sku: (i.product_sku as string | null) ?? null,
+        variant_label: (i.variant_label as string | null) ?? null,
+        quantity: Number(i.quantity),
+        unit_price: Number(i.unit_price),
+      })),
     };
   });

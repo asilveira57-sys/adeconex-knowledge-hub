@@ -152,6 +152,13 @@ export function buildPublicTrackingConfig(settings: Record<string, any>): Public
       enabled: ads.enabled === true,
       ads_id: ads.ads_id ?? "",
       environment: ads.environment ?? "production",
+      conversions: (ads.conversions ?? [])
+        .filter((c) => c.conversion_id && c.conversion_label)
+        .map((c) => ({
+          name: c.name ?? "",
+          conversion_id: c.conversion_id,
+          conversion_label: c.conversion_label,
+        })),
     },
     meta_pixel: {
       enabled: meta.enabled === true,

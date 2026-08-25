@@ -1,8 +1,15 @@
 /**
- * Tracking runtime — GA4 (gtag), Google Tag Manager e Meta Pixel.
+ * Tracking runtime — GA4 (gtag), Google Tag Manager, Google Ads e Meta Pixel.
  * A configuração vem da Central de SEO (site_settings) via getPublicTrackingConfig,
  * com fallback para o Measurement ID do ambiente (conector Google Analytics).
  * Se a configuração não puder ser lida, cai no comportamento anterior (GA4 via env).
+ *
+ * Eventos de e-commerce (view_item, add_to_cart, begin_checkout, purchase) são
+ * despachados apenas para as plataformas ativas no ambiente atual:
+ * - GA4: via gtag('event', ...) quando instalado diretamente.
+ * - GTM: via dataLayer.push({ event, ecommerce }) — tags do container consomem.
+ * - Meta Pixel: via fbq('track', ViewContent/AddToCart/InitiateCheckout/Purchase).
+ * - Google Ads: conversão de compra via gtag('event', 'conversion', ...).
  */
 
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
@@ -21,6 +28,7 @@ const FALLBACK_GA4_ID = import.meta.env
   .VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY as string | undefined;
 
 let initialized = false;
+let configPromise: Promise<PublicTrackingConfig | null> | null = null;
 
 function environmentMatches(env: TrackingEnvironment, canonicalDomain: string): boolean {
   if (env === "both") return true;
@@ -82,59 +90,75 @@ function installMetaPixel(pixelId: string) {
   fbq("track", "PageView");
 }
 
-function applyConfig(config: PublicTrackingConfig) {
-  const domain = config.canonical_domain || "https://www.adeconex.com.br";
+/** Quais plataformas estão ativas neste ambiente — decide o dispatch dos eventos. */
+interface ActivePlatforms {
+  /** GA4 medição via gtag direto OU via GTM (eventos entram pela dataLayer). */
+  ga4Direct: boolean;
+  gtm: boolean;
+  googleAds: boolean;
+  metaPixel: boolean;
+  adsConversions: Array<{ name: string; conversion_id: string; conversion_label: string }>;
+}
 
+function resolvePlatforms(config: PublicTrackingConfig): ActivePlatforms {
+  const domain = config.canonical_domain || "https://www.adeconex.com.br";
   const gtmActive =
     config.gtm.enabled &&
     !!config.gtm.container_id &&
     environmentMatches(config.gtm.environment, domain);
-  if (gtmActive) installGtm(config.gtm.container_id);
+  const ga4Id = config.ga4.measurement_id || FALLBACK_GA4_ID || "";
+  const ga4ViaGtm = gtmActive && (config.gtm.ga4_via_gtm || config.ga4.install_method === "gtm");
+  const ga4Direct =
+    config.ga4.enabled && !!ga4Id && !ga4ViaGtm && environmentMatches(config.ga4.environment, domain);
+  const googleAds =
+    config.google_ads.enabled &&
+    !!config.google_ads.ads_id &&
+    environmentMatches(config.google_ads.environment, domain);
+  const metaPixel =
+    config.meta_pixel.enabled &&
+    !!config.meta_pixel.pixel_id &&
+    environmentMatches(config.meta_pixel.environment, domain);
+  return { ga4Direct, gtm: gtmActive, googleAds, metaPixel, adsConversions: config.google_ads.conversions };
+}
+
+function applyConfig(config: PublicTrackingConfig) {
+  const p = resolvePlatforms(config);
+
+  if (p.gtm) installGtm(config.gtm.container_id);
 
   // GA4 direto via gtag apenas quando NÃO controlado pelo GTM (evita duplicação).
   const ga4Id = config.ga4.measurement_id || FALLBACK_GA4_ID || "";
-  const ga4ViaGtm = gtmActive && (config.gtm.ga4_via_gtm || config.ga4.install_method === "gtm");
-  if (
-    config.ga4.enabled &&
-    ga4Id &&
-    !ga4ViaGtm &&
-    environmentMatches(config.ga4.environment, domain)
-  ) {
-    const adsActive =
-      config.google_ads.enabled &&
-      !!config.google_ads.ads_id &&
-      environmentMatches(config.google_ads.environment, domain);
-    installGtag(ga4Id, adsActive ? config.google_ads.ads_id : undefined);
-  } else if (
-    config.google_ads.enabled &&
-    config.google_ads.ads_id &&
-    !gtmActive &&
-    !config.ga4.enabled &&
-    environmentMatches(config.google_ads.environment, domain)
-  ) {
+  if (p.ga4Direct) {
+    installGtag(ga4Id, p.googleAds ? config.google_ads.ads_id : undefined);
+  } else if (p.googleAds && !p.gtm && !config.ga4.enabled) {
     // Google Ads sozinho (sem GA4 e sem GTM) ainda precisa da gtag base.
     installGtag(config.google_ads.ads_id);
   }
 
-  if (
-    config.meta_pixel.enabled &&
-    config.meta_pixel.pixel_id &&
-    environmentMatches(config.meta_pixel.environment, domain)
-  ) {
-    installMetaPixel(config.meta_pixel.pixel_id);
+  if (p.metaPixel) installMetaPixel(config.meta_pixel.pixel_id);
+}
+
+function loadConfig(): Promise<PublicTrackingConfig | null> {
+  if (!configPromise) {
+    configPromise = getPublicTrackingConfig()
+      .then((config) => config)
+      .catch(() => null);
   }
+  return configPromise;
 }
 
 export function initAnalytics() {
   if (typeof window === "undefined" || initialized) return;
   initialized = true;
 
-  getPublicTrackingConfig()
-    .then((config) => applyConfig(config))
-    .catch(() => {
-      // Fallback: comportamento anterior (GA4 via env do conector).
-      if (!FALLBACK_GA4_ID) return;
-      installGtag(FALLBACK_GA4_ID);
+  loadConfig()
+    .then((config) => {
+      if (config) {
+        applyConfig(config);
+      } else if (FALLBACK_GA4_ID) {
+        // Fallback: comportamento anterior (GA4 via env do conector).
+        installGtag(FALLBACK_GA4_ID);
+      }
     });
 }
 
@@ -168,5 +192,156 @@ export function trackMarketplaceClick(input: {
   trackEvent("select_promotion", {
     promotion_name: `marketplace_${input.marketplace}`,
     ...params,
+  });
+}
+
+// ─── E-commerce dataLayer ────────────────────────────────────────────────────
+
+export interface EcomItem {
+  /** SKU ou id do produto/variação. */
+  item_id: string;
+  item_name: string;
+  item_variant?: string;
+  item_category?: string;
+  /** Preço unitário em BRL. */
+  price: number;
+  quantity: number;
+}
+
+const CURRENCY = "BRL";
+
+/** Executa o dispatch quando a config estiver carregada, com as plataformas ativas. */
+function dispatchEcommerce(dispatch: (p: ActivePlatforms) => void) {
+  if (typeof window === "undefined") return;
+  loadConfig().then((config) => {
+    if (!config) return;
+    dispatch(resolvePlatforms(config));
+  });
+}
+
+/** Push no padrão GTM: limpa a chave ecommerce anterior e empurra o novo evento. */
+function pushGtmEvent(event: string, ecommerce: Record<string, unknown>) {
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ ecommerce: null });
+  window.dataLayer.push({ event, ecommerce });
+}
+
+function toGa4Items(items: EcomItem[]) {
+  return items.map((i) => ({
+    item_id: i.item_id,
+    item_name: i.item_name,
+    item_variant: i.item_variant || undefined,
+    item_category: i.item_category || undefined,
+    price: i.price,
+    quantity: i.quantity,
+  }));
+}
+
+function metaContentIds(items: EcomItem[]) {
+  return items.map((i) => i.item_id);
+}
+
+/** Visualização de produto (PDP). */
+export function trackViewItem(item: EcomItem) {
+  const value = item.price * item.quantity;
+  dispatchEcommerce((p) => {
+    if (p.ga4Direct) {
+      window.gtag?.("event", "view_item", { currency: CURRENCY, value, items: toGa4Items([item]) });
+    }
+    if (p.gtm) pushGtmEvent("view_item", { currency: CURRENCY, value, items: toGa4Items([item]) });
+    if (p.metaPixel) {
+      window.fbq?.("track", "ViewContent", {
+        content_ids: [item.item_id],
+        content_name: item.item_name,
+        content_type: "product",
+        value,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
+
+/** Adição ao carrinho. */
+export function trackAddToCart(item: EcomItem) {
+  const value = item.price * item.quantity;
+  dispatchEcommerce((p) => {
+    if (p.ga4Direct) {
+      window.gtag?.("event", "add_to_cart", { currency: CURRENCY, value, items: toGa4Items([item]) });
+    }
+    if (p.gtm) pushGtmEvent("add_to_cart", { currency: CURRENCY, value, items: toGa4Items([item]) });
+    if (p.metaPixel) {
+      window.fbq?.("track", "AddToCart", {
+        content_ids: [item.item_id],
+        content_name: item.item_name,
+        content_type: "product",
+        value,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
+
+/** Início do checkout. */
+export function trackBeginCheckout(items: EcomItem[], value: number, coupon?: string | null) {
+  dispatchEcommerce((p) => {
+    const payload = { currency: CURRENCY, value, coupon: coupon || undefined, items: toGa4Items(items) };
+    if (p.ga4Direct) window.gtag?.("event", "begin_checkout", payload);
+    if (p.gtm) pushGtmEvent("begin_checkout", payload);
+    if (p.metaPixel) {
+      window.fbq?.("track", "InitiateCheckout", {
+        content_ids: metaContentIds(items),
+        content_type: "product",
+        num_items: items.reduce((s, i) => s + i.quantity, 0),
+        value,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
+
+export interface PurchaseInput {
+  /** ID único do pedido (deduplicação no GA4/Ads). */
+  transaction_id: string;
+  value: number;
+  shipping?: number;
+  coupon?: string | null;
+  payment_method?: string | null;
+  items: EcomItem[];
+}
+
+/** Compra concluída — GA4 + GTM + Meta Pixel + conversão do Google Ads. */
+export function trackPurchase(input: PurchaseInput) {
+  dispatchEcommerce((p) => {
+    const payload = {
+      transaction_id: input.transaction_id,
+      currency: CURRENCY,
+      value: input.value,
+      shipping: input.shipping ?? undefined,
+      coupon: input.coupon || undefined,
+      payment_type: input.payment_method || undefined,
+      items: toGa4Items(input.items),
+    };
+    if (p.ga4Direct) window.gtag?.("event", "purchase", payload);
+    if (p.gtm) pushGtmEvent("purchase", payload);
+    if (p.metaPixel) {
+      window.fbq?.("track", "Purchase", {
+        content_ids: metaContentIds(input.items),
+        content_type: "product",
+        num_items: input.items.reduce((s, i) => s + i.quantity, 0),
+        value: input.value,
+        currency: CURRENCY,
+      });
+    }
+    if (p.googleAds && p.adsConversions.length > 0 && typeof window.gtag === "function") {
+      // Prefere a conversão cujo nome indica compra; senão usa a primeira.
+      const conv =
+        p.adsConversions.find((c) => /compra|purchase/i.test(c.name)) ?? p.adsConversions[0];
+      window.gtag("event", "conversion", {
+        send_to: `${conv.conversion_id}/${conv.conversion_label}`,
+        value: input.value,
+        currency: CURRENCY,
+        transaction_id: input.transaction_id,
+      });
+    }
   });
 }

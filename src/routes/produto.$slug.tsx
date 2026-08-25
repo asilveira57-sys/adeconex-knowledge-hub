@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus, ExternalLink, Wand2 } from "lucide-react";
 import { useCart } from "@/hooks/use-cart";
-import { trackMarketplaceClick } from "@/lib/analytics";
+import { trackAddToCart, trackMarketplaceClick, trackViewItem } from "@/lib/analytics";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import {
   isNonAdhesiveProduct,
@@ -168,6 +168,11 @@ function money(v: number | null): string | null {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function variantLabelFromOpts(opts: Record<string, string>): string | null {
+  const s = Object.entries(opts).map(([k, v]) => `${k}: ${v}`).join(", ");
+  return s || null;
+}
+
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productOptions(slug));
@@ -219,6 +224,23 @@ function ProductPage() {
       : p.is_available;
   const activeVariantId = selectedKit?.id ?? selectedVariant?.id ?? null;
   const qtyUnitLabel = selectedKit ? (qty === 1 ? "caixa" : "caixas") : "un.";
+
+  // view_item — dispara na carga da PDP e ao trocar variação/kit.
+  const effUnitPrice = effPromo ?? effPrice;
+  const lastViewedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const key = `${p.id}:${activeVariantId ?? "base"}`;
+    if (effUnitPrice == null || lastViewedRef.current === key) return;
+    lastViewedRef.current = key;
+    trackViewItem({
+      item_id: effSku ?? p.id,
+      item_name: p.name,
+      item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
+      item_category: p.categories[0]?.name,
+      price: effUnitPrice,
+      quantity: 1,
+    });
+  }, [p.id, p.name, effSku, effUnitPrice, activeVariantId, selectedKit, selectedOpts, p.categories]);
 
 
   const price = money(effPromo ?? effPrice);
@@ -531,11 +553,27 @@ function ProductPage() {
                     className="flex-1 min-w-[200px]"
                     disabled={add.isPending}
                     onClick={() =>
-                      add.mutate({
-                        product_id: p.id,
-                        variant_id: activeVariantId,
-                        quantity: qty,
-                      })
+                      add.mutate(
+                        {
+                          product_id: p.id,
+                          variant_id: activeVariantId,
+                          quantity: qty,
+                        },
+                        {
+                          onSuccess: () => {
+                            if (effUnitPrice != null) {
+                              trackAddToCart({
+                                item_id: effSku ?? p.id,
+                                item_name: p.name,
+                                item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
+                                item_category: p.categories[0]?.name,
+                                price: effUnitPrice,
+                                quantity: qty,
+                              });
+                            }
+                          },
+                        },
+                      )
                     }
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />

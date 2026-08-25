@@ -98,7 +98,13 @@ export interface SeoGeneralConfig {
 export interface PublicTrackingConfig {
   ga4: { enabled: boolean; measurement_id: string; install_method: "gtag" | "gtm"; environment: TrackingEnvironment };
   gtm: { enabled: boolean; container_id: string; ga4_via_gtm: boolean; environment: TrackingEnvironment };
-  google_ads: { enabled: boolean; ads_id: string; environment: TrackingEnvironment };
+  google_ads: {
+    enabled: boolean;
+    ads_id: string;
+    environment: TrackingEnvironment;
+    /** IDs/labels de conversão não são segredo — já trafegam na gtag pública. */
+    conversions: Array<{ name: string; conversion_id: string; conversion_label: string }>;
+  };
   meta_pixel: { enabled: boolean; pixel_id: string; environment: TrackingEnvironment };
   search_console_verification: string;
   canonical_domain: string;

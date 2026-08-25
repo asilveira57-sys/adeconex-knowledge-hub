@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
+import { trackPurchase } from "@/lib/analytics";
 
 export const Route = createFileRoute("/pagamento/aprovado")({
   head: () => ({
@@ -36,6 +38,27 @@ function Aprovado() {
   });
 
   const approved = data?.payment_status === "approved" || data?.status === "pago";
+
+  // purchase — dispara uma única vez quando a aprovação é confirmada.
+  const purchaseFiredRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!approved || !data || purchaseFiredRef.current === data.order_id) return;
+    purchaseFiredRef.current = data.order_id;
+    trackPurchase({
+      transaction_id: data.order_number,
+      value: data.total,
+      shipping: data.shipping_total,
+      coupon: data.coupon_code,
+      payment_method: data.payment_method,
+      items: data.items.map((i) => ({
+        item_id: i.sku ?? i.product_id,
+        item_name: i.product_name,
+        item_variant: i.variant_label ?? undefined,
+        price: i.unit_price,
+        quantity: i.quantity,
+      })),
+    });
+  }, [approved, data]);
 
   return (
     <div className="container-page py-16">
