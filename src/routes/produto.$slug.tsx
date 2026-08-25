@@ -168,6 +168,11 @@ function money(v: number | null): string | null {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function variantLabelFromOpts(opts: Record<string, string>): string | null {
+  const s = Object.entries(opts).map(([k, v]) => `${k}: ${v}`).join(", ");
+  return s || null;
+}
+
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productOptions(slug));
@@ -548,11 +553,27 @@ function ProductPage() {
                     className="flex-1 min-w-[200px]"
                     disabled={add.isPending}
                     onClick={() =>
-                      add.mutate({
-                        product_id: p.id,
-                        variant_id: activeVariantId,
-                        quantity: qty,
-                      })
+                      add.mutate(
+                        {
+                          product_id: p.id,
+                          variant_id: activeVariantId,
+                          quantity: qty,
+                        },
+                        {
+                          onSuccess: () => {
+                            if (effUnitPrice != null) {
+                              trackAddToCart({
+                                item_id: effSku ?? p.id,
+                                item_name: p.name,
+                                item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
+                                item_category: p.categories[0]?.name,
+                                price: effUnitPrice,
+                                quantity: qty,
+                              });
+                            }
+                          },
+                        },
+                      )
                     }
                   >
                     <ShoppingCart className="mr-2 h-4 w-4" />
