@@ -64,19 +64,22 @@ function installGtag(measurementId: string, adsId?: string) {
   if (adsId) window.gtag!("config", adsId);
 }
 
+type Fbq = ((...args: unknown[]) => void) & { queue?: unknown[]; loaded?: boolean; version?: string };
+
 function installMetaPixel(pixelId: string) {
   if (window.fbq) return;
-  const fbq = function (...args: unknown[]) {
-    // @ts-expect-error fila interna do pixel
-    fbq.queue ? fbq.queue.push(args) : (fbq.queue = [args]);
-  } as unknown as { (...args: unknown[]): void; queue: unknown[]; loaded?: boolean; version?: string };
-  window.fbq = fbq as never;
-  window._fbq = fbq;
+  const fbq: Fbq = (...args: unknown[]) => {
+    if (fbq.queue) fbq.queue.push(args);
+    else fbq.queue = [args];
+  };
   fbq.loaded = true;
   fbq.version = "2.0";
+  fbq.queue = [];
+  window.fbq = fbq;
+  window._fbq = fbq;
   loadScript("https://connect.facebook.net/en_US/fbevents.js");
-  window.fbq!("init", pixelId);
-  window.fbq!("track", "PageView");
+  fbq("init", pixelId);
+  fbq("track", "PageView");
 }
 
 function applyConfig(config: PublicTrackingConfig) {
