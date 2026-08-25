@@ -893,6 +893,7 @@ export type Database = {
           is_active: boolean
           last_hit_at: string | null
           new_url: string
+          notes: string | null
           old_url: string
           updated_at: string
         }
@@ -908,6 +909,7 @@ export type Database = {
           is_active?: boolean
           last_hit_at?: string | null
           new_url: string
+          notes?: string | null
           old_url: string
           updated_at?: string
         }
@@ -923,6 +925,7 @@ export type Database = {
           is_active?: boolean
           last_hit_at?: string | null
           new_url?: string
+          notes?: string | null
           old_url?: string
           updated_at?: string
         }
@@ -2365,13 +2368,22 @@ export type Database = {
           entity_type: Database["public"]["Enums"]["seo_entity_type"]
           id: string
           indexable: boolean
+          internal_notes: string | null
           is_published: boolean
           keywords: string | null
           meta_description: string | null
+          og_description: string | null
+          og_image: string | null
+          og_title: string | null
           path: string | null
+          robots_meta: string
           schema_type: string | null
+          seo_priority: number | null
           structured_data_json: Json | null
           title: string
+          twitter_description: string | null
+          twitter_image: string | null
+          twitter_title: string | null
           updated_at: string
         }
         Insert: {
@@ -2381,13 +2393,22 @@ export type Database = {
           entity_type: Database["public"]["Enums"]["seo_entity_type"]
           id?: string
           indexable?: boolean
+          internal_notes?: string | null
           is_published?: boolean
           keywords?: string | null
           meta_description?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           path?: string | null
+          robots_meta?: string
           schema_type?: string | null
+          seo_priority?: number | null
           structured_data_json?: Json | null
           title: string
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
           updated_at?: string
         }
         Update: {
@@ -2397,14 +2418,50 @@ export type Database = {
           entity_type?: Database["public"]["Enums"]["seo_entity_type"]
           id?: string
           indexable?: boolean
+          internal_notes?: string | null
           is_published?: boolean
           keywords?: string | null
           meta_description?: string | null
+          og_description?: string | null
+          og_image?: string | null
+          og_title?: string | null
           path?: string | null
+          robots_meta?: string
           schema_type?: string | null
+          seo_priority?: number | null
           structured_data_json?: Json | null
           title?: string
+          twitter_description?: string | null
+          twitter_image?: string | null
+          twitter_title?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      settings_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          setting_key: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          setting_key?: string
         }
         Relationships: []
       }
@@ -2541,6 +2598,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      site_settings: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
