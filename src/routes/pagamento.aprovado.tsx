@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { CheckCircle2, Clock, Loader2 } from "lucide-react";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
+import { trackPurchase } from "@/lib/analytics";
 
 export const Route = createFileRoute("/pagamento/aprovado")({
   head: () => ({

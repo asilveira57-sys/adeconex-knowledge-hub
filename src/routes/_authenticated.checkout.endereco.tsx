@@ -39,6 +39,27 @@ function EnderecoStep() {
 
   useAutoSelectAddress(data?.addresses ?? [], selection.address_id, update);
 
+  // begin_checkout — dispara uma vez por entrada no funil com o carrinho carregado.
+  const firedCartRef = useRef<string | null>(null);
+  useEffect(() => {
+    const cart = data?.cart;
+    if (!cart || cart.items.length === 0) return;
+    const fingerprint = cart.items.map((i) => `${i.item_id}:${i.quantity}`).join("|");
+    if (firedCartRef.current === fingerprint) return;
+    firedCartRef.current = fingerprint;
+    trackBeginCheckout(
+      cart.items.map((i) => ({
+        item_id: i.sku ?? i.product_id,
+        item_name: i.product_name,
+        item_variant: i.variant_label ?? undefined,
+        price: i.unit_price,
+        quantity: i.quantity,
+      })),
+      cart.total,
+      cart.coupon?.code ?? null,
+    );
+  }, [data]);
+
   const canContinue = !!selection.address_id;
 
   return (
