@@ -275,7 +275,20 @@ function AdvancedFilters() {
   );
 }
 
+/** Resumo dos filtros ativos, usado como termo de busca nos eventos. */
+function buildSearchTerm(s: CatalogSearch): string | null {
+  const parts: string[] = [];
+  if (s.cat) parts.push(`cat:${s.cat}`);
+  if (s.badge) parts.push(`selo:${s.badge}`);
+  if (s.frete) parts.push("frete_gratis");
+  if (s.promo) parts.push("promocao");
+  if (s.disp === "in_stock") parts.push("em_estoque");
+  if (s.sort && s.sort !== "relevance") parts.push(`ordem:${s.sort}`);
+  return parts.length > 0 ? parts.join(" ") : null;
+}
+
 function CatalogGrid() {
+
   const search = Route.useSearch();
   const { page } = search;
   const navigate = useNavigate({ from: "/catalogo" });
