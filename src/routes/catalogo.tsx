@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect } from "react";
-import { trackViewItemList, trackSelectItem } from "@/lib/analytics";
+import { trackViewItemList, trackSelectItem, trackViewSearchResults } from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
