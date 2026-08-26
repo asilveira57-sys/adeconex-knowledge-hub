@@ -314,7 +314,10 @@ export function trackViewSearchResults(input: {
       page: input.page ?? 1,
     };
     if (p.ga4Direct) window.gtag?.("event", "view_search_results", payload);
-    if (p.gtm) window.dataLayer!.push({ event: "view_search_results", ...payload });
+    if (p.gtm) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "view_search_results", ...payload });
+    }
     if (p.metaPixel) {
       window.fbq?.("track", "Search", {
         content_ids: input.items ? metaContentIds(input.items) : undefined,
