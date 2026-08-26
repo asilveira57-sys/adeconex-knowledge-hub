@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ImageOff, ArrowRight } from "lucide-react";
+import { trackViewItemList, trackSelectItem } from "@/lib/analytics";
+import { showcaseToEcomItem } from "@/lib/analytics-list";
+
 import {
   Carousel,
   CarouselContent,
