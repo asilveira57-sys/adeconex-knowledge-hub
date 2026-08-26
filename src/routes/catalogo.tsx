@@ -2,7 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { trackViewItemList, trackSelectItem } from "@/lib/analytics";
+import { showcaseToEcomItem } from "@/lib/analytics-list";
+
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
@@ -272,14 +275,44 @@ function AdvancedFilters() {
   );
 }
 
+/** Resumo dos filtros ativos, usado como termo de busca nos eventos. */
+function buildSearchTerm(s: CatalogSearch): string | null {
+  const parts: string[] = [];
+  if (s.cat) parts.push(`cat:${s.cat}`);
+  if (s.badge) parts.push(`selo:${s.badge}`);
+  if (s.frete) parts.push("frete_gratis");
+  if (s.promo) parts.push("promocao");
+  if (s.disp === "in_stock") parts.push("em_estoque");
+  if (s.sort && s.sort !== "relevance") parts.push(`ordem:${s.sort}`);
+  return parts.length > 0 ? parts.join(" ") : null;
+}
+
 function CatalogGrid() {
+
   const search = Route.useSearch();
   const { page } = search;
   const navigate = useNavigate({ from: "/catalogo" });
   const { data } = useSuspenseQuery(listOptions(search));
   const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
 
-  if (data.items.length === 0) {
+  const listId = "catalogo";
+  const listName = search.cat ? `Catálogo · ${search.cat}` : "Catálogo";
+  const searchTerm = buildSearchTerm(search);
+  const offset = (page - 1) * data.pageSize;
+
+  const items = data.items;
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackViewItemList({
+      listId,
+      listName,
+      searchTerm,
+      items: items.map((p, i) => showcaseToEcomItem(p, offset + i + 1, search.cat)),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, listId, listName, searchTerm, offset]);
+
+  if (items.length === 0) {
     return (
       <div className="rounded-lg border hairline bg-surface-2 p-10 text-center text-sm text-muted-foreground">
         Nenhum produto encontrado com os filtros atuais.
@@ -290,18 +323,26 @@ function CatalogGrid() {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {data.items.map((p) => (
+        {items.map((p, i) => (
           <Link
             key={p.id}
             to="/produto/$slug"
             params={{ slug: p.slug }}
             className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
             aria-label={p.name}
+            onClick={() =>
+              trackSelectItem({
+                listId,
+                listName,
+                item: showcaseToEcomItem(p, offset + i + 1, search.cat),
+              })
+            }
           >
             <ProductCard p={p} />
           </Link>
         ))}
       </div>
+
 
       <div className="mt-10 flex items-center justify-between gap-4">
         <p className="text-xs text-muted-foreground">

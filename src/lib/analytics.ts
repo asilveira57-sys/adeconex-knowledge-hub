@@ -241,7 +241,71 @@ function metaContentIds(items: EcomItem[]) {
   return items.map((i) => i.item_id);
 }
 
+/** Item exibido em uma listagem (catálogo, vitrine, resultado de busca). */
+export interface EcomListItem extends EcomItem {
+  /** Posição na lista, começando em 1. */
+  index?: number;
+}
+
+function toGa4ListItems(items: EcomListItem[], listId: string, listName: string) {
+  return items.map((i, n) => ({
+    ...toGa4Items([i])[0],
+    index: i.index ?? n + 1,
+    item_list_id: listId,
+    item_list_name: listName,
+  }));
+}
+
+/** Visualização de uma lista de produtos (catálogo, busca, vitrine). */
+export function trackViewItemList(input: {
+  listId: string;
+  listName: string;
+  items: EcomListItem[];
+  /** Termo/filtros aplicados — dispara também o evento `search` quando presente. */
+  searchTerm?: string | null;
+}) {
+  if (input.items.length === 0) return;
+  const items = toGa4ListItems(input.items, input.listId, input.listName);
+  dispatchEcommerce((p) => {
+    const payload = { item_list_id: input.listId, item_list_name: input.listName, items };
+    if (p.ga4Direct) {
+      window.gtag?.("event", "view_item_list", payload);
+      if (input.searchTerm) window.gtag?.("event", "search", { search_term: input.searchTerm });
+    }
+    if (p.gtm) {
+      pushGtmEvent("view_item_list", payload);
+      if (input.searchTerm) {
+        window.dataLayer!.push({ event: "search", search_term: input.searchTerm });
+      }
+    }
+    if (p.metaPixel) {
+      window.fbq?.("track", input.searchTerm ? "Search" : "ViewContent", {
+        content_ids: metaContentIds(input.items),
+        content_type: "product",
+        content_category: input.listName,
+        search_string: input.searchTerm || undefined,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
+
+/** Clique em um produto dentro de uma lista. */
+export function trackSelectItem(input: {
+  listId: string;
+  listName: string;
+  item: EcomListItem;
+}) {
+  const items = toGa4ListItems([input.item], input.listId, input.listName);
+  dispatchEcommerce((p) => {
+    const payload = { item_list_id: input.listId, item_list_name: input.listName, items };
+    if (p.ga4Direct) window.gtag?.("event", "select_item", payload);
+    if (p.gtm) pushGtmEvent("select_item", payload);
+  });
+}
+
 /** Visualização de produto (PDP). */
+
 export function trackViewItem(item: EcomItem) {
   const value = item.price * item.quantity;
   dispatchEcommerce((p) => {

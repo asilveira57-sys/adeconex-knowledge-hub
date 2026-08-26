@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ImageOff, ArrowRight } from "lucide-react";
+import { trackViewItemList, trackSelectItem } from "@/lib/analytics";
+import { showcaseToEcomItem } from "@/lib/analytics-list";
+
 import {
   Carousel,
   CarouselContent,
@@ -79,7 +83,19 @@ export function ProductCarousel({
 }) {
   const { data } = useSuspenseQuery(showcaseOptions(categorySlug, 9));
   const products = data.products;
+
+  const listId = `vitrine_${categorySlug}`;
+  useEffect(() => {
+    if (products.length === 0) return;
+    trackViewItemList({
+      listId,
+      listName: title,
+      items: products.map((p, i) => showcaseToEcomItem(p, i + 1, categorySlug)),
+    });
+  }, [products, listId, title, categorySlug]);
+
   if (products.length === 0) return null;
+
 
   return (
     <section className="py-12">
@@ -108,7 +124,7 @@ export function ProductCarousel({
 
         <Carousel opts={{ align: "start", dragFree: true }} className="w-full">
           <CarouselContent className="-ml-3">
-            {products.map((p) => (
+            {products.map((p, i) => (
               <CarouselItem
                 key={p.id}
                 className="basis-[75%] pl-3 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
@@ -118,7 +134,15 @@ export function ProductCarousel({
                   params={{ slug: p.slug }}
                   className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
                   aria-label={p.name}
+                  onClick={() =>
+                    trackSelectItem({
+                      listId,
+                      listName: title,
+                      item: showcaseToEcomItem(p, i + 1, categorySlug),
+                    })
+                  }
                 >
+
                   <ProductCard p={p} />
                 </Link>
               </CarouselItem>
