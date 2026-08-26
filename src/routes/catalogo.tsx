@@ -279,7 +279,24 @@ function CatalogGrid() {
   const { data } = useSuspenseQuery(listOptions(search));
   const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
 
-  if (data.items.length === 0) {
+  const listId = "catalogo";
+  const listName = search.cat ? `Catálogo · ${search.cat}` : "Catálogo";
+  const searchTerm = buildSearchTerm(search);
+  const offset = (page - 1) * data.pageSize;
+
+  const items = data.items;
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackViewItemList({
+      listId,
+      listName,
+      searchTerm,
+      items: items.map((p, i) => showcaseToEcomItem(p, offset + i + 1, search.cat)),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items, listId, listName, searchTerm, offset]);
+
+  if (items.length === 0) {
     return (
       <div className="rounded-lg border hairline bg-surface-2 p-10 text-center text-sm text-muted-foreground">
         Nenhum produto encontrado com os filtros atuais.
@@ -290,18 +307,26 @@ function CatalogGrid() {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-        {data.items.map((p) => (
+        {items.map((p, i) => (
           <Link
             key={p.id}
             to="/produto/$slug"
             params={{ slug: p.slug }}
             className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
             aria-label={p.name}
+            onClick={() =>
+              trackSelectItem({
+                listId,
+                listName,
+                item: showcaseToEcomItem(p, offset + i + 1, search.cat),
+              })
+            }
           >
             <ProductCard p={p} />
           </Link>
         ))}
       </div>
+
 
       <div className="mt-10 flex items-center justify-between gap-4">
         <p className="text-xs text-muted-foreground">
