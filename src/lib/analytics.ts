@@ -290,6 +290,45 @@ export function trackViewItemList(input: {
   });
 }
 
+/** Resultados de busca/filtros: termo, filtros aplicados e quantidade exibida. */
+export function trackViewSearchResults(input: {
+  /** Termo ou resumo da busca (ex.: filtros ativos concatenados). */
+  searchTerm?: string | null;
+  /** Filtros aplicados (chave → valor), apenas os ativos. */
+  filters?: Record<string, string | number | boolean>;
+  /** Total de resultados encontrados. */
+  resultsTotal: number;
+  /** Itens exibidos na página atual. */
+  itemsShown: number;
+  /** Página atual dos resultados. */
+  page?: number;
+  /** Itens exibidos (para Meta Pixel). */
+  items?: EcomListItem[];
+}) {
+  dispatchEcommerce((p) => {
+    const payload = {
+      search_term: input.searchTerm || undefined,
+      filters: input.filters && Object.keys(input.filters).length > 0 ? input.filters : undefined,
+      results_total: input.resultsTotal,
+      items_shown: input.itemsShown,
+      page: input.page ?? 1,
+    };
+    if (p.ga4Direct) window.gtag?.("event", "view_search_results", payload);
+    if (p.gtm) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "view_search_results", ...payload });
+    }
+    if (p.metaPixel) {
+      window.fbq?.("track", "Search", {
+        content_ids: input.items ? metaContentIds(input.items) : undefined,
+        content_type: "product",
+        search_string: input.searchTerm || undefined,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
+
 /** Clique em um produto dentro de uma lista. */
 export function trackSelectItem(input: {
   listId: string;

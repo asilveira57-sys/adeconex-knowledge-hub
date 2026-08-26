@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect } from "react";
-import { trackViewItemList, trackSelectItem } from "@/lib/analytics";
+import { trackViewItemList, trackSelectItem, trackViewSearchResults } from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
@@ -287,6 +287,18 @@ function buildSearchTerm(s: CatalogSearch): string | null {
   return parts.length > 0 ? parts.join(" ") : null;
 }
 
+/** Filtros ativos estruturados para o evento view_search_results. */
+function buildActiveFilters(s: CatalogSearch): Record<string, string | number | boolean> {
+  const f: Record<string, string | number | boolean> = {};
+  if (s.cat) f.category = s.cat;
+  if (s.badge) f.badge = s.badge;
+  if (s.frete) f.free_shipping = true;
+  if (s.promo) f.on_sale = true;
+  if (s.disp === "in_stock") f.in_stock = true;
+  if (s.sort && s.sort !== "relevance") f.sort = s.sort;
+  return f;
+}
+
 function CatalogGrid() {
 
   const search = Route.useSearch();
@@ -301,6 +313,22 @@ function CatalogGrid() {
   const offset = (page - 1) * data.pageSize;
 
   const items = data.items;
+
+  // view_search_results: termo, filtros aplicados e quantidade exibida — dispara
+  // uma vez por combinação de filtros/página, mesmo quando não há resultados.
+  const filtersKey = JSON.stringify([search.cat, search.badge, search.frete, search.promo, search.disp, search.sort, page]);
+  useEffect(() => {
+    trackViewSearchResults({
+      searchTerm,
+      filters: buildActiveFilters(search),
+      resultsTotal: data.total,
+      itemsShown: items.length,
+      page,
+      items: items.map((p, i) => showcaseToEcomItem(p, offset + i + 1, search.cat)),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersKey, data.total, items.length]);
+
   useEffect(() => {
     if (items.length === 0) return;
     trackViewItemList({
