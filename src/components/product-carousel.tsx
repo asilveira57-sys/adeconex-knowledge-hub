@@ -79,7 +79,19 @@ export function ProductCarousel({
 }) {
   const { data } = useSuspenseQuery(showcaseOptions(categorySlug, 9));
   const products = data.products;
+
+  const listId = `vitrine_${categorySlug}`;
+  useEffect(() => {
+    if (products.length === 0) return;
+    trackViewItemList({
+      listId,
+      listName: title,
+      items: products.map((p, i) => showcaseToEcomItem(p, i + 1, categorySlug)),
+    });
+  }, [products, listId, title, categorySlug]);
+
   if (products.length === 0) return null;
+
 
   return (
     <section className="py-12">
