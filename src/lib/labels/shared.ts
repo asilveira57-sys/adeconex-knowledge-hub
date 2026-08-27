@@ -399,4 +399,68 @@ export const LABEL_TEMPLATES: { id: string; name: string; description: string; b
       ],
     }),
   },
+  {
+    id: "preco",
+    name: "Etiqueta de preço",
+    description: "Pequena (40 × 25 mm): preço em destaque e código",
+    build: () => ({
+      ...emptyDesign(),
+      name: "Etiqueta de preço",
+      width_mm: 40,
+      height_mm: 25,
+      layout: [
+        {
+          id: newLayerId(), kind: "text", x: 3, y: 2.5, w: 34, text: "NOME DO PRODUTO",
+          fontSize: 7, fontFamily: LABEL_FONTS[0], bold: true, italic: false, align: "left", letterSpacing: 0.2, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "text", x: 3, y: 7, w: 34, text: "R$ 19,90",
+          fontSize: 20, fontFamily: LABEL_FONTS[0], bold: true, italic: false, align: "left", letterSpacing: 0, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "text", x: 3, y: 16, w: 20, text: "Cód. 001234",
+          fontSize: 6, fontFamily: LABEL_FONTS[0], bold: false, italic: false, align: "left", letterSpacing: 0, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "barcode", x: 24, y: 15, w: 13, h: 7.5,
+          symbology: "code128", value: "001234", showText: false, rotation: 0,
+        },
+      ],
+    }),
+  },
+  {
+    id: "corretor-imoveis",
+    name: "Corretor de imóveis",
+    description: "Nome, CRECI, contato e QR do imóvel",
+    build: () => ({
+      ...emptyDesign(),
+      name: "Corretor de imóveis",
+      width_mm: 90,
+      height_mm: 45,
+      layout: [
+        {
+          id: newLayerId(), kind: "text", x: 5, y: 5, w: 50, text: "NOME DO CORRETOR",
+          fontSize: 13, fontFamily: LABEL_FONTS[1], bold: true, italic: false, align: "left", letterSpacing: 0.5, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "text", x: 5, y: 13, w: 50, text: "CRECI 00000-F",
+          fontSize: 8, fontFamily: LABEL_FONTS[0], bold: false, italic: false, align: "left", letterSpacing: 0.5, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "text", x: 5, y: 20, w: 50, text: "(27) 99999-0000\ncorretor@imobiliaria.com.br",
+          fontSize: 8, fontFamily: LABEL_FONTS[0], bold: false, italic: false, align: "left", letterSpacing: 0, rotation: 0,
+        },
+        {
+          id: newLayerId(), kind: "text", x: 5, y: 34, w: 50, text: "VENDE-SE / ALUGA-SE",
+          fontSize: 9, fontFamily: LABEL_FONTS[0], bold: true, italic: false, align: "left", letterSpacing: 1, rotation: 0,
+        },
+        { id: newLayerId(), kind: "qrcode", x: 60, y: 6, w: 26, value: "https://adeconex.com.br", rotation: 0 },
+        {
+          id: newLayerId(), kind: "text", x: 60, y: 34, w: 26, text: "veja o imóvel",
+          fontSize: 6.5, fontFamily: LABEL_FONTS[0], bold: false, italic: false, align: "center", letterSpacing: 0, rotation: 0,
+        },
+      ],
+    }),
+  },
 ];
+
