@@ -3,7 +3,13 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { Suspense, useEffect } from "react";
-import { trackViewItemList, trackSelectItem, trackViewSearchResults } from "@/lib/analytics";
+import {
+  trackViewItemList,
+  trackSelectItem,
+  trackViewSearchResults,
+  trackSearchPageChange,
+  trackSearchSortChange,
+} from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
@@ -261,7 +267,18 @@ function AdvancedFilters() {
         <select
           id="catalog-sort"
           value={search.sort}
-          onChange={(e) => patch({ sort: e.target.value })}
+          onChange={(e) => {
+            const nextSort = e.target.value;
+            if (nextSort === search.sort) return;
+            trackSearchSortChange({
+              searchTerm: buildSearchTerm(search),
+              filters: buildActiveFilters(search),
+              sort: nextSort,
+              previousSort: search.sort,
+              pageNumber: search.page,
+            });
+            patch({ sort: nextSort });
+          }}
           className="rounded-md border hairline bg-surface-2 px-3 py-1.5 text-xs"
         >
           {SORTS.map((s) => (
@@ -381,9 +398,17 @@ function CatalogGrid() {
             variant="outline"
             size="sm"
             disabled={page <= 1}
-            onClick={() =>
-              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: Math.max(1, page - 1) }) })
-            }
+            onClick={() => {
+              const nextPage = Math.max(1, page - 1);
+              trackSearchPageChange({
+                searchTerm,
+                filters: buildActiveFilters(search),
+                sort: search.sort,
+                pageNumber: nextPage,
+                previousPage: page,
+              });
+              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: nextPage }) });
+            }}
           >
             <ChevronLeft className="h-4 w-4" /> Anterior
           </Button>
@@ -391,9 +416,17 @@ function CatalogGrid() {
             variant="outline"
             size="sm"
             disabled={page >= totalPages}
-            onClick={() =>
-              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: Math.min(totalPages, page + 1) }) })
-            }
+            onClick={() => {
+              const nextPage = Math.min(totalPages, page + 1);
+              trackSearchPageChange({
+                searchTerm,
+                filters: buildActiveFilters(search),
+                sort: search.sort,
+                pageNumber: nextPage,
+                previousPage: page,
+              });
+              navigate({ search: (prev: CatalogSearch) => ({ ...prev, page: nextPage }) });
+            }}
           >
             Próxima <ChevronRight className="h-4 w-4" />
           </Button>
