@@ -263,7 +263,7 @@ function BarcodeLayer({
           transparent: true,
           rotation: 0,
         });
-        if (!cancel) setSvg(res.svg.replace(/width="[^"]*"/, 'width="100%"').replace(/height="[^"]*"/, 'height="100%"'));
+        if (!cancel) setSvg(fitSvg(res.svg, "none"));
       } catch {
         if (!cancel) {
           setSvg(null);
