@@ -343,6 +343,70 @@ export function trackSelectItem(input: {
   });
 }
 
+// ─── Interação com resultados de busca ──────────────────────────────────────
+
+interface SearchResultsContextInput {
+  /** Termo/resumo da busca (filtros ativos concatenados). */
+  searchTerm?: string | null;
+  /** Filtros aplicados (chave → valor), apenas os ativos. */
+  filters?: Record<string, string | number | boolean>;
+  /** Ordenação ativa no momento da interação. */
+  sort?: string;
+}
+
+function baseSearchPayload(input: SearchResultsContextInput) {
+  return {
+    search_term: input.searchTerm || undefined,
+    filters: input.filters && Object.keys(input.filters).length > 0 ? input.filters : undefined,
+    sort: input.sort || undefined,
+  };
+}
+
+function pushSearchInteraction(event: string, payload: Record<string, unknown>) {
+  dispatchEcommerce((p) => {
+    if (p.ga4Direct) window.gtag?.("event", event, payload);
+    if (p.gtm) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event, ...payload });
+    }
+  });
+}
+
+/** Mudança de página na listagem de resultados (paginação). */
+export function trackSearchPageChange(
+  input: SearchResultsContextInput & {
+    /** Página de destino. */
+    pageNumber: number;
+    /** Página de onde o usuário saiu. */
+    previousPage?: number;
+  },
+) {
+  pushSearchInteraction("search_results_page_change", {
+    ...baseSearchPayload(input),
+    page_number: input.pageNumber,
+    previous_page: input.previousPage ?? undefined,
+  });
+}
+
+/** Mudança de ordenação na listagem de resultados. */
+export function trackSearchSortChange(
+  input: SearchResultsContextInput & {
+    /** Nova ordenação aplicada. */
+    sort: string;
+    /** Ordenação anterior. */
+    previousSort?: string;
+    /** Página em que a troca ocorreu. */
+    pageNumber?: number;
+  },
+) {
+  pushSearchInteraction("search_results_sort_change", {
+    ...baseSearchPayload(input),
+    sort: input.sort,
+    previous_sort: input.previousSort ?? undefined,
+    page_number: input.pageNumber ?? 1,
+  });
+}
+
 /** Visualização de produto (PDP). */
 
 export function trackViewItem(item: EcomItem) {
