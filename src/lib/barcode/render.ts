@@ -123,23 +123,29 @@ export async function renderBarcodeSvg(o: RenderOptions): Promise<RenderResult> 
   const lib = await bwip();
   const raw = lib.toSVG(bwipOptions(o) as never);
 
-  const vb = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(raw);
-  const wAttr = /width="([\d.]+)"/.exec(raw);
-  const hAttr = /height="([\d.]+)"/.exec(raw);
+  const openTagMatch = /<svg[^>]*>/.exec(raw);
+  const openTag = openTagMatch?.[0] ?? "<svg>";
+  const vb = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(openTag);
+  const wAttr = /\bwidth="([\d.]+)/.exec(openTag);
+  const hAttr = /\bheight="([\d.]+)/.exec(openTag);
   const wUnits = Number(vb?.[1] ?? wAttr?.[1] ?? 0);
   const hUnits = Number(vb?.[2] ?? hAttr?.[1] ?? 0);
   const widthMm = wUnits * UNIT_MM;
   const heightMm = hUnits * UNIT_MM;
 
-  let svg = raw;
-  if (!vb) {
-    svg = svg.replace("<svg ", `<svg viewBox="0 0 ${wUnits} ${hUnits}" `);
-  }
-  svg = svg
-    .replace(/width="[\d.]+(mm)?"/, `width="${widthMm.toFixed(3)}mm"`)
-    .replace(/height="[\d.]+(mm)?"/, `height="${heightMm.toFixed(3)}mm"`);
+  // Reescreve APENAS a tag <svg> de abertura (nunca stroke-width dos caminhos).
+  let newTag = openTag
+    .replace(/\swidth="[^"]*"/, "")
+    .replace(/\sheight="[^"]*"/, "")
+    .replace(
+      "<svg",
+      `<svg width="${widthMm.toFixed(3)}mm" height="${heightMm.toFixed(3)}mm"`,
+    );
+  if (!vb) newTag = newTag.replace("<svg", `<svg viewBox="0 0 ${wUnits} ${hUnits}"`);
+  const svg = openTagMatch ? raw.replace(openTag, newTag) : raw;
 
   return { svg, widthMm, heightMm };
+
 }
 
 /** Rasteriza um SVG para PNG (dataURL) no DPI informado. */
