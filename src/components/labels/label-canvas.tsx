@@ -225,7 +225,8 @@ function QrLayer({ value, size, color }: { value: string; size: number; color: s
   const svg = useMemo(() => {
     try {
       const matrix = buildMatrix(value || " ", "M");
-      return renderSvg(matrix, { ...DEFAULT_STYLE, fgColor: color, markerOuterColor: color, markerInnerColor: color, transparent: true, margin: 1 });
+      const raw = renderSvg(matrix, { ...DEFAULT_STYLE, fgColor: color, markerOuterColor: color, markerInnerColor: color, transparent: true, margin: 1 });
+      return fitSvg(raw, "xMidYMid meet");
     } catch {
       return null;
     }
