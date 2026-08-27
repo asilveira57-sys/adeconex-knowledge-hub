@@ -364,17 +364,18 @@ export const LABEL_TEMPLATES: { id: string; name: string; description: string; b
       height_mm: 50,
       layout: [
         {
-          id: newLayerId(), kind: "text", x: 4, y: 4, w: 42, text: "SUA MARCA",
-          fontSize: 13, fontFamily: LABEL_FONTS[1], bold: true, italic: false, align: "center", letterSpacing: 1, rotation: 0,
+          id: newLayerId(), kind: "text", x: 4, y: 3, w: 42, text: "SUA MARCA",
+          fontSize: 12, fontFamily: LABEL_FONTS[1], bold: true, italic: false, align: "center", letterSpacing: 1, rotation: 0,
         },
-        { id: newLayerId(), kind: "qrcode", x: 13, y: 13, w: 24, value: "https://adeconex.com.br", rotation: 0 },
+        { id: newLayerId(), kind: "qrcode", x: 8, y: 11, w: 34, value: "https://adeconex.com.br", rotation: 0 },
         {
-          id: newLayerId(), kind: "text", x: 4, y: 40, w: 42, text: "aponte a câmera",
+          id: newLayerId(), kind: "text", x: 4, y: 45, w: 42, text: "aponte a câmera",
           fontSize: 7, fontFamily: LABEL_FONTS[0], bold: false, italic: false, align: "center", letterSpacing: 0, rotation: 0,
         },
       ],
     }),
   },
+
   {
     id: "patrimonio",
     name: "Patrimônio / ativo",
