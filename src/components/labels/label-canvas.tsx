@@ -160,6 +160,19 @@ function round(v: number) {
   return Math.round(v * 10) / 10;
 }
 
+/** Faz o SVG ocupar 100% do contêiner, reescrevendo só a tag <svg> de abertura. */
+function fitSvg(svg: string, preserve: "none" | "xMidYMid meet") {
+  const tag = /<svg[^>]*>/.exec(svg)?.[0];
+  if (!tag) return svg;
+  const next = tag
+    .replace(/\swidth="[^"]*"/, "")
+    .replace(/\sheight="[^"]*"/, "")
+    .replace(/\spreserveAspectRatio="[^"]*"/, "")
+    .replace("<svg", `<svg width="100%" height="100%" preserveAspectRatio="${preserve}"`);
+  return svg.replace(tag, next);
+}
+
+
 function LayerContent({ layer, scale, color }: { layer: LabelLayer; scale: number; color: string }) {
   if (layer.kind === "text") {
     return (
