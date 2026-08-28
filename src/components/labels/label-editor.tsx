@@ -91,6 +91,14 @@ export function LabelEditor({
   const [imageKind, setImageKind] = useState<ImageKindId>("label");
   const IMAGE_KINDS = IMAGE_KIND_PRESETS;
 
+  const [pdfPage, setPdfPage] = useState<PdfPage>("label");
+  const [pdfOrientation, setPdfOrientation] = useState<PdfOrientation>("auto");
+  const [pdfDpi, setPdfDpi] = useState(600);
+  const [pdfCutMarks, setPdfCutMarks] = useState(true);
+  const [pdfBackground, setPdfBackground] = useState(true);
+  const [exporting, setExporting] = useState(false);
+
+
 
   const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
