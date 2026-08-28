@@ -32,6 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import type { PdfOrientation, PdfPage } from "@/lib/labels/pdf";
+
 import { LabelCanvas } from "@/components/labels/label-canvas";
 import { LabelMockup } from "@/components/labels/label-mockup";
 import { SYMBOLOGIES } from "@/lib/barcode/symbologies";
