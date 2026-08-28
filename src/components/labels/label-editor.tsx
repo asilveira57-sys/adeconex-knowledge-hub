@@ -37,6 +37,7 @@ import type { PdfOrientation, PdfPage } from "@/lib/labels/pdf";
 import { LabelCanvas } from "@/components/labels/label-canvas";
 import { LabelMockup } from "@/components/labels/label-mockup";
 import { SYMBOLOGIES } from "@/lib/barcode/symbologies";
+import { checkQuickField, quickFields, type QuickField } from "@/lib/labels/quick-fields";
 import {
   LABEL_FONTS,
   LABEL_TEMPLATES,
@@ -1417,4 +1418,96 @@ async function binarizeImage(dataUrl: string, threshold: number): Promise<string
   }
   ctx.putImageData(data, 0, 0);
   return canvas.toDataURL("image/png");
+}
+
+/** Formulário rápido: preenche EAN, nome, preço, CRECI, contato e URL do QR. */
+function QuickDataPanel({
+  design,
+  onPatch,
+  onFocusLayer,
+}: {
+  design: LabelDesign;
+  onPatch: (id: string, next: Partial<LabelLayer>, tag?: string) => void;
+  onFocusLayer: (id: string) => void;
+}) {
+  const fields = useMemo(() => quickFields(design), [design]);
+  const symbologyById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const l of design.layout) if (l.kind === "barcode") map.set(l.id, l.symbology);
+    return map;
+  }, [design.layout]);
+
+  if (fields.length === 0) return null;
+
+  function set(field: QuickField, value: string) {
+    onPatch(
+      field.id,
+      field.kind === "text" ? { text: value } : { value },
+      `quick-${field.id}`,
+    );
+  }
+
+  return (
+    <div className="rounded-lg border hairline bg-card p-4">
+      <h2 className="mb-1 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
+        Dados da etiqueta
+      </h2>
+      <p className="mb-3 text-[11px] leading-snug text-muted-foreground">
+        Preencha aqui antes de gerar — o desenho atualiza na hora.
+      </p>
+      <div className="space-y-3">
+        {fields.map((f) => {
+          const check = checkQuickField(f, f.value, symbologyById.get(f.id));
+          return (
+            <div key={f.id}>
+              <Label htmlFor={`qf-${f.id}`} className="text-xs">
+                {f.label}
+              </Label>
+              {f.multiline ? (
+                <Textarea
+                  id={`qf-${f.id}`}
+                  rows={2}
+                  className="text-xs"
+                  value={f.value}
+                  maxLength={f.maxLength}
+                  placeholder={f.placeholder}
+                  onFocus={() => onFocusLayer(f.id)}
+                  onChange={(e) => set(f, e.target.value)}
+                />
+              ) : (
+                <Input
+                  id={`qf-${f.id}`}
+                  className="h-8 text-xs"
+                  value={f.value}
+                  maxLength={f.maxLength}
+                  placeholder={f.placeholder}
+                  inputMode={f.kind === "barcode" ? "numeric" : undefined}
+                  onFocus={() => onFocusLayer(f.id)}
+                  onChange={(e) => set(f, e.target.value)}
+                />
+              )}
+              {!check.ok && check.message ? (
+                <p className="mt-1 text-[11px] leading-snug text-destructive">
+                  {check.message}
+                  {check.fix && (
+                    <button
+                      type="button"
+                      className="ml-1 underline underline-offset-2"
+                      onClick={() => set(f, check.fix!)}
+                    >
+                      corrigir para {check.fix}
+                    </button>
+                  )}
+                </p>
+              ) : check.info ? (
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{check.info}</p>
+              ) : f.hint ? (
+                <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{f.hint}</p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
