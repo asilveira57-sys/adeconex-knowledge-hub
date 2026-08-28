@@ -3,7 +3,7 @@
  * (EAN, nome do produto, preço, CRECI, contato, URL/QR) que o cliente
  * preenche antes de gerar a etiqueta — sem precisar clicar em cada elemento.
  */
-import { SYMBOLOGY_BY_ID, validateValue } from "@/lib/barcode/symbologies";
+import { SYMBOLOGY_BY_ID, SYMBOLOGIES, validateValue, type SymbologyId } from "@/lib/barcode/symbologies";
 import type { LabelDesign, LabelLayer } from "@/lib/labels/shared";
 
 export interface QuickField {
@@ -24,6 +24,10 @@ export interface QuickFieldCheck {
   /** valor sugerido para o botão "corrigir" */
   fix?: string;
   info?: string;
+}
+
+export function symbologyOf(id: string) {
+  return SYMBOLOGY_BY_ID[id as SymbologyId] ?? SYMBOLOGIES[0];
 }
 
 const MAX_TEXT = 300;
@@ -70,7 +74,7 @@ export function quickFields(design: LabelDesign): QuickField[] {
         placeholder: meta.placeholder,
       });
     } else if (l.kind === "barcode") {
-      const sym = SYMBOLOGY_BY_ID[l.symbology];
+      const sym = symbologyOf(l.symbology);
       fields.push({
         id: l.id,
         label: sym.id === "ean13" ? "EAN-13 (código do produto)" : `Código ${sym.label}`,
@@ -101,13 +105,13 @@ export function quickFields(design: LabelDesign): QuickField[] {
 export function checkQuickField(
   field: QuickField,
   raw: string,
-  symbology?: Parameters<typeof validateValue>[0],
+  symbology?: string,
 ): QuickFieldCheck {
   const value = raw.trim();
 
   if (field.kind === "barcode") {
     if (!symbology) return { ok: true };
-    const r = validateValue(symbology, value);
+    const r = validateValue(symbologyOf(symbology).id, value);
     return { ok: r.ok, message: r.ok ? undefined : r.message, fix: r.fix, info: r.info };
   }
 
