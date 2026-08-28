@@ -432,6 +432,9 @@ export function LabelEditor({
           </div>
         </div>
 
+        <QuickDataPanel design={design} onPatch={patchLayer} onFocusLayer={setSelectedId} />
+
+
         <div className="rounded-lg border hairline bg-card p-4">
           <h2 className="mb-3 font-mono text-xs uppercase tracking-[0.14em] text-muted-foreground">
             Camadas
