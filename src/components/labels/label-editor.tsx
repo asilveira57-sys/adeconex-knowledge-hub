@@ -32,6 +32,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import type { PdfOrientation, PdfPage } from "@/lib/labels/pdf";
+
 import { LabelCanvas } from "@/components/labels/label-canvas";
 import { LabelMockup } from "@/components/labels/label-mockup";
 import { SYMBOLOGIES } from "@/lib/barcode/symbologies";
@@ -91,6 +93,14 @@ export function LabelEditor({
   const [imageKind, setImageKind] = useState<ImageKindId>("label");
   const IMAGE_KINDS = IMAGE_KIND_PRESETS;
 
+  const [pdfPage, setPdfPage] = useState<PdfPage>("label");
+  const [pdfOrientation, setPdfOrientation] = useState<PdfOrientation>("auto");
+  const [pdfDpi, setPdfDpi] = useState(600);
+  const [pdfCutMarks, setPdfCutMarks] = useState(true);
+  const [pdfBackground, setPdfBackground] = useState(true);
+  const [exporting, setExporting] = useState(false);
+
+
 
   const lastPush = useRef<{ tag: string; at: number }>({ tag: "", at: 0 });
   const fileRef = useRef<HTMLInputElement>(null);
@@ -109,6 +119,27 @@ export function LabelEditor({
 
   const unitPrice = unitPriceForQuantity(tiers, quantity);
   const total = unitPrice * quantity;
+
+  async function exportPdf() {
+    setExporting(true);
+    try {
+      const { downloadLabelPdf } = await import("@/lib/labels/pdf");
+      await downloadLabelPdf(design, {
+        page: pdfPage,
+        orientation: pdfOrientation,
+        dpi: pdfDpi,
+        cutMarks: pdfCutMarks,
+        printBackground: pdfBackground,
+        spec,
+      });
+      toast.success("PDF gerado em tamanho real, pronto para impressão.");
+    } catch (e) {
+      toast.error((e as Error)?.message ?? "Não foi possível gerar o PDF.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
 
   /** Aplica uma mudança registrando o estado anterior no histórico (Desfazer). */
   const commit = useCallback(
@@ -928,6 +959,64 @@ export function LabelEditor({
               {adding ? "Adicionando..." : "Salvar e adicionar ao carrinho"}
             </Button>
           </div>
+
+          <div className="space-y-3 rounded-md border hairline p-3">
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+              Exportar PDF para impressão
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div>
+                <Label className="text-xs">Página</Label>
+                <Select value={pdfPage} onValueChange={(v) => setPdfPage(v as PdfPage)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="label">Somente a etiqueta</SelectItem>
+                    <SelectItem value="a4">Folha A4 (repetida)</SelectItem>
+                    <SelectItem value="letter">Folha Carta (repetida)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Orientação</Label>
+                <Select value={pdfOrientation} onValueChange={(v) => setPdfOrientation(v as PdfOrientation)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Automática</SelectItem>
+                    <SelectItem value="portrait">Retrato</SelectItem>
+                    <SelectItem value="landscape">Paisagem</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-xs">Qualidade</Label>
+                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(Number(v))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="300">300 dpi — impressão padrão</SelectItem>
+                    <SelectItem value="600">600 dpi — recomendado (térmica)</SelectItem>
+                    <SelectItem value="1200">1200 dpi — máxima</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <label className="flex items-center justify-between text-xs">
+              <span>Marcas de corte</span>
+              <Switch checked={pdfCutMarks} onCheckedChange={setPdfCutMarks} />
+            </label>
+            <label className="flex items-center justify-between text-xs">
+              <span>Imprimir fundo da etiqueta</span>
+              <Switch checked={pdfBackground} onCheckedChange={setPdfBackground} />
+            </label>
+            <Button className="w-full" variant="outline" onClick={() => void exportPdf()} disabled={exporting}>
+              <Download className="mr-1.5 h-4 w-4" />
+              {exporting ? "Gerando PDF..." : "Baixar PDF"}
+            </Button>
+            <p className="text-[11px] text-muted-foreground">
+              Textos saem em vetor; códigos, QR e imagens são rasterizados na resolução escolhida —
+              tamanho real em milímetros, sem redimensionamento na impressão.
+            </p>
+          </div>
+
 
           {tiers.length > 0 && (
             <div className="pt-1">
