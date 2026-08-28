@@ -44,6 +44,7 @@ function textLabel(text: string, isTitle: boolean): { label: string; placeholder
   if (/validade|^val[:\s]/i.test(lower)) return { label: "Validade", placeholder: "VAL: 00/00/0000" };
   if (/^fab|fabrica/i.test(lower)) return { label: "Fabricação", placeholder: "FAB: 00/00/0000" };
   if (/lote/i.test(lower)) return { label: "Lote", placeholder: "LOTE: 0000" };
+  if (/descri[cç]/i.test(lower)) return { label: "Descrição / referência", placeholder: "Descrição do item" };
   if (/c[óo]d\.?|sku|refer[êe]ncia/i.test(lower)) return { label: "Código interno / SKU", placeholder: "001234" };
   if (/patrim[óo]nio/i.test(lower)) return { label: "Título do ativo", placeholder: "PATRIMÔNIO" };
   if (isTitle) return { label: "Nome do produto / título", placeholder: "NOME DO PRODUTO" };
