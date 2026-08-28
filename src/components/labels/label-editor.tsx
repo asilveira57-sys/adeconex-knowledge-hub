@@ -118,6 +118,27 @@ export function LabelEditor({
   const unitPrice = unitPriceForQuantity(tiers, quantity);
   const total = unitPrice * quantity;
 
+  async function exportPdf() {
+    setExporting(true);
+    try {
+      const { downloadLabelPdf } = await import("@/lib/labels/pdf");
+      await downloadLabelPdf(design, {
+        page: pdfPage,
+        orientation: pdfOrientation,
+        dpi: pdfDpi,
+        cutMarks: pdfCutMarks,
+        printBackground: pdfBackground,
+        spec,
+      });
+      toast.success("PDF gerado em tamanho real, pronto para impressão.");
+    } catch (e) {
+      toast.error((e as Error)?.message ?? "Não foi possível gerar o PDF.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+
   /** Aplica uma mudança registrando o estado anterior no histórico (Desfazer). */
   const commit = useCallback(
     (next: LabelDesign, tag = "") => {
