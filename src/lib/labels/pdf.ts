@@ -182,7 +182,7 @@ function drawLabel(
     if (!data) continue;
     const w = layer.w;
     const h = layer.kind === "qrcode" ? layer.w : layer.h;
-    doc.addImage(data, "PNG", lx, ly, w, h, layer.id, "NONE", rotation);
+    doc.addImage(data, "PNG", lx, ly, w, h, layer.id, "FAST", rotation);
   }
 
   if (opts.cutMarks) {
