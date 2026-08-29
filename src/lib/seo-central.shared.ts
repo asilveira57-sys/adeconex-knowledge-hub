@@ -10,6 +10,7 @@ export const SETTING_KEYS = [
   "integration_meta_pixel",
   "integration_search_console",
   "robots_txt",
+  "launch_notice",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];
@@ -22,7 +23,15 @@ export const SETTING_LABELS: Record<SettingKey, string> = {
   integration_meta_pixel: "Meta Pixel",
   integration_search_console: "Google Search Console",
   robots_txt: "Robots.txt",
+  launch_notice: "Pop-up de aviso de lançamento",
 };
+
+/** Pop-up exibido na abertura do site (aviso de fase de implementação). */
+export interface LaunchNoticeConfig {
+  enabled: boolean;
+  title: string;
+  message: string;
+}
 
 export type TrackingEnvironment = "production" | "staging" | "both";
 
