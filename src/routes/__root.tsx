@@ -25,6 +25,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
+import { LaunchNoticePopup } from "@/components/launch-notice-popup";
 
 function NotFoundComponent() {
   return (
@@ -194,6 +195,7 @@ function RootComponent() {
         </main>
         <SiteFooter />
       </div>
+      <LaunchNoticePopup />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
