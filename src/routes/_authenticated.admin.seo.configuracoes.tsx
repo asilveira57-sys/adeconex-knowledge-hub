@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { getSiteSettings, updateSiteSetting } from "@/lib/seo-central.functions";
-import type { SeoGeneralConfig } from "@/lib/seo-central.shared";
+import type { LaunchNoticeConfig, SeoGeneralConfig } from "@/lib/seo-central.shared";
+import { Megaphone } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, TextAreaField, CharCounter } from "@/components/admin/product/fields";
@@ -130,6 +131,74 @@ function SeoGeneralPage() {
         {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
         Salvar configurações
       </Button>
+
+      <LaunchNoticeCard settings={data ?? {}} />
     </div>
+  );
+}
+
+const NOTICE_EMPTY: LaunchNoticeConfig = { enabled: true, title: "", message: "" };
+
+function LaunchNoticeCard({ settings }: { settings: Record<string, unknown> }) {
+  const queryClient = useQueryClient();
+  const update = useServerFn(updateSiteSetting);
+  const [form, setForm] = useState<LaunchNoticeConfig>(NOTICE_EMPTY);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.launch_notice) setForm({ ...NOTICE_EMPTY, ...(settings.launch_notice as any) });
+  }, [settings]);
+
+  async function onSave() {
+    if (form.enabled && form.message.trim().length < 10) return toast.error("Escreva a mensagem do aviso");
+    setSaving(true);
+    try {
+      await update({ data: { key: "launch_notice", value: form as any } });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "site-settings"] });
+      await queryClient.invalidateQueries({ queryKey: ["launch-notice"] });
+      toast.success("Pop-up de aviso atualizado");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Megaphone className="h-4 w-4 text-primary" /> Pop-up de aviso de lançamento
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={form.enabled}
+            onChange={(e) => setForm((s) => ({ ...s, enabled: e.target.checked }))}
+          />
+          Exibir pop-up ao abrir o site
+        </label>
+        <Field
+          label="Título"
+          value={form.title}
+          onChange={(v) => setForm((s) => ({ ...s, title: v }))}
+          maxLength={120}
+        />
+        <TextAreaField
+          label="Mensagem"
+          value={form.message}
+          onChange={(v) => setForm((s) => ({ ...s, message: v }))}
+          rows={4}
+          maxLength={800}
+          hint="Exibida uma vez por visitante. Ao alterar o texto, o pop-up volta a aparecer para todos."
+        />
+        <Button onClick={onSave} disabled={saving} variant="secondary">
+          {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
+          Salvar pop-up
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
