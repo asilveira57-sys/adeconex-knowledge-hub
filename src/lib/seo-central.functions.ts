@@ -190,6 +190,22 @@ export const getPublicTrackingConfig = createServerFn({ method: "GET" }).handler
   return buildPublicTrackingConfig(settings);
 });
 
+/** Pop-up de aviso de lançamento — público e não sensível. */
+export const getLaunchNotice = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("site_settings")
+    .select("value")
+    .eq("key", "launch_notice")
+    .maybeSingle();
+  const v = (data?.value ?? {}) as Record<string, unknown>;
+  return {
+    enabled: Boolean(v.enabled),
+    title: typeof v.title === "string" ? v.title : "",
+    message: typeof v.message === "string" ? v.message : "",
+  };
+});
+
 export const listSeoPagesAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
