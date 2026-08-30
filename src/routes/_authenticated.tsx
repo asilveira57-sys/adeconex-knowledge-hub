@@ -2,11 +2,11 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Auth gate. Client-only (ssr:false) because Supabase stores the session
- * in localStorage, which the server cannot read.
+ * Auth gate. beforeLoad runs on SSR too: the server has no localStorage session,
+ * so unauthenticated requests are redirected to /auth consistently, avoiding
+ * hydration mismatches when the client reaches the same conclusion.
  */
 export const Route = createFileRoute("/_authenticated")({
-  ssr: false,
   beforeLoad: async ({ location }) => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) {
