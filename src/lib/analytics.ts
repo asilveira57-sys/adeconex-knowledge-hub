@@ -166,25 +166,49 @@ function loadConfig(): Promise<PublicTrackingConfig | null> {
   return configPromise;
 }
 
+function installScripts() {
+  if (scriptsInstalled) return;
+  scriptsInstalled = true;
+  loadConfig().then((config) => {
+    if (config) {
+      applyConfig(config);
+    } else if (FALLBACK_GA4_ID) {
+      // Fallback: comportamento anterior (GA4 via env do conector).
+      installGtag(FALLBACK_GA4_ID);
+    }
+    flushPending();
+  });
+}
+
+/** Concede/revoga o consentimento em runtime (chamado pelo banner de cookies). */
+export function setAnalyticsConsent(granted: boolean) {
+  if (typeof window === "undefined") return;
+  consentGranted = granted;
+  // Consent Mode v2 — informa o estado ao Google quando a gtag existir.
+  window.gtag?.("consent", "update", {
+    analytics_storage: granted ? "granted" : "denied",
+    ad_storage: granted ? "granted" : "denied",
+    ad_user_data: granted ? "granted" : "denied",
+    ad_personalization: granted ? "granted" : "denied",
+  });
+  if (granted) installScripts();
+  else pendingQueue.length = 0;
+}
+
 export function initAnalytics() {
   if (typeof window === "undefined" || initialized) return;
   initialized = true;
 
-  loadConfig()
-    .then((config) => {
-      if (config) {
-        applyConfig(config);
-      } else if (FALLBACK_GA4_ID) {
-        // Fallback: comportamento anterior (GA4 via env do conector).
-        installGtag(FALLBACK_GA4_ID);
-      }
-    });
+  onConsentChange((choice) => setAnalyticsConsent(choice === "granted"));
+
+  if (getStoredConsent() === "granted") setAnalyticsConsent(true);
 }
 
 export function trackEvent(name: string, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  window.gtag?.("event", name, params);
+  runWhenConsented(() => window.gtag?.("event", name, params));
 }
+
 
 export type MarketplaceName = "mercado_livre" | "shopee";
 
