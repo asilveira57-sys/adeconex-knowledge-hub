@@ -14,6 +14,7 @@
 
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
 import type { PublicTrackingConfig, TrackingEnvironment } from "@/lib/seo-central.shared";
+import { getStoredConsent, onConsentChange } from "@/lib/consent";
 
 declare global {
   interface Window {
@@ -29,6 +30,24 @@ const FALLBACK_GA4_ID = import.meta.env
 
 let initialized = false;
 let configPromise: Promise<PublicTrackingConfig | null> | null = null;
+
+// ─── Gate de consentimento ───────────────────────────────────────────────────
+// Nenhum script de tracking é carregado e nenhum evento é despachado antes do
+// usuário aceitar os cookies. Os eventos ocorridos antes ficam em fila e são
+// enviados assim que o consentimento é concedido.
+let consentGranted = false;
+let scriptsInstalled = false;
+const pendingQueue: Array<() => void> = [];
+
+function runWhenConsented(fn: () => void) {
+  if (consentGranted) fn();
+  else if (pendingQueue.length < 50) pendingQueue.push(fn);
+}
+
+function flushPending() {
+  while (pendingQueue.length > 0) pendingQueue.shift()!();
+}
+
 
 function environmentMatches(env: TrackingEnvironment, canonicalDomain: string): boolean {
   if (env === "both") return true;
@@ -147,25 +166,49 @@ function loadConfig(): Promise<PublicTrackingConfig | null> {
   return configPromise;
 }
 
+function installScripts() {
+  if (scriptsInstalled) return;
+  scriptsInstalled = true;
+  loadConfig().then((config) => {
+    if (config) {
+      applyConfig(config);
+    } else if (FALLBACK_GA4_ID) {
+      // Fallback: comportamento anterior (GA4 via env do conector).
+      installGtag(FALLBACK_GA4_ID);
+    }
+    flushPending();
+  });
+}
+
+/** Concede/revoga o consentimento em runtime (chamado pelo banner de cookies). */
+export function setAnalyticsConsent(granted: boolean) {
+  if (typeof window === "undefined") return;
+  consentGranted = granted;
+  // Consent Mode v2 — informa o estado ao Google quando a gtag existir.
+  window.gtag?.("consent", "update", {
+    analytics_storage: granted ? "granted" : "denied",
+    ad_storage: granted ? "granted" : "denied",
+    ad_user_data: granted ? "granted" : "denied",
+    ad_personalization: granted ? "granted" : "denied",
+  });
+  if (granted) installScripts();
+  else pendingQueue.length = 0;
+}
+
 export function initAnalytics() {
   if (typeof window === "undefined" || initialized) return;
   initialized = true;
 
-  loadConfig()
-    .then((config) => {
-      if (config) {
-        applyConfig(config);
-      } else if (FALLBACK_GA4_ID) {
-        // Fallback: comportamento anterior (GA4 via env do conector).
-        installGtag(FALLBACK_GA4_ID);
-      }
-    });
+  onConsentChange((choice) => setAnalyticsConsent(choice === "granted"));
+
+  if (getStoredConsent() === "granted") setAnalyticsConsent(true);
 }
 
 export function trackEvent(name: string, params: Record<string, unknown> = {}) {
   if (typeof window === "undefined") return;
-  window.gtag?.("event", name, params);
+  runWhenConsented(() => window.gtag?.("event", name, params));
 }
+
 
 export type MarketplaceName = "mercado_livre" | "shopee";
 
@@ -210,13 +253,20 @@ export interface EcomItem {
 
 const CURRENCY = "BRL";
 
-/** Executa o dispatch quando a config estiver carregada, com as plataformas ativas. */
+/** Executa o dispatch quando houver consentimento e a config estiver carregada. */
 function dispatchEcommerce(dispatch: (p: ActivePlatforms) => void) {
   if (typeof window === "undefined") return;
-  loadConfig().then((config) => {
-    if (!config) return;
-    dispatch(resolvePlatforms(config));
+  runWhenConsented(() => {
+    loadConfig().then((config) => {
+      if (config) {
+        dispatch(resolvePlatforms(config));
+      } else if (FALLBACK_GA4_ID) {
+        // Sem config no servidor: GA4 direto via env (mesmo fallback da instalação).
+        dispatch({ ga4Direct: true, gtm: false, googleAds: false, metaPixel: false, adsConversions: [] });
+      }
+    });
   });
+
 }
 
 /** Push no padrão GTM: limpa a chave ecommerce anterior e empurra o novo evento. */
