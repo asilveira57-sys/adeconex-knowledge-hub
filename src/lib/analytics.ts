@@ -253,13 +253,20 @@ export interface EcomItem {
 
 const CURRENCY = "BRL";
 
-/** Executa o dispatch quando a config estiver carregada, com as plataformas ativas. */
+/** Executa o dispatch quando houver consentimento e a config estiver carregada. */
 function dispatchEcommerce(dispatch: (p: ActivePlatforms) => void) {
   if (typeof window === "undefined") return;
-  loadConfig().then((config) => {
-    if (!config) return;
-    dispatch(resolvePlatforms(config));
+  runWhenConsented(() => {
+    loadConfig().then((config) => {
+      if (config) {
+        dispatch(resolvePlatforms(config));
+      } else if (FALLBACK_GA4_ID) {
+        // Sem config no servidor: GA4 direto via env (mesmo fallback da instalação).
+        dispatch({ ga4Direct: true, gtm: false, googleAds: false, metaPixel: false, adsConversions: [] });
+      }
+    });
   });
+
 }
 
 /** Push no padrão GTM: limpa a chave ecommerce anterior e empurra o novo evento. */
