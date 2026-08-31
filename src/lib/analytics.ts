@@ -14,6 +14,7 @@
 
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
 import type { PublicTrackingConfig, TrackingEnvironment } from "@/lib/seo-central.shared";
+import { getStoredConsent, onConsentChange } from "@/lib/consent";
 
 declare global {
   interface Window {
@@ -29,6 +30,24 @@ const FALLBACK_GA4_ID = import.meta.env
 
 let initialized = false;
 let configPromise: Promise<PublicTrackingConfig | null> | null = null;
+
+// ─── Gate de consentimento ───────────────────────────────────────────────────
+// Nenhum script de tracking é carregado e nenhum evento é despachado antes do
+// usuário aceitar os cookies. Os eventos ocorridos antes ficam em fila e são
+// enviados assim que o consentimento é concedido.
+let consentGranted = false;
+let scriptsInstalled = false;
+const pendingQueue: Array<() => void> = [];
+
+function runWhenConsented(fn: () => void) {
+  if (consentGranted) fn();
+  else if (pendingQueue.length < 50) pendingQueue.push(fn);
+}
+
+function flushPending() {
+  while (pendingQueue.length > 0) pendingQueue.shift()!();
+}
+
 
 function environmentMatches(env: TrackingEnvironment, canonicalDomain: string): boolean {
   if (env === "both") return true;
