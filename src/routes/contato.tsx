@@ -54,8 +54,21 @@ function ContatoPage() {
           ))}
         </div>
 
-        <form className="mt-12 grid gap-4 rounded-2xl border hairline bg-card p-6 md:p-10">
+        <form
+          className="mt-12 grid gap-4 rounded-2xl border hairline bg-card p-6 md:p-10"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const data = new FormData(e.currentTarget);
+            trackGenerateLead({
+              source: "contato",
+              method: "form",
+              segment: (data.get("segmento") as string) || null,
+            });
+            setSent(true);
+          }}
+        >
           <p className="eyebrow">Formulário de orçamento</p>
+
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
             Solicite uma especificação técnica
           </h2>
