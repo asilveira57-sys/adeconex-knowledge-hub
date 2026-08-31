@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { useState } from "react";
 import { Section } from "@/components/ui/section";
+import { trackGenerateLead } from "@/lib/analytics";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -17,6 +19,7 @@ export const Route = createFileRoute("/contato")({
 });
 
 function ContatoPage() {
+  const [sent, setSent] = useState(false);
   return (
     <>
       <section className="border-b hairline bg-surface-2">
@@ -93,7 +96,7 @@ function ContatoPage() {
             type="submit"
             className="inline-flex w-fit items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
           >
-            Enviar solicitação
+            {sent ? "Solicitação enviada" : "Enviar solicitação"}
           </button>
           <p className="text-xs text-muted-foreground">
             Os dados são tratados conforme nossa política de privacidade.
