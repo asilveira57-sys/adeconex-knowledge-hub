@@ -198,6 +198,8 @@ function RootComponent() {
         <SiteFooter />
       </div>
       <LaunchNoticePopup />
+      <CookieConsentBanner />
+
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
