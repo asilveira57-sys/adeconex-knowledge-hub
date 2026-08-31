@@ -562,3 +562,47 @@ export function trackPurchase(input: PurchaseInput) {
     }
   });
 }
+
+// ─── Leads ───────────────────────────────────────────────────────────────────
+
+export interface LeadInput {
+  /** Origem do lead: contato, whatsapp, orcamento, b2b... */
+  source: string;
+  /** Método do contato (form, whatsapp, email, telefone). */
+  method?: string;
+  /** Segmento informado pelo usuário, quando houver. */
+  segment?: string | null;
+  /** Valor estimado do lead (usado por Ads/Meta). */
+  value?: number;
+}
+
+/** Lead gerado (formulário de orçamento, WhatsApp, etc.). */
+export function trackGenerateLead(input: LeadInput) {
+  dispatchEcommerce((p) => {
+    const payload = {
+      currency: CURRENCY,
+      value: input.value ?? 0,
+      lead_source: input.source,
+      method: input.method ?? "form",
+      segment: input.segment || undefined,
+    };
+    if (p.ga4Direct) window.gtag?.("event", "generate_lead", payload);
+    if (p.gtm) pushGtmEvent("generate_lead", payload);
+    if (p.metaPixel) {
+      window.fbq?.("track", "Lead", {
+        content_name: input.source,
+        value: input.value ?? 0,
+        currency: CURRENCY,
+      });
+    }
+    if (p.googleAds && p.adsConversions.length > 0 && typeof window.gtag === "function") {
+      const conv =
+        p.adsConversions.find((c) => /lead|contato|orcamento/i.test(c.name)) ?? p.adsConversions[0];
+      window.gtag("event", "conversion", {
+        send_to: `${conv.conversion_id}/${conv.conversion_label}`,
+        value: input.value ?? 0,
+        currency: CURRENCY,
+      });
+    }
+  });
+}
