@@ -26,6 +26,8 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { LaunchNoticePopup } from "@/components/launch-notice-popup";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+
 
 function NotFoundComponent() {
   return (
