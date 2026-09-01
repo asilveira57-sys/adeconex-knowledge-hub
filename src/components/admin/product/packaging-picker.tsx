@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Boxes, Loader2, Plus, Trash2 } from "lucide-react";
+import { Boxes, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   listPackagingBoxes,
   createPackagingBox,
+  updatePackagingBox,
   deletePackagingBox,
   type PackagingBox,
 } from "@/lib/packaging.functions";
@@ -18,21 +19,38 @@ export type PackagingApply = {
   weight_kg: string;
 };
 
+/** Converte string digitada (com vírgula) em número. */
 function num(v: string): number | null {
   if (v.trim() === "") return null;
-  const n = Number(v.replace(",", "."));
+  const n = Number(v.replace(/\./g, "").replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
 
+/** Exibe número no padrão brasileiro (vírgula decimal). */
+export function br(n: number | null | undefined): string {
+  if (n == null) return "";
+  return String(n).replace(".", ",");
+}
+
+type Draft = {
+  name: string;
+  width_mm: string;
+  height_mm: string;
+  length_mm: string;
+  suggested_weight_kg: string;
+};
+
+const EMPTY: Draft = { name: "", width_mm: "", height_mm: "", length_mm: "", suggested_weight_kg: "" };
+
 /**
  * Caixa de seleção com as embalagens cadastradas.
- * Ao escolher, preenche largura/altura/comprimento e o peso sugerido
- * (que continua editável nos campos do formulário).
+ * Permite cadastrar, editar e excluir embalagens sem sair do produto.
  */
 export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => void }) {
   const qc = useQueryClient();
   const list = useServerFn(listPackagingBoxes);
   const create = useServerFn(createPackagingBox);
+  const update = useServerFn(updatePackagingBox);
   const remove = useServerFn(deletePackagingBox);
 
   const { data: boxes = [], isLoading } = useQuery({
@@ -41,42 +59,44 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
   });
 
   const [selected, setSelected] = useState("");
-  const [showForm, setShowForm] = useState(false);
-  const [draft, setDraft] = useState({
-    name: "",
-    width_mm: "",
-    height_mm: "",
-    length_mm: "",
-    suggested_weight_kg: "",
-  });
+  const [mode, setMode] = useState<"none" | "create" | "edit">("none");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Draft>(EMPTY);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["admin", "packaging-boxes"] });
 
-  const createMut = useMutation({
+  function draftPayload() {
+    const w = num(draft.width_mm);
+    const h = num(draft.height_mm);
+    const l = num(draft.length_mm);
+    if (!draft.name.trim() || !w || !h || !l) {
+      throw new Error("Informe nome, largura, altura e comprimento.");
+    }
+    return {
+      name: draft.name.trim(),
+      width_mm: w,
+      height_mm: h,
+      length_mm: l,
+      suggested_weight_kg: num(draft.suggested_weight_kg),
+    };
+  }
+
+  const saveMut = useMutation({
     mutationFn: async () => {
-      const w = num(draft.width_mm);
-      const h = num(draft.height_mm);
-      const l = num(draft.length_mm);
-      if (!draft.name.trim() || !w || !h || !l) {
-        throw new Error("Informe nome, largura, altura e comprimento.");
+      const payload = draftPayload();
+      if (mode === "edit" && editingId) {
+        return update({ data: { id: editingId, ...payload } });
       }
-      return create({
-        data: {
-          name: draft.name.trim(),
-          width_mm: w,
-          height_mm: h,
-          length_mm: l,
-          suggested_weight_kg: num(draft.suggested_weight_kg),
-          sort_order: boxes.length + 1,
-        },
-      });
+      return create({ data: { ...payload, sort_order: boxes.length + 1 } });
     },
     onSuccess: async (box: PackagingBox) => {
       await invalidate();
-      setShowForm(false);
-      setDraft({ name: "", width_mm: "", height_mm: "", length_mm: "", suggested_weight_kg: "" });
+      const wasEdit = mode === "edit";
+      setMode("none");
+      setEditingId(null);
+      setDraft(EMPTY);
       apply(box);
-      toast.success("Embalagem cadastrada");
+      toast.success(wasEdit ? "Embalagem atualizada" : "Embalagem cadastrada");
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -85,6 +105,8 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
     mutationFn: async (id: string) => remove({ data: { id } }),
     onSuccess: async () => {
       setSelected("");
+      setMode("none");
+      setEditingId(null);
       await invalidate();
       toast.success("Embalagem removida");
     },
@@ -94,10 +116,22 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
   function apply(box: PackagingBox) {
     setSelected(box.id);
     onApply({
-      width_mm: String(box.width_mm),
-      height_mm: String(box.height_mm),
-      length_mm: String(box.length_mm),
-      weight_kg: box.suggested_weight_kg != null ? String(box.suggested_weight_kg) : "",
+      width_mm: br(box.width_mm),
+      height_mm: br(box.height_mm),
+      length_mm: br(box.length_mm),
+      weight_kg: br(box.suggested_weight_kg),
+    });
+  }
+
+  function startEdit(box: PackagingBox) {
+    setMode("edit");
+    setEditingId(box.id);
+    setDraft({
+      name: box.name,
+      width_mm: br(box.width_mm),
+      height_mm: br(box.height_mm),
+      length_mm: br(box.length_mm),
+      suggested_weight_kg: br(box.suggested_weight_kg),
     });
   }
 
@@ -123,40 +157,61 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
           <option value="">{isLoading ? "Carregando..." : "Selecione uma embalagem…"}</option>
           {boxes.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.name} — {b.width_mm}×{b.height_mm}×{b.length_mm} mm
-              {b.suggested_weight_kg != null ? ` · ${b.suggested_weight_kg} kg` : ""}
+              {b.name} — {br(b.width_mm)}×{br(b.height_mm)}×{br(b.length_mm)} mm
+              {b.suggested_weight_kg != null ? ` · ${br(b.suggested_weight_kg)} kg` : ""}
             </option>
           ))}
         </select>
 
-        <Button size="sm" variant="outline" onClick={() => setShowForm((s) => !s)}>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setMode((m) => (m === "create" ? "none" : "create"));
+            setEditingId(null);
+            setDraft(EMPTY);
+          }}
+        >
           <Plus className="mr-1 h-3 w-3" /> Nova embalagem
         </Button>
 
         {current && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => removeMut.mutate(current.id)}
-            disabled={removeMut.isPending}
-            title="Excluir embalagem do cadastro"
-          >
-            {removeMut.isPending ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <Trash2 className="h-3 w-3" />
-            )}
-          </Button>
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => startEdit(current)}
+              title="Editar embalagem"
+            >
+              <Pencil className="mr-1 h-3 w-3" /> Editar
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => removeMut.mutate(current.id)}
+              disabled={removeMut.isPending}
+              title="Excluir embalagem do cadastro"
+            >
+              {removeMut.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Trash2 className="h-3 w-3" />
+              )}
+            </Button>
+          </>
         )}
       </div>
 
       <p className="mt-2 text-xs text-muted-foreground">
         Ao selecionar, as medidas e o peso sugerido preenchem a cotação de frete abaixo — o peso
-        pode ser alterado à vontade.
+        pode ser alterado à vontade. Use vírgula para decimais (ex.: 0,35 kg).
       </p>
 
-      {showForm && (
+      {mode !== "none" && (
         <div className="mt-3 space-y-2 rounded-md border bg-surface-2 p-3">
+          <div className="text-xs font-medium uppercase text-muted-foreground">
+            {mode === "edit" ? "Editar embalagem" : "Nova embalagem"}
+          </div>
           <div className="grid gap-2 sm:grid-cols-5">
             <BoxField
               label="Nome"
@@ -164,17 +219,25 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
               onChange={(v) => setDraft((s) => ({ ...s, name: v }))}
               placeholder="Caixa 01"
             />
-            <BoxField label="Largura (mm)" type="number" value={draft.width_mm} onChange={(v) => setDraft((s) => ({ ...s, width_mm: v }))} />
-            <BoxField label="Altura (mm)" type="number" value={draft.height_mm} onChange={(v) => setDraft((s) => ({ ...s, height_mm: v }))} />
-            <BoxField label="Comprimento (mm)" type="number" value={draft.length_mm} onChange={(v) => setDraft((s) => ({ ...s, length_mm: v }))} />
-            <BoxField label="Peso sugerido (kg)" type="number" value={draft.suggested_weight_kg} onChange={(v) => setDraft((s) => ({ ...s, suggested_weight_kg: v }))} />
+            <BoxField label="Largura (mm)" decimal value={draft.width_mm} onChange={(v) => setDraft((s) => ({ ...s, width_mm: v }))} />
+            <BoxField label="Altura (mm)" decimal value={draft.height_mm} onChange={(v) => setDraft((s) => ({ ...s, height_mm: v }))} />
+            <BoxField label="Comprimento (mm)" decimal value={draft.length_mm} onChange={(v) => setDraft((s) => ({ ...s, length_mm: v }))} />
+            <BoxField label="Peso sugerido (kg)" decimal value={draft.suggested_weight_kg} onChange={(v) => setDraft((s) => ({ ...s, suggested_weight_kg: v }))} />
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => createMut.mutate()} disabled={createMut.isPending}>
-              {createMut.isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
-              Salvar embalagem
+            <Button size="sm" onClick={() => saveMut.mutate()} disabled={saveMut.isPending}>
+              {saveMut.isPending && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+              {mode === "edit" ? "Salvar alterações" : "Salvar embalagem"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setMode("none");
+                setEditingId(null);
+                setDraft(EMPTY);
+              }}
+            >
               Cancelar
             </Button>
           </div>
@@ -184,29 +247,34 @@ export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => v
   );
 }
 
+/** Mantém apenas dígitos e uma vírgula decimal (padrão brasileiro). */
+export function sanitizeDecimal(v: string): string {
+  const only = v.replace(/\./g, ",").replace(/[^\d,]/g, "");
+  const [head, ...rest] = only.split(",");
+  return rest.length ? `${head},${rest.join("")}` : head;
+}
+
 function BoxField({
   label,
   value,
   onChange,
-  type = "text",
+  decimal,
   placeholder,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
-  type?: string;
+  decimal?: boolean;
   placeholder?: string;
 }) {
   return (
     <label className="block">
       <span className="text-[11px] uppercase text-muted-foreground">{label}</span>
       <input
-        type={type}
-        inputMode={type === "number" ? "decimal" : undefined}
-        step={type === "number" ? "0.01" : undefined}
-        min={type === "number" ? "0" : undefined}
+        type="text"
+        inputMode={decimal ? "decimal" : undefined}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(decimal ? sanitizeDecimal(e.target.value) : e.target.value)}
         placeholder={placeholder ?? "—"}
         className="mt-1 w-full rounded-md border bg-surface-1 px-2 py-1.5 text-sm outline-none focus:border-primary/50"
       />

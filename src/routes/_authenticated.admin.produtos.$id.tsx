@@ -29,7 +29,7 @@ import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
 import { MediaTab } from "@/components/admin/product/media-tab";
 import { BadgesTab } from "@/components/admin/product/badges-tab";
-import { PackagingPicker } from "@/components/admin/product/packaging-picker";
+import { PackagingPicker, sanitizeDecimal, br } from "@/components/admin/product/packaging-picker";
 import { BundlesTab } from "@/components/admin/product/bundles-tab";
 import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
 import { updateProductStatus } from "@/lib/admin.functions";
@@ -398,16 +398,16 @@ function DimensionsCard({ product }: { product: ProductDims }) {
   const update = useServerFn(updateProductDimensions);
   const qc = useQueryClient();
   const [form, setForm] = useState({
-    weight_kg: product.weight_kg != null ? String(product.weight_kg) : "",
-    width_mm: product.width_mm != null ? String(product.width_mm) : "",
-    height_mm: product.height_mm != null ? String(product.height_mm) : "",
-    length_mm: product.length_mm != null ? String(product.length_mm) : "",
+    weight_kg: br(product.weight_kg),
+    width_mm: br(product.width_mm),
+    height_mm: br(product.height_mm),
+    length_mm: br(product.length_mm),
   });
   const [saving, setSaving] = useState(false);
 
   function parseNum(v: string): number | null {
     if (v.trim() === "") return null;
-    const n = Number(v.replace(",", "."));
+    const n = Number(v.replace(/\./g, "").replace(",", "."));
     return Number.isFinite(n) ? n : null;
   }
 
@@ -436,17 +436,16 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     <label className="block">
       <span className="text-xs uppercase text-muted-foreground">{label} ({unit})</span>
       <input
-        type="number"
+        type="text"
         inputMode="decimal"
-        step="0.01"
-        min="0"
         value={form[k]}
-        onChange={(e) => setForm((s) => ({ ...s, [k]: e.target.value }))}
+        onChange={(e) => setForm((s) => ({ ...s, [k]: sanitizeDecimal(e.target.value) }))}
         className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
         placeholder="—"
       />
     </label>
   );
+
 
   return (
     <Card>
@@ -542,7 +541,7 @@ function emptyDraft(order: number): KitDraft {
 }
 
 function toDraft(k: KitRow): KitDraft {
-  const s = (v: number | null) => (v != null ? String(v) : "");
+  const s = (v: number | null) => br(v);
   return {
     id: k.id,
     name: k.name ?? "",
@@ -563,7 +562,7 @@ function toDraft(k: KitRow): KitDraft {
 
 function parseNum(v: string): number | null {
   if (v.trim() === "") return null;
-  const n = Number(v.replace(",", "."));
+  const n = Number(v.replace(/\./g, "").replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
 
@@ -784,12 +783,10 @@ function TextField({
     <label className="block">
       <span className="text-xs uppercase text-muted-foreground">{label}</span>
       <input
-        type={type}
+        type={type === "number" ? "text" : type}
         inputMode={type === "number" ? "decimal" : undefined}
-        step={type === "number" ? "0.01" : undefined}
-        min={type === "number" ? "0" : undefined}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(type === "number" ? sanitizeDecimal(e.target.value) : e.target.value)}
         placeholder={placeholder ?? "—"}
         className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
       />
