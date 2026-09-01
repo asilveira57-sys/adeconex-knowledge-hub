@@ -29,7 +29,7 @@ import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
 import { MediaTab } from "@/components/admin/product/media-tab";
 import { BadgesTab } from "@/components/admin/product/badges-tab";
-import { PackagingPicker } from "@/components/admin/product/packaging-picker";
+import { PackagingPicker, sanitizeDecimal } from "@/components/admin/product/packaging-picker";
 import { BundlesTab } from "@/components/admin/product/bundles-tab";
 import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
 import { updateProductStatus } from "@/lib/admin.functions";
@@ -783,12 +783,10 @@ function TextField({
     <label className="block">
       <span className="text-xs uppercase text-muted-foreground">{label}</span>
       <input
-        type={type}
+        type={type === "number" ? "text" : type}
         inputMode={type === "number" ? "decimal" : undefined}
-        step={type === "number" ? "0.01" : undefined}
-        min={type === "number" ? "0" : undefined}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(type === "number" ? sanitizeDecimal(e.target.value) : e.target.value)}
         placeholder={placeholder ?? "—"}
         className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
       />
