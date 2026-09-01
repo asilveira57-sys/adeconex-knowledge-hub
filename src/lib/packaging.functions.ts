@@ -71,6 +71,31 @@ export const createPackagingBox = createServerFn({ method: "POST" })
     return row as PackagingBox;
   });
 
+export const updatePackagingBox = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => boxInput.extend({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }): Promise<PackagingBox> => {
+    await assertStaff(context as Ctx);
+    const { id, ...rest } = data;
+    const { data: row, error } = await (context as Ctx).supabase
+      .from("packaging_boxes")
+      .update({
+        name: rest.name,
+        width_mm: rest.width_mm,
+        height_mm: rest.height_mm,
+        length_mm: rest.length_mm,
+        suggested_weight_kg: rest.suggested_weight_kg,
+        notes: rest.notes ?? null,
+        ...(rest.is_active != null ? { is_active: rest.is_active } : {}),
+        ...(rest.sort_order != null ? { sort_order: rest.sort_order } : {}),
+      })
+      .eq("id", id)
+      .select("id, name, width_mm, height_mm, length_mm, suggested_weight_kg, notes, is_active, sort_order")
+      .single();
+    if (error) throw new Error(error.message);
+    return row as PackagingBox;
+  });
+
 export const deletePackagingBox = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
