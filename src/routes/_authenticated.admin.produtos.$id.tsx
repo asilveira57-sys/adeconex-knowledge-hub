@@ -456,6 +456,17 @@ function DimensionsCard({ product }: { product: ProductDims }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        <PackagingPicker
+          onApply={(v) =>
+            setForm((s) => ({
+              ...s,
+              width_mm: v.width_mm,
+              height_mm: v.height_mm,
+              length_mm: v.length_mm,
+              weight_kg: v.weight_kg || s.weight_kg,
+            }))
+          }
+        />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Field label="Peso" unit="kg" k="weight_kg" />
           <Field label="Largura" unit="mm" k="width_mm" />
