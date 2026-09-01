@@ -436,17 +436,16 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     <label className="block">
       <span className="text-xs uppercase text-muted-foreground">{label} ({unit})</span>
       <input
-        type="number"
+        type="text"
         inputMode="decimal"
-        step="0.01"
-        min="0"
         value={form[k]}
-        onChange={(e) => setForm((s) => ({ ...s, [k]: e.target.value }))}
+        onChange={(e) => setForm((s) => ({ ...s, [k]: sanitizeDecimal(e.target.value) }))}
         className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
         placeholder="—"
       />
     </label>
   );
+
 
   return (
     <Card>
