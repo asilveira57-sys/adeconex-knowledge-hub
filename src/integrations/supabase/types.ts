@@ -1385,6 +1385,48 @@ export type Database = {
           },
         ]
       }
+      packaging_boxes: {
+        Row: {
+          created_at: string
+          height_mm: number
+          id: string
+          is_active: boolean
+          length_mm: number
+          name: string
+          notes: string | null
+          sort_order: number
+          suggested_weight_kg: number | null
+          updated_at: string
+          width_mm: number
+        }
+        Insert: {
+          created_at?: string
+          height_mm: number
+          id?: string
+          is_active?: boolean
+          length_mm: number
+          name: string
+          notes?: string | null
+          sort_order?: number
+          suggested_weight_kg?: number | null
+          updated_at?: string
+          width_mm: number
+        }
+        Update: {
+          created_at?: string
+          height_mm?: number
+          id?: string
+          is_active?: boolean
+          length_mm?: number
+          name?: string
+          notes?: string | null
+          sort_order?: number
+          suggested_weight_kg?: number | null
+          updated_at?: string
+          width_mm?: number
+        }
+        Relationships: []
+      }
       payment_events: {
         Row: {
           created_at: string

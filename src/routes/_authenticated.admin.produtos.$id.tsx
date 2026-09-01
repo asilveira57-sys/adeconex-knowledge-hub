@@ -29,6 +29,7 @@ import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
 import { MediaTab } from "@/components/admin/product/media-tab";
 import { BadgesTab } from "@/components/admin/product/badges-tab";
+import { PackagingPicker } from "@/components/admin/product/packaging-picker";
 import { BundlesTab } from "@/components/admin/product/bundles-tab";
 import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
 import { updateProductStatus } from "@/lib/admin.functions";
@@ -455,6 +456,17 @@ function DimensionsCard({ product }: { product: ProductDims }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        <PackagingPicker
+          onApply={(v) =>
+            setForm((s) => ({
+              ...s,
+              width_mm: v.width_mm,
+              height_mm: v.height_mm,
+              length_mm: v.length_mm,
+              weight_kg: v.weight_kg || s.weight_kg,
+            }))
+          }
+        />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Field label="Peso" unit="kg" k="weight_kg" />
           <Field label="Largura" unit="mm" k="width_mm" />
@@ -704,6 +716,16 @@ function KitsCard({
                   )}
                   <TextField label="Ordem" value={d.sort_order} onChange={(v) => updateDraft(idx, { sort_order: v })} type="number" />
                 </div>
+                <PackagingPicker
+                  onApply={(v) =>
+                    updateDraft(idx, {
+                      width_mm: v.width_mm,
+                      height_mm: v.height_mm,
+                      length_mm: v.length_mm,
+                      ...(v.weight_kg ? { weight_kg: v.weight_kg } : {}),
+                    })
+                  }
+                />
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <TextField label="Peso caixa (kg)" value={d.weight_kg} onChange={(v) => updateDraft(idx, { weight_kg: v })} type="number" />
                   <TextField label="Largura (mm)" value={d.width_mm} onChange={(v) => updateDraft(idx, { width_mm: v })} type="number" />
