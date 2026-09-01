@@ -716,6 +716,16 @@ function KitsCard({
                   )}
                   <TextField label="Ordem" value={d.sort_order} onChange={(v) => updateDraft(idx, { sort_order: v })} type="number" />
                 </div>
+                <PackagingPicker
+                  onApply={(v) =>
+                    updateDraft(idx, {
+                      width_mm: v.width_mm,
+                      height_mm: v.height_mm,
+                      length_mm: v.length_mm,
+                      ...(v.weight_kg ? { weight_kg: v.weight_kg } : {}),
+                    })
+                  }
+                />
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   <TextField label="Peso caixa (kg)" value={d.weight_kg} onChange={(v) => updateDraft(idx, { weight_kg: v })} type="number" />
                   <TextField label="Largura (mm)" value={d.width_mm} onChange={(v) => updateDraft(idx, { width_mm: v })} type="number" />
