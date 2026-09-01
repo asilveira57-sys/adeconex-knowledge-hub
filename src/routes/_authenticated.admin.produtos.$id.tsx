@@ -29,7 +29,7 @@ import { ContentTab } from "@/components/admin/product/content-tab";
 import { SeoTab } from "@/components/admin/product/seo-tab";
 import { MediaTab } from "@/components/admin/product/media-tab";
 import { BadgesTab } from "@/components/admin/product/badges-tab";
-import { PackagingPicker, sanitizeDecimal } from "@/components/admin/product/packaging-picker";
+import { PackagingPicker, sanitizeDecimal, br } from "@/components/admin/product/packaging-picker";
 import { BundlesTab } from "@/components/admin/product/bundles-tab";
 import { duplicateProduct, deleteProduct } from "@/lib/admin.product.functions";
 import { updateProductStatus } from "@/lib/admin.functions";
@@ -398,16 +398,16 @@ function DimensionsCard({ product }: { product: ProductDims }) {
   const update = useServerFn(updateProductDimensions);
   const qc = useQueryClient();
   const [form, setForm] = useState({
-    weight_kg: product.weight_kg != null ? String(product.weight_kg) : "",
-    width_mm: product.width_mm != null ? String(product.width_mm) : "",
-    height_mm: product.height_mm != null ? String(product.height_mm) : "",
-    length_mm: product.length_mm != null ? String(product.length_mm) : "",
+    weight_kg: br(product.weight_kg),
+    width_mm: br(product.width_mm),
+    height_mm: br(product.height_mm),
+    length_mm: br(product.length_mm),
   });
   const [saving, setSaving] = useState(false);
 
   function parseNum(v: string): number | null {
     if (v.trim() === "") return null;
-    const n = Number(v.replace(",", "."));
+    const n = Number(v.replace(/\./g, "").replace(",", "."));
     return Number.isFinite(n) ? n : null;
   }
 
@@ -562,7 +562,7 @@ function toDraft(k: KitRow): KitDraft {
 
 function parseNum(v: string): number | null {
   if (v.trim() === "") return null;
-  const n = Number(v.replace(",", "."));
+  const n = Number(v.replace(/\./g, "").replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
 
