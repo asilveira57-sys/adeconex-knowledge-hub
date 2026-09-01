@@ -541,7 +541,7 @@ function emptyDraft(order: number): KitDraft {
 }
 
 function toDraft(k: KitRow): KitDraft {
-  const s = (v: number | null) => (v != null ? String(v) : "");
+  const s = (v: number | null) => br(v);
   return {
     id: k.id,
     name: k.name ?? "",
