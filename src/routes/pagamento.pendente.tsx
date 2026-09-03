@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { Clock } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/pagamento/pendente")({
@@ -23,11 +24,12 @@ function money(v: number) {
 
 function Pendente() {
   const { order_id } = Route.useSearch();
+  const { session, ready } = useSession();
   const fetchStatus = useServerFn(getOrderPaymentStatus);
   const { data } = useQuery({
     queryKey: ["order-status", order_id],
     queryFn: () => fetchStatus({ data: { order_id: order_id! } }),
-    enabled: !!order_id,
+    enabled: !!order_id && ready && !!session,
     refetchInterval: 5000,
   });
 
