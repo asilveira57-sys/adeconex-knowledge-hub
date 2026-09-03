@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { CheckCircle2, Clock, Loader2 } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
 import { trackPurchase } from "@/lib/analytics";
 
@@ -25,11 +26,12 @@ function money(v: number) {
 
 function Aprovado() {
   const { order_id } = Route.useSearch();
+  const { session, ready } = useSession();
   const fetchStatus = useServerFn(getOrderPaymentStatus);
   const { data, isLoading } = useQuery({
     queryKey: ["order-status", order_id],
     queryFn: () => fetchStatus({ data: { order_id: order_id! } }),
-    enabled: !!order_id,
+    enabled: !!order_id && ready && !!session,
     refetchInterval: (q) =>
       q.state.data?.payment_status === "approved" ||
       q.state.data?.status === "pago"

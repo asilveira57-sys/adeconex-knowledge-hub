@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { XCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useSession } from "@/hooks/use-session";
 import { getOrderPaymentStatus } from "@/lib/payments.functions";
 import { restoreCartFromOrder } from "@/lib/cart.functions";
 
@@ -22,13 +23,14 @@ export const Route = createFileRoute("/pagamento/recusado")({
 
 function Recusado() {
   const { order_id } = Route.useSearch();
+  const { session, ready } = useSession();
   const fetchStatus = useServerFn(getOrderPaymentStatus);
   const restoreFn = useServerFn(restoreCartFromOrder);
   const qc = useQueryClient();
   const { data } = useQuery({
     queryKey: ["order-status", order_id],
     queryFn: () => fetchStatus({ data: { order_id: order_id! } }),
-    enabled: !!order_id,
+    enabled: !!order_id && ready && !!session,
   });
 
   const restore = useMutation({
