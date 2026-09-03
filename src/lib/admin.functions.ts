@@ -366,3 +366,63 @@ export const deleteProductKit = createServerFn({ method: "POST" })
   });
 
 
+/** Exclui um produto definitivamente (bloqueado quando já existe em pedidos). */
+export const deleteProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ productId: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+
+    const { count: orderCount, error: orderErr } = await context.supabase
+      .from("order_items")
+      .select("*", { count: "exact", head: true })
+      .eq("product_id", data.productId);
+    if (orderErr) throw new Error(orderErr.message);
+    if ((orderCount ?? 0) > 0) {
+      throw new Error(
+        "Este produto já faz parte de pedidos e não pode ser excluído. Use \"Ocultar\" ou \"Descontinuar\".",
+      );
+    }
+
+    // Remove vínculos que bloqueiam a exclusão
+    await context.supabase.from("cart_items").delete().eq("product_id", data.productId);
+    await context.supabase.from("bundle_offer_items").delete().eq("product_id", data.productId);
+
+    const { error } = await context.supabase.from("products").delete().eq("id", data.productId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Duplica um produto (sem variantes/imagens) como rascunho oculto. */
+export const duplicateProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ productId: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const { data: src, error } = await context.supabase
+      .from("products")
+      .select("*")
+      .eq("id", data.productId)
+      .single();
+    if (error) throw new Error(error.message);
+
+    const copy: Record<string, unknown> = { ...src };
+    delete copy['id'];
+    delete copy['created_at'];
+    delete copy['updated_at'];
+    delete copy['published_at'];
+    delete copy['legacy_id'];
+    copy['name'] = `${src.name} (cópia)`;
+    copy['slug'] = `${src.slug}-copia-${Date.now().toString(36)}`;
+    copy['status'] = "hidden";
+    copy['old_url'] = null;
+    copy['new_url'] = null;
+
+    const { data: inserted, error: insErr } = await context.supabase
+      .from("products")
+      .insert(copy)
+      .select("id")
+      .single();
+    if (insErr) throw new Error(insErr.message);
+    return { ok: true, id: inserted.id as string };
+  });
