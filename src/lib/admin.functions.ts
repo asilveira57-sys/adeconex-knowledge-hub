@@ -69,6 +69,11 @@ const listInput = z.object({
   search: z.string().optional(),
   status: z.enum(["all", "imported", "needs_review", "enriched", "published", "hidden", "discontinued"]).optional(),
   quality: z.enum(["all", "missing_image", "missing_price", "thin_content"]).optional(),
+  kit: z.enum(["all", "with", "without"]).optional(),
+  shipping: z.enum(["all", "with", "without", "no_weight"]).optional(),
+  custom: z.enum(["all", "with", "without"]).optional(),
+  sort: z.enum(["updated_at", "name", "price", "stock_quantity", "weight_kg"]).optional(),
+  dir: z.enum(["asc", "desc"]).optional(),
   categoryId: z.string().uuid().optional(),
   page: z.number().int().min(1).default(1),
   pageSize: z.number().int().min(1).max(100).default(25),
@@ -81,19 +86,36 @@ export const listProducts = createServerFn({ method: "GET" })
     await assertStaff(context);
     const from = (data.page - 1) * data.pageSize;
     const to = from + data.pageSize - 1;
+    const sort = data.sort ?? "updated_at";
+    const ascending = (data.dir ?? "desc") === "asc";
     // Only pull the main image + storage_path (uses images_main_by_product_idx)
     let q = context.supabase
       .from("products")
       .select(
-        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, product_images(source_url, storage_path, is_main)",
+        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, sells_by_kit, weight_kg, width_mm, height_mm, length_mm, is_customizable, custom_width_mm, custom_height_mm, product_images(source_url, storage_path, is_main)",
         { count: "estimated" },
       )
       .eq("product_images.is_main", true)
-      .order("updated_at", { ascending: false })
+      .order(sort, { ascending, nullsFirst: false })
       .range(from, to);
     if (data.search) q = q.ilike("name", `%${data.search}%`);
     if (data.status && data.status !== "all") q = q.eq("status", data.status);
     if (data.quality && data.quality !== "all") q = q.contains("quality_flags", { [data.quality]: true });
+    if (data.kit === "with") q = q.eq("sells_by_kit", true);
+    if (data.kit === "without") q = q.eq("sells_by_kit", false);
+    if (data.shipping === "with") {
+      q = q
+        .not("weight_kg", "is", null)
+        .not("width_mm", "is", null)
+        .not("height_mm", "is", null)
+        .not("length_mm", "is", null);
+    }
+    if (data.shipping === "without") {
+      q = q.or("weight_kg.is.null,width_mm.is.null,height_mm.is.null,length_mm.is.null");
+    }
+    if (data.shipping === "no_weight") q = q.is("weight_kg", null);
+    if (data.custom === "with") q = q.eq("is_customizable", true);
+    if (data.custom === "without") q = q.eq("is_customizable", false);
     if (data.categoryId) {
       const { data: pcs } = await context.supabase.from("product_categories").select("product_id").eq("category_id", data.categoryId);
       const ids = (pcs ?? []).map((r: { product_id: string }) => r.product_id);
@@ -104,6 +126,7 @@ export const listProducts = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { rows: rows ?? [], total: count ?? 0 };
   });
+
 
 export const listCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
