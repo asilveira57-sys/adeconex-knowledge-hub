@@ -65,7 +65,17 @@ function PagamentoStep() {
       }),
     onSuccess: (res) => {
       clearCheckout();
-      // O servidor escolhe init_point (produção) ou sandbox_init_point (teste) conforme o token
+      // O servidor escolhe init_point (produção) ou sandbox_init_point (teste) conforme o token.
+      // Dentro de um iframe (preview/editor) o Mercado Pago não funciona — abre em nova aba.
+      const inIframe = typeof window !== "undefined" && window.top !== window.self;
+      if (inIframe) {
+        const w = window.open(res.checkout_url, "_blank", "noopener,noreferrer");
+        if (!w) {
+          toast.error("Permita pop-ups ou abra o site em uma aba para pagar.");
+          window.top!.location.href = res.checkout_url;
+        }
+        return;
+      }
       window.location.href = res.checkout_url;
     },
     onError: (err: any) => {
