@@ -420,7 +420,7 @@ export const duplicateProduct = createServerFn({ method: "POST" })
 
     const { data: inserted, error: insErr } = await context.supabase
       .from("products")
-      .insert(copy)
+      .insert(copy as { name: string; slug: string })
       .select("id")
       .single();
     if (insErr) throw new Error(insErr.message);
