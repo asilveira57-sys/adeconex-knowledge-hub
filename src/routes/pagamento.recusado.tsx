@@ -45,11 +45,12 @@ function Recusado() {
 
   const didRestore = useRef(false);
   useEffect(() => {
-    if (!order_id || didRestore.current) return;
+    if (!order_id || !ready || !session || didRestore.current) return;
     didRestore.current = true;
     restore.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [order_id]);
+  }, [order_id, ready, session]);
+
 
   return (
     <div className="container-page py-16">
