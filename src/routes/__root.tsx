@@ -200,6 +200,8 @@ function RootComponent() {
       </div>
       <LaunchNoticePopup />
       <CookieConsentBanner />
+      <WhatsappFloatButton />
+
 
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
