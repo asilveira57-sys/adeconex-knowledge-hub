@@ -11,6 +11,7 @@ export const SETTING_KEYS = [
   "integration_search_console",
   "robots_txt",
   "launch_notice",
+  "whatsapp_button",
 ] as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[number];
@@ -24,6 +25,7 @@ export const SETTING_LABELS: Record<SettingKey, string> = {
   integration_search_console: "Google Search Console",
   robots_txt: "Robots.txt",
   launch_notice: "Pop-up de aviso de lançamento",
+  whatsapp_button: "Botão flutuante de WhatsApp",
 };
 
 /** Pop-up exibido na abertura do site (aviso de fase de implementação). */
@@ -32,6 +34,97 @@ export interface LaunchNoticeConfig {
   title: string;
   message: string;
 }
+
+/* ───────── Botão flutuante de WhatsApp ───────── */
+
+export type WhatsappScope =
+  | "all"
+  | "home"
+  | "product"
+  | "category"
+  | "cart"
+  | "blog"
+  | "institutional"
+  | "selected";
+
+export const WHATSAPP_SCOPE_LABELS: Record<WhatsappScope, string> = {
+  all: "Site inteiro",
+  home: "Página inicial",
+  product: "Páginas de produtos",
+  category: "Catálogo e categorias",
+  cart: "Carrinho e checkout",
+  blog: "Blog",
+  institutional: "Páginas institucionais",
+  selected: "Páginas selecionadas",
+};
+
+export interface WhatsappButtonConfig {
+  enabled: boolean;
+  phone: string;
+  message: string;
+  initial_position: "bottom-right" | "bottom-left";
+  draggable: boolean;
+  closable: boolean;
+  scopes: WhatsappScope[];
+  /** Caminhos exatos (um por linha) quando "selected" estiver ativo. */
+  selected_paths: string;
+}
+
+export const WHATSAPP_BUTTON_DEFAULTS: WhatsappButtonConfig = {
+  enabled: true,
+  phone: "5527992733033",
+  message: "Olá! Vim pelo site da Adeconex e gostaria de atendimento.",
+  initial_position: "bottom-right",
+  draggable: true,
+  closable: true,
+  scopes: ["all"],
+  selected_paths: "",
+};
+
+function normalizePathname(p: string): string {
+  const clean = (p || "/").split("?")[0]!.split("#")[0]!;
+  return clean.length > 1 ? clean.replace(/\/+$/, "") : "/";
+}
+
+/** Decide se o botão deve aparecer no caminho atual conforme as regras do admin. */
+export function whatsappVisibleOnPath(path: string, cfg: WhatsappButtonConfig): boolean {
+  const p = normalizePathname(path);
+  if (p.startsWith("/admin") || p.startsWith("/_authenticated/admin")) return false;
+  const scopes = cfg.scopes?.length ? cfg.scopes : ["all"];
+  if (scopes.includes("all")) return true;
+  const institutional = ["/empresa", "/contato", "/marketplaces", "/downloads", "/avaliacoes", "/conhecimento", "/ferramentas", "/b2b"];
+  return scopes.some((s) => {
+    switch (s) {
+      case "home":
+        return p === "/";
+      case "product":
+        return p.startsWith("/produto");
+      case "category":
+        return p.startsWith("/catalogo");
+      case "cart":
+        return p.startsWith("/carrinho") || p.startsWith("/checkout");
+      case "blog":
+        return p.startsWith("/blog");
+      case "institutional":
+        return institutional.some((i) => p === i || p.startsWith(`${i}/`));
+      case "selected":
+        return (cfg.selected_paths || "")
+          .split(/[\n,]/)
+          .map((x) => normalizePathname(x.trim()))
+          .filter((x) => x !== "/" || x === "/")
+          .some((x) => x === p);
+      default:
+        return false;
+    }
+  });
+}
+
+/** Monta a URL wa.me com a mensagem inicial codificada. */
+export function buildWhatsappUrl(phone: string, message: string): string {
+  const digits = (phone || "").replace(/\D/g, "");
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message || "")}`;
+}
+
 
 export type TrackingEnvironment = "production" | "staging" | "both";
 
