@@ -206,6 +206,19 @@ export const getLaunchNotice = createServerFn({ method: "GET" }).handler(async (
   };
 });
 
+/** Botão flutuante de WhatsApp — configuração pública. */
+export const getWhatsappButtonConfig = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { WHATSAPP_BUTTON_DEFAULTS } = await import("@/lib/seo-central.shared");
+  const { data } = await supabaseAdmin
+    .from("site_settings")
+    .select("value")
+    .eq("key", "whatsapp_button")
+    .maybeSingle();
+  const v = (data?.value ?? {}) as Record<string, unknown>;
+  return { ...WHATSAPP_BUTTON_DEFAULTS, ...v } as typeof WHATSAPP_BUTTON_DEFAULTS;
+});
+
 export const listSeoPagesAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

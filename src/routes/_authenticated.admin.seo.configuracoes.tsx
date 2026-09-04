@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { getSiteSettings, updateSiteSetting } from "@/lib/seo-central.functions";
-import type { LaunchNoticeConfig, SeoGeneralConfig } from "@/lib/seo-central.shared";
-import { Megaphone } from "lucide-react";
+import type { LaunchNoticeConfig, SeoGeneralConfig, WhatsappButtonConfig, WhatsappScope } from "@/lib/seo-central.shared";
+import { WHATSAPP_BUTTON_DEFAULTS, WHATSAPP_SCOPE_LABELS } from "@/lib/seo-central.shared";
+import { Megaphone, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, TextAreaField, CharCounter } from "@/components/admin/product/fields";
+import { Field, TextAreaField, SelectField, CharCounter } from "@/components/admin/product/fields";
 
 export const Route = createFileRoute("/_authenticated/admin/seo/configuracoes")({
   head: () => ({ meta: [{ title: "SEO — Configurações Gerais — Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
@@ -133,9 +134,119 @@ function SeoGeneralPage() {
       </Button>
 
       <LaunchNoticeCard settings={data ?? {}} />
+      <WhatsappButtonCard settings={data ?? {}} />
     </div>
   );
 }
+
+function WhatsappButtonCard({ settings }: { settings: Record<string, unknown> }) {
+  const queryClient = useQueryClient();
+  const update = useServerFn(updateSiteSetting);
+  const [form, setForm] = useState<WhatsappButtonConfig>(WHATSAPP_BUTTON_DEFAULTS);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (settings?.whatsapp_button)
+      setForm({ ...WHATSAPP_BUTTON_DEFAULTS, ...(settings.whatsapp_button as any) });
+  }, [settings]);
+
+  const toggleScope = (s: WhatsappScope) =>
+    setForm((f) => ({
+      ...f,
+      scopes: f.scopes.includes(s) ? f.scopes.filter((x) => x !== s) : [...f.scopes, s],
+    }));
+
+  async function onSave() {
+    const digits = form.phone.replace(/\D/g, "");
+    if (form.enabled && digits.length < 12) return toast.error("Informe o número no formato internacional (ex.: 5527992733033)");
+    setSaving(true);
+    try {
+      await update({ data: { key: "whatsapp_button", value: { ...form, phone: digits } as any } });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "site-settings"] });
+      await queryClient.invalidateQueries({ queryKey: ["whatsapp-button-config"] });
+      toast.success("Botão de WhatsApp atualizado");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <MessageCircle className="h-4 w-4 text-primary" /> Botão flutuante de WhatsApp
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={form.enabled} onChange={(e) => setForm((s) => ({ ...s, enabled: e.target.checked }))} />
+          Exibir botão de WhatsApp no site
+        </label>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field
+            label="Número (formato internacional)"
+            value={form.phone}
+            onChange={(v) => setForm((s) => ({ ...s, phone: v }))}
+            hint="Somente dígitos, ex.: 5527992733033"
+          />
+          <SelectField
+            label="Posição inicial"
+            value={form.initial_position}
+            onChange={(v) => setForm((s) => ({ ...s, initial_position: v as WhatsappButtonConfig["initial_position"] }))}
+            options={[
+              { value: "bottom-right", label: "Canto inferior direito" },
+              { value: "bottom-left", label: "Canto inferior esquerdo" },
+            ]}
+          />
+        </div>
+        <TextAreaField
+          label="Mensagem inicial"
+          value={form.message}
+          onChange={(v) => setForm((s) => ({ ...s, message: v }))}
+          rows={2}
+          maxLength={400}
+        />
+        <div className="flex flex-wrap gap-4">
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.draggable} onChange={(e) => setForm((s) => ({ ...s, draggable: e.target.checked }))} />
+            Permitir arrastar
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.closable} onChange={(e) => setForm((s) => ({ ...s, closable: e.target.checked }))} />
+            Permitir fechar
+          </label>
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">Onde exibir</p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {(Object.keys(WHATSAPP_SCOPE_LABELS) as WhatsappScope[]).map((s) => (
+              <label key={s} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" checked={form.scopes.includes(s)} onChange={() => toggleScope(s)} />
+                {WHATSAPP_SCOPE_LABELS[s]}
+              </label>
+            ))}
+          </div>
+        </div>
+        {form.scopes.includes("selected") && (
+          <TextAreaField
+            label="Páginas selecionadas"
+            value={form.selected_paths}
+            onChange={(v) => setForm((s) => ({ ...s, selected_paths: v }))}
+            rows={3}
+            hint="Um caminho por linha, ex.: /contato"
+          />
+        )}
+        <Button onClick={onSave} disabled={saving} variant="secondary">
+          {saving ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Save className="mr-1 h-4 w-4" />}
+          Salvar botão de WhatsApp
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 const NOTICE_EMPTY: LaunchNoticeConfig = { enabled: true, title: "", message: "" };
 
