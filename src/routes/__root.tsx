@@ -27,6 +27,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { LaunchNoticePopup } from "@/components/launch-notice-popup";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { WhatsappFloatButton } from "@/components/whatsapp-float-button";
 
 
 function NotFoundComponent() {
