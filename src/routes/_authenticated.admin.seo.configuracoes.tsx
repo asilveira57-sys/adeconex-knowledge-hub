@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { getSiteSettings, updateSiteSetting } from "@/lib/seo-central.functions";
-import type { LaunchNoticeConfig, SeoGeneralConfig } from "@/lib/seo-central.shared";
-import { Megaphone } from "lucide-react";
+import type { LaunchNoticeConfig, SeoGeneralConfig, WhatsappButtonConfig, WhatsappScope } from "@/lib/seo-central.shared";
+import { WHATSAPP_BUTTON_DEFAULTS, WHATSAPP_SCOPE_LABELS } from "@/lib/seo-central.shared";
+import { Megaphone, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, TextAreaField, CharCounter } from "@/components/admin/product/fields";
+import { Field, TextAreaField, SelectField, CharCounter } from "@/components/admin/product/fields";
 
 export const Route = createFileRoute("/_authenticated/admin/seo/configuracoes")({
   head: () => ({ meta: [{ title: "SEO — Configurações Gerais — Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
