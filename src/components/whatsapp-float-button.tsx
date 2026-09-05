@@ -272,9 +272,53 @@ export function WhatsappFloatButton() {
       button_position: pos ? `${Math.round(pos.x)},${Math.round(pos.y)}` : cfg.initial_position,
     });
   }
+  const pathAllowed = whatsappVisibleOnPath(pathname, cfg);
+  const blockedReason = !cfg.enabled
+    ? "disabled_in_admin"
+    : conflict
+      ? "whatsapp_widget_conflict"
+      : !pathAllowed
+        ? "page_scope"
+        : closed
+          ? "user_closed"
+          : null;
+
+  // Analytics: exibição/ocultação com o motivo e o seletor/condição detectados.
+  useEffect(() => {
+    if (!mounted) return;
+    const key = `${blockedReason ?? "visible"}|${conflict?.rule ?? ""}|${conflict?.selector ?? ""}`;
+    if (lastState.current === key) return;
+    const previous = lastState.current;
+    lastState.current = key;
+    const base = {
+      page_url: window.location.href,
+      page_title: document.title,
+      page_path: pathname,
+      device_type: deviceType(),
+      display_scope: cfg.display_scope,
+    };
+    if (!blockedReason) {
+      trackEvent("whatsapp_button_shown", {
+        ...base,
+        button_position: pos ? `${Math.round(pos.x)},${Math.round(pos.y)}` : cfg.initial_position,
+        previous_state: previous ?? "initial",
+      });
+    } else {
+      trackEvent("whatsapp_button_hidden", {
+        ...base,
+        block_reason: blockedReason,
+        detection_rule: conflict?.rule ?? undefined,
+        detection_selector: conflict?.selector ?? undefined,
+        detection_target: conflict?.detail ?? undefined,
+        previous_state: previous ?? "initial",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, blockedReason, conflict, pathname]);
 
   if (!mounted || !cfg.enabled || conflict) return null;
-  if (!whatsappVisibleOnPath(pathname, cfg)) return null;
+  if (!pathAllowed) return null;
+
 
   if (closed) {
     return (
