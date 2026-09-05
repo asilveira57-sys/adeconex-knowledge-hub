@@ -139,7 +139,9 @@ export function WhatsappFloatButton() {
   const [pos, setPos] = useState<Pos | null>(null);
   const [closed, setClosed] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [conflict, setConflict] = useState(false);
+  const [conflict, setConflict] = useState<WidgetConflict | null>(null);
+  const lastState = useRef<string | null>(null);
+
   const moved = useRef(false);
   const start = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null);
 
