@@ -295,7 +295,7 @@ export function WhatsappFloatButton() {
       page_title: document.title,
       page_path: pathname,
       device_type: deviceType(),
-      display_scope: cfg.display_scope,
+      display_scopes: (cfg.scopes?.length ? cfg.scopes : ["all"]).join(","),
     };
     if (!blockedReason) {
       trackEvent("whatsapp_button_shown", {
