@@ -76,7 +76,7 @@ const WIDGET_SELECTORS = [
   "iframe[src*='wa.me']",
   "iframe[src*='api.whatsapp.com']",
   "iframe[src*='whatsapp.com/chat']",
-].join(", ");
+];
 
 function isVisible(el: Element): boolean {
   const html = el as HTMLElement;
@@ -87,25 +87,44 @@ function isVisible(el: Element): boolean {
   return rect.width > 0 && rect.height > 0;
 }
 
-function otherWidgetOpen(): boolean {
-  if (typeof document === "undefined") return false;
+/** Detalhe do conflito detectado: qual regra e qual seletor/condição casou. */
+export interface WidgetConflict {
+  rule: "widget_selector" | "open_dialog_with_whatsapp";
+  selector: string;
+  detail?: string;
+}
+
+function detectOtherWidget(): WidgetConflict | null {
+  if (typeof document === "undefined") return null;
   // 1) Marcadores explícitos/ativos no DOM
-  for (const el of Array.from(document.querySelectorAll(WIDGET_SELECTORS))) {
-    if (isVisible(el)) return true;
-  }
-  // 2) Dialogs/modais abertos contendo link/iframe de WhatsApp
-  for (const el of Array.from(document.querySelectorAll("dialog[open], [role='dialog']"))) {
-    if (!isVisible(el)) continue;
-    if (
-      el.querySelector(
-        "iframe[src*='whatsapp'], a[href*='wa.me'], a[href*='api.whatsapp.com'], [data-whatsapp-widget]",
-      )
-    ) {
-      return true;
+  for (const selector of WIDGET_SELECTORS) {
+    for (const el of Array.from(document.querySelectorAll(selector))) {
+      if (isVisible(el)) {
+        return {
+          rule: "widget_selector",
+          selector,
+          detail: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ""),
+        };
+      }
     }
   }
-  return false;
+  // 2) Dialogs/modais abertos contendo link/iframe de WhatsApp
+  const innerSelector =
+    "iframe[src*='whatsapp'], a[href*='wa.me'], a[href*='api.whatsapp.com'], [data-whatsapp-widget]";
+  for (const el of Array.from(document.querySelectorAll("dialog[open], [role='dialog']"))) {
+    if (!isVisible(el)) continue;
+    const inner = el.querySelector(innerSelector);
+    if (inner) {
+      return {
+        rule: "open_dialog_with_whatsapp",
+        selector: innerSelector,
+        detail: inner.tagName.toLowerCase(),
+      };
+    }
+  }
+  return null;
 }
+
 
 export function WhatsappFloatButton() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -120,7 +139,9 @@ export function WhatsappFloatButton() {
   const [pos, setPos] = useState<Pos | null>(null);
   const [closed, setClosed] = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [conflict, setConflict] = useState(false);
+  const [conflict, setConflict] = useState<WidgetConflict | null>(null);
+  const lastState = useRef<string | null>(null);
+
   const moved = useRef(false);
   const start = useRef<{ px: number; py: number; ox: number; oy: number } | null>(null);
 
@@ -161,7 +182,7 @@ export function WhatsappFloatButton() {
   // Detecta outro atendimento WhatsApp aberto na página
   useEffect(() => {
     if (!mounted) return;
-    const check = () => setConflict(otherWidgetOpen());
+    const check = () => setConflict(detectOtherWidget());
     check();
     const obs = new MutationObserver(check);
     obs.observe(document.body, { childList: true, subtree: true, attributes: true });
@@ -251,9 +272,53 @@ export function WhatsappFloatButton() {
       button_position: pos ? `${Math.round(pos.x)},${Math.round(pos.y)}` : cfg.initial_position,
     });
   }
+  const pathAllowed = whatsappVisibleOnPath(pathname, cfg);
+  const blockedReason = !cfg.enabled
+    ? "disabled_in_admin"
+    : conflict
+      ? "whatsapp_widget_conflict"
+      : !pathAllowed
+        ? "page_scope"
+        : closed
+          ? "user_closed"
+          : null;
+
+  // Analytics: exibição/ocultação com o motivo e o seletor/condição detectados.
+  useEffect(() => {
+    if (!mounted) return;
+    const key = `${blockedReason ?? "visible"}|${conflict?.rule ?? ""}|${conflict?.selector ?? ""}`;
+    if (lastState.current === key) return;
+    const previous = lastState.current;
+    lastState.current = key;
+    const base = {
+      page_url: window.location.href,
+      page_title: document.title,
+      page_path: pathname,
+      device_type: deviceType(),
+      display_scopes: (cfg.scopes?.length ? cfg.scopes : ["all"]).join(","),
+    };
+    if (!blockedReason) {
+      trackEvent("whatsapp_button_shown", {
+        ...base,
+        button_position: pos ? `${Math.round(pos.x)},${Math.round(pos.y)}` : cfg.initial_position,
+        previous_state: previous ?? "initial",
+      });
+    } else {
+      trackEvent("whatsapp_button_hidden", {
+        ...base,
+        block_reason: blockedReason,
+        detection_rule: conflict?.rule ?? undefined,
+        detection_selector: conflict?.selector ?? undefined,
+        detection_target: conflict?.detail ?? undefined,
+        previous_state: previous ?? "initial",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, blockedReason, conflict, pathname]);
 
   if (!mounted || !cfg.enabled || conflict) return null;
-  if (!whatsappVisibleOnPath(pathname, cfg)) return null;
+  if (!pathAllowed) return null;
+
 
   if (closed) {
     return (
