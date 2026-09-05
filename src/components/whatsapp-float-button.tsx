@@ -76,7 +76,7 @@ const WIDGET_SELECTORS = [
   "iframe[src*='wa.me']",
   "iframe[src*='api.whatsapp.com']",
   "iframe[src*='whatsapp.com/chat']",
-].join(", ");
+];
 
 function isVisible(el: Element): boolean {
   const html = el as HTMLElement;
