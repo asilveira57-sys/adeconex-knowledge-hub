@@ -182,7 +182,7 @@ export function WhatsappFloatButton() {
   // Detecta outro atendimento WhatsApp aberto na página
   useEffect(() => {
     if (!mounted) return;
-    const check = () => setConflict(otherWidgetOpen());
+    const check = () => setConflict(detectOtherWidget());
     check();
     const obs = new MutationObserver(check);
     obs.observe(document.body, { childList: true, subtree: true, attributes: true });
