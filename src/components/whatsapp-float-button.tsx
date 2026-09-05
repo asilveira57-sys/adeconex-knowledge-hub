@@ -87,25 +87,44 @@ function isVisible(el: Element): boolean {
   return rect.width > 0 && rect.height > 0;
 }
 
-function otherWidgetOpen(): boolean {
-  if (typeof document === "undefined") return false;
+/** Detalhe do conflito detectado: qual regra e qual seletor/condição casou. */
+export interface WidgetConflict {
+  rule: "widget_selector" | "open_dialog_with_whatsapp";
+  selector: string;
+  detail?: string;
+}
+
+function detectOtherWidget(): WidgetConflict | null {
+  if (typeof document === "undefined") return null;
   // 1) Marcadores explícitos/ativos no DOM
-  for (const el of Array.from(document.querySelectorAll(WIDGET_SELECTORS))) {
-    if (isVisible(el)) return true;
-  }
-  // 2) Dialogs/modais abertos contendo link/iframe de WhatsApp
-  for (const el of Array.from(document.querySelectorAll("dialog[open], [role='dialog']"))) {
-    if (!isVisible(el)) continue;
-    if (
-      el.querySelector(
-        "iframe[src*='whatsapp'], a[href*='wa.me'], a[href*='api.whatsapp.com'], [data-whatsapp-widget]",
-      )
-    ) {
-      return true;
+  for (const selector of WIDGET_SELECTORS) {
+    for (const el of Array.from(document.querySelectorAll(selector))) {
+      if (isVisible(el)) {
+        return {
+          rule: "widget_selector",
+          selector,
+          detail: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ""),
+        };
+      }
     }
   }
-  return false;
+  // 2) Dialogs/modais abertos contendo link/iframe de WhatsApp
+  const innerSelector =
+    "iframe[src*='whatsapp'], a[href*='wa.me'], a[href*='api.whatsapp.com'], [data-whatsapp-widget]";
+  for (const el of Array.from(document.querySelectorAll("dialog[open], [role='dialog']"))) {
+    if (!isVisible(el)) continue;
+    const inner = el.querySelector(innerSelector);
+    if (inner) {
+      return {
+        rule: "open_dialog_with_whatsapp",
+        selector: innerSelector,
+        detail: inner.tagName.toLowerCase(),
+      };
+    }
+  }
+  return null;
 }
+
 
 export function WhatsappFloatButton() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
