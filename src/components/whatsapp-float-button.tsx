@@ -53,12 +53,58 @@ function deviceType(): string {
   return window.innerWidth < 640 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop";
 }
 
-/** Evita dois CTAs de WhatsApp concorrendo (widget de atendimento já aberto na página). */
+/**
+ * Evita dois CTAs de WhatsApp concorrendo (widget de atendimento já aberto na página).
+ * Cobre: atributos/classes comuns de widgets, iframes de chat do WhatsApp,
+ * janelas/popups conhecidos e elementos visivelmente abertos (não basta existir no DOM).
+ */
+const WIDGET_SELECTORS = [
+  "[data-whatsapp-widget-open='true']",
+  "[data-whatsapp-open='true']",
+  ".wa-widget-open",
+  ".wa-chat-widget-open",
+  ".whatsapp-widget-open",
+  ".whatsapp-chat-open",
+  // Widgets populares de atendimento (janela de chat aberta)
+  ".wa-float-chat-open",
+  ".wa__popup_chat_box.wa__active",
+  ".wat-wa-widget.open",
+  "[class*='whatsapp'][class*='open']",
+  "[id*='whatsapp'][class*='open']",
+  // Iframes de chat do WhatsApp
+  "iframe[src*='web.whatsapp.com']",
+  "iframe[src*='wa.me']",
+  "iframe[src*='api.whatsapp.com']",
+  "iframe[src*='whatsapp.com/chat']",
+].join(", ");
+
+function isVisible(el: Element): boolean {
+  const html = el as HTMLElement;
+  if (html.hidden) return false;
+  const style = window.getComputedStyle(html);
+  if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+  const rect = html.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
+}
+
 function otherWidgetOpen(): boolean {
   if (typeof document === "undefined") return false;
-  return !!document.querySelector(
-    '[data-whatsapp-widget-open="true"], .wa-widget-open, iframe[src*="web.whatsapp.com"]',
-  );
+  // 1) Marcadores explícitos/ativos no DOM
+  for (const el of Array.from(document.querySelectorAll(WIDGET_SELECTORS))) {
+    if (isVisible(el)) return true;
+  }
+  // 2) Dialogs/modais abertos contendo link/iframe de WhatsApp
+  for (const el of Array.from(document.querySelectorAll("dialog[open], [role='dialog']"))) {
+    if (!isVisible(el)) continue;
+    if (
+      el.querySelector(
+        "iframe[src*='whatsapp'], a[href*='wa.me'], a[href*='api.whatsapp.com'], [data-whatsapp-widget]",
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function WhatsappFloatButton() {
