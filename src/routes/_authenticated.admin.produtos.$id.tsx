@@ -386,6 +386,34 @@ function PreviewPage() {
   );
 }
 
+function DimField({
+  label,
+  unit,
+  value,
+  onChange,
+}: {
+  label: string;
+  unit: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs uppercase text-muted-foreground">
+        {label} ({unit})
+      </span>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(sanitizeDecimal(e.target.value))}
+        className="mt-1 w-full rounded-md border bg-surface-1 px-3 py-2 text-sm outline-none focus:border-primary/50"
+        placeholder="—"
+      />
+    </label>
+  );
+}
+
 type ProductDims = {
   id: string;
   weight_kg: number | null;
@@ -432,14 +460,7 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     }
   }
 
-  const Field = ({ label, unit, k }: { label: string; unit: string; k: keyof typeof form }) => (
-    <DimField
-      label={label}
-      unit={unit}
-      value={form[k]}
-      onChange={(v) => setForm((s) => ({ ...s, [k]: v }))}
-    />
-  );
+  const set = (k: keyof typeof form) => (v: string) => setForm((s) => ({ ...s, [k]: v }));
 
 
 
@@ -464,10 +485,10 @@ function DimensionsCard({ product }: { product: ProductDims }) {
           }
         />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Field label="Peso" unit="kg" k="weight_kg" />
-          <Field label="Largura" unit="mm" k="width_mm" />
-          <Field label="Altura" unit="mm" k="height_mm" />
-          <Field label="Comprimento" unit="mm" k="length_mm" />
+          <DimField label="Peso" unit="kg" value={form.weight_kg} onChange={set("weight_kg")} />
+          <DimField label="Largura" unit="mm" value={form.width_mm} onChange={set("width_mm")} />
+          <DimField label="Altura" unit="mm" value={form.height_mm} onChange={set("height_mm")} />
+          <DimField label="Comprimento" unit="mm" value={form.length_mm} onChange={set("length_mm")} />
         </div>
         <p className="text-xs text-muted-foreground">
           Use kg reais (ex.: 0.5 = 500 g) e milímetros da embalagem. Estes valores são enviados ao Melhor Envio.
