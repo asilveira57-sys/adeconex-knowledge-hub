@@ -482,7 +482,11 @@ function ProductsAdmin() {
                       )}
                       <div className="mt-1">
                         {hasWeight ? (
-                          <span className="tabular-nums text-muted-foreground">{br(row.weight_kg)} kg</span>
+                          <span className="tabular-nums text-muted-foreground">
+                            {(row.weight_kg ?? 0) < 1
+                              ? `${br(Math.round((row.weight_kg ?? 0) * 1000))} g`
+                              : `${br(row.weight_kg)} kg`}
+                          </span>
                         ) : (
                           <Badge variant="outline" className="text-[10px]">
                             sem peso
