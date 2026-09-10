@@ -20,7 +20,7 @@ export function SiteFooter() {
               <a href="https://www.instagram.com/adeconex" aria-label="Instagram" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">
                 <Instagram className="h-5 w-5" />
               </a>
-              <a href="https://www.youtube.com/@adeconex" aria-label="YouTube" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.youtube.com/adeconexbr" aria-label="YouTube" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">
                 <Youtube className="h-5 w-5" />
               </a>
               <a href="https://www.linkedin.com/company/adeconex" aria-label="LinkedIn" className="hover:text-foreground" target="_blank" rel="noopener noreferrer">
