@@ -432,6 +432,7 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     height_mm: br(product.height_mm),
     length_mm: br(product.length_mm),
   });
+  const [boxId, setBoxId] = useState<string | null>(product.packaging_box_id ?? null);
   const [saving, setSaving] = useState(false);
 
   function parseNum(v: string): number | null {
