@@ -451,6 +451,7 @@ function DimensionsCard({ product }: { product: ProductDims }) {
           width_mm: parseNum(form.width_mm),
           height_mm: parseNum(form.height_mm),
           length_mm: parseNum(form.length_mm),
+          packaging_box_id: boxId,
         },
       });
       await qc.invalidateQueries({ queryKey: ["admin", "product-preview", product.id] });
