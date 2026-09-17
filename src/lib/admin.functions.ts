@@ -72,6 +72,7 @@ const listInput = z.object({
   kit: z.enum(["all", "with", "without"]).optional(),
   shipping: z.enum(["all", "with", "without", "no_weight"]).optional(),
   custom: z.enum(["all", "with", "without"]).optional(),
+  packaging: z.enum(["all", "with", "without"]).optional(),
   sort: z.enum(["updated_at", "name", "price", "stock_quantity", "weight_kg"]).optional(),
   dir: z.enum(["asc", "desc"]).optional(),
   categoryId: z.string().uuid().optional(),
