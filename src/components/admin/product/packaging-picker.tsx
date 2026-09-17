@@ -46,7 +46,17 @@ const EMPTY: Draft = { name: "", width_mm: "", height_mm: "", length_mm: "", sug
  * Caixa de seleção com as embalagens cadastradas.
  * Permite cadastrar, editar e excluir embalagens sem sair do produto.
  */
-export function PackagingPicker({ onApply }: { onApply: (v: PackagingApply) => void }) {
+export function PackagingPicker({
+  onApply,
+  value,
+  onChangeBox,
+}: {
+  onApply: (v: PackagingApply) => void;
+  /** Embalagem já vinculada ao produto (controlada). */
+  value?: string | null;
+  /** Informa a embalagem escolhida para ser salva no produto. */
+  onChangeBox?: (id: string | null) => void;
+}) {
   const qc = useQueryClient();
   const list = useServerFn(listPackagingBoxes);
   const create = useServerFn(createPackagingBox);
