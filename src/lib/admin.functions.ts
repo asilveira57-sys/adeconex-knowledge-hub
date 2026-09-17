@@ -117,6 +117,8 @@ export const listProducts = createServerFn({ method: "GET" })
     if (data.shipping === "no_weight") q = q.is("weight_kg", null);
     if (data.custom === "with") q = q.eq("is_customizable", true);
     if (data.custom === "without") q = q.eq("is_customizable", false);
+    if (data.packaging === "with") q = q.not("packaging_box_id", "is", null);
+    if (data.packaging === "without") q = q.is("packaging_box_id", null);
     if (data.categoryId) {
       const { data: pcs } = await context.supabase.from("product_categories").select("product_id").eq("category_id", data.categoryId);
       const ids = (pcs ?? []).map((r: { product_id: string }) => r.product_id);
