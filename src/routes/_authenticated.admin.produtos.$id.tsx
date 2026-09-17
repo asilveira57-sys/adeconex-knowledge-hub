@@ -477,6 +477,8 @@ function DimensionsCard({ product }: { product: ProductDims }) {
       </CardHeader>
       <CardContent className="space-y-3">
         <PackagingPicker
+          value={boxId}
+          onChangeBox={setBoxId}
           onApply={(v) =>
             setForm((s) => ({
               ...s,
