@@ -162,6 +162,7 @@ const dimsInput = z.object({
   width_mm: z.number().min(0).max(5000).nullable(),
   height_mm: z.number().min(0).max(5000).nullable(),
   length_mm: z.number().min(0).max(5000).nullable(),
+  packaging_box_id: z.string().uuid().nullable().optional(),
 });
 
 export const updateProductDimensions = createServerFn({ method: "POST" })
@@ -176,6 +177,7 @@ export const updateProductDimensions = createServerFn({ method: "POST" })
         width_mm: data.width_mm,
         height_mm: data.height_mm,
         length_mm: data.length_mm,
+        packaging_box_id: data.packaging_box_id ?? null,
       })
       .eq("id", data.productId);
     if (error) throw new Error(error.message);
