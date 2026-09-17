@@ -93,7 +93,7 @@ export const listProducts = createServerFn({ method: "GET" })
     let q = context.supabase
       .from("products")
       .select(
-        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, sells_by_kit, weight_kg, width_mm, height_mm, length_mm, is_customizable, custom_width_mm, custom_height_mm, product_images(source_url, storage_path, is_main)",
+        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, sells_by_kit, weight_kg, width_mm, height_mm, length_mm, is_customizable, custom_width_mm, custom_height_mm, packaging_box_id, packaging_box:packaging_boxes(id, name), product_images(source_url, storage_path, is_main)",
         { count: "estimated" },
       )
       .eq("product_images.is_main", true)
