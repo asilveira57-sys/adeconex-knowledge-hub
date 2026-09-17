@@ -72,6 +72,7 @@ const listInput = z.object({
   kit: z.enum(["all", "with", "without"]).optional(),
   shipping: z.enum(["all", "with", "without", "no_weight"]).optional(),
   custom: z.enum(["all", "with", "without"]).optional(),
+  packaging: z.enum(["all", "with", "without"]).optional(),
   sort: z.enum(["updated_at", "name", "price", "stock_quantity", "weight_kg"]).optional(),
   dir: z.enum(["asc", "desc"]).optional(),
   categoryId: z.string().uuid().optional(),
@@ -92,7 +93,7 @@ export const listProducts = createServerFn({ method: "GET" })
     let q = context.supabase
       .from("products")
       .select(
-        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, sells_by_kit, weight_kg, width_mm, height_mm, length_mm, is_customizable, custom_width_mm, custom_height_mm, product_images(source_url, storage_path, is_main)",
+        "id, name, slug, price, status, is_available, stock_quantity, old_url, quality_flags, updated_at, sells_by_kit, weight_kg, width_mm, height_mm, length_mm, is_customizable, custom_width_mm, custom_height_mm, packaging_box_id, packaging_box:packaging_boxes(id, name), product_images(source_url, storage_path, is_main)",
         { count: "estimated" },
       )
       .eq("product_images.is_main", true)
@@ -116,6 +117,8 @@ export const listProducts = createServerFn({ method: "GET" })
     if (data.shipping === "no_weight") q = q.is("weight_kg", null);
     if (data.custom === "with") q = q.eq("is_customizable", true);
     if (data.custom === "without") q = q.eq("is_customizable", false);
+    if (data.packaging === "with") q = q.not("packaging_box_id", "is", null);
+    if (data.packaging === "without") q = q.is("packaging_box_id", null);
     if (data.categoryId) {
       const { data: pcs } = await context.supabase.from("product_categories").select("product_id").eq("category_id", data.categoryId);
       const ids = (pcs ?? []).map((r: { product_id: string }) => r.product_id);
@@ -159,6 +162,7 @@ const dimsInput = z.object({
   width_mm: z.number().min(0).max(5000).nullable(),
   height_mm: z.number().min(0).max(5000).nullable(),
   length_mm: z.number().min(0).max(5000).nullable(),
+  packaging_box_id: z.string().uuid().nullable().optional(),
 });
 
 export const updateProductDimensions = createServerFn({ method: "POST" })
@@ -173,6 +177,7 @@ export const updateProductDimensions = createServerFn({ method: "POST" })
         width_mm: data.width_mm,
         height_mm: data.height_mm,
         length_mm: data.length_mm,
+        packaging_box_id: data.packaging_box_id ?? null,
       })
       .eq("id", data.productId);
     if (error) throw new Error(error.message);
@@ -234,7 +239,7 @@ export const getProductPreview = createServerFn({ method: "GET" })
     const { data: product, error } = await context.supabase
       .from("products")
       .select(
-        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at, weight_kg, width_mm, height_mm, length_mm, sells_by_kit",
+        "id, name, slug, sku, model, reference, price, promotional_price, stock_quantity, is_available, status, short_description, commercial_description, technical_description, seo_title, seo_description, seo_keywords, old_url, quality_flags, updated_at, weight_kg, width_mm, height_mm, length_mm, sells_by_kit, packaging_box_id",
       )
       .eq("id", data.productId)
       .maybeSingle();

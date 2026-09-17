@@ -2136,6 +2136,7 @@ export type Database = {
           name: string
           new_url: string | null
           old_url: string | null
+          packaging_box_id: string | null
           price: number | null
           print_type: string | null
           promo_ends_at: string | null
@@ -2212,6 +2213,7 @@ export type Database = {
           name: string
           new_url?: string | null
           old_url?: string | null
+          packaging_box_id?: string | null
           price?: number | null
           print_type?: string | null
           promo_ends_at?: string | null
@@ -2288,6 +2290,7 @@ export type Database = {
           name?: string
           new_url?: string | null
           old_url?: string | null
+          packaging_box_id?: string | null
           price?: number | null
           print_type?: string | null
           promo_ends_at?: string | null
@@ -2359,6 +2362,13 @@ export type Database = {
             columns: ["material_id"]
             isOneToOne: false
             referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_packaging_box_id_fkey"
+            columns: ["packaging_box_id"]
+            isOneToOne: false
+            referencedRelation: "packaging_boxes"
             referencedColumns: ["id"]
           },
         ]

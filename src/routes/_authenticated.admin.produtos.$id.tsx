@@ -420,6 +420,7 @@ type ProductDims = {
   width_mm: number | null;
   height_mm: number | null;
   length_mm: number | null;
+  packaging_box_id?: string | null;
 };
 
 function DimensionsCard({ product }: { product: ProductDims }) {
@@ -431,6 +432,7 @@ function DimensionsCard({ product }: { product: ProductDims }) {
     height_mm: br(product.height_mm),
     length_mm: br(product.length_mm),
   });
+  const [boxId, setBoxId] = useState<string | null>(product.packaging_box_id ?? null);
   const [saving, setSaving] = useState(false);
 
   function parseNum(v: string): number | null {
@@ -449,6 +451,7 @@ function DimensionsCard({ product }: { product: ProductDims }) {
           width_mm: parseNum(form.width_mm),
           height_mm: parseNum(form.height_mm),
           length_mm: parseNum(form.length_mm),
+          packaging_box_id: boxId,
         },
       });
       await qc.invalidateQueries({ queryKey: ["admin", "product-preview", product.id] });
@@ -474,6 +477,8 @@ function DimensionsCard({ product }: { product: ProductDims }) {
       </CardHeader>
       <CardContent className="space-y-3">
         <PackagingPicker
+          value={boxId}
+          onChangeBox={setBoxId}
           onApply={(v) =>
             setForm((s) => ({
               ...s,
