@@ -49,6 +49,7 @@ type Quality = "all" | "missing_image" | "missing_price" | "thin_content";
 type KitFilter = "all" | "with" | "without";
 type ShippingFilter = "all" | "with" | "without" | "no_weight";
 type CustomFilter = "all" | "with" | "without";
+type PackagingFilter = "all" | "with" | "without";
 type SortField = "updated_at" | "name" | "price" | "stock_quantity" | "weight_kg";
 type SortDir = "asc" | "desc";
 
@@ -59,6 +60,7 @@ type ListInput = {
   kit: KitFilter;
   shipping: ShippingFilter;
   custom: CustomFilter;
+  packaging: PackagingFilter;
   sort: SortField;
   dir: SortDir;
   page: number;
@@ -77,6 +79,7 @@ const listOptions = (input: ListInput) =>
           kit: input.kit,
           shipping: input.shipping,
           custom: input.custom,
+          packaging: input.packaging,
           sort: input.sort,
           dir: input.dir,
           page: input.page,
@@ -94,6 +97,7 @@ const DEFAULT_INPUT: ListInput = {
   kit: "all",
   shipping: "all",
   custom: "all",
+  packaging: "all",
   sort: "updated_at",
   dir: "desc",
   page: 1,
@@ -145,6 +149,7 @@ function ProductsAdmin() {
   const [kit, setKit] = useState<KitFilter>("all");
   const [shipping, setShipping] = useState<ShippingFilter>("all");
   const [custom, setCustom] = useState<CustomFilter>("all");
+  const [packaging, setPackaging] = useState<PackagingFilter>("all");
   const [sort, setSort] = useState<SortField>("updated_at");
   const [dir, setDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
@@ -154,7 +159,7 @@ function ProductsAdmin() {
   const [busy, setBusy] = useState(false);
 
   const { data } = useSuspenseQuery(
-    listOptions({ search, status, quality, kit, shipping, custom, sort, dir, page, pageSize }),
+    listOptions({ search, status, quality, kit, shipping, custom, packaging, sort, dir, page, pageSize }),
   );
   const rows = data.rows as Row[];
   const totalPages = Math.max(1, Math.ceil(data.total / pageSize));
@@ -245,6 +250,7 @@ function ProductsAdmin() {
     setKit("all");
     setShipping("all");
     setCustom("all");
+    setPackaging("all");
     setPage(1);
   };
 
@@ -254,7 +260,8 @@ function ProductsAdmin() {
     (quality !== "all" ? 1 : 0) +
     (kit !== "all" ? 1 : 0) +
     (shipping !== "all" ? 1 : 0) +
-    (custom !== "all" ? 1 : 0);
+    (custom !== "all" ? 1 : 0) +
+    (packaging !== "all" ? 1 : 0);
 
   return (
     <div className="space-y-6">
@@ -383,6 +390,22 @@ function ProductsAdmin() {
                 <SelectItem value="all">Personalização: todas</SelectItem>
                 <SelectItem value="with">Permite personalizar</SelectItem>
                 <SelectItem value="without">Não personalizável</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={packaging}
+              onValueChange={(v) => {
+                setPackaging(v as PackagingFilter);
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-60">
+                <SelectValue placeholder="Embalagem" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Embalagem: todas</SelectItem>
+                <SelectItem value="with">Com embalagem cadastrada</SelectItem>
+                <SelectItem value="without">Sem embalagem cadastrada</SelectItem>
               </SelectContent>
             </Select>
             {activeFilters > 0 && (
