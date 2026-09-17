@@ -68,7 +68,12 @@ export function PackagingPicker({
     queryFn: () => list(),
   });
 
-  const [selected, setSelected] = useState("");
+  const [internalSelected, setInternalSelected] = useState("");
+  const selected = value !== undefined ? (value ?? "") : internalSelected;
+  const setSelected = (id: string) => {
+    setInternalSelected(id);
+    onChangeBox?.(id === "" ? null : id);
+  };
   const [mode, setMode] = useState<"none" | "create" | "edit">("none");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(EMPTY);
