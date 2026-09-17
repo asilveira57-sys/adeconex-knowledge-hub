@@ -420,6 +420,7 @@ type ProductDims = {
   width_mm: number | null;
   height_mm: number | null;
   length_mm: number | null;
+  packaging_box_id?: string | null;
 };
 
 function DimensionsCard({ product }: { product: ProductDims }) {
