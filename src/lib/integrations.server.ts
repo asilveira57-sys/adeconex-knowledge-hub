@@ -61,7 +61,7 @@ async function buildPayload(supabaseAdmin: any, orderId: string) {
   if (order.company_id) {
     const { data } = await supabaseAdmin
       .from("companies")
-      .select("legal_name, trade_name, cnpj, ie")
+      .select("legal_name, trade_name, cnpj, ie:state_registration")
       .eq("id", order.company_id)
       .maybeSingle();
     company = data ?? null;
