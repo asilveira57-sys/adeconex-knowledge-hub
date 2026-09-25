@@ -8,6 +8,7 @@ import {
   updateOrderStatus,
   updateOrderTracking,
   updateOrderInternalNotes,
+  syncOrderPaymentAdmin,
   ORDER_STATUSES,
   ORDER_STATUS_LABEL,
 } from "@/lib/orders.functions";
@@ -71,6 +72,16 @@ function AdminPedidoDetail() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
+  const syncMut = useMutation({
+    mutationFn: () => syncOrderPaymentAdmin({ data: { orderId: id } }),
+    onSuccess: (r) => {
+      if (r.synced) toast.success(`Mercado Pago: ${r.status}`);
+      else toast.info(r.reason === "no_payment" ? "Nenhum pagamento encontrado no Mercado Pago" : `Não sincronizado (${r.reason})`);
+      invalidate();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
   if (isLoading) {
     return <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
@@ -96,6 +107,9 @@ function AdminPedidoDetail() {
         <div className="text-right">
           <Badge variant={statusTone(order.status)}>{ORDER_STATUS_LABEL[order.status as keyof typeof ORDER_STATUS_LABEL]}</Badge>
           <p className="mt-2 text-2xl font-semibold tabular-nums">{brl(Number(order.total))}</p>
+          <Button size="sm" variant="outline" className="mt-2" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
+            {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Verificar pagamento no Mercado Pago
+          </Button>
         </div>
       </div>
 

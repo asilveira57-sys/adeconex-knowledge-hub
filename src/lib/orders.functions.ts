@@ -293,3 +293,16 @@ export const updateOrderInternalNotes = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const syncOrderPaymentAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ orderId: z.string().uuid() }).parse(v))
+  .handler(async ({ context, data }) => {
+    await assertStaff(context);
+    const { syncOrderWithMercadoPago } = await import("./mp-sync.server");
+    return (await syncOrderWithMercadoPago(data.orderId)) as {
+      synced: boolean;
+      status?: string;
+      reason?: string;
+    };
+  });

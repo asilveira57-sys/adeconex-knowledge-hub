@@ -432,7 +432,9 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     }
 
     // 10) Grava payment (pending)
-    await supabase.from("payments").insert({
+    // Cliente não tem permissão de gravar em payments (RLS) — usa cliente privilegiado
+    const { supabaseAdmin: payAdmin } = await import("@/integrations/supabase/client.server");
+    await payAdmin.from("payments").insert({
       order_id: order.id,
       provider: "mercadopago",
       preference_id: prefJson.id,
@@ -505,6 +507,24 @@ export const getOrderPaymentStatus = createServerFn({ method: "GET" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!order) throw new Error("Pedido não encontrado");
+
+    // Fallback do webhook: consulta o Mercado Pago diretamente
+    if (order.status === "aguardando_pagamento" || order.status === "draft") {
+      try {
+        const { syncOrderWithMercadoPago } = await import("./mp-sync.server");
+        const r: any = await syncOrderWithMercadoPago(order.id);
+        if (r?.synced) {
+          const { data: fresh } = await context.supabase
+            .from("orders")
+            .select("status, paid_at, payment_method")
+            .eq("id", order.id)
+            .maybeSingle();
+          if (fresh) Object.assign(order, fresh);
+        }
+      } catch (e) {
+        console.error("[payment-status] sync falhou", e);
+      }
+    }
 
     const [{ data: pay }, { data: items }] = await Promise.all([
       context.supabase
