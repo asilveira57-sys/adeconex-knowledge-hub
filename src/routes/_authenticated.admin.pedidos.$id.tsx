@@ -2,7 +2,7 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Save, Truck } from "lucide-react";
+import { ArrowLeft, Download, Loader2, Save, Truck } from "lucide-react";
 import {
   getAdminOrder,
   updateOrderStatus,
@@ -24,8 +24,20 @@ import {
 } from "@/components/ui/select";
 import { OrderFilesCard } from "@/components/order-files-card";
 import { IntegrationLogsCard } from "@/components/integration-logs-card";
+import adeconexLogo from "@/assets/brand/logo-adeconex-oficial.png";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$id")({
+  head: () => ({
+    meta: [
+      { title: "Detalhes do pedido — Administração Adeconex" },
+      { name: "description", content: "Gestão e exportação dos dados completos do pedido na Adeconex." },
+      { property: "og:title", content: "Detalhes do pedido — Administração Adeconex" },
+      { property: "og:description", content: "Gestão e exportação dos dados completos do pedido na Adeconex." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminPedidoDetail,
 });
 
@@ -44,6 +56,7 @@ function statusTone(s: string): "default" | "destructive" | "secondary" | "outli
 function AdminPedidoDetail() {
   const { id } = useParams({ from: "/_authenticated/admin/pedidos/$id" });
   const qc = useQueryClient();
+  const [exportingPdf, setExportingPdf] = useState(false);
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "order", id],
     queryFn: () => getAdminOrder({ data: { orderId: id } }),
@@ -94,6 +107,19 @@ function AdminPedidoDetail() {
   const payment = payments[0];
   const shipment = shipments[0];
 
+  const exportPdf = async () => {
+    setExportingPdf(true);
+    try {
+      const { downloadOrderPdf } = await import("@/lib/order-pdf");
+      await downloadOrderPdf(data, adeconexLogo, ORDER_STATUS_LABEL);
+      toast.success("PDF do pedido exportado");
+    } catch (pdfError) {
+      toast.error(pdfError instanceof Error ? pdfError.message : "Erro ao exportar o PDF");
+    } finally {
+      setExportingPdf(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -104,12 +130,18 @@ function AdminPedidoDetail() {
           <h1 className="text-2xl font-semibold tracking-tight">{order.order_number}</h1>
           <p className="mt-1 text-sm text-muted-foreground">Criado em {fmt(order.created_at)}</p>
         </div>
-        <div className="text-right">
+        <div className="flex flex-col items-end">
           <Badge variant={statusTone(order.status)}>{ORDER_STATUS_LABEL[order.status as keyof typeof ORDER_STATUS_LABEL]}</Badge>
           <p className="mt-2 text-2xl font-semibold tabular-nums">{brl(Number(order.total))}</p>
-          <Button size="sm" variant="outline" className="mt-2" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
-            {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Verificar pagamento no Mercado Pago
-          </Button>
+          <div className="mt-2 flex flex-wrap justify-end gap-2">
+            <Button size="sm" variant="outline" disabled={exportingPdf} onClick={exportPdf}>
+              {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              Exportar pedido em PDF
+            </Button>
+            <Button size="sm" variant="outline" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
+              {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Verificar pagamento no Mercado Pago
+            </Button>
+          </div>
         </div>
       </div>
 
