@@ -140,7 +140,7 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
         ? supabase
             .from("product_variants")
             .select(
-              "id, sku, price, promotional_price, weight_kg, stock_quantity, option1_name, option1_value, option2_name, option2_value",
+              "id, sku, price, promotional_price, weight_kg, stock_quantity, option1_name, option1_value, option2_name, option2_value, name, units_per_pack, is_kit",
             )
             .in("id", variantIds)
         : Promise.resolve({ data: [] as any[] }),
@@ -199,17 +199,29 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
               .filter(Boolean)
               .join(" · ") || null
           : null;
+      let finalLabel = label;
+      let finalMeta = meta;
+      if (!isCustom && v?.is_kit) {
+        const nameUnits = Number(String(v.name ?? "").match(/(\d+)/)?.[1] ?? 0);
+        const upp = Math.max(1, Number(v.units_per_pack ?? 1) > 1 ? Number(v.units_per_pack) : nameUnits || 1);
+        const kitName = v.name ?? `Caixa com ${upp}`;
+        const total = upp * Number(r.quantity);
+        finalLabel = upp > 1
+          ? `${kitName} · ${r.quantity} × ${upp} = ${total} unidades`
+          : kitName;
+        finalMeta = { ...meta, units_per_pack: upp, total_units: total, kit_name: kitName };
+      }
       return {
         product_id: p.id,
         variant_id: r.variant_id ?? null,
         product_name: isCustom ? `${p.name} (personalizada)` : p.name,
         product_sku: v?.sku ?? p.sku ?? null,
-        variant_label: label,
+        variant_label: finalLabel,
         quantity: Number(r.quantity),
         unit_price: Number(unit.toFixed(2)),
         subtotal: Number((unit * r.quantity).toFixed(2)),
         weight_kg: v?.weight_kg ?? p.weight_kg ?? null,
-        metadata: meta,
+        metadata: finalMeta,
       };
     });
 
