@@ -120,21 +120,103 @@ async function logAttempt(
   });
 }
 
+const TINY_URL = "https://api.tiny.com.br/api2/pedido.incluir.php";
+
+const digits = (s: unknown) => String(s ?? "").replace(/\D/g, "");
+const fmtDate = (iso: string | null | undefined) => {
+  const d = iso ? new Date(iso) : new Date();
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+};
+const PAY_LABEL: Record<string, string> = {
+  pix: "pix",
+  credit_card: "credito",
+  debit_card: "debito",
+  boleto: "boleto",
+  ticket: "boleto",
+  bank_transfer: "pix",
+};
+
+/** Converte o payload canônico no formato do Olist ERP (Tiny API v2). */
+function toTinyOrder(p: Awaited<ReturnType<typeof buildPayload>>) {
+  const addr: any =
+    p.addresses.find((a: any) => a.kind === "billing") ??
+    p.addresses.find((a: any) => a.kind === "shipping") ??
+    p.addresses[0] ??
+    {};
+  const ship: any = p.addresses.find((a: any) => a.kind === "shipping") ?? addr;
+  const doc = digits(p.company?.cnpj ?? p.customer?.cpf ?? addr.recipient_document);
+  const isPJ = doc.length === 14;
+  const nome = isPJ
+    ? p.company?.legal_name ?? p.company?.trade_name ?? addr.recipient_name
+    : p.customer?.full_name ?? addr.recipient_name;
+
+  const cliente: Record<string, unknown> = {
+    nome: nome || "Cliente Adeconex",
+    tipo_pessoa: isPJ ? "J" : "F",
+    cpf_cnpj: doc || undefined,
+    ie: isPJ ? p.company?.ie ?? undefined : undefined,
+    nome_fantasia: isPJ ? p.company?.trade_name ?? undefined : undefined,
+    endereco: addr.street,
+    numero: addr.number,
+    complemento: addr.complement ?? undefined,
+    bairro: addr.district,
+    cep: digits(addr.zip),
+    cidade: addr.city,
+    uf: addr.state,
+    fone: p.customer?.phone ?? p.customer?.whatsapp ?? addr.phone ?? undefined,
+    email: p.customer?.email ?? addr.email ?? undefined,
+    atualizar_cliente: "S",
+  };
+
+  const pedido: Record<string, unknown> = {
+    data_pedido: fmtDate(p.order.created_at),
+    numero_pedido_ecommerce: p.order.number,
+    cliente,
+    itens: p.items.map((i) => ({
+      item: {
+        codigo: i.sku ?? undefined,
+        descricao: [i.name, i.variant].filter(Boolean).join(" - "),
+        unidade: "UN",
+        quantidade: i.quantity,
+        valor_unitario: i.unit_price.toFixed(2),
+      },
+    })),
+    valor_frete: p.order.shipping_total.toFixed(2),
+    valor_desconto: p.order.discount_total.toFixed(2),
+    forma_pagamento: PAY_LABEL[String(p.order.payment_method ?? "")] ?? undefined,
+    nome_transportador: p.order.shipping_carrier ?? undefined,
+    forma_frete: p.order.shipping_service ?? undefined,
+    situacao: p.order.paid_at ? "aprovado" : "aberto",
+    obs: [p.order.notes, `Pedido site ${p.order.number}`].filter(Boolean).join(" | "),
+  };
+  if (ship && ship !== addr) {
+    pedido.endereco_entrega = {
+      tipo_pessoa: isPJ ? "J" : "F",
+      cpf_cnpj: digits(ship.recipient_document) || undefined,
+      endereco: ship.street,
+      numero: ship.number,
+      complemento: ship.complement ?? undefined,
+      bairro: ship.district,
+      cep: digits(ship.zip),
+      cidade: ship.city,
+      uf: ship.state,
+      fone: ship.phone ?? undefined,
+      nome_destinatario: ship.recipient_name,
+    };
+  }
+  return { pedido };
+}
+
 export async function sendOrderToInternal(orderId: string): Promise<SendResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-  const endpoint = process.env.INTERNAL_SYSTEM_URL ?? process.env.OLIST_API_URL;
-  const token = process.env.INTERNAL_SYSTEM_TOKEN ?? process.env.OLIST_API_TOKEN;
-
+  const token = process.env.OLIST_API_TOKEN;
   const payload = await buildPayload(supabaseAdmin, orderId);
+  const tiny = toTinyOrder(payload);
 
-  if (!endpoint || !token) {
-    const result: SendResult = {
-      ok: false,
-      error:
-        "Integração não configurada (defina INTERNAL_SYSTEM_URL/OLIST_API_URL e o token).",
-    };
-    await logAttempt(supabaseAdmin, orderId, payload, result);
+  if (!token) {
+    const result: SendResult = { ok: false, error: "Token da Olist não configurado." };
+    await logAttempt(supabaseAdmin, orderId, tiny, result);
     return result;
   }
 
@@ -144,17 +226,17 @@ export async function sendOrderToInternal(orderId: string): Promise<SendResult> 
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
+      const body = new URLSearchParams({
+        token,
+        formato: "JSON",
+        pedido: JSON.stringify(tiny),
+      });
       const res = await fetchWithTimeout(
-        endpoint,
+        TINY_URL,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "X-Idempotency-Key": `${payload.order.number}:${payload.order.id}`,
-          },
-          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body.toString(),
         },
         TIMEOUT_MS,
       );
@@ -165,15 +247,25 @@ export async function sendOrderToInternal(orderId: string): Promise<SendResult> 
       } catch {
         lastResponse = text;
       }
-      if (res.ok) {
+      const ret: any = (lastResponse as any)?.retorno;
+      if (res.ok && ret?.status === "OK") {
+        const reg = ret.registros?.[0]?.registro ?? ret.registros?.registro;
+        if (reg && reg.status && reg.status !== "OK") {
+          lastError = collectErrors(reg.erros) || "Erro ao incluir pedido";
+          break;
+        }
         const ok: SendResult = { ok: true, status: res.status, response: lastResponse };
-        await logAttempt(supabaseAdmin, orderId, payload, ok);
+        await logAttempt(supabaseAdmin, orderId, tiny, ok);
         return ok;
       }
-      lastError = `HTTP ${res.status}`;
-      // 4xx (exceto 408/429) não vale a pena repetir
-      if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
-        break;
+      if (ret) {
+        const reg = ret.registros?.[0]?.registro ?? ret.registros?.registro;
+        lastError = collectErrors(ret.erros ?? reg?.erros) || `Olist: ${ret.status ?? "erro"}`;
+        // Erro de validação (status_processamento 3 = erro) — não repetir, exceto limite de API
+        if (!/limite|bloquead|tente novamente/i.test(lastError)) break;
+      } else {
+        lastError = `HTTP ${res.status}`;
+        if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) break;
       }
     } catch (e) {
       lastError = e instanceof Error ? e.message : String(e);
@@ -184,12 +276,15 @@ export async function sendOrderToInternal(orderId: string): Promise<SendResult> 
     }
   }
 
-  const fail: SendResult = {
-    ok: false,
-    error: lastError,
-    status: lastStatus,
-    response: lastResponse,
-  };
-  await logAttempt(supabaseAdmin, orderId, payload, fail);
+  const fail: SendResult = { ok: false, error: lastError, status: lastStatus, response: lastResponse };
+  await logAttempt(supabaseAdmin, orderId, tiny, fail);
   return fail;
+}
+
+function collectErrors(erros: any): string {
+  if (!erros) return "";
+  const arr = Array.isArray(erros) ? erros : [erros];
+  return arr
+    .map((e: any) => (typeof e === "string" ? e : e?.erro ?? JSON.stringify(e)))
+    .join("; ");
 }
