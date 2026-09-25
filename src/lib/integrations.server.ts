@@ -173,7 +173,7 @@ function toTinyOrder(p: Awaited<ReturnType<typeof buildPayload>>) {
     data_pedido: fmtDate(p.order.created_at),
     numero_pedido_ecommerce: p.order.number,
     cliente,
-    itens: p.items.map((i) => ({
+    itens: p.items.map((i: any) => ({
       item: {
         codigo: i.sku ?? undefined,
         descricao: [i.name, i.variant].filter(Boolean).join(" - "),
