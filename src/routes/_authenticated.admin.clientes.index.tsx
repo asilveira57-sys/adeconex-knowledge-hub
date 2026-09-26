@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Download, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { listAdminCustomers, exportAdminCustomers } from "@/lib/customers.functions";
+import { usePermissions } from "@/hooks/use-permissions";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ function AdminClientesPage() {
   const navigate = useNavigate({ from: Route.fullPath });
   const [q, setQ] = useState(s.search ?? "");
   const [exporting, setExporting] = useState(false);
+  const perms = usePermissions();
   const filters = {
     search: s.search || undefined,
     type: s.type ?? "all",
@@ -90,10 +92,12 @@ function AdminClientesPage() {
           <h1 className="text-2xl font-semibold">Clientes</h1>
           <p className="text-sm text-muted-foreground">Cadastros, empresas, pendências e histórico de compras.</p>
         </div>
-        <Button variant="outline" onClick={doExport} disabled={exporting}>
-          {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Exportar CSV
-        </Button>
+        {perms?.canExportCustomers && (
+          <Button variant="outline" onClick={doExport} disabled={exporting}>
+            {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Exportar CSV
+          </Button>
+        )}
       </div>
 
       {st && (
