@@ -20,11 +20,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
     if (key === "colaboradores" && !perms.isAdmin) throw redirect({ to: "/admin" });
     if (key !== "colaboradores" && !perms.sections.includes(key)) {
       const first = perms.sections[0];
-      if (!first || key === "dashboard") {
-        if (first && first !== "dashboard") throw redirect({ to: `/admin/${first}` as never });
-      } else {
-        throw redirect({ to: (first === "dashboard" ? "/admin" : `/admin/${first}`) as never });
-      }
+      if (!first) throw redirect({ to: "/" });
+      throw redirect({ to: (first === "dashboard" ? "/admin" : `/admin/${first}`) as never });
     }
     return { perms };
   },
