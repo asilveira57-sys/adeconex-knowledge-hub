@@ -253,6 +253,8 @@ export const exportAdminCustomers = createServerFn({ method: "POST" })
   .inputValidator((v) => listInput.omit({ page: true, pageSize: true }).parse(v))
   .handler(async ({ context, data }) => {
     await assertStaff(context);
+    const { assertPermission } = await import("./staff.functions");
+    await assertPermission(context, "canExportCustomers");
     const rows = applyFilters(await loadAll(), { ...data, page: 1, pageSize: 5000 });
     const esc = (v: unknown) => {
       const s = v == null ? "" : String(v);
