@@ -2675,6 +2675,42 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_permissions: {
+        Row: {
+          can_export_customers: boolean
+          can_export_orders: boolean
+          can_export_products: boolean
+          created_at: string
+          display_name: string | null
+          is_active: boolean
+          sections: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_export_customers?: boolean
+          can_export_orders?: boolean
+          can_export_products?: boolean
+          created_at?: string
+          display_name?: string | null
+          is_active?: boolean
+          sections?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_export_customers?: boolean
+          can_export_orders?: boolean
+          can_export_products?: boolean
+          created_at?: string
+          display_name?: string | null
+          is_active?: boolean
+          sections?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

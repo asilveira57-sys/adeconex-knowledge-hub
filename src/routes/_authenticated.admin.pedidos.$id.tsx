@@ -25,6 +25,7 @@ import {
 import { OrderFilesCard } from "@/components/order-files-card";
 import { IntegrationLogsCard } from "@/components/integration-logs-card";
 import adeconexLogo from "@/assets/brand/logo-adeconex-oficial.png";
+import { usePermissions } from "@/hooks/use-permissions";
 
 export const Route = createFileRoute("/_authenticated/admin/pedidos/$id")({
   head: () => ({
@@ -57,6 +58,7 @@ function AdminPedidoDetail() {
   const { id } = useParams({ from: "/_authenticated/admin/pedidos/$id" });
   const qc = useQueryClient();
   const [exportingPdf, setExportingPdf] = useState(false);
+  const perms = usePermissions();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["admin", "order", id],
     queryFn: () => getAdminOrder({ data: { orderId: id } }),
@@ -134,10 +136,12 @@ function AdminPedidoDetail() {
           <Badge variant={statusTone(order.status)}>{ORDER_STATUS_LABEL[order.status as keyof typeof ORDER_STATUS_LABEL]}</Badge>
           <p className="mt-2 text-2xl font-semibold tabular-nums">{brl(Number(order.total))}</p>
           <div className="mt-2 flex flex-wrap justify-end gap-2">
-            <Button size="sm" variant="outline" disabled={exportingPdf} onClick={exportPdf}>
-              {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              Exportar pedido em PDF
-            </Button>
+            {perms?.canExportOrders && (
+              <Button size="sm" variant="outline" disabled={exportingPdf} onClick={exportPdf}>
+                {exportingPdf ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Exportar pedido em PDF
+              </Button>
+            )}
             <Button size="sm" variant="outline" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
               {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Verificar pagamento no Mercado Pago
             </Button>

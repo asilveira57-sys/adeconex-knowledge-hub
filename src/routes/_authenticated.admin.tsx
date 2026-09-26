@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { getMyRoles } from "@/lib/admin.functions";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users } from "lucide-react";
+import { myPermissionsQuery } from "@/hooks/use-permissions";
+import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -11,41 +12,48 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async ({ context }) => {
-    const { roles } = await context.queryClient.ensureQueryData({
-      queryKey: ["admin", "my-roles"],
-      queryFn: () => getMyRoles(),
-      staleTime: Infinity,
-      gcTime: Infinity,
-    });
-    if (!roles.includes("admin") && !roles.includes("editor")) {
-      throw redirect({ to: "/" });
+  beforeLoad: async ({ context, location }) => {
+    const perms = await context.queryClient.ensureQueryData(myPermissionsQuery);
+    if (!perms.isStaff) throw redirect({ to: "/" });
+    const seg = location.pathname.split("/")[2] ?? "dashboard";
+    const key = seg === "" ? "dashboard" : seg;
+    if (key === "colaboradores" && !perms.isAdmin) throw redirect({ to: "/admin" });
+    if (key !== "colaboradores" && !perms.sections.includes(key)) {
+      const first = perms.sections[0];
+      if (!first) throw redirect({ to: "/" });
+      throw redirect({ to: (first === "dashboard" ? "/admin" : `/admin/${first}`) as never });
     }
-    return { roles };
+    return { perms };
   },
   component: AdminLayout,
 });
 
 const navItems = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/admin/pedidos", label: "Pedidos", icon: ShoppingBag, exact: false },
-  { to: "/admin/clientes", label: "Clientes", icon: Users, exact: false },
-  { to: "/admin/artes", label: "Artes", icon: Palette, exact: false },
-  { to: "/admin/produtos", label: "Produtos", icon: PackageSearch, exact: false },
-  { to: "/admin/cupons", label: "Cupons", icon: TicketPercent, exact: false },
-  { to: "/admin/seo", label: "SEO & Tracking", icon: Globe2, exact: false },
-  { to: "/admin/importacao", label: "Importação", icon: UploadCloud, exact: false },
-  { to: "/admin/enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
+  { to: "/admin", key: "dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/admin/pedidos", key: "pedidos", label: "Pedidos", icon: ShoppingBag, exact: false },
+  { to: "/admin/clientes", key: "clientes", label: "Clientes", icon: Users, exact: false },
+  { to: "/admin/artes", key: "artes", label: "Artes", icon: Palette, exact: false },
+  { to: "/admin/produtos", key: "produtos", label: "Produtos", icon: PackageSearch, exact: false },
+  { to: "/admin/cupons", key: "cupons", label: "Cupons", icon: TicketPercent, exact: false },
+  { to: "/admin/seo", key: "seo", label: "SEO & Tracking", icon: Globe2, exact: false },
+  { to: "/admin/importacao", key: "importacao", label: "Importação", icon: UploadCloud, exact: false },
+  { to: "/admin/enriquecimento", key: "enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
+  { to: "/admin/colaboradores", key: "colaboradores", label: "Colaboradores", icon: UserCog, exact: false },
 ] as const;
 
 function AdminLayout() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const navigate = useNavigate();
+  const { data: perms } = useQuery(myPermissionsQuery);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { redirect: undefined }, replace: true });
   };
+
+  const visible = navItems.filter((i) =>
+    i.key === "colaboradores" ? perms?.isAdmin : perms?.sections.includes(i.key),
+  );
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] bg-muted/20">
@@ -55,7 +63,7 @@ function AdminLayout() {
           <p className="mt-1 text-sm font-semibold">Painel administrativo</p>
         </div>
         <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => {
+          {visible.map((item) => {
             const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
             return (
               <Link
