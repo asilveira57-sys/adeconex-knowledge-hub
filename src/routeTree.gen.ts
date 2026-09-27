@@ -48,6 +48,7 @@ import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
+import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
@@ -282,6 +283,11 @@ const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
   path: '/etiquetas/personalizada',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
+  id: '/downloads/$slug',
+  path: '/downloads/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrindesAgendaPersonalizadaRoute =
   BrindesAgendaPersonalizadaRouteImport.update({
     id: '/agenda-personalizada',
@@ -506,6 +512,7 @@ export interface FileRoutesByFullPath {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -574,6 +581,7 @@ export interface FileRoutesByTo {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -649,6 +657,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -725,6 +734,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -867,6 +878,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -938,6 +950,7 @@ export interface RootRouteChildren {
   RibbonRoute: typeof RibbonRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
@@ -1221,6 +1234,13 @@ declare module '@tanstack/react-router' {
       path: '/etiquetas/personalizada'
       fullPath: '/etiquetas/personalizada'
       preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads/$slug': {
+      id: '/downloads/$slug'
+      path: '/downloads/$slug'
+      fullPath: '/downloads/$slug'
+      preLoaderRoute: typeof DownloadsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brindes/agenda-personalizada': {
@@ -1657,6 +1677,7 @@ const rootRouteChildren: RootRouteChildren = {
   RibbonRoute: RibbonRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
