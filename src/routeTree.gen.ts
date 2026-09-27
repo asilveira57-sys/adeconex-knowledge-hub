@@ -67,6 +67,7 @@ import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authen
 import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
+import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated.admin.downloads'
 import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
 import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
@@ -389,6 +390,12 @@ const AuthenticatedAdminEnriquecimentoRoute =
     path: '/enriquecimento',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminDownloadsRoute =
+  AuthenticatedAdminDownloadsRouteImport.update({
+    id: '/downloads',
+    path: '/downloads',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminColaboradoresRoute =
   AuthenticatedAdminColaboradoresRouteImport.update({
     id: '/colaboradores',
@@ -532,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -600,6 +608,7 @@ export interface FileRoutesByTo {
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -677,6 +686,7 @@ export interface FileRoutesById {
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/_authenticated/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -754,6 +764,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/'
     | '/admin/artes'
     | '/admin/colaboradores'
+    | '/admin/downloads'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -822,6 +833,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim'
     | '/admin/artes'
     | '/admin/colaboradores'
+    | '/admin/downloads'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -898,6 +910,7 @@ export interface FileRouteTypes {
     | '/fita-de-cetim/'
     | '/_authenticated/admin/artes'
     | '/_authenticated/admin/colaboradores'
+    | '/_authenticated/admin/downloads'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/checkout/endereco'
@@ -1369,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/downloads': {
+      id: '/_authenticated/admin/downloads'
+      path: '/downloads'
+      fullPath: '/admin/downloads'
+      preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/colaboradores': {
       id: '/_authenticated/admin/colaboradores'
       path: '/colaboradores'
@@ -1487,6 +1507,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminArtesRoute: typeof AuthenticatedAdminArtesRoute
   AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
+  AuthenticatedAdminDownloadsRoute: typeof AuthenticatedAdminDownloadsRoute
   AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1508,6 +1529,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminArtesRoute: AuthenticatedAdminArtesRoute,
   AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
+  AuthenticatedAdminDownloadsRoute: AuthenticatedAdminDownloadsRoute,
   AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
