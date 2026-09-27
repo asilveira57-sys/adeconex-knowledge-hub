@@ -15,6 +15,13 @@
       "when": 1790429496268,
       "tag": "0001_staff_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790545248094,
+      "tag": "0002_create_downloads",
+      "breakpoints": true
     }
   ]
 }
