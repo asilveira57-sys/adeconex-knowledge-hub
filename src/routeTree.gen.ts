@@ -18,7 +18,6 @@ import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
 import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
-import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
@@ -34,6 +33,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
 import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
+import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
@@ -128,11 +128,6 @@ const EmpresaRoute = EmpresaRouteImport.update({
   path: '/empresa',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DownloadsRoute = DownloadsRouteImport.update({
-  id: '/downloads',
-  path: '/downloads',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContatoRoute = ContatoRouteImport.update({
   id: '/contato',
   path: '/contato',
@@ -206,6 +201,11 @@ const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => FerramentasRoute,
+} as any)
+const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
+  id: '/downloads/',
+  path: '/downloads/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BrindesIndexRoute = BrindesIndexRouteImport.update({
   id: '/',
@@ -492,7 +492,6 @@ export interface FileRoutesByFullPath {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
@@ -521,6 +520,7 @@ export interface FileRoutesByFullPath {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
@@ -564,7 +564,6 @@ export interface FileRoutesByTo {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -588,6 +587,7 @@ export interface FileRoutesByTo {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog': typeof BlogIndexRoute
   '/brindes': typeof BrindesIndexRoute
+  '/downloads': typeof DownloadsIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
@@ -635,7 +635,6 @@ export interface FileRoutesById {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
@@ -664,6 +663,7 @@ export interface FileRoutesById {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
@@ -711,7 +711,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -740,6 +739,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/artes'
@@ -783,7 +783,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/gerador-qrcode'
     | '/marketplaces'
@@ -807,6 +806,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog'
     | '/brindes'
+    | '/downloads'
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/artes'
@@ -853,7 +853,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -882,6 +881,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/artes'
@@ -929,7 +929,6 @@ export interface RootRouteChildren {
   CatalogoRoute: typeof CatalogoRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
-  DownloadsRoute: typeof DownloadsRoute
   EmpresaRoute: typeof EmpresaRoute
   FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
@@ -945,6 +944,7 @@ export interface RootRouteChildren {
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
+  DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
@@ -1011,13 +1011,6 @@ declare module '@tanstack/react-router' {
       path: '/empresa'
       fullPath: '/empresa'
       preLoaderRoute: typeof EmpresaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/downloads': {
-      id: '/downloads'
-      path: '/downloads'
-      fullPath: '/downloads'
-      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -1124,6 +1117,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ferramentas/'
       preLoaderRoute: typeof FerramentasIndexRouteImport
       parentRoute: typeof FerramentasRoute
+    }
+    '/downloads/': {
+      id: '/downloads/'
+      path: '/downloads'
+      fullPath: '/downloads/'
+      preLoaderRoute: typeof DownloadsIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/brindes/': {
       id: '/brindes/'
@@ -1648,7 +1648,6 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogoRoute: CatalogoRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
-  DownloadsRoute: DownloadsRoute,
   EmpresaRoute: EmpresaRoute,
   FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
@@ -1664,6 +1663,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
+  DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport

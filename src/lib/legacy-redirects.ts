@@ -67,6 +67,23 @@ export const LEGACY_REDIRECTS: LegacyRule[] = [
 
   // ── Brand aliases ───────────────────────────────────────────────
   { type: "regex", from: /^\/adesivex/i, to: "/" },
+
+  // ── Portal de drivers antigo (driver-silo-bot) ──────────────────
+  { type: "exact", from: "/drivers/zd220", to: "/downloads/driver-zebra-zd220" },
+  { type: "exact", from: "/drivers/zd230", to: "/downloads/driver-zebra-zd230" },
+  { type: "exact", from: "/drivers/gc420t", to: "/downloads/driver-zebra-gc420t" },
+  { type: "exact", from: "/drivers/tlp-2844", to: "/downloads/driver-zebra-tlp-2844" },
+  { type: "exact", from: "/drivers/bpx-520", to: "/downloads/driver-godex-bpx-520" },
+  { type: "exact", from: "/drivers/l42-pro-full", to: "/downloads/driver-elgin-l42-pro-full" },
+  { type: "exact", from: "/drivers/l42-pro", to: "/downloads/driver-elgin-l42-pro" },
+  { type: "exact", from: "/drivers/l42dt", to: "/downloads/driver-elgin-l42dt" },
+  { type: "exact", from: "/drivers/z50x", to: "/downloads/driver-zetex-z50x" },
+  { type: "exact", from: "/softwares/golabel", to: "/downloads/software-golabel" },
+  { type: "exact", from: "/softwares/bartender", to: "/downloads/software-bartender" },
+  { type: "exact", from: "/softwares/zebra-design", to: "/downloads/software-zebra-design" },
+  { type: "prefix", from: "/drivers", to: "/downloads" },
+  { type: "prefix", from: "/softwares", to: "/downloads" },
+  { type: "prefix", from: "/impressoras", to: "/downloads" },
 ];
 
 export interface LegacyMatch {
