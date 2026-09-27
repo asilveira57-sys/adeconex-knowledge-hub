@@ -203,3 +203,15 @@
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
+
+/* Conteúdo HTML dos tutoriais da central de downloads */
+.download-content { line-height: 1.7; }
+.download-content h2 { margin: 2rem 0 0.75rem; font-size: 1.5rem; font-weight: 600; font-family: var(--font-display, inherit); }
+.download-content h3 { margin: 1.5rem 0 0.5rem; font-size: 1.2rem; font-weight: 600; }
+.download-content p { margin: 0.75rem 0; }
+.download-content ul, .download-content ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+.download-content ul { list-style: disc; }
+.download-content ol { list-style: decimal; }
+.download-content a { color: var(--primary); text-decoration: underline; }
+.download-content img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1rem 0; }
+.download-content hr { margin: 1.5rem 0; border-color: var(--border); }

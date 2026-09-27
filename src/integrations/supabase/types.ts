@@ -729,6 +729,81 @@ export type Database = {
           },
         ]
       }
+      downloads: {
+        Row: {
+          brand: string | null
+          content_html: string | null
+          created_at: string
+          download_url: string
+          file_size: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          kind: string
+          legacy_path: string | null
+          model: string | null
+          operating_system: string | null
+          published_at: string
+          seo_description: string | null
+          seo_keywords: string | null
+          seo_title: string | null
+          slug: string
+          sort_order: number
+          summary: string | null
+          title: string
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          brand?: string | null
+          content_html?: string | null
+          created_at?: string
+          download_url: string
+          file_size?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          kind?: string
+          legacy_path?: string | null
+          model?: string | null
+          operating_system?: string | null
+          published_at?: string
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          slug: string
+          sort_order?: number
+          summary?: string | null
+          title: string
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          brand?: string | null
+          content_html?: string | null
+          created_at?: string
+          download_url?: string
+          file_size?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          kind?: string
+          legacy_path?: string | null
+          model?: string | null
+          operating_system?: string | null
+          published_at?: string
+          seo_description?: string | null
+          seo_keywords?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort_order?: number
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: []
+      }
       integration_logs: {
         Row: {
           action: string

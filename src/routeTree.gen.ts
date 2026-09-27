@@ -18,7 +18,6 @@ import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
 import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as EmpresaRouteImport } from './routes/empresa'
-import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
@@ -34,6 +33,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
 import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
+import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
@@ -48,6 +48,7 @@ import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
+import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
@@ -66,6 +67,7 @@ import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authen
 import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
+import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated.admin.downloads'
 import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
 import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
@@ -126,11 +128,6 @@ const FerramentasRoute = FerramentasRouteImport.update({
 const EmpresaRoute = EmpresaRouteImport.update({
   id: '/empresa',
   path: '/empresa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DownloadsRoute = DownloadsRouteImport.update({
-  id: '/downloads',
-  path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -207,6 +204,11 @@ const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FerramentasRoute,
 } as any)
+const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
+  id: '/downloads/',
+  path: '/downloads/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BrindesIndexRoute = BrindesIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -280,6 +282,11 @@ const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
 const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
   id: '/etiquetas/personalizada',
   path: '/etiquetas/personalizada',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
+  id: '/downloads/$slug',
+  path: '/downloads/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrindesAgendaPersonalizadaRoute =
@@ -381,6 +388,12 @@ const AuthenticatedAdminEnriquecimentoRoute =
   AuthenticatedAdminEnriquecimentoRouteImport.update({
     id: '/enriquecimento',
     path: '/enriquecimento',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDownloadsRoute =
+  AuthenticatedAdminDownloadsRouteImport.update({
+    id: '/downloads',
+    path: '/downloads',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminColaboradoresRoute =
@@ -492,7 +505,6 @@ export interface FileRoutesByFullPath {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
@@ -507,6 +519,7 @@ export interface FileRoutesByFullPath {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -521,10 +534,12 @@ export interface FileRoutesByFullPath {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -564,7 +579,6 @@ export interface FileRoutesByTo {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
   '/marketplaces': typeof MarketplacesRoute
@@ -575,6 +589,7 @@ export interface FileRoutesByTo {
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -588,10 +603,12 @@ export interface FileRoutesByTo {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog': typeof BlogIndexRoute
   '/brindes': typeof BrindesIndexRoute
+  '/downloads': typeof DownloadsIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -635,7 +652,6 @@ export interface FileRoutesById {
   '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
-  '/downloads': typeof DownloadsRoute
   '/empresa': typeof EmpresaRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
@@ -650,6 +666,7 @@ export interface FileRoutesById {
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
@@ -664,10 +681,12 @@ export interface FileRoutesById {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
   '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
+  '/_authenticated/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -711,7 +730,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -726,6 +744,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -740,10 +759,12 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/artes'
     | '/admin/colaboradores'
+    | '/admin/downloads'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -783,7 +804,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/gerador-qrcode'
     | '/marketplaces'
@@ -794,6 +814,7 @@ export interface FileRouteTypes {
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -807,10 +828,12 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog'
     | '/brindes'
+    | '/downloads'
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/artes'
     | '/admin/colaboradores'
+    | '/admin/downloads'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -853,7 +876,6 @@ export interface FileRouteTypes {
     | '/catalogo'
     | '/conhecimento'
     | '/contato'
-    | '/downloads'
     | '/empresa'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -868,6 +890,7 @@ export interface FileRouteTypes {
     | '/_authenticated/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/downloads/$slug'
     | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
@@ -882,10 +905,12 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/artes'
     | '/_authenticated/admin/colaboradores'
+    | '/_authenticated/admin/downloads'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/checkout/endereco'
@@ -929,7 +954,6 @@ export interface RootRouteChildren {
   CatalogoRoute: typeof CatalogoRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
-  DownloadsRoute: typeof DownloadsRoute
   EmpresaRoute: typeof EmpresaRoute
   FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
@@ -939,12 +963,14 @@ export interface RootRouteChildren {
   RibbonRoute: typeof RibbonRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
+  DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
@@ -1011,13 +1037,6 @@ declare module '@tanstack/react-router' {
       path: '/empresa'
       fullPath: '/empresa'
       preLoaderRoute: typeof EmpresaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/downloads': {
-      id: '/downloads'
-      path: '/downloads'
-      fullPath: '/downloads'
-      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -1125,6 +1144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasIndexRouteImport
       parentRoute: typeof FerramentasRoute
     }
+    '/downloads/': {
+      id: '/downloads/'
+      path: '/downloads'
+      fullPath: '/downloads/'
+      preLoaderRoute: typeof DownloadsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/brindes/': {
       id: '/brindes/'
       path: '/'
@@ -1221,6 +1247,13 @@ declare module '@tanstack/react-router' {
       path: '/etiquetas/personalizada'
       fullPath: '/etiquetas/personalizada'
       preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads/$slug': {
+      id: '/downloads/$slug'
+      path: '/downloads/$slug'
+      fullPath: '/downloads/$slug'
+      preLoaderRoute: typeof DownloadsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/brindes/agenda-personalizada': {
@@ -1349,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/downloads': {
+      id: '/_authenticated/admin/downloads'
+      path: '/downloads'
+      fullPath: '/admin/downloads'
+      preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/colaboradores': {
       id: '/_authenticated/admin/colaboradores'
       path: '/colaboradores'
@@ -1467,6 +1507,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminArtesRoute: typeof AuthenticatedAdminArtesRoute
   AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
+  AuthenticatedAdminDownloadsRoute: typeof AuthenticatedAdminDownloadsRoute
   AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1488,6 +1529,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminArtesRoute: AuthenticatedAdminArtesRoute,
   AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
+  AuthenticatedAdminDownloadsRoute: AuthenticatedAdminDownloadsRoute,
   AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -1648,7 +1690,6 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogoRoute: CatalogoRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
-  DownloadsRoute: DownloadsRoute,
   EmpresaRoute: EmpresaRoute,
   FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
@@ -1658,12 +1699,14 @@ const rootRouteChildren: RootRouteChildren = {
   RibbonRoute: RibbonRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
+  DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport
