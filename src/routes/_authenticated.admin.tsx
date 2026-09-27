@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { myPermissionsQuery } from "@/hooks/use-permissions";
-import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog } from "lucide-react";
+import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -38,6 +38,7 @@ const navItems = [
   { to: "/admin/seo", key: "seo", label: "SEO & Tracking", icon: Globe2, exact: false },
   { to: "/admin/importacao", key: "importacao", label: "Importação", icon: UploadCloud, exact: false },
   { to: "/admin/enriquecimento", key: "enriquecimento", label: "Enriquecimento", icon: Sparkles, exact: false },
+  { to: "/admin/downloads", key: "downloads", label: "Downloads", icon: Download, exact: false },
   { to: "/admin/colaboradores", key: "colaboradores", label: "Colaboradores", icon: UserCog, exact: false },
 ] as const;
 

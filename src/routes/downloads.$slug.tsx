@@ -122,7 +122,7 @@ function DownloadPage() {
       {html ? (
         <section className="container-page py-12">
           <article
-            className="prose prose-neutral max-w-3xl dark:prose-invert prose-headings:font-display prose-img:rounded-lg"
+            className="download-content max-w-3xl"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </section>

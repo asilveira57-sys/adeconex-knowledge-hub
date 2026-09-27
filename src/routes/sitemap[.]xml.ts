@@ -45,7 +45,16 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ferramentas/planejador-de-folha", changefreq: "monthly", priority: "0.85" },
           { path: "/ferramentas/planejador-de-bobina", changefreq: "monthly", priority: "0.85" },
           { path: "/ferramentas/conversor-de-medidas", changefreq: "monthly", priority: "0.8" },
-          { path: "/downloads", changefreq: "weekly", priority: "0.7" },
+          { path: "/downloads", changefreq: "weekly", priority: "0.8" },
+          ...(await (async () => {
+            try {
+              const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+              const { data } = await supabaseAdmin.from("downloads").select("slug").eq("is_published", true);
+              return (data ?? []).map((d) => ({ path: `/downloads/${d.slug}`, changefreq: "monthly" as const, priority: "0.75" }));
+            } catch {
+              return [];
+            }
+          })()),
           { path: "/marketplaces", changefreq: "monthly", priority: "0.8" },
           { path: "/blog", changefreq: "daily", priority: "0.8" },
           ...(await import("@/content/blog-posts")).blogPosts.map((p) => ({

@@ -12,6 +12,7 @@ export const STAFF_SECTIONS = [
   { key: "seo", label: "SEO & Tracking" },
   { key: "importacao", label: "Importação" },
   { key: "enriquecimento", label: "Enriquecimento" },
+  { key: "downloads", label: "Downloads" },
 ] as const;
 
 export type MyPermissions = {
