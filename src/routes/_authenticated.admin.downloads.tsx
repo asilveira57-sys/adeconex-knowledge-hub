@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ExternalLink, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, ImagePlus, Loader2, Pencil, Plus, Search, Sparkles, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { DOWNLOAD_KINDS, kindLabel, type DownloadRow } from "@/lib/downloads.functions";
+import { DOWNLOAD_KINDS, generateDownloadSeo, kindLabel, type DownloadRow } from "@/lib/downloads.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,8 +38,12 @@ const slugify = (s: string) =>
 
 function AdminDownloadsPage() {
   const qc = useQueryClient();
+  const generateSeo = useServerFn(generateDownloadSeo);
   const [edit, setEdit] = useState<Form | null>(null);
   const [q, setQ] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const list = useQuery({
     queryKey: ["admin-downloads"],
@@ -102,6 +107,63 @@ function AdminDownloadsPage() {
   );
   const set = (k: keyof Form, v: unknown) => setEdit((e) => ({ ...(e ?? {}), [k]: v }));
 
+  const uploadImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Escolha um arquivo de imagem.");
+    if (file.size > 5 * 1024 * 1024) return toast.error("A imagem deve ter no máximo 5 MB.");
+    setUploading(true);
+    try {
+      const extension = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `downloads/${crypto.randomUUID()}.${extension}`;
+      const { error } = await supabase.storage.from("catalog-media").upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (error) throw error;
+      const { data } = supabase.storage.from("catalog-media").getPublicUrl(path);
+      set("image_url", data.publicUrl);
+      toast.success("Imagem enviada");
+    } catch (error) {
+      toast.error((error as Error).message || "Não foi possível enviar a imagem.");
+    } finally {
+      setUploading(false);
+      setDragging(false);
+    }
+  };
+
+  const fillSeo = async () => {
+    if (!edit?.title?.trim()) return toast.error("Preencha o nome antes de gerar o SEO.");
+    setGenerating(true);
+    try {
+      const result = await generateSeo({
+        data: {
+          kind: edit.kind ?? "driver",
+          title: edit.title.trim(),
+          brand: edit.brand ?? undefined,
+          model: edit.model ?? undefined,
+          version: edit.version ?? undefined,
+          operatingSystem: edit.operating_system ?? undefined,
+          currentSummary: edit.summary ?? undefined,
+        },
+      });
+      setEdit((current) => current ? { ...current, ...result } : current);
+      toast.success("SEO gerado. Revise antes de salvar.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const seoChecks = edit ? [
+    { label: "Título entre 30 e 60 caracteres", ok: (edit.seo_title?.length ?? 0) >= 30 && (edit.seo_title?.length ?? 0) <= 60 },
+    { label: "Descrição entre 80 e 160 caracteres", ok: (edit.seo_description?.length ?? 0) >= 80 && (edit.seo_description?.length ?? 0) <= 160 },
+    { label: "Palavras-chave preenchidas", ok: Boolean(edit.seo_keywords?.trim()) },
+    { label: "Resumo preenchido", ok: Boolean(edit.summary?.trim()) },
+    { label: "Imagem cadastrada", ok: Boolean(edit.image_url?.trim()) },
+    { label: "Marca e modelo informados", ok: Boolean(edit.brand?.trim() && edit.model?.trim()) },
+  ] : [];
+  const seoScore = seoChecks.length ? Math.round(seoChecks.filter((check) => check.ok).length / seoChecks.length * 100) : 0;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -126,7 +188,7 @@ function AdminDownloadsPage() {
               <tbody>
                 {rows.map((d) => (
                   <tr key={d.id} className="border-b last:border-0">
-                    <td className="p-3 font-medium">{d.title}</td>
+                    <td className="p-3 font-medium"><div className="flex items-center gap-3"><div className="h-11 w-11 shrink-0 overflow-hidden rounded border bg-muted">{d.image_url ? <img src={d.image_url} alt="" className="h-full w-full object-contain" /> : <ImagePlus className="m-3 h-4 w-4 text-muted-foreground" />}</div><span>{d.title}</span></div></td>
                     <td className="p-3">{kindLabel(d.kind)}</td>
                     <td className="p-3">{d.brand ?? "—"}</td>
                     <td className="p-3">{d.version ?? "—"}</td>
@@ -152,7 +214,7 @@ function AdminDownloadsPage() {
       </Card>
 
       <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto">
           <DialogHeader><DialogTitle>{edit?.id ? "Editar download" : "Novo download"}</DialogTitle></DialogHeader>
           {edit ? (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -169,19 +231,45 @@ function AdminDownloadsPage() {
               <div><Label>Versão</Label><Input value={edit.version ?? ""} onChange={(e) => set("version", e.target.value)} /></div>
               <div><Label>Sistema operacional</Label><Input value={edit.operating_system ?? ""} onChange={(e) => set("operating_system", e.target.value)} placeholder="Windows 10/11" /></div>
               <div className="sm:col-span-2"><Label>Link de download</Label><Input value={edit.download_url ?? ""} onChange={(e) => set("download_url", e.target.value)} placeholder="https://drive.google.com/..." /></div>
-              <div><Label>Tamanho do arquivo</Label><Input value={edit.file_size ?? ""} onChange={(e) => set("file_size", e.target.value)} placeholder="45 MB" /></div>
-              <div><Label>Imagem (link)</Label><Input value={edit.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} /></div>
+               <div><Label>Tamanho do arquivo</Label><Input value={edit.file_size ?? ""} onChange={(e) => set("file_size", e.target.value)} placeholder="45 MB" /></div>
+               <div className="sm:col-span-2 space-y-2">
+                 <Label>Imagem do equipamento ou software</Label>
+                 <label
+                   className={`flex min-h-40 cursor-pointer items-center justify-center overflow-hidden rounded-md border border-dashed p-4 transition-colors ${dragging ? "border-primary bg-accent" : "bg-muted/30 hover:bg-accent"}`}
+                   onDragOver={(event) => { event.preventDefault(); setDragging(true); }}
+                   onDragLeave={() => setDragging(false)}
+                   onDrop={(event) => { event.preventDefault(); const file = event.dataTransfer.files[0]; if (file) void uploadImage(file); }}
+                 >
+                   <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="sr-only" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadImage(file); event.target.value = ""; }} />
+                   {uploading ? (
+                     <span className="flex items-center gap-2 text-sm"><Loader2 className="h-5 w-5 animate-spin" /> Enviando imagem...</span>
+                   ) : edit.image_url ? (
+                     <img src={edit.image_url} alt="Prévia da imagem" className="max-h-52 w-full object-contain" />
+                   ) : (
+                     <span className="flex flex-col items-center gap-2 text-center text-sm text-muted-foreground"><Upload className="h-7 w-7" /> Clique ou arraste uma imagem aqui<span className="text-xs">JPG, PNG, WebP ou AVIF · até 5 MB</span></span>
+                   )}
+                 </label>
+                 <div className="flex flex-wrap gap-2">
+                   {edit.image_url ? <Button type="button" size="sm" variant="outline" onClick={() => set("image_url", null)}><Trash2 className="mr-1 h-3 w-3" /> Remover imagem</Button> : null}
+                 </div>
+                 <div><Label className="text-xs text-muted-foreground">Ou informe um link direto</Label><Input value={edit.image_url ?? ""} onChange={(e) => set("image_url", e.target.value)} placeholder="https://..." /></div>
+               </div>
               <div className="sm:col-span-2"><Label>Resumo</Label><Textarea rows={2} value={edit.summary ?? ""} onChange={(e) => set("summary", e.target.value)} /></div>
               <div className="sm:col-span-2"><Label>Tutorial de instalação (HTML)</Label><Textarea rows={8} className="font-mono text-xs" value={edit.content_html ?? ""} onChange={(e) => set("content_html", e.target.value)} /></div>
-              <div className="sm:col-span-2"><Label>Título para o Google</Label><Input value={edit.seo_title ?? ""} onChange={(e) => set("seo_title", e.target.value)} /></div>
-              <div className="sm:col-span-2"><Label>Descrição para o Google</Label><Textarea rows={2} value={edit.seo_description ?? ""} onChange={(e) => set("seo_description", e.target.value)} /></div>
+               <div className="sm:col-span-2 flex items-center justify-between gap-3 border-t pt-4"><div><h3 className="font-medium">SEO da página</h3><p className="text-xs text-muted-foreground">A geração usa somente os dados preenchidos e pode ser revisada.</p></div><Button type="button" variant="outline" disabled={generating || !edit.title?.trim()} onClick={fillSeo}>{generating ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />} Gerar SEO</Button></div>
+               <div className="sm:col-span-2"><div className="flex justify-between"><Label>Título para o Google</Label><span className="text-xs text-muted-foreground">{edit.seo_title?.length ?? 0}/60</span></div><Input maxLength={200} value={edit.seo_title ?? ""} onChange={(e) => set("seo_title", e.target.value)} /></div>
+               <div className="sm:col-span-2"><div className="flex justify-between"><Label>Descrição para o Google</Label><span className="text-xs text-muted-foreground">{edit.seo_description?.length ?? 0}/160</span></div><Textarea maxLength={300} rows={2} value={edit.seo_description ?? ""} onChange={(e) => set("seo_description", e.target.value)} /></div>
               <div className="sm:col-span-2"><Label>Palavras-chave</Label><Input value={edit.seo_keywords ?? ""} onChange={(e) => set("seo_keywords", e.target.value)} /></div>
+               <div className="sm:col-span-2 grid gap-4 rounded-md border p-4 md:grid-cols-[1.4fr_1fr]">
+                 <div><p className="flex items-center gap-2 text-xs text-muted-foreground"><Search className="h-3.5 w-3.5" /> www.adeconex.com.br/downloads/{edit.slug || slugify(`${edit.kind}-${edit.brand ?? ""}-${edit.model || edit.title}`)}</p><p className="mt-1 text-lg text-primary">{edit.seo_title || edit.title || "Título da página"}</p><p className="mt-1 text-sm text-muted-foreground">{edit.seo_description || edit.summary || "A descrição para o Google aparecerá aqui."}</p></div>
+                 <div><p className="text-sm font-medium">Saúde SEO — {seoScore}%</p><div className="mt-2 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-all" style={{ width: `${seoScore}%` }} /></div><ul className="mt-2 space-y-1 text-xs">{seoChecks.map((check) => <li key={check.label} className={check.ok ? "text-foreground" : "text-muted-foreground"}>{check.ok ? "✓" : "○"} {check.label}</li>)}</ul></div>
+               </div>
               <div className="flex items-center gap-2"><Switch checked={edit.is_published ?? true} onCheckedChange={(v) => set("is_published", v)} /><Label>Publicado no site</Label></div>
             </div>
           ) : null}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
-            <Button disabled={save.isPending} onClick={() => edit && save.mutate(edit)}>
+            <Button disabled={save.isPending || uploading || generating} onClick={() => edit && save.mutate(edit)}>
               {save.isPending ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : null} Salvar
             </Button>
           </DialogFooter>
