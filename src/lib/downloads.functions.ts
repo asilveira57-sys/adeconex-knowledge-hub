@@ -101,7 +101,7 @@ export const generateDownloadSeo = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              "Você é especialista brasileiro em SEO técnico para impressão térmica. Escreva de forma útil e natural. Não invente compatibilidade, versão, fabricante, sistema operacional ou especificações. Evite prometer que o arquivo é oficial quando isso não foi informado. O título deve favorecer buscas como driver, software, manual, marca e modelo sem repetição artificial.",
+              "Você é especialista brasileiro em SEO técnico para impressão térmica. Escreva de forma útil e natural. Não invente compatibilidade, versão, fabricante, sistema operacional ou especificações. É proibido chamar o arquivo de oficial, certificado ou homologado quando isso não estiver expressamente nos dados recebidos. A Adeconex hospeda a página, mas não deve ser apresentada como fabricante do arquivo. O título deve favorecer buscas como driver, software, manual, marca e modelo sem repetição artificial.",
           },
           {
             role: "user",
