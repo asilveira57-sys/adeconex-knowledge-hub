@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/integrations/supabase/types";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type DownloadRow = Database["public"]["Tables"]["downloads"]["Row"];
 export type DownloadListItem = Omit<DownloadRow, "content_html">;
@@ -55,4 +56,73 @@ export const getPublicDownload = createServerFn({ method: "GET" })
     if (item.brand) q = q.eq("brand", item.brand);
     const { data: related } = await q;
     return { item: item as DownloadRow, related: related ?? [] };
+  });
+
+const DOWNLOAD_SEO_SCHEMA = {
+  name: "generate_download_seo",
+  description: "Gera metadados SEO e um resumo para uma página de download da Adeconex.",
+  parameters: {
+    type: "object",
+    properties: {
+      seo_title: { type: "string", description: "Título SEO em português, entre 45 e 60 caracteres" },
+      seo_description: { type: "string", description: "Descrição objetiva, entre 120 e 160 caracteres" },
+      seo_keywords: { type: "string", description: "De 5 a 8 termos relevantes, separados por vírgula" },
+      summary: { type: "string", description: "Resumo claro em uma ou duas frases, com até 220 caracteres" },
+    },
+    required: ["seo_title", "seo_description", "seo_keywords", "summary"],
+  },
+};
+
+export const generateDownloadSeo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((value) =>
+    z.object({
+      kind: z.string().min(1).max(40),
+      title: z.string().min(2).max(200),
+      brand: z.string().max(100).optional(),
+      model: z.string().max(100).optional(),
+      version: z.string().max(100).optional(),
+      operatingSystem: z.string().max(200).optional(),
+      currentSummary: z.string().max(1000).optional(),
+    }).parse(value),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isStaff, error: staffError } = await context.supabase.rpc("is_staff", { _user_id: context.userId });
+    if (staffError) throw new Error(staffError.message);
+    if (!isStaff) throw new Error("Apenas colaboradores podem gerar conteúdo.");
+
+    const apiKey = process.env["LOVABLE_API_KEY"]!;
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Você é especialista brasileiro em SEO técnico para impressão térmica. Escreva de forma útil e natural. Não invente compatibilidade, versão, fabricante, sistema operacional ou especificações. Evite prometer que o arquivo é oficial quando isso não foi informado. O título deve favorecer buscas como driver, software, manual, marca e modelo sem repetição artificial.",
+          },
+          {
+            role: "user",
+            content: `Tipo: ${kindLabel(data.kind)}\nNome: ${data.title}\nMarca: ${data.brand || "não informada"}\nModelo: ${data.model || "não informado"}\nVersão: ${data.version || "não informada"}\nSistema: ${data.operatingSystem || "não informado"}\nResumo atual: ${data.currentSummary || "não informado"}`,
+          },
+        ],
+        tools: [{ type: "function", function: DOWNLOAD_SEO_SCHEMA }],
+        tool_choice: { type: "function", function: { name: DOWNLOAD_SEO_SCHEMA.name } },
+      }),
+    });
+    if (response.status === 429) throw new Error("Muitas gerações em sequência. Aguarde alguns segundos.");
+    if (response.status === 402) throw new Error("Os créditos de IA acabaram.");
+    if (!response.ok) throw new Error("Não foi possível gerar o SEO agora.");
+    const json = await response.json();
+    const args = json.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+    if (!args) throw new Error("A geração não retornou conteúdo.");
+    const parsed = JSON.parse(args) as Record<string, unknown>;
+    return {
+      seo_title: String(parsed.seo_title ?? "").slice(0, 200),
+      seo_description: String(parsed.seo_description ?? "").slice(0, 300),
+      seo_keywords: String(parsed.seo_keywords ?? "").slice(0, 500),
+      summary: String(parsed.summary ?? "").slice(0, 500),
+    };
   });

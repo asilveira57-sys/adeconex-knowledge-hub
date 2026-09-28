@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Downloads central: table public.downloads (public read of published rows via server fn with publishable client; staff writes via browser client under RLS is_staff); printer photos served from public/downloads/img. Why: simple, SEO-friendly SSR pages and admin CRUD without extra server fns.
+- Downloads central: table public.downloads (public read via server fn; staff CRUD via RLS); new uploaded images use public catalog-media paths under downloads/, while audited legacy printer photos remain in public/downloads/img. Why: preserve stable legacy assets while enabling managed uploads and SEO-friendly SSR pages.
