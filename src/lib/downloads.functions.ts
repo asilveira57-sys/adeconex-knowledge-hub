@@ -52,10 +52,24 @@ export const getPublicDownload = createServerFn({ method: "GET" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!item) return null;
-    let q = sb.from("downloads").select("slug,title,kind,brand,model,image_url").eq("is_published", true).neq("id", item.id).limit(6);
-    if (item.brand) q = q.eq("brand", item.brand);
-    const { data: related } = await q;
-    return { item: item as DownloadRow, related: related ?? [] };
+    const { data: pool } = await sb
+      .from("downloads")
+      .select("slug,title,kind,brand,model,version,image_url,summary")
+      .eq("is_published", true)
+      .neq("id", item.id)
+      .limit(200);
+    const norm = (s?: string | null) => (s ?? "").trim().toLowerCase();
+    const score = (r: NonNullable<typeof pool>[number]) =>
+      (item.model && norm(r.model) === norm(item.model) ? 4 : 0) +
+      (item.brand && norm(r.brand) === norm(item.brand) ? 2 : 0) +
+      (r.kind === item.kind ? 1 : 0);
+    const related = (pool ?? [])
+      .map((r) => ({ r, s: score(r) }))
+      .filter((x) => x.s > 0)
+      .sort((a, b) => b.s - a.s || a.r.title.localeCompare(b.r.title))
+      .slice(0, 6)
+      .map((x) => ({ ...x.r, sameModel: x.s >= 4 }));
+    return { item: item as DownloadRow, related };
   });
 
 const DOWNLOAD_SEO_SCHEMA = {

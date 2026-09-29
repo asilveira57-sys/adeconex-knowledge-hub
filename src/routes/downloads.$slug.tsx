@@ -60,6 +60,23 @@ export const Route = createFileRoute("/downloads/$slug")({
                     description: desc,
                     image: image ?? undefined,
                     publisher: { "@type": "Organization", name: "Adeconex", url: BASE_URL },
+                    ...(it.brand ? { brand: { "@type": "Brand", name: it.brand } } : {}),
+                    ...(it.model ? { about: { "@type": "Product", name: [it.brand, it.model].filter(Boolean).join(" "), ...(it.brand ? { brand: { "@type": "Brand", name: it.brand } } : {}) } } : {}),
+                    ...(it.file_size ? { fileSize: it.file_size } : {}),
+                    inLanguage: "pt-BR",
+                    isAccessibleForFree: true,
+                    ...(it.updated_at ? { dateModified: it.updated_at } : {}),
+                    ...(it.published_at ? { datePublished: it.published_at } : {}),
+                  },
+                  {
+                    "@type": "WebPage",
+                    "@id": `${url}#webpage`,
+                    url,
+                    name: title,
+                    description: desc,
+                    inLanguage: "pt-BR",
+                    isPartOf: { "@type": "WebSite", name: "Adeconex", url: BASE_URL },
+                    ...(loaderData?.related?.length ? { relatedLink: loaderData.related.map((r) => `${BASE_URL}/downloads/${r.slug}`) } : {}),
                   },
                   {
                     "@type": "BreadcrumbList",
@@ -69,6 +86,18 @@ export const Route = createFileRoute("/downloads/$slug")({
                       { "@type": "ListItem", position: 3, name: it.title, item: url },
                     ],
                   },
+                  ...(loaderData?.related?.length
+                    ? [{
+                        "@type": "ItemList",
+                        name: "Downloads relacionados",
+                        itemListElement: loaderData.related.map((r, i) => ({
+                          "@type": "ListItem",
+                          position: i + 1,
+                          name: r.title,
+                          url: `${BASE_URL}/downloads/${r.slug}`,
+                        })),
+                      }]
+                    : []),
                 ],
               }),
             },
@@ -156,18 +185,30 @@ function DownloadPage() {
         </section>
       ) : null}
 
-      {related.length > 0 ? (
-        <section className="container-page border-t hairline py-12">
-          <h2 className="text-xl font-semibold">Outros downloads{item.brand ? ` ${item.brand}` : ""}</h2>
-          <div className="mt-5 flex flex-wrap gap-2">
+      <section className="container-page border-t hairline py-12">
+        <h2 className="text-xl font-semibold">Downloads relacionados{item.brand ? ` ${item.brand}` : ""}</h2>
+        {related.length > 0 ? (
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((r) => (
-              <Link key={r.slug} to="/downloads/$slug" params={{ slug: r.slug }} className="rounded-full border hairline bg-card px-4 py-2 text-sm hover:bg-accent">
-                {r.title}
+              <Link key={r.slug} to="/downloads/$slug" params={{ slug: r.slug }} className="group flex gap-4 rounded-xl border hairline bg-card p-4 transition-shadow hover:shadow-md">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-surface-2">
+                  {r.image_url ? <img src={r.image_url} alt={r.title} loading="lazy" className="h-full w-full object-contain p-1" /> : <HardDrive className="h-6 w-6 text-muted-foreground" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+                    {kindLabel(r.kind)}{r.sameModel ? " · mesmo modelo" : r.brand ? ` · ${r.brand}` : ""}
+                  </p>
+                  <h3 className="mt-1 text-sm font-semibold group-hover:text-primary">{r.title}</h3>
+                  {r.summary ? <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{r.summary}</p> : null}
+                </div>
               </Link>
             ))}
           </div>
-        </section>
-      ) : null}
+        ) : null}
+        <p className="mt-6 text-sm">
+          <Link to="/downloads" className="text-primary underline">Ver todos os drivers e softwares</Link>
+        </p>
+      </section>
     </>
   );
 }
