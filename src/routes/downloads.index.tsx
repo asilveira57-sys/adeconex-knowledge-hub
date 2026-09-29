@@ -34,7 +34,7 @@ export const Route = createFileRoute("/downloads/")({
             },
             {
               "@type": "ItemList",
-              itemListElement: (loaderData ?? []).map((d, i) => ({
+              itemListElement: ((loaderData ?? []) as { title: string; slug: string }[]).map((d, i) => ({
                 "@type": "ListItem",
                 position: i + 1,
                 name: d.title,
