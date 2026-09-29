@@ -12,7 +12,39 @@ const downloadsQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/downloads/")({
-  head: () => ({
+  head: ({ loaderData }) => ({
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              name: "Central de downloads Adeconex",
+              url: `${BASE_URL}/downloads`,
+              inLanguage: "pt-BR",
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Início", item: BASE_URL },
+                { "@type": "ListItem", position: 2, name: "Downloads", item: `${BASE_URL}/downloads` },
+              ],
+            },
+            {
+              "@type": "ItemList",
+              itemListElement: ((loaderData ?? []) as { title: string; slug: string }[]).map((d, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                name: d.title,
+                url: `${BASE_URL}/downloads/${d.slug}`,
+              })),
+            },
+          ],
+        }),
+      },
+    ],
     meta: [
       { title: "Drivers e softwares para impressoras térmicas — Downloads Adeconex" },
       { name: "description", content: "Baixe drivers e softwares para impressoras térmicas Zebra, Elgin, Argox, Godex e Zetex, com tutorial de instalação passo a passo." },
