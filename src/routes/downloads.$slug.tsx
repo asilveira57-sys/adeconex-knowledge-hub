@@ -116,6 +116,14 @@ export const Route = createFileRoute("/downloads/$slug")({
                     ...(loaderData?.related?.length ? { relatedLink: loaderData.related.map((r) => `${BASE_URL}/downloads/${r.slug}`) } : {}),
                   },
                   {
+                    "@type": "FAQPage",
+                    mainEntity: buildFaq(it).map((f) => ({
+                      "@type": "Question",
+                      name: f.q,
+                      acceptedAnswer: { "@type": "Answer", text: f.a },
+                    })),
+                  },
+                  {
                     "@type": "BreadcrumbList",
                     itemListElement: [
                       { "@type": "ListItem", position: 1, name: "Início", item: BASE_URL },
@@ -221,6 +229,18 @@ function DownloadPage() {
           />
         </section>
       ) : null}
+
+      <section className="container-page border-t hairline py-12">
+        <h2 className="text-xl font-semibold">Perguntas frequentes</h2>
+        <div className="mt-5 max-w-3xl divide-y divide-border rounded-xl border hairline bg-card">
+          {buildFaq(item).map((f) => (
+            <details key={f.q} className="group p-5">
+              <summary className="cursor-pointer list-none font-medium marker:hidden group-open:text-primary">{f.q}</summary>
+              <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
 
       <section className="container-page border-t hairline py-12">
         <h2 className="text-xl font-semibold">Downloads relacionados{item.brand ? ` ${item.brand}` : ""}</h2>
