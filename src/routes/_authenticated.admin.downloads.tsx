@@ -10,6 +10,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { buildFaq, parseFaqs, type FaqItem } from "@/lib/download-faq";
+
+function FaqEditor({ raw, onChange, suggestions }: { value: FaqItem[]; rawLength: number; raw: FaqItem[]; onChange: (v: FaqItem[]) => void; suggestions: () => FaqItem[] }) {
+  const update = (i: number, k: "q" | "a", v: string) => onChange(raw.map((f, j) => (j === i ? { ...f, [k]: v } : f)));
+  const move = (i: number, d: number) => {
+    const n = [...raw]; const t = i + d; if (t < 0 || t >= n.length) return;
+    [n[i], n[t]] = [n[t], n[i]]; onChange(n);
+  };
+  return (
+    <div className="sm:col-span-2 space-y-3 border-t pt-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 className="font-medium">Perguntas frequentes</h3>
+          <p className="text-xs text-muted-foreground">
+            {raw.length ? "Estas perguntas substituem as automáticas na página." : "Sem perguntas personalizadas: a página mostra as automáticas, feitas só com os dados preenchidos."}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" size="sm" onClick={() => onChange(suggestions())}>Carregar sugestões</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => onChange([...raw, { q: "", a: "" }])}><Plus className="mr-1 h-4 w-4" /> Pergunta</Button>
+        </div>
+      </div>
+      <p className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
+        Informe somente compatibilidades confirmadas pelo fabricante (sistemas, modelos e versões). Na dúvida, oriente o cliente a falar com a equipe.
+      </p>
+      {raw.map((f, i) => (
+        <div key={i} className="space-y-2 rounded-md border p-3">
+          <div className="flex items-center gap-2">
+            <Input placeholder="Pergunta" value={f.q} maxLength={200} onChange={(e) => update(i, "q", e.target.value)} />
+            <Button type="button" variant="ghost" size="sm" onClick={() => move(i, -1)} aria-label="Subir">↑</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => move(i, 1)} aria-label="Descer">↓</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => onChange(raw.filter((_, j) => j !== i))} aria-label="Remover"><Trash2 className="h-4 w-4" /></Button>
+          </div>
+          <Textarea placeholder="Resposta" rows={3} maxLength={1200} value={f.a} onChange={(e) => update(i, "a", e.target.value)} />
+          {(!f.q.trim() || !f.a.trim()) ? <p className="text-xs text-destructive">Perguntas sem resposta não são publicadas.</p> : null}
+        </div>
+      ))}
+      {raw.length ? <Button type="button" variant="ghost" size="sm" onClick={() => onChange([])}>Voltar às perguntas automáticas</Button> : null}
+    </div>
+  );
+}
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -73,6 +114,7 @@ function AdminDownloadsPage() {
         seo_title: f.seo_title || null,
         seo_description: f.seo_description || null,
         seo_keywords: f.seo_keywords || null,
+        faqs: parseFaqs(f.faqs) as unknown as DownloadRow["faqs"],
         is_published: f.is_published ?? true,
         sort_order: Number(f.sort_order) || 0,
       };
@@ -256,6 +298,13 @@ function AdminDownloadsPage() {
                </div>
               <div className="sm:col-span-2"><Label>Resumo</Label><Textarea rows={2} value={edit.summary ?? ""} onChange={(e) => set("summary", e.target.value)} /></div>
               <div className="sm:col-span-2"><Label>Tutorial de instalação (HTML)</Label><Textarea rows={8} className="font-mono text-xs" value={edit.content_html ?? ""} onChange={(e) => set("content_html", e.target.value)} /></div>
+              <FaqEditor
+                value={parseFaqs(edit.faqs)}
+                rawLength={Array.isArray(edit.faqs) ? edit.faqs.length : 0}
+                raw={(Array.isArray(edit.faqs) ? edit.faqs : []) as FaqItem[]}
+                onChange={(v) => set("faqs", v as unknown as DownloadRow["faqs"])}
+                suggestions={() => buildFaq({ title: edit.title ?? "", kind: edit.kind ?? "driver", brand: edit.brand ?? null, model: edit.model ?? null, version: edit.version ?? null, operating_system: edit.operating_system ?? null, file_size: edit.file_size ?? null })}
+              />
                <div className="sm:col-span-2 flex items-center justify-between gap-3 border-t pt-4"><div><h3 className="font-medium">SEO da página</h3><p className="text-xs text-muted-foreground">A geração usa somente os dados preenchidos e pode ser revisada.</p></div><Button type="button" variant="outline" disabled={generating || !edit.title?.trim()} onClick={fillSeo}>{generating ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />} Gerar SEO</Button></div>
                <div className="sm:col-span-2"><div className="flex justify-between"><Label>Título para o Google</Label><span className="text-xs text-muted-foreground">{edit.seo_title?.length ?? 0}/60</span></div><Input maxLength={200} value={edit.seo_title ?? ""} onChange={(e) => set("seo_title", e.target.value)} /></div>
                <div className="sm:col-span-2"><div className="flex justify-between"><Label>Descrição para o Google</Label><span className="text-xs text-muted-foreground">{edit.seo_description?.length ?? 0}/160</span></div><Textarea maxLength={300} rows={2} value={edit.seo_description ?? ""} onChange={(e) => set("seo_description", e.target.value)} /></div>

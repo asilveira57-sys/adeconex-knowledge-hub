@@ -1,0 +1,1 @@
+ALTER TABLE public.downloads ADD COLUMN IF NOT EXISTS faqs jsonb NOT NULL DEFAULT '[]'::jsonb;
