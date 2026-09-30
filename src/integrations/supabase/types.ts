@@ -735,6 +735,7 @@ export type Database = {
           content_html: string | null
           created_at: string
           download_url: string
+          faqs: Json
           file_size: string | null
           id: string
           image_url: string | null
@@ -759,6 +760,7 @@ export type Database = {
           content_html?: string | null
           created_at?: string
           download_url: string
+          faqs?: Json
           file_size?: string | null
           id?: string
           image_url?: string | null
@@ -783,6 +785,7 @@ export type Database = {
           content_html?: string | null
           created_at?: string
           download_url?: string
+          faqs?: Json
           file_size?: string | null
           id?: string
           image_url?: string | null
