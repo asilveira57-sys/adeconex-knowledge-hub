@@ -29,7 +29,6 @@ export const Route = createFileRoute("/sitemap.xml")({
 
           // Módulos da plataforma
           { path: "/catalogo", changefreq: "weekly", priority: "0.9" },
-          { path: "/conhecimento", changefreq: "weekly", priority: "0.85" },
           { path: "/ferramentas", changefreq: "weekly", priority: "0.8" },
           { path: "/gerador-qrcode", changefreq: "monthly", priority: "0.85" },
           { path: "/ferramentas/gerador-de-codigo-de-barras", changefreq: "monthly", priority: "0.9" },
