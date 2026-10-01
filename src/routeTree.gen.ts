@@ -13,7 +13,6 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
-import { Route as MarketplacesRouteImport } from './routes/marketplaces'
 import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
 import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
@@ -103,11 +102,6 @@ const RibbonRoute = RibbonRouteImport.update({
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   id: '/redefinir-senha',
   path: '/redefinir-senha',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketplacesRoute = MarketplacesRouteImport.update({
-  id: '/marketplaces',
-  path: '/marketplaces',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GeradorQrcodeRoute = GeradorQrcodeRouteImport.update({
@@ -509,7 +503,6 @@ export interface FileRoutesByFullPath {
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
-  '/marketplaces': typeof MarketplacesRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -581,7 +574,6 @@ export interface FileRoutesByTo {
   '/contato': typeof ContatoRoute
   '/empresa': typeof EmpresaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
-  '/marketplaces': typeof MarketplacesRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -656,7 +648,6 @@ export interface FileRoutesById {
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
   '/gerador-qrcode': typeof GeradorQrcodeRoute
-  '/marketplaces': typeof MarketplacesRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
@@ -734,7 +725,6 @@ export interface FileRouteTypes {
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/gerador-qrcode'
-    | '/marketplaces'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
@@ -806,7 +796,6 @@ export interface FileRouteTypes {
     | '/contato'
     | '/empresa'
     | '/gerador-qrcode'
-    | '/marketplaces'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
@@ -880,7 +869,6 @@ export interface FileRouteTypes {
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/gerador-qrcode'
-    | '/marketplaces'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
@@ -958,7 +946,6 @@ export interface RootRouteChildren {
   FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
-  MarketplacesRoute: typeof MarketplacesRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RibbonRoute: typeof RibbonRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
@@ -1002,13 +989,6 @@ declare module '@tanstack/react-router' {
       path: '/redefinir-senha'
       fullPath: '/redefinir-senha'
       preLoaderRoute: typeof RedefinirSenhaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplaces': {
-      id: '/marketplaces'
-      path: '/marketplaces'
-      fullPath: '/marketplaces'
-      preLoaderRoute: typeof MarketplacesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gerador-qrcode': {
@@ -1694,7 +1674,6 @@ const rootRouteChildren: RootRouteChildren = {
   FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
   GeradorQrcodeRoute: GeradorQrcodeRoute,
-  MarketplacesRoute: MarketplacesRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RibbonRoute: RibbonRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
