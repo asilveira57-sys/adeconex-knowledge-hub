@@ -132,9 +132,10 @@ export const Route = createFileRoute("/produto/$slug")({
   },
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
+    const message = error instanceof Error ? error.message : String(error);
     return (
       <div className="container-page py-20 text-center">
-        <p className="text-sm text-destructive">Erro: {error.message}</p>
+        <p className="text-sm text-destructive">Erro: {message}</p>
         <Button
           variant="outline"
           size="sm"

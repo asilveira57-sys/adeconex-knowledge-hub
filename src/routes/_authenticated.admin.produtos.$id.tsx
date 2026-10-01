@@ -42,9 +42,10 @@ export const Route = createFileRoute("/_authenticated/admin/produtos/$id")({
   loader: ({ params, context }) => context.queryClient.ensureQueryData(previewOptions(params.id)),
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
+    const message = error instanceof Error ? error.message : String(error);
     return (
       <div className="space-y-3">
-        <p className="text-sm text-destructive">Erro ao carregar produto: {error.message}</p>
+        <p className="text-sm text-destructive">Erro ao carregar produto: {message}</p>
         <Button size="sm" variant="outline" onClick={() => { router.invalidate(); reset(); }}>Tentar novamente</Button>
       </div>
     );
