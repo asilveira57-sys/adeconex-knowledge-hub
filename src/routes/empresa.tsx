@@ -90,7 +90,7 @@ function Timeline() {
     { year: "Início", title: "Fundação da Adeconex", body: "Operação focada em consumíveis para impressão térmica no varejo e indústria." },
     { year: "Expansão", title: "Linha própria de etiquetas", body: "Produção interna de etiquetas adesivas e ampliação do portfólio de ribbons." },
     { year: "Cobertura", title: "Atendimento nacional", body: "Atuação em todos os estados com logística rastreável e suporte B2B." },
-    { year: "Digital", title: "Marketplaces oficiais", body: "Lojas oficiais em Mercado Livre, Shopee, Amazon e Magalu." },
+    { year: "Digital", title: "Atendimento digital", body: "Catálogo técnico, conteúdo especializado e atendimento comercial em um só lugar." },
     { year: "2030", title: "Plataforma de autoridade", body: "Conteúdo técnico, ferramentas gratuitas e ecossistema digital completo." },
   ];
   return (

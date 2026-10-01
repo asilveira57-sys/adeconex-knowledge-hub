@@ -92,7 +92,7 @@ export function whatsappVisibleOnPath(path: string, cfg: WhatsappButtonConfig): 
   if (p.startsWith("/admin") || p.startsWith("/_authenticated/admin")) return false;
   const scopes = cfg.scopes?.length ? cfg.scopes : ["all"];
   if (scopes.includes("all")) return true;
-  const institutional = ["/empresa", "/contato", "/marketplaces", "/downloads", "/avaliacoes", "/conhecimento", "/ferramentas", "/b2b"];
+  const institutional = ["/empresa", "/contato", "/downloads", "/avaliacoes", "/conhecimento", "/ferramentas", "/b2b"];
   return scopes.some((s) => {
     switch (s) {
       case "home":

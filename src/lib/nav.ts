@@ -11,7 +11,6 @@ export const primaryNav: NavItem[] = [
   { to: "/conhecimento", label: "Conhecimento", description: "Guias, tutoriais e comparativos" },
   { to: "/ferramentas", label: "Ferramentas", description: "Calculadoras e geradores gratuitos" },
   { to: "/downloads", label: "Downloads", description: "Drivers, manuais, datasheets, ZPL" },
-  { to: "/marketplaces", label: "Marketplaces", description: "Compre nos canais oficiais" },
 ];
 
 export const secondaryNav: NavItem[] = [

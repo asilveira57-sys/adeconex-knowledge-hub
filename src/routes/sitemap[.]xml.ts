@@ -55,7 +55,6 @@ export const Route = createFileRoute("/sitemap.xml")({
               return [];
             }
           })()),
-          { path: "/marketplaces", changefreq: "monthly", priority: "0.8" },
           { path: "/blog", changefreq: "daily", priority: "0.8" },
           ...(await import("@/content/blog-posts")).blogPosts.map((p) => ({
             path: `/blog/${p.slug}`,

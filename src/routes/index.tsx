@@ -10,7 +10,6 @@ import {
   FileBarChart2,
   Layers,
   Printer,
-  ShoppingBag,
   Sparkles,
   Star,
   Tag,
@@ -31,13 +30,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento.",
       },
       { property: "og:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       {
         property: "og:description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento.",
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
@@ -60,7 +59,6 @@ function HomePage() {
       <Vitrines />
       <KnowledgePreview />
       <ToolsPreview />
-      <Marketplaces />
       <ProofAndSocial place={place} />
       <FinalCta />
     </>
@@ -437,66 +435,6 @@ function ToolsPreview() {
             </span>
           </Link>
         ))}
-      </div>
-    </Section>
-  );
-}
-
-/* ───────── Marketplaces ───────── */
-function Marketplaces() {
-  const channels = [
-    { name: "Mercado Livre", tag: "MercadoLíder" },
-    { name: "Shopee", tag: "Loja oficial" },
-    { name: "Amazon", tag: "Vendido por Adeconex" },
-    { name: "Magalu", tag: "Loja oficial" },
-  ];
-  return (
-    <Section>
-      <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
-        <div>
-          <p className="eyebrow">Marketplace Hub</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-            Compre onde preferir — Adeconex em todos os canais oficiais.
-          </h2>
-          <p className="mt-4 text-muted-foreground md:text-lg">
-            Você escolhe a melhor experiência de compra. Para pedidos
-            recorrentes ou volume, fale com o time comercial e receba condições
-            sob medida.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              to="/marketplaces"
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
-            >
-              Ver canais oficiais
-              <ShoppingBag className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/contato"
-              className="inline-flex items-center gap-2 rounded-md border hairline px-5 py-3 text-sm font-medium"
-            >
-              Falar com o comercial
-            </Link>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {channels.map((c) => (
-            <Link
-              key={c.name}
-              to="/marketplaces"
-              className="flex flex-col justify-between rounded-xl border hairline bg-card p-5 transition-colors hover:bg-surface-2"
-            >
-              <span className="eyebrow text-[10px]">{c.tag}</span>
-              <span className="mt-6 font-display text-xl font-semibold tracking-tight">
-                {c.name}
-              </span>
-              <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                Abrir loja oficial
-                <ArrowRight className="h-3 w-3" />
-              </span>
-            </Link>
-          ))}
-        </div>
       </div>
     </Section>
   );
