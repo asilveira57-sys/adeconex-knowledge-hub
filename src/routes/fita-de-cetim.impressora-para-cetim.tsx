@@ -42,7 +42,7 @@ function ImpressoraCetimPage() {
         "gabarito para impressora argox",
         "kit fita de cetim",
       ]}
-      primaryCta={{ to: "/marketplaces", label: "Comprar kit completo" }}
+      primaryCta={{ to: "/catalogo", label: "Ver produtos no catálogo" }}
       secondaryCta={{ to: "/contato", label: "Falar com especialista" }}
     />
   );

@@ -119,10 +119,10 @@ export function PillarStub({
                 <Zap className="h-4 w-4" /> Solicitar orçamento
               </Link>
               <Link
-                to="/marketplaces"
+                to="/catalogo"
                 className="inline-flex items-center gap-2 rounded-md border border-white/25 bg-transparent px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
               >
-                Comprar agora
+                Ver catálogo
               </Link>
             </div>
           </div>

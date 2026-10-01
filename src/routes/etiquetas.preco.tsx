@@ -60,7 +60,7 @@ function EtiquetaPrecoPage() {
         "etiqueta mercado livre",
         "etiqueta gôndola",
       ]}
-      primaryCta={{ to: "/marketplaces", label: "Ver etiquetas de preço" }}
+      primaryCta={{ to: "/catalogo", label: "Ver etiquetas de preço" }}
       secondaryCta={{ to: "/contato", label: "Pedir amostra" }}
     />
   );

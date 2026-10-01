@@ -58,7 +58,7 @@ function RibbonPage() {
         "ribbon inkanto",
         "ribbon 110x74",
       ]}
-      primaryCta={{ to: "/marketplaces", label: "Comprar ribbon" }}
+      primaryCta={{ to: "/catalogo", label: "Ver ribbons no catálogo" }}
       secondaryCta={{ to: "/contato", label: "Falar com especialista" }}
     />
   );

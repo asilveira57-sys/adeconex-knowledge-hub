@@ -43,7 +43,6 @@ function AgendaPersonalizadaPage() {
         "agenda com logo",
       ]}
       primaryCta={{ to: "/contato", label: "Solicitar orçamento" }}
-      secondaryCta={{ to: "/marketplaces", label: "Ver na loja oficial" }}
     />
   );
 }

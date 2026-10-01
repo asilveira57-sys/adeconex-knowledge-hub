@@ -22,7 +22,7 @@ export const Route = createFileRoute("/conhecimento")({
         "Ribbon — cera, cera-resina, resina",
         "Impressoras térmicas e drivers",
         "Código de barras e GS1",
-        "Mercado Livre e marketplaces",
+        "Vendas online e logística",
         "Indústria, papelaria, boas práticas",
         "Tutoriais passo a passo",
         "Comparativos técnicos",

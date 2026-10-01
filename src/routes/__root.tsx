@@ -55,12 +55,13 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
+  const reportableError = error instanceof Error ? error : new Error(String(error));
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    reportLovableError(reportableError, { boundary: "tanstack_root_error_component" });
+  }, [reportableError]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -127,21 +128,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "google-site-verification",
         content:
-          loaderData?.search_console_verification || "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
+          (loaderData as { search_console_verification?: string } | undefined)?.search_console_verification || "IRfNtj5FyxXK1FcjCW7rcOzLrPec09X_F4n5dPSYRzU",
       },
       { title: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       {
         name: "description",
         content:
-          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento.",
+          "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento.",
       },
       { property: "og:site_name", content: "Adeconex" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       { name: "twitter:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
-      { property: "og:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento." },
-      { name: "twitter:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Compre nos marketplaces oficiais ou solicite orçamento." },
+      { property: "og:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento." },
+      { name: "twitter:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
     ],

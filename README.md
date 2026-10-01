@@ -44,7 +44,7 @@ O visitante poderá:
 • acessar vídeos
 • acessar documentação
 • entrar na área B2B
-• navegar para nossos marketplaces
+• consultar o catálogo de produtos
 
 A venda deixa de ser o objetivo principal.
 
@@ -121,8 +121,6 @@ Avaliações Google
 Instagram
 
 YouTube
-
-Marketplaces
 
 CTA para orçamento
 
@@ -293,24 +291,6 @@ YouTube
 Google
 
 LinkedIn (caso exista)
-
-MARKETPLACE HUB
-
-Criar página específica.
-
-Comprar no:
-
-Mercado Livre
-
-Shopee
-
-Amazon
-
-Magalu
-
-Outros canais oficiais
-
-O usuário escolhe onde deseja comprar.
 
 ÁREA B2B
 

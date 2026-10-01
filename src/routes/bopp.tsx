@@ -56,7 +56,7 @@ function BoppPage() {
         "bopp transparente",
         "etiqueta rótulo cosmético",
       ]}
-      primaryCta={{ to: "/marketplaces", label: "Comprar etiquetas BOPP" }}
+      primaryCta={{ to: "/catalogo", label: "Ver etiquetas BOPP" }}
       secondaryCta={{ to: "/contato", label: "Orçamento sob medida" }}
     />
   );

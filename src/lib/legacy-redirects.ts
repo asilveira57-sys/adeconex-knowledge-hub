@@ -21,6 +21,7 @@ export const LEGACY_REDIRECTS: LegacyRule[] = [
   { type: "exact", from: "/home", to: "/" },
   { type: "exact", from: "/index.html", to: "/" },
   { type: "exact", from: "/index.php", to: "/" },
+  { type: "exact", from: "/marketplaces", to: "/" },
 
   // ── Silo RIBBON ─────────────────────────────────────────────────
   // Top URLs preservadas 1:1 (rotas próprias existem):
