@@ -3,14 +3,11 @@ import { Suspense } from "react";
 import { ProductCarousel } from "@/components/product-carousel";
 import {
   ArrowRight,
-  BookOpen,
   Calculator,
   Download,
   Factory,
-  FileBarChart2,
   Layers,
   Printer,
-  Sparkles,
   Star,
   Tag,
   
@@ -57,7 +54,6 @@ function HomePage() {
       <Solutions />
       <CatalogTeaser />
       <Vitrines />
-      <KnowledgePreview />
       <ToolsPreview />
       <ProofAndSocial place={place} />
       <FinalCta />
@@ -122,12 +118,6 @@ function Hero({ rating }: { rating: number }) {
             >
               Explorar catálogo
               <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/conhecimento"
-              className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-white/5 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
-            >
-              Centro de conhecimento
             </Link>
           </div>
 
@@ -320,66 +310,6 @@ function CatalogTeaser() {
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </div>
-    </Section>
-  );
-}
-
-/* ───────── Knowledge ───────── */
-function KnowledgePreview() {
-  const topics = [
-    { icon: BookOpen, label: "Guias completos", to: "/conhecimento" },
-    { icon: FileBarChart2, label: "Comparativos", to: "/conhecimento" },
-    { icon: Sparkles, label: "Boas práticas", to: "/conhecimento" },
-  ];
-  const categories = [
-    "Etiquetas", "Ribbon", "Impressoras", "Automação",
-    "Código de barras", "Logística", "Mercado Livre",
-    "Marketplace", "Indústria", "Papelaria", "Tutoriais",
-  ];
-  return (
-    <Section>
-      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <SectionHeader
-          eyebrow="Centro de conhecimento"
-          title="Conteúdo técnico que resolve dúvidas reais do mercado"
-          description="Categorias organizadas para indústria, varejo, papelaria, logística e profissionais de automação. Cada artigo é otimizado para SEO e para mecanismos de IA."
-        />
-        <Link
-          to="/conhecimento"
-          className="inline-flex items-center gap-2 text-sm font-medium text-foreground"
-        >
-          Ir para o portal técnico
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
-        {topics.map((t) => (
-          <Link
-            key={t.label}
-            to={t.to}
-            className="group flex items-center justify-between rounded-xl border hairline bg-card p-5 transition-colors hover:bg-surface-2"
-          >
-            <span className="flex items-center gap-3">
-              <t.icon className="h-5 w-5 text-signal" strokeWidth={1.5} />
-              <span className="font-medium">{t.label}</span>
-            </span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-8 flex flex-wrap gap-2">
-        {categories.map((c) => (
-          <Link
-            key={c}
-            to="/conhecimento"
-            className="rounded-full border hairline bg-card px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-ink-soft hover:bg-surface-2"
-          >
-            {c}
-          </Link>
-        ))}
       </div>
     </Section>
   );
