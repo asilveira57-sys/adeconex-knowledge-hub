@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { PdfOrientation, PdfPage } from "@/lib/labels/pdf";
+import { THERMAL_PRINT_DPI } from "@/lib/labels/pdf";
 
 import { LabelCanvas } from "@/components/labels/label-canvas";
 import { LabelMockup } from "@/components/labels/label-mockup";
@@ -96,7 +97,6 @@ export function LabelEditor({
 
   const [pdfPage, setPdfPage] = useState<PdfPage>("label");
   const [pdfOrientation, setPdfOrientation] = useState<PdfOrientation>("auto");
-  const [pdfDpi, setPdfDpi] = useState(600);
   const [pdfCutMarks, setPdfCutMarks] = useState(true);
   const [pdfBackground, setPdfBackground] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -128,7 +128,7 @@ export function LabelEditor({
       await downloadLabelPdf(design, {
         page: pdfPage,
         orientation: pdfOrientation,
-        dpi: pdfDpi,
+        dpi: THERMAL_PRINT_DPI,
         cutMarks: pdfCutMarks,
         printBackground: pdfBackground,
         spec,
@@ -308,7 +308,56 @@ export function LabelEditor({
 
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)_300px]">
+    <div className="space-y-6">
+      <section className={cn(
+        "border bg-card p-5",
+        design.base_product_id ? "border-primary/30" : "border-primary",
+      )}>
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
+              1. Escolha o tamanho da etiqueta
+            </p>
+            <Label className="mt-3 block" htmlFor="base-label-product">Etiqueta-base</Label>
+            <Select
+              value={design.base_product_id ?? ""}
+              onValueChange={(v) => {
+                const s = products.find((p) => p.id === v);
+                if (!s) return;
+                onChange(designFromSpec(s, { ...design, name: design.name }));
+              }}
+            >
+              <SelectTrigger id="base-label-product" className="mt-1 w-full">
+                <SelectValue placeholder="Selecione o tamanho e o formato para começar" />
+              </SelectTrigger>
+              <SelectContent className="max-h-72">
+                {products.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name} — {p.width_mm} × {p.height_mm} mm ({SHAPE_LABELS[p.shape]})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {products.length === 0 && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Nenhuma etiqueta está habilitada para personalização no momento.
+              </p>
+            )}
+          </div>
+          {spec ? (
+            <div className="min-w-52 bg-surface-2 px-4 py-3 text-sm">
+              <p className="font-semibold">{spec.width_mm} × {spec.height_mm} mm</p>
+              <p className="text-muted-foreground">{SHAPE_LABELS[spec.shape]} · {spec.columns} col. × {spec.rows} lin.</p>
+            </div>
+          ) : (
+            <p className="max-w-xs text-sm text-muted-foreground">
+              A área de criação será ajustada automaticamente às medidas escolhidas.
+            </p>
+          )}
+        </div>
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)_300px]">
       {/* Ferramentas + camadas */}
       <aside className="space-y-6">
         <div className="rounded-lg border hairline bg-card p-4">
@@ -901,31 +950,6 @@ export function LabelEditor({
             Pedido
           </h2>
           <div>
-            <Label>Etiqueta-base (matéria-prima)</Label>
-            <Select
-              value={design.base_product_id ?? ""}
-              onValueChange={(v) => {
-                const s = products.find((p) => p.id === v);
-                if (!s) return;
-                onChange(designFromSpec(s, { ...design, name: design.name }));
-              }}
-            >
-              <SelectTrigger><SelectValue placeholder="Escolha a etiqueta em branco" /></SelectTrigger>
-              <SelectContent className="max-h-72">
-                {products.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.name} — {p.width_mm}×{p.height_mm} mm ({SHAPE_LABELS[p.shape]})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {products.length === 0 && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                Nenhuma etiqueta habilitada para personalização no momento.
-              </p>
-            )}
-          </div>
-          <div>
             <Label htmlFor="qty">Quantidade (etiquetas)</Label>
             <Input
               id="qty"
@@ -991,17 +1015,12 @@ export function LabelEditor({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="sm:col-span-2">
-                <Label className="text-xs">Qualidade</Label>
-                <Select value={String(pdfDpi)} onValueChange={(v) => setPdfDpi(Number(v))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="300">300 dpi — impressão padrão</SelectItem>
-                    <SelectItem value="600">600 dpi — recomendado (térmica)</SelectItem>
-                    <SelectItem value="1200">1200 dpi — máxima</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            </div>
+            <div className="bg-surface-2 p-3 text-xs">
+              <p className="font-medium text-foreground">Resolução: 203 DPI</p>
+              <p className="mt-1 text-muted-foreground">
+                Preparado para impressoras térmicas de 203 DPI, mantendo o tamanho real da etiqueta.
+              </p>
             </div>
             <label className="flex items-center justify-between text-xs">
               <span>Marcas de corte</span>
@@ -1016,8 +1035,8 @@ export function LabelEditor({
               {exporting ? "Gerando PDF..." : "Baixar PDF"}
             </Button>
             <p className="text-[11px] text-muted-foreground">
-              Textos saem em vetor; códigos, QR e imagens são rasterizados na resolução escolhida —
-              tamanho real em milímetros, sem redimensionamento na impressão.
+              Textos saem em vetor; códigos, QR e imagens são preparados em 203 DPI — tamanho real
+              em milímetros, sem redimensionamento na impressão.
             </p>
           </div>
 
@@ -1039,6 +1058,7 @@ export function LabelEditor({
           )}
         </div>
       </aside>
+      </div>
     </div>
   );
 }

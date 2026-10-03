@@ -5,6 +5,7 @@ const PT_TO_MM = 25.4 / 72;
 
 export type PdfPage = "label" | "a4" | "letter";
 export type PdfOrientation = "auto" | "portrait" | "landscape";
+export const THERMAL_PRINT_DPI = 203;
 
 export type LabelPdfOptions = {
   /** Tamanho da página: só a etiqueta (corte final) ou folha para impressão */
@@ -23,7 +24,7 @@ export type LabelPdfOptions = {
 export const DEFAULT_PDF_OPTIONS: LabelPdfOptions = {
   page: "label",
   orientation: "auto",
-  dpi: 600,
+  dpi: THERMAL_PRINT_DPI,
   cutMarks: true,
   printBackground: true,
 };
