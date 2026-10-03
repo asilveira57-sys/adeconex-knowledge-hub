@@ -177,7 +177,7 @@ function EditorPage() {
     onSuccess: (id) => {
       setDesign((d) => ({ ...d, id }));
       qc.invalidateQueries({ queryKey: ["label-designs"] });
-      toast.success("Rascunho salvo — você pode voltar depois e continuar de onde parou");
+      toast.success("Modelo salvo na sua conta — ele já está disponível em Minhas artes salvas");
     },
     onError: (e: Error) => toast.error(e.message || "Não foi possível salvar"),
   });
@@ -215,8 +215,8 @@ function EditorPage() {
             Editor de etiqueta personalizada
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monte a arte, salve como rascunho e volte depois — medidas, formato, grade e espaçamentos
-            voltam exatamente como estavam.
+            Primeiro escolha o tamanho da etiqueta. Depois monte a arte e salve na sua conta para
+            continuar quando quiser.
           </p>
         </div>
         <Button variant="ghost" asChild>
