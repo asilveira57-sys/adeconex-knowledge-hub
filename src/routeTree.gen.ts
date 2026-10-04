@@ -46,7 +46,6 @@ import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
-import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -54,6 +53,7 @@ import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
+import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
@@ -273,11 +273,6 @@ const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   path: '/etiquetas/preco',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
-  id: '/etiquetas/personalizada',
-  path: '/etiquetas/personalizada',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
   id: '/downloads/$slug',
   path: '/downloads/$slug',
@@ -314,6 +309,12 @@ const FerramentasGeradorDeCodigoDeBarrasIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
+const EtiquetasPersonalizadaIndexRoute =
+  EtiquetasPersonalizadaIndexRouteImport.update({
+    id: '/etiquetas/personalizada/',
+    path: '/etiquetas/personalizada/',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedCheckoutIndexRoute =
   AuthenticatedCheckoutIndexRouteImport.update({
@@ -513,7 +514,6 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -545,6 +545,7 @@ export interface FileRoutesByFullPath {
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -582,7 +583,6 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -613,6 +613,7 @@ export interface FileRoutesByTo {
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -658,7 +659,6 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -690,6 +690,7 @@ export interface FileRoutesById {
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/_authenticated/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -735,7 +736,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -767,6 +767,7 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
     | '/checkout/'
+    | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/admin/clientes/$id'
     | '/admin/pedidos/$id'
@@ -804,7 +805,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
@@ -835,6 +835,7 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
     | '/checkout'
+    | '/etiquetas/personalizada'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/admin/clientes/$id'
     | '/admin/pedidos/$id'
@@ -879,7 +880,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -911,6 +911,7 @@ export interface FileRouteTypes {
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
+    | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/_authenticated/admin/clientes/$id'
     | '/_authenticated/admin/pedidos/$id'
@@ -951,13 +952,13 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
-  EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
+  EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
@@ -1222,13 +1223,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EtiquetasPrecoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/etiquetas/personalizada': {
-      id: '/etiquetas/personalizada'
-      path: '/etiquetas/personalizada'
-      fullPath: '/etiquetas/personalizada'
-      preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/downloads/$slug': {
       id: '/downloads/$slug'
       path: '/downloads/$slug'
@@ -1277,6 +1271,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ferramentas/gerador-de-codigo-de-barras/'
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
+    '/etiquetas/personalizada/': {
+      id: '/etiquetas/personalizada/'
+      path: '/etiquetas/personalizada'
+      fullPath: '/etiquetas/personalizada/'
+      preLoaderRoute: typeof EtiquetasPersonalizadaIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/checkout/': {
       id: '/_authenticated/checkout/'
@@ -1679,13 +1680,13 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
-  EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
+  EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport
