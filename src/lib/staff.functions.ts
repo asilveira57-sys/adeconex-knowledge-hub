@@ -13,6 +13,7 @@ export const STAFF_SECTIONS = [
   { key: "importacao", label: "Importação" },
   { key: "enriquecimento", label: "Enriquecimento" },
   { key: "downloads", label: "Downloads" },
+  { key: "etiquetas", label: "Etiqueta personalizada" },
 ] as const;
 
 export type MyPermissions = {

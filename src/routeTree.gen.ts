@@ -46,7 +46,6 @@ import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
-import { Route as EtiquetasPersonalizadaRouteImport } from './routes/etiquetas.personalizada'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -54,9 +53,11 @@ import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authentic
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
+import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
+import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
@@ -72,6 +73,7 @@ import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
 import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
 import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
+import { Route as AuthenticatedAdminEtiquetasIndexRouteImport } from './routes/_authenticated.admin.etiquetas.index'
 import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
@@ -82,6 +84,7 @@ import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_
 import { Route as AuthenticatedAdminSeoConfiguracoesRouteImport } from './routes/_authenticated.admin.seo.configuracoes'
 import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
 import { Route as AuthenticatedAdminPedidosIdRouteImport } from './routes/_authenticated.admin.pedidos.$id'
+import { Route as AuthenticatedAdminEtiquetasIdRouteImport } from './routes/_authenticated.admin.etiquetas.$id'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -273,11 +276,6 @@ const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
   path: '/etiquetas/preco',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EtiquetasPersonalizadaRoute = EtiquetasPersonalizadaRouteImport.update({
-  id: '/etiquetas/personalizada',
-  path: '/etiquetas/personalizada',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
   id: '/downloads/$slug',
   path: '/downloads/$slug',
@@ -315,6 +313,12 @@ const FerramentasGeradorDeCodigoDeBarrasIndexRoute =
     path: '/',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
   } as any)
+const EtiquetasPersonalizadaIndexRoute =
+  EtiquetasPersonalizadaIndexRouteImport.update({
+    id: '/etiquetas/personalizada/',
+    path: '/etiquetas/personalizada/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedCheckoutIndexRoute =
   AuthenticatedCheckoutIndexRouteImport.update({
     id: '/',
@@ -331,6 +335,12 @@ const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
     id: '/$padrao',
     path: '/$padrao',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
+const EtiquetasPersonalizadaTipoRoute =
+  EtiquetasPersonalizadaTipoRouteImport.update({
+    id: '/etiquetas/personalizada/$tipo',
+    path: '/etiquetas/personalizada/$tipo',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
   id: '/filtro/$hub',
@@ -419,6 +429,12 @@ const AuthenticatedAdminPedidosIndexRoute =
     path: '/pedidos/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEtiquetasIndexRoute =
+  AuthenticatedAdminEtiquetasIndexRouteImport.update({
+    id: '/etiquetas/',
+    path: '/etiquetas/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCuponsIndexRoute =
   AuthenticatedAdminCuponsIndexRouteImport.update({
     id: '/cupons/',
@@ -479,6 +495,12 @@ const AuthenticatedAdminPedidosIdRoute =
     path: '/pedidos/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEtiquetasIdRoute =
+  AuthenticatedAdminEtiquetasIdRouteImport.update({
+    id: '/etiquetas/$id',
+    path: '/etiquetas/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminClientesIdRoute =
   AuthenticatedAdminClientesIdRouteImport.update({
     id: '/clientes/$id',
@@ -513,7 +535,6 @@ export interface FileRoutesByFullPath {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -542,11 +563,14 @@ export interface FileRoutesByFullPath {
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
@@ -557,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
+  '/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
   '/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
   '/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
@@ -582,7 +607,6 @@ export interface FileRoutesByTo {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -610,11 +634,14 @@ export interface FileRoutesByTo {
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
@@ -625,6 +652,7 @@ export interface FileRoutesByTo {
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons': typeof AuthenticatedAdminCuponsIndexRoute
+  '/admin/etiquetas': typeof AuthenticatedAdminEtiquetasIndexRoute
   '/admin/pedidos': typeof AuthenticatedAdminPedidosIndexRoute
   '/admin/produtos': typeof AuthenticatedAdminProdutosIndexRoute
   '/admin/seo': typeof AuthenticatedAdminSeoIndexRoute
@@ -658,7 +686,6 @@ export interface FileRoutesById {
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
-  '/etiquetas/personalizada': typeof EtiquetasPersonalizadaRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -687,11 +714,14 @@ export interface FileRoutesById {
   '/_authenticated/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
+  '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
+  '/_authenticated/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/_authenticated/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
   '/_authenticated/admin/produtos/$id': typeof AuthenticatedAdminProdutosIdRoute
   '/_authenticated/admin/seo/configuracoes': typeof AuthenticatedAdminSeoConfiguracoesRoute
@@ -702,6 +732,7 @@ export interface FileRoutesById {
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/_authenticated/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
+  '/_authenticated/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
   '/_authenticated/admin/pedidos/': typeof AuthenticatedAdminPedidosIndexRoute
   '/_authenticated/admin/produtos/': typeof AuthenticatedAdminProdutosIndexRoute
   '/_authenticated/admin/seo/': typeof AuthenticatedAdminSeoIndexRoute
@@ -735,7 +766,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -764,11 +794,14 @@ export interface FileRouteTypes {
     | '/etiquetas/editor'
     | '/pedido/$id'
     | '/blog/filtro/$hub'
+    | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
     | '/checkout/'
+    | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/admin/clientes/$id'
+    | '/admin/etiquetas/$id'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
     | '/admin/seo/configuracoes'
@@ -779,6 +812,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/mercadopago'
     | '/admin/clientes/'
     | '/admin/cupons/'
+    | '/admin/etiquetas/'
     | '/admin/pedidos/'
     | '/admin/produtos/'
     | '/admin/seo/'
@@ -804,7 +838,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
@@ -832,11 +865,14 @@ export interface FileRouteTypes {
     | '/etiquetas/editor'
     | '/pedido/$id'
     | '/blog/filtro/$hub'
+    | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
     | '/checkout'
+    | '/etiquetas/personalizada'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/admin/clientes/$id'
+    | '/admin/etiquetas/$id'
     | '/admin/pedidos/$id'
     | '/admin/produtos/$id'
     | '/admin/seo/configuracoes'
@@ -847,6 +883,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/mercadopago'
     | '/admin/clientes'
     | '/admin/cupons'
+    | '/admin/etiquetas'
     | '/admin/pedidos'
     | '/admin/produtos'
     | '/admin/seo'
@@ -879,7 +916,6 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
-    | '/etiquetas/personalizada'
     | '/etiquetas/preco'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -908,11 +944,14 @@ export interface FileRouteTypes {
     | '/_authenticated/etiquetas/editor'
     | '/_authenticated/pedido/$id'
     | '/blog/filtro/$hub'
+    | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
     | '/_authenticated/checkout/'
+    | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
     | '/_authenticated/admin/clientes/$id'
+    | '/_authenticated/admin/etiquetas/$id'
     | '/_authenticated/admin/pedidos/$id'
     | '/_authenticated/admin/produtos/$id'
     | '/_authenticated/admin/seo/configuracoes'
@@ -923,6 +962,7 @@ export interface FileRouteTypes {
     | '/api/public/webhooks/mercadopago'
     | '/_authenticated/admin/clientes/'
     | '/_authenticated/admin/cupons/'
+    | '/_authenticated/admin/etiquetas/'
     | '/_authenticated/admin/pedidos/'
     | '/_authenticated/admin/produtos/'
     | '/_authenticated/admin/seo/'
@@ -951,13 +991,14 @@ export interface RootRouteChildren {
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
-  EtiquetasPersonalizadaRoute: typeof EtiquetasPersonalizadaRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
+  EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
+  EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
 }
 
@@ -1222,13 +1263,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EtiquetasPrecoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/etiquetas/personalizada': {
-      id: '/etiquetas/personalizada'
-      path: '/etiquetas/personalizada'
-      fullPath: '/etiquetas/personalizada'
-      preLoaderRoute: typeof EtiquetasPersonalizadaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/downloads/$slug': {
       id: '/downloads/$slug'
       path: '/downloads/$slug'
@@ -1278,6 +1312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
     }
+    '/etiquetas/personalizada/': {
+      id: '/etiquetas/personalizada/'
+      path: '/etiquetas/personalizada'
+      fullPath: '/etiquetas/personalizada/'
+      preLoaderRoute: typeof EtiquetasPersonalizadaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/checkout/': {
       id: '/_authenticated/checkout/'
       path: '/'
@@ -1298,6 +1339,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
+    '/etiquetas/personalizada/$tipo': {
+      id: '/etiquetas/personalizada/$tipo'
+      path: '/etiquetas/personalizada/$tipo'
+      fullPath: '/etiquetas/personalizada/$tipo'
+      preLoaderRoute: typeof EtiquetasPersonalizadaTipoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/filtro/$hub': {
       id: '/blog/filtro/$hub'
@@ -1404,6 +1452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/etiquetas/': {
+      id: '/_authenticated/admin/etiquetas/'
+      path: '/etiquetas'
+      fullPath: '/admin/etiquetas/'
+      preLoaderRoute: typeof AuthenticatedAdminEtiquetasIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/cupons/': {
       id: '/_authenticated/admin/cupons/'
       path: '/cupons'
@@ -1474,6 +1529,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPedidosIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/etiquetas/$id': {
+      id: '/_authenticated/admin/etiquetas/$id'
+      path: '/etiquetas/$id'
+      fullPath: '/admin/etiquetas/$id'
+      preLoaderRoute: typeof AuthenticatedAdminEtiquetasIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/clientes/$id': {
       id: '/_authenticated/admin/clientes/$id'
       path: '/clientes/$id'
@@ -1492,6 +1554,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
+  AuthenticatedAdminEtiquetasIdRoute: typeof AuthenticatedAdminEtiquetasIdRoute
   AuthenticatedAdminPedidosIdRoute: typeof AuthenticatedAdminPedidosIdRoute
   AuthenticatedAdminProdutosIdRoute: typeof AuthenticatedAdminProdutosIdRoute
   AuthenticatedAdminSeoConfiguracoesRoute: typeof AuthenticatedAdminSeoConfiguracoesRoute
@@ -1501,6 +1564,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoTecnicoRoute: typeof AuthenticatedAdminSeoTecnicoRoute
   AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
   AuthenticatedAdminCuponsIndexRoute: typeof AuthenticatedAdminCuponsIndexRoute
+  AuthenticatedAdminEtiquetasIndexRoute: typeof AuthenticatedAdminEtiquetasIndexRoute
   AuthenticatedAdminPedidosIndexRoute: typeof AuthenticatedAdminPedidosIndexRoute
   AuthenticatedAdminProdutosIndexRoute: typeof AuthenticatedAdminProdutosIndexRoute
   AuthenticatedAdminSeoIndexRoute: typeof AuthenticatedAdminSeoIndexRoute
@@ -1514,6 +1578,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
+  AuthenticatedAdminEtiquetasIdRoute: AuthenticatedAdminEtiquetasIdRoute,
   AuthenticatedAdminPedidosIdRoute: AuthenticatedAdminPedidosIdRoute,
   AuthenticatedAdminProdutosIdRoute: AuthenticatedAdminProdutosIdRoute,
   AuthenticatedAdminSeoConfiguracoesRoute:
@@ -1525,6 +1590,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoTecnicoRoute: AuthenticatedAdminSeoTecnicoRoute,
   AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
   AuthenticatedAdminCuponsIndexRoute: AuthenticatedAdminCuponsIndexRoute,
+  AuthenticatedAdminEtiquetasIndexRoute: AuthenticatedAdminEtiquetasIndexRoute,
   AuthenticatedAdminPedidosIndexRoute: AuthenticatedAdminPedidosIndexRoute,
   AuthenticatedAdminProdutosIndexRoute: AuthenticatedAdminProdutosIndexRoute,
   AuthenticatedAdminSeoIndexRoute: AuthenticatedAdminSeoIndexRoute,
@@ -1679,13 +1745,14 @@ const rootRouteChildren: RootRouteChildren = {
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
-  EtiquetasPersonalizadaRoute: EtiquetasPersonalizadaRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
+  EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
+  EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
 }
 export const routeTree = rootRouteImport

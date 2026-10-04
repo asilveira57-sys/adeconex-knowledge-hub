@@ -54,6 +54,16 @@ export const Route = createFileRoute("/sitemap.xml")({
               return [];
             }
           })()),
+          { path: "/etiquetas/personalizada", changefreq: "weekly", priority: "0.85" },
+          ...(await (async () => {
+            try {
+              const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+              const { data } = await supabaseAdmin.from("custom_label_types").select("slug").eq("is_published", true);
+              return (data ?? []).map((d) => ({ path: `/etiquetas/personalizada/${d.slug}`, changefreq: "monthly" as const, priority: "0.8" }));
+            } catch {
+              return [];
+            }
+          })()),
           { path: "/blog", changefreq: "daily", priority: "0.8" },
           ...(await import("@/content/blog-posts")).blogPosts.map((p) => ({
             path: `/blog/${p.slug}`,

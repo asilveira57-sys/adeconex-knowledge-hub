@@ -652,6 +652,69 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_label_types: {
+        Row: {
+          blog_body: string | null
+          blog_excerpt: string | null
+          blog_images: Json
+          blog_tips: string | null
+          blog_title: string | null
+          cover_url: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          name: string
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string | null
+          sizes: Json
+          slug: string
+          sort_order: number
+          updated_at: string
+          usage: string | null
+        }
+        Insert: {
+          blog_body?: string | null
+          blog_excerpt?: string | null
+          blog_images?: Json
+          blog_tips?: string | null
+          blog_title?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          name: string
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          sizes?: Json
+          slug: string
+          sort_order?: number
+          updated_at?: string
+          usage?: string | null
+        }
+        Update: {
+          blog_body?: string | null
+          blog_excerpt?: string | null
+          blog_images?: Json
+          blog_tips?: string | null
+          blog_title?: string | null
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          sizes?: Json
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+          usage?: string | null
+        }
+        Relationships: []
+      }
       customer_addresses: {
         Row: {
           city: string
@@ -912,6 +975,68 @@ export type Database = {
             columns: ["base_product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      label_templates: {
+        Row: {
+          background_color: string
+          corner_radius_mm: number | null
+          created_at: string
+          height_mm: number
+          id: string
+          is_published: boolean
+          layout: Json
+          material: string
+          name: string
+          ribbon_color: string
+          shape: string
+          sort_order: number
+          type_id: string
+          updated_at: string
+          width_mm: number
+        }
+        Insert: {
+          background_color?: string
+          corner_radius_mm?: number | null
+          created_at?: string
+          height_mm: number
+          id?: string
+          is_published?: boolean
+          layout?: Json
+          material?: string
+          name: string
+          ribbon_color?: string
+          shape?: string
+          sort_order?: number
+          type_id: string
+          updated_at?: string
+          width_mm: number
+        }
+        Update: {
+          background_color?: string
+          corner_radius_mm?: number | null
+          created_at?: string
+          height_mm?: number
+          id?: string
+          is_published?: boolean
+          layout?: Json
+          material?: string
+          name?: string
+          ribbon_color?: string
+          shape?: string
+          sort_order?: number
+          type_id?: string
+          updated_at?: string
+          width_mm?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "label_templates_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "custom_label_types"
             referencedColumns: ["id"]
           },
         ]
