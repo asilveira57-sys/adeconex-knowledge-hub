@@ -24,11 +24,17 @@ import {
   type LabelLayer,
   type LabelShape,
 } from "@/lib/labels/shared";
+import { getPublicTemplate } from "@/lib/label-catalog.functions";
+import { parseSizeParam, templateToDesign } from "@/lib/labels/catalog-shared";
 
 export const Route = createFileRoute("/_authenticated/etiquetas/editor")({
-  validateSearch: (search: Record<string, unknown>) => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { design?: string; produto?: string; modelo?: string; medida?: string } => ({
     design: typeof search.design === "string" ? search.design : undefined,
     produto: typeof search.produto === "string" ? search.produto : undefined,
+    modelo: typeof search.modelo === "string" ? search.modelo : undefined,
+    medida: typeof search.medida === "string" ? search.medida : undefined,
   }),
   head: () => ({
     meta: [
@@ -72,7 +78,14 @@ function designFromSaved(d: SavedDesign): LabelDesign {
 }
 
 function EditorPage() {
-  const { design: designId, produto } = Route.useSearch();
+  const { design: designId, produto, modelo, medida } = Route.useSearch();
+  const templateFn = useServerFn(getPublicTemplate);
+  const template = useQuery({
+    queryKey: ["label-template", modelo],
+    queryFn: () => templateFn({ data: { id: modelo! } }),
+    enabled: !!modelo,
+    staleTime: 300_000,
+  });
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -121,6 +134,18 @@ function EditorPage() {
       const found = designs.data?.find((d) => d.id === designId);
       if (!found) return;
       loadSaved(found);
+      setHydrated(true);
+      return;
+    }
+    if (modelo) {
+      if (template.isPending) return;
+      if (template.data) setDesign(templateToDesign(template.data));
+      setHydrated(true);
+      return;
+    }
+    if (medida) {
+      const size = parseSizeParam(medida);
+      if (size) setDesign((d) => ({ ...d, ...size, base_product_id: null }));
       setHydrated(true);
       return;
     }
