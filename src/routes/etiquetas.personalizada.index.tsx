@@ -11,7 +11,7 @@ const TITLE = "Etiqueta personalizada online — crie, salve e receba | Adeconex
 const DESCRIPTION =
   "Monte sua etiqueta personalizada no editor online da Adeconex: texto, logo, código de barras e QR Code. Escolha material e cor do ribbon, calcule o frete e receba impresso.";
 
-export const Route = createFileRoute("/etiquetas/personalizada")({
+export const Route = createFileRoute("/etiquetas/personalizada/")({
   head: () => ({
     meta: [
       { title: TITLE },

@@ -158,7 +158,7 @@ function EditorPage() {
     }
     setDraft(readDraft());
     setHydrated(true);
-  }, [designId, produto, designs.data, baseProduct.data, baseProduct.isPending, hydrated, loadSaved]);
+  }, [designId, produto, modelo, medida, template.data, template.isPending, designs.data, baseProduct.data, baseProduct.isPending, hydrated, loadSaved]);
 
   // Rascunho automático no navegador (não perde a arte ao fechar a aba)
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
