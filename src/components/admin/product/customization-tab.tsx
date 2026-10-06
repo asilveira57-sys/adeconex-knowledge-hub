@@ -8,6 +8,7 @@ import { updateProductCustomization } from "@/lib/admin.product.functions";
 import { Field, SelectField, TextAreaField, nullable, parseInt0, parseNum, str, useInvalidateProduct } from "./fields";
 import { LabelMockup } from "@/components/labels/label-mockup";
 import { emptyDesign, type LabelShape, type ProductLabelSpec } from "@/lib/labels/shared";
+import { selectedShape, storedShape, updateShapeFields } from "./customization-shape";
 
 export function CustomizationTab({ product }: { product: any }) {
   const save = useServerFn(updateProductCustomization);
@@ -15,7 +16,7 @@ export function CustomizationTab({ product }: { product: any }) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     is_customizable: !!product.is_customizable,
-    custom_shape: str(product.custom_shape) || "rect",
+    custom_shape: selectedShape(str(product.custom_shape) || "rect", product.custom_width_mm, product.custom_height_mm),
     custom_width_mm: str(product.custom_width_mm),
     custom_height_mm: str(product.custom_height_mm),
     custom_corner_radius_mm: str(product.custom_corner_radius_mm),
@@ -29,13 +30,18 @@ export function CustomizationTab({ product }: { product: any }) {
   });
 
   const set = (k: keyof typeof form, v: string | boolean) =>
-    setForm((s) => ({ ...s, [k]: v as never }));
+    setForm((s) => {
+      if (typeof v === "string" && (k === "custom_shape" || k === "custom_width_mm" || k === "custom_height_mm")) {
+        return updateShapeFields(s, k, v);
+      }
+      return { ...s, [k]: v };
+    });
 
   const spec: ProductLabelSpec = {
     id: product.id,
     name: product.name,
     slug: product.slug,
-    shape: (form.custom_shape as LabelShape) ?? "rect",
+    shape: storedShape(form.custom_shape) as LabelShape,
     width_mm: parseNum(form.custom_width_mm) ?? 100,
     height_mm: parseNum(form.custom_height_mm) ?? 50,
     corner_radius_mm: parseNum(form.custom_corner_radius_mm),
@@ -63,7 +69,7 @@ export function CustomizationTab({ product }: { product: any }) {
         data: {
           productId: product.id,
           is_customizable: form.is_customizable,
-          custom_shape: form.custom_shape as LabelShape,
+          custom_shape: storedShape(form.custom_shape) as LabelShape,
           custom_width_mm: parseNum(form.custom_width_mm),
           custom_height_mm: parseNum(form.custom_height_mm),
           custom_corner_radius_mm: parseNum(form.custom_corner_radius_mm),
@@ -121,6 +127,7 @@ export function CustomizationTab({ product }: { product: any }) {
                 onChange={(v) => set("custom_shape", v)}
                 options={[
                   { value: "rect", label: "Retangular" },
+                  { value: "square", label: "Quadrado" },
                   { value: "rounded", label: "Cantos arredondados" },
                   { value: "circle", label: "Redonda" },
                   { value: "oval", label: "Oval" },
@@ -138,7 +145,9 @@ export function CustomizationTab({ product }: { product: any }) {
                 value={form.custom_height_mm}
                 onChange={(v) => set("custom_height_mm", v)}
                 hint={
-                  form.custom_shape === "circle"
+                  form.custom_shape === "square"
+                    ? "Largura e altura iguais."
+                    : form.custom_shape === "circle"
                     ? "Para etiqueta redonda use altura igual à largura (diâmetro)."
                     : undefined
                 }
