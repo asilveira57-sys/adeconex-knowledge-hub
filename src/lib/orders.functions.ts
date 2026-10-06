@@ -132,7 +132,19 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     const { data: rows, count, error } = await q;
     if (error) throw new Error(error.message);
 
-    // Buscar nome/email dos clientes em lote
+    // Nome do cliente: perfil do usuário; se vazio, usa o destinatário do endereço de entrega
+    const orderIds = (rows ?? []).map((r: any) => r.id);
+    let recipients: Record<string, string> = {};
+    if (orderIds.length) {
+      const { data: addrs } = await context.supabase
+        .from("order_addresses")
+        .select("order_id, recipient_name")
+        .in("order_id", orderIds);
+      recipients = Object.fromEntries(
+        (addrs ?? []).map((a: any) => [a.order_id, a.recipient_name]),
+      );
+    }
+
     const userIds = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
     let profiles: Record<string, { full_name: string | null }> = {};
     if (userIds.length) {
@@ -142,8 +154,13 @@ export const listAdminOrders = createServerFn({ method: "GET" })
         .in("id", userIds);
       profiles = Object.fromEntries((profs ?? []).map((p: any) => [p.id, { full_name: p.full_name }]));
     }
+
     return {
-      rows: (rows ?? []).map((r: any) => ({ ...r, customer_name: profiles[r.user_id]?.full_name ?? null })),
+      rows: (rows ?? []).map((r: any) => ({
+        ...r,
+        customer_name:
+          profiles[r.user_id]?.full_name?.trim() || recipients[r.id]?.trim() || null,
+      })),
       total: count ?? 0,
     };
   });

@@ -9,176 +9,87 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as RibbonRouteImport } from './routes/ribbon'
-import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
-import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
-import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
-import { Route as FerramentasRouteImport } from './routes/ferramentas'
-import { Route as EmpresaRouteImport } from './routes/empresa'
-import { Route as ContatoRouteImport } from './routes/contato'
-import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
-import { Route as CatalogoRouteImport } from './routes/catalogo'
-import { Route as CarrinhoRouteImport } from './routes/carrinho'
-import { Route as BrindesRouteImport } from './routes/brindes'
-import { Route as BoppRouteImport } from './routes/bopp'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as B2bRouteImport } from './routes/b2b'
-import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
-import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
-import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
-import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
-import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
-import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
-import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
-import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
-import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
-import { Route as FerramentasPlanejadorDeFolhaRouteImport } from './routes/ferramentas.planejador-de-folha'
-import { Route as FerramentasPlanejadorDeBobinaRouteImport } from './routes/ferramentas.planejador-de-bobina'
-import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
-import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
-import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
-import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
-import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
-import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
-import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
+import { Route as SplatRouteImport } from './routes/$'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
+import { Route as B2bRouteImport } from './routes/b2b'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as BoppRouteImport } from './routes/bopp'
+import { Route as BrindesRouteImport } from './routes/brindes'
+import { Route as CarrinhoRouteImport } from './routes/carrinho'
+import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
+import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as FerramentasRouteImport } from './routes/ferramentas'
+import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
+import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as RibbonRouteImport } from './routes/ribbon'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
-import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
-import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
-import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
+import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
+import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
+import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
+import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
+import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
+import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
+import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
+import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
+import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
+import { Route as FerramentasPlanejadorDeBobinaRouteImport } from './routes/ferramentas.planejador-de-bobina'
+import { Route as FerramentasPlanejadorDeFolhaRouteImport } from './routes/ferramentas.planejador-de-folha'
+import { Route as FitaDeCetimIndexRouteImport } from './routes/fita-de-cetim.index'
+import { Route as FitaDeCetimImpressoraParaCetimRouteImport } from './routes/fita-de-cetim.impressora-para-cetim'
+import { Route as PagamentoAprovadoRouteImport } from './routes/pagamento.aprovado'
+import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
+import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusado'
+import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
-import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
-import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
-import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
-import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
-import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
-import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
-import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
-import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
-import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
-import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
-import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
-import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated.admin.downloads'
-import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
-import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
-import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
-import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
-import { Route as AuthenticatedAdminEtiquetasIndexRouteImport } from './routes/_authenticated.admin.etiquetas.index'
-import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
+import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
+import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated.admin.downloads'
+import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
+import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
+import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
+import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
+import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
+import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_authenticated.checkout.pagamento'
+import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
+import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
+import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
+import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
+import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
+import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
+import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
+import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
-import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
-import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
-import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
-import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_authenticated.admin.seo.paginas'
-import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_authenticated.admin.seo.integracoes'
-import { Route as AuthenticatedAdminSeoConfiguracoesRouteImport } from './routes/_authenticated.admin.seo.configuracoes'
-import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
-import { Route as AuthenticatedAdminPedidosIdRouteImport } from './routes/_authenticated.admin.pedidos.$id'
-import { Route as AuthenticatedAdminEtiquetasIdRouteImport } from './routes/_authenticated.admin.etiquetas.$id'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
+import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
+import { Route as AuthenticatedAdminEtiquetasIndexRouteImport } from './routes/_authenticated.admin.etiquetas.index'
+import { Route as AuthenticatedAdminEtiquetasIdRouteImport } from './routes/_authenticated.admin.etiquetas.$id'
+import { Route as AuthenticatedAdminPedidosIndexRouteImport } from './routes/_authenticated.admin.pedidos.index'
+import { Route as AuthenticatedAdminPedidosIdRouteImport } from './routes/_authenticated.admin.pedidos.$id'
+import { Route as AuthenticatedAdminProdutosIndexRouteImport } from './routes/_authenticated.admin.produtos.index'
+import { Route as AuthenticatedAdminProdutosIdRouteImport } from './routes/_authenticated.admin.produtos.$id'
+import { Route as AuthenticatedAdminSeoIndexRouteImport } from './routes/_authenticated.admin.seo.index'
+import { Route as AuthenticatedAdminSeoConfiguracoesRouteImport } from './routes/_authenticated.admin.seo.configuracoes'
+import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_authenticated.admin.seo.integracoes'
+import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_authenticated.admin.seo.paginas'
+import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
+import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
+import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RibbonRoute = RibbonRouteImport.update({
-  id: '/ribbon',
-  path: '/ribbon',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
-  id: '/redefinir-senha',
-  path: '/redefinir-senha',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GeradorQrcodeRoute = GeradorQrcodeRouteImport.update({
-  id: '/gerador-qrcode',
-  path: '/gerador-qrcode',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FitaDeCetimRoute = FitaDeCetimRouteImport.update({
-  id: '/fita-de-cetim',
-  path: '/fita-de-cetim',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FerramentasRoute = FerramentasRouteImport.update({
-  id: '/ferramentas',
-  path: '/ferramentas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmpresaRoute = EmpresaRouteImport.update({
-  id: '/empresa',
-  path: '/empresa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContatoRoute = ContatoRouteImport.update({
-  id: '/contato',
-  path: '/contato',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConhecimentoRoute = ConhecimentoRouteImport.update({
-  id: '/conhecimento',
-  path: '/conhecimento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CatalogoRoute = CatalogoRouteImport.update({
-  id: '/catalogo',
-  path: '/catalogo',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CarrinhoRoute = CarrinhoRouteImport.update({
-  id: '/carrinho',
-  path: '/carrinho',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BrindesRoute = BrindesRouteImport.update({
-  id: '/brindes',
-  path: '/brindes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BoppRoute = BoppRouteImport.update({
-  id: '/bopp',
-  path: '/bopp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const B2bRoute = B2bRouteImport.update({
-  id: '/b2b',
-  path: '/b2b',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AvaliacoesRoute = AvaliacoesRouteImport.update({
-  id: '/avaliacoes',
-  path: '/avaliacoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SplatRoute = SplatRouteImport.update({
@@ -186,115 +97,103 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FitaDeCetimIndexRoute = FitaDeCetimIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FitaDeCetimRoute,
-} as any)
-const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => FerramentasRoute,
-} as any)
-const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
-  id: '/downloads/',
-  path: '/downloads/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BrindesIndexRoute = BrindesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BrindesRoute,
-} as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BlogRoute,
-} as any)
-const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
-  id: '/produto/$slug',
-  path: '/produto/$slug',
+const AvaliacoesRoute = AvaliacoesRouteImport.update({
+  id: '/avaliacoes',
+  path: '/avaliacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PagamentoRecusadoRoute = PagamentoRecusadoRouteImport.update({
-  id: '/pagamento/recusado',
-  path: '/pagamento/recusado',
+const B2bRoute = B2bRouteImport.update({
+  id: '/b2b',
+  path: '/b2b',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
-  id: '/pagamento/pendente',
-  path: '/pagamento/pendente',
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PagamentoAprovadoRoute = PagamentoAprovadoRouteImport.update({
-  id: '/pagamento/aprovado',
-  path: '/pagamento/aprovado',
+const BoppRoute = BoppRouteImport.update({
+  id: '/bopp',
+  path: '/bopp',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FitaDeCetimImpressoraParaCetimRoute =
-  FitaDeCetimImpressoraParaCetimRouteImport.update({
-    id: '/impressora-para-cetim',
-    path: '/impressora-para-cetim',
-    getParentRoute: () => FitaDeCetimRoute,
-  } as any)
-const FerramentasPlanejadorDeFolhaRoute =
-  FerramentasPlanejadorDeFolhaRouteImport.update({
-    id: '/planejador-de-folha',
-    path: '/planejador-de-folha',
-    getParentRoute: () => FerramentasRoute,
-  } as any)
-const FerramentasPlanejadorDeBobinaRoute =
-  FerramentasPlanejadorDeBobinaRouteImport.update({
-    id: '/planejador-de-bobina',
-    path: '/planejador-de-bobina',
-    getParentRoute: () => FerramentasRoute,
-  } as any)
-const FerramentasGeradorZplRoute = FerramentasGeradorZplRouteImport.update({
-  id: '/gerador-zpl',
-  path: '/gerador-zpl',
-  getParentRoute: () => FerramentasRoute,
-} as any)
-const FerramentasGeradorDeCodigoDeBarrasRoute =
-  FerramentasGeradorDeCodigoDeBarrasRouteImport.update({
-    id: '/gerador-de-codigo-de-barras',
-    path: '/gerador-de-codigo-de-barras',
-    getParentRoute: () => FerramentasRoute,
-  } as any)
-const FerramentasConversorDeMedidasRoute =
-  FerramentasConversorDeMedidasRouteImport.update({
-    id: '/conversor-de-medidas',
-    path: '/conversor-de-medidas',
-    getParentRoute: () => FerramentasRoute,
-  } as any)
-const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
-  id: '/etiquetas/preco',
-  path: '/etiquetas/preco',
+const BrindesRoute = BrindesRouteImport.update({
+  id: '/brindes',
+  path: '/brindes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
-  id: '/downloads/$slug',
-  path: '/downloads/$slug',
+const CarrinhoRoute = CarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BrindesAgendaPersonalizadaRoute =
-  BrindesAgendaPersonalizadaRouteImport.update({
-    id: '/agenda-personalizada',
-    path: '/agenda-personalizada',
-    getParentRoute: () => BrindesRoute,
-  } as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
+const CatalogoRoute = CatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
-  id: '/minha-conta',
-  path: '/minha-conta',
+const ConhecimentoRoute = ConhecimentoRouteImport.update({
+  id: '/conhecimento',
+  path: '/conhecimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FerramentasRoute = FerramentasRouteImport.update({
+  id: '/ferramentas',
+  path: '/ferramentas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FitaDeCetimRoute = FitaDeCetimRouteImport.update({
+  id: '/fita-de-cetim',
+  path: '/fita-de-cetim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GeradorQrcodeRoute = GeradorQrcodeRouteImport.update({
+  id: '/gerador-qrcode',
+  path: '/gerador-qrcode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RibbonRoute = RibbonRouteImport.update({
+  id: '/ribbon',
+  path: '/ribbon',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
@@ -302,96 +201,126 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
+  id: '/minha-conta',
+  path: '/minha-conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const FerramentasGeradorDeCodigoDeBarrasIndexRoute =
-  FerramentasGeradorDeCodigoDeBarrasIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BrindesIndexRoute = BrindesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BrindesRoute,
+} as any)
+const BrindesAgendaPersonalizadaRoute =
+  BrindesAgendaPersonalizadaRouteImport.update({
+    id: '/agenda-personalizada',
+    path: '/agenda-personalizada',
+    getParentRoute: () => BrindesRoute,
   } as any)
-const EtiquetasPersonalizadaIndexRoute =
-  EtiquetasPersonalizadaIndexRouteImport.update({
-    id: '/etiquetas/personalizada/',
-    path: '/etiquetas/personalizada/',
-    getParentRoute: () => rootRouteImport,
+const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
+  id: '/downloads/',
+  path: '/downloads/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsSlugRoute = DownloadsSlugRouteImport.update({
+  id: '/downloads/$slug',
+  path: '/downloads/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EtiquetasPrecoRoute = EtiquetasPrecoRouteImport.update({
+  id: '/etiquetas/preco',
+  path: '/etiquetas/preco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FerramentasRoute,
+} as any)
+const FerramentasConversorDeMedidasRoute =
+  FerramentasConversorDeMedidasRouteImport.update({
+    id: '/conversor-de-medidas',
+    path: '/conversor-de-medidas',
+    getParentRoute: () => FerramentasRoute,
   } as any)
-const AuthenticatedCheckoutIndexRoute =
-  AuthenticatedCheckoutIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
+const FerramentasGeradorDeCodigoDeBarrasRoute =
+  FerramentasGeradorDeCodigoDeBarrasRouteImport.update({
+    id: '/gerador-de-codigo-de-barras',
+    path: '/gerador-de-codigo-de-barras',
+    getParentRoute: () => FerramentasRoute,
   } as any)
+const FerramentasGeradorZplRoute = FerramentasGeradorZplRouteImport.update({
+  id: '/gerador-zpl',
+  path: '/gerador-zpl',
+  getParentRoute: () => FerramentasRoute,
+} as any)
+const FerramentasPlanejadorDeBobinaRoute =
+  FerramentasPlanejadorDeBobinaRouteImport.update({
+    id: '/planejador-de-bobina',
+    path: '/planejador-de-bobina',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
+const FerramentasPlanejadorDeFolhaRoute =
+  FerramentasPlanejadorDeFolhaRouteImport.update({
+    id: '/planejador-de-folha',
+    path: '/planejador-de-folha',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
+const FitaDeCetimIndexRoute = FitaDeCetimIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => FitaDeCetimRoute,
+} as any)
+const FitaDeCetimImpressoraParaCetimRoute =
+  FitaDeCetimImpressoraParaCetimRouteImport.update({
+    id: '/impressora-para-cetim',
+    path: '/impressora-para-cetim',
+    getParentRoute: () => FitaDeCetimRoute,
+  } as any)
+const PagamentoAprovadoRoute = PagamentoAprovadoRouteImport.update({
+  id: '/pagamento/aprovado',
+  path: '/pagamento/aprovado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
+  id: '/pagamento/pendente',
+  path: '/pagamento/pendente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoRecusadoRoute = PagamentoRecusadoRouteImport.update({
+  id: '/pagamento/recusado',
+  path: '/pagamento/recusado',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProdutoSlugRoute = ProdutoSlugRouteImport.update({
+  id: '/produto/$slug',
+  path: '/produto/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
-  FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport.update({
-    id: '/$padrao',
-    path: '/$padrao',
-    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
-  } as any)
-const EtiquetasPersonalizadaTipoRoute =
-  EtiquetasPersonalizadaTipoRouteImport.update({
-    id: '/etiquetas/personalizada/$tipo',
-    path: '/etiquetas/personalizada/$tipo',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
-  id: '/filtro/$hub',
-  path: '/filtro/$hub',
-  getParentRoute: () => BlogRoute,
+const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
+  id: '/artes',
+  path: '/artes',
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
-  id: '/pedido/$id',
-  path: '/pedido/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedEtiquetasEditorRoute =
-  AuthenticatedEtiquetasEditorRouteImport.update({
-    id: '/etiquetas/editor',
-    path: '/etiquetas/editor',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedCheckoutRevisaoRoute =
-  AuthenticatedCheckoutRevisaoRouteImport.update({
-    id: '/revisao',
-    path: '/revisao',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
-const AuthenticatedCheckoutPagamentoRoute =
-  AuthenticatedCheckoutPagamentoRouteImport.update({
-    id: '/pagamento',
-    path: '/pagamento',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
-const AuthenticatedCheckoutFreteRoute =
-  AuthenticatedCheckoutFreteRouteImport.update({
-    id: '/frete',
-    path: '/frete',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
-const AuthenticatedCheckoutEnderecoRoute =
-  AuthenticatedCheckoutEnderecoRouteImport.update({
-    id: '/endereco',
-    path: '/endereco',
-    getParentRoute: () => AuthenticatedCheckoutRoute,
-  } as any)
-const AuthenticatedAdminImportacaoRoute =
-  AuthenticatedAdminImportacaoRouteImport.update({
-    id: '/importacao',
-    path: '/importacao',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminEnriquecimentoRoute =
-  AuthenticatedAdminEnriquecimentoRouteImport.update({
-    id: '/enriquecimento',
-    path: '/enriquecimento',
+const AuthenticatedAdminColaboradoresRoute =
+  AuthenticatedAdminColaboradoresRouteImport.update({
+    id: '/colaboradores',
+    path: '/colaboradores',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminDownloadsRoute =
@@ -400,39 +329,98 @@ const AuthenticatedAdminDownloadsRoute =
     path: '/downloads',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminColaboradoresRoute =
-  AuthenticatedAdminColaboradoresRouteImport.update({
-    id: '/colaboradores',
-    path: '/colaboradores',
+const AuthenticatedAdminEnriquecimentoRoute =
+  AuthenticatedAdminEnriquecimentoRouteImport.update({
+    id: '/enriquecimento',
+    path: '/enriquecimento',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
-  id: '/artes',
-  path: '/artes',
-  getParentRoute: () => AuthenticatedAdminRoute,
+const AuthenticatedAdminImportacaoRoute =
+  AuthenticatedAdminImportacaoRouteImport.update({
+    id: '/importacao',
+    path: '/importacao',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedCheckoutIndexRoute =
+  AuthenticatedCheckoutIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutEnderecoRoute =
+  AuthenticatedCheckoutEnderecoRouteImport.update({
+    id: '/endereco',
+    path: '/endereco',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutFreteRoute =
+  AuthenticatedCheckoutFreteRouteImport.update({
+    id: '/frete',
+    path: '/frete',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutPagamentoRoute =
+  AuthenticatedCheckoutPagamentoRouteImport.update({
+    id: '/pagamento',
+    path: '/pagamento',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedCheckoutRevisaoRoute =
+  AuthenticatedCheckoutRevisaoRouteImport.update({
+    id: '/revisao',
+    path: '/revisao',
+    getParentRoute: () => AuthenticatedCheckoutRoute,
+  } as any)
+const AuthenticatedEtiquetasEditorRoute =
+  AuthenticatedEtiquetasEditorRouteImport.update({
+    id: '/etiquetas/editor',
+    path: '/etiquetas/editor',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
+  id: '/pedido/$id',
+  path: '/pedido/$id',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminSeoIndexRoute =
-  AuthenticatedAdminSeoIndexRouteImport.update({
-    id: '/seo/',
-    path: '/seo/',
+const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
+  id: '/filtro/$hub',
+  path: '/filtro/$hub',
+  getParentRoute: () => BlogRoute,
+} as any)
+const EtiquetasPersonalizadaIndexRoute =
+  EtiquetasPersonalizadaIndexRouteImport.update({
+    id: '/etiquetas/personalizada/',
+    path: '/etiquetas/personalizada/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const EtiquetasPersonalizadaTipoRoute =
+  EtiquetasPersonalizadaTipoRouteImport.update({
+    id: '/etiquetas/personalizada/$tipo',
+    path: '/etiquetas/personalizada/$tipo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FerramentasGeradorDeCodigoDeBarrasIndexRoute =
+  FerramentasGeradorDeCodigoDeBarrasIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
+const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
+  FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport.update({
+    id: '/$padrao',
+    path: '/$padrao',
+    getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
+const AuthenticatedAdminClientesIndexRoute =
+  AuthenticatedAdminClientesIndexRouteImport.update({
+    id: '/clientes/',
+    path: '/clientes/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminProdutosIndexRoute =
-  AuthenticatedAdminProdutosIndexRouteImport.update({
-    id: '/produtos/',
-    path: '/produtos/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPedidosIndexRoute =
-  AuthenticatedAdminPedidosIndexRouteImport.update({
-    id: '/pedidos/',
-    path: '/pedidos/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminEtiquetasIndexRoute =
-  AuthenticatedAdminEtiquetasIndexRouteImport.update({
-    id: '/etiquetas/',
-    path: '/etiquetas/',
+const AuthenticatedAdminClientesIdRoute =
+  AuthenticatedAdminClientesIdRouteImport.update({
+    id: '/clientes/$id',
+    path: '/clientes/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminCuponsIndexRoute =
@@ -441,58 +429,10 @@ const AuthenticatedAdminCuponsIndexRoute =
     path: '/cupons/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminClientesIndexRoute =
-  AuthenticatedAdminClientesIndexRouteImport.update({
-    id: '/clientes/',
-    path: '/clientes/',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const ApiPublicWebhooksMercadopagoRoute =
-  ApiPublicWebhooksMercadopagoRouteImport.update({
-    id: '/api/public/webhooks/mercadopago',
-    path: '/api/public/webhooks/mercadopago',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthenticatedAdminSeoTecnicoRoute =
-  AuthenticatedAdminSeoTecnicoRouteImport.update({
-    id: '/seo/tecnico',
-    path: '/seo/tecnico',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSeoRedirecionamentosRoute =
-  AuthenticatedAdminSeoRedirecionamentosRouteImport.update({
-    id: '/seo/redirecionamentos',
-    path: '/seo/redirecionamentos',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSeoPaginasRoute =
-  AuthenticatedAdminSeoPaginasRouteImport.update({
-    id: '/seo/paginas',
-    path: '/seo/paginas',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSeoIntegracoesRoute =
-  AuthenticatedAdminSeoIntegracoesRouteImport.update({
-    id: '/seo/integracoes',
-    path: '/seo/integracoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminSeoConfiguracoesRoute =
-  AuthenticatedAdminSeoConfiguracoesRouteImport.update({
-    id: '/seo/configuracoes',
-    path: '/seo/configuracoes',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminProdutosIdRoute =
-  AuthenticatedAdminProdutosIdRouteImport.update({
-    id: '/produtos/$id',
-    path: '/produtos/$id',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminPedidosIdRoute =
-  AuthenticatedAdminPedidosIdRouteImport.update({
-    id: '/pedidos/$id',
-    path: '/pedidos/$id',
+const AuthenticatedAdminEtiquetasIndexRoute =
+  AuthenticatedAdminEtiquetasIndexRouteImport.update({
+    id: '/etiquetas/',
+    path: '/etiquetas/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminEtiquetasIdRoute =
@@ -501,11 +441,71 @@ const AuthenticatedAdminEtiquetasIdRoute =
     path: '/etiquetas/$id',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminClientesIdRoute =
-  AuthenticatedAdminClientesIdRouteImport.update({
-    id: '/clientes/$id',
-    path: '/clientes/$id',
+const AuthenticatedAdminPedidosIndexRoute =
+  AuthenticatedAdminPedidosIndexRouteImport.update({
+    id: '/pedidos/',
+    path: '/pedidos/',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPedidosIdRoute =
+  AuthenticatedAdminPedidosIdRouteImport.update({
+    id: '/pedidos/$id',
+    path: '/pedidos/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosIndexRoute =
+  AuthenticatedAdminProdutosIndexRouteImport.update({
+    id: '/produtos/',
+    path: '/produtos/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminProdutosIdRoute =
+  AuthenticatedAdminProdutosIdRouteImport.update({
+    id: '/produtos/$id',
+    path: '/produtos/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoIndexRoute =
+  AuthenticatedAdminSeoIndexRouteImport.update({
+    id: '/seo/',
+    path: '/seo/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoConfiguracoesRoute =
+  AuthenticatedAdminSeoConfiguracoesRouteImport.update({
+    id: '/seo/configuracoes',
+    path: '/seo/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoIntegracoesRoute =
+  AuthenticatedAdminSeoIntegracoesRouteImport.update({
+    id: '/seo/integracoes',
+    path: '/seo/integracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoPaginasRoute =
+  AuthenticatedAdminSeoPaginasRouteImport.update({
+    id: '/seo/paginas',
+    path: '/seo/paginas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoRedirecionamentosRoute =
+  AuthenticatedAdminSeoRedirecionamentosRouteImport.update({
+    id: '/seo/redirecionamentos',
+    path: '/seo/redirecionamentos',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSeoTecnicoRoute =
+  AuthenticatedAdminSeoTecnicoRouteImport.update({
+    id: '/seo/tecnico',
+    path: '/seo/tecnico',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const ApiPublicWebhooksMercadopagoRoute =
+  ApiPublicWebhooksMercadopagoRouteImport.update({
+    id: '/api/public/webhooks/mercadopago',
+    path: '/api/public/webhooks/mercadopago',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1004,137 +1004,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ribbon': {
-      id: '/ribbon'
-      path: '/ribbon'
-      fullPath: '/ribbon'
-      preLoaderRoute: typeof RibbonRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/redefinir-senha': {
-      id: '/redefinir-senha'
-      path: '/redefinir-senha'
-      fullPath: '/redefinir-senha'
-      preLoaderRoute: typeof RedefinirSenhaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/gerador-qrcode': {
-      id: '/gerador-qrcode'
-      path: '/gerador-qrcode'
-      fullPath: '/gerador-qrcode'
-      preLoaderRoute: typeof GeradorQrcodeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fita-de-cetim': {
-      id: '/fita-de-cetim'
-      path: '/fita-de-cetim'
-      fullPath: '/fita-de-cetim'
-      preLoaderRoute: typeof FitaDeCetimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ferramentas': {
-      id: '/ferramentas'
-      path: '/ferramentas'
-      fullPath: '/ferramentas'
-      preLoaderRoute: typeof FerramentasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/empresa': {
-      id: '/empresa'
-      path: '/empresa'
-      fullPath: '/empresa'
-      preLoaderRoute: typeof EmpresaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contato': {
-      id: '/contato'
-      path: '/contato'
-      fullPath: '/contato'
-      preLoaderRoute: typeof ContatoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/conhecimento': {
-      id: '/conhecimento'
-      path: '/conhecimento'
-      fullPath: '/conhecimento'
-      preLoaderRoute: typeof ConhecimentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/catalogo': {
-      id: '/catalogo'
-      path: '/catalogo'
-      fullPath: '/catalogo'
-      preLoaderRoute: typeof CatalogoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/carrinho': {
-      id: '/carrinho'
-      path: '/carrinho'
-      fullPath: '/carrinho'
-      preLoaderRoute: typeof CarrinhoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/brindes': {
-      id: '/brindes'
-      path: '/brindes'
-      fullPath: '/brindes'
-      preLoaderRoute: typeof BrindesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/bopp': {
-      id: '/bopp'
-      path: '/bopp'
-      fullPath: '/bopp'
-      preLoaderRoute: typeof BoppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/b2b': {
-      id: '/b2b'
-      path: '/b2b'
-      fullPath: '/b2b'
-      preLoaderRoute: typeof B2bRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/avaliacoes': {
-      id: '/avaliacoes'
-      path: '/avaliacoes'
-      fullPath: '/avaliacoes'
-      preLoaderRoute: typeof AvaliacoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
+    '/': {
+      id: '/'
+      path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$': {
@@ -1144,151 +1018,144 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/fita-de-cetim/': {
-      id: '/fita-de-cetim/'
-      path: '/'
-      fullPath: '/fita-de-cetim/'
-      preLoaderRoute: typeof FitaDeCetimIndexRouteImport
-      parentRoute: typeof FitaDeCetimRoute
-    }
-    '/ferramentas/': {
-      id: '/ferramentas/'
-      path: '/'
-      fullPath: '/ferramentas/'
-      preLoaderRoute: typeof FerramentasIndexRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/downloads/': {
-      id: '/downloads/'
-      path: '/downloads'
-      fullPath: '/downloads/'
-      preLoaderRoute: typeof DownloadsIndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/brindes/': {
-      id: '/brindes/'
-      path: '/'
-      fullPath: '/brindes/'
-      preLoaderRoute: typeof BrindesIndexRouteImport
-      parentRoute: typeof BrindesRoute
-    }
-    '/blog/': {
-      id: '/blog/'
-      path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/produto/$slug': {
-      id: '/produto/$slug'
-      path: '/produto/$slug'
-      fullPath: '/produto/$slug'
-      preLoaderRoute: typeof ProdutoSlugRouteImport
+    '/avaliacoes': {
+      id: '/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/avaliacoes'
+      preLoaderRoute: typeof AvaliacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pagamento/recusado': {
-      id: '/pagamento/recusado'
-      path: '/pagamento/recusado'
-      fullPath: '/pagamento/recusado'
-      preLoaderRoute: typeof PagamentoRecusadoRouteImport
+    '/b2b': {
+      id: '/b2b'
+      path: '/b2b'
+      fullPath: '/b2b'
+      preLoaderRoute: typeof B2bRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pagamento/pendente': {
-      id: '/pagamento/pendente'
-      path: '/pagamento/pendente'
-      fullPath: '/pagamento/pendente'
-      preLoaderRoute: typeof PagamentoPendenteRouteImport
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pagamento/aprovado': {
-      id: '/pagamento/aprovado'
-      path: '/pagamento/aprovado'
-      fullPath: '/pagamento/aprovado'
-      preLoaderRoute: typeof PagamentoAprovadoRouteImport
+    '/bopp': {
+      id: '/bopp'
+      path: '/bopp'
+      fullPath: '/bopp'
+      preLoaderRoute: typeof BoppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/fita-de-cetim/impressora-para-cetim': {
-      id: '/fita-de-cetim/impressora-para-cetim'
-      path: '/impressora-para-cetim'
-      fullPath: '/fita-de-cetim/impressora-para-cetim'
-      preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
-      parentRoute: typeof FitaDeCetimRoute
-    }
-    '/ferramentas/planejador-de-folha': {
-      id: '/ferramentas/planejador-de-folha'
-      path: '/planejador-de-folha'
-      fullPath: '/ferramentas/planejador-de-folha'
-      preLoaderRoute: typeof FerramentasPlanejadorDeFolhaRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/ferramentas/planejador-de-bobina': {
-      id: '/ferramentas/planejador-de-bobina'
-      path: '/planejador-de-bobina'
-      fullPath: '/ferramentas/planejador-de-bobina'
-      preLoaderRoute: typeof FerramentasPlanejadorDeBobinaRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/ferramentas/gerador-zpl': {
-      id: '/ferramentas/gerador-zpl'
-      path: '/gerador-zpl'
-      fullPath: '/ferramentas/gerador-zpl'
-      preLoaderRoute: typeof FerramentasGeradorZplRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/ferramentas/gerador-de-codigo-de-barras': {
-      id: '/ferramentas/gerador-de-codigo-de-barras'
-      path: '/gerador-de-codigo-de-barras'
-      fullPath: '/ferramentas/gerador-de-codigo-de-barras'
-      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/ferramentas/conversor-de-medidas': {
-      id: '/ferramentas/conversor-de-medidas'
-      path: '/conversor-de-medidas'
-      fullPath: '/ferramentas/conversor-de-medidas'
-      preLoaderRoute: typeof FerramentasConversorDeMedidasRouteImport
-      parentRoute: typeof FerramentasRoute
-    }
-    '/etiquetas/preco': {
-      id: '/etiquetas/preco'
-      path: '/etiquetas/preco'
-      fullPath: '/etiquetas/preco'
-      preLoaderRoute: typeof EtiquetasPrecoRouteImport
+    '/brindes': {
+      id: '/brindes'
+      path: '/brindes'
+      fullPath: '/brindes'
+      preLoaderRoute: typeof BrindesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/downloads/$slug': {
-      id: '/downloads/$slug'
-      path: '/downloads/$slug'
-      fullPath: '/downloads/$slug'
-      preLoaderRoute: typeof DownloadsSlugRouteImport
+    '/carrinho': {
+      id: '/carrinho'
+      path: '/carrinho'
+      fullPath: '/carrinho'
+      preLoaderRoute: typeof CarrinhoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/brindes/agenda-personalizada': {
-      id: '/brindes/agenda-personalizada'
-      path: '/agenda-personalizada'
-      fullPath: '/brindes/agenda-personalizada'
-      preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
-      parentRoute: typeof BrindesRoute
+    '/catalogo': {
+      id: '/catalogo'
+      path: '/catalogo'
+      fullPath: '/catalogo'
+      preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
+    '/conhecimento': {
+      id: '/conhecimento'
+      path: '/conhecimento'
+      fullPath: '/conhecimento'
+      preLoaderRoute: typeof ConhecimentoRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/minha-conta': {
-      id: '/_authenticated/minha-conta'
-      path: '/minha-conta'
-      fullPath: '/minha-conta'
-      preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferramentas': {
+      id: '/ferramentas'
+      path: '/ferramentas'
+      fullPath: '/ferramentas'
+      preLoaderRoute: typeof FerramentasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fita-de-cetim': {
+      id: '/fita-de-cetim'
+      path: '/fita-de-cetim'
+      fullPath: '/fita-de-cetim'
+      preLoaderRoute: typeof FitaDeCetimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gerador-qrcode': {
+      id: '/gerador-qrcode'
+      path: '/gerador-qrcode'
+      fullPath: '/gerador-qrcode'
+      preLoaderRoute: typeof GeradorQrcodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ribbon': {
+      id: '/ribbon'
+      path: '/ribbon'
+      fullPath: '/ribbon'
+      preLoaderRoute: typeof RibbonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/checkout': {
@@ -1298,130 +1165,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/minha-conta': {
+      id: '/_authenticated/minha-conta'
+      path: '/minha-conta'
+      fullPath: '/minha-conta'
+      preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/ferramentas/gerador-de-codigo-de-barras/': {
-      id: '/ferramentas/gerador-de-codigo-de-barras/'
+    '/blog/': {
+      id: '/blog/'
       path: '/'
-      fullPath: '/ferramentas/gerador-de-codigo-de-barras/'
-      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRouteImport
-      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
-    '/etiquetas/personalizada/': {
-      id: '/etiquetas/personalizada/'
-      path: '/etiquetas/personalizada'
-      fullPath: '/etiquetas/personalizada/'
-      preLoaderRoute: typeof EtiquetasPersonalizadaIndexRouteImport
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/brindes/': {
+      id: '/brindes/'
+      path: '/'
+      fullPath: '/brindes/'
+      preLoaderRoute: typeof BrindesIndexRouteImport
+      parentRoute: typeof BrindesRoute
+    }
+    '/brindes/agenda-personalizada': {
+      id: '/brindes/agenda-personalizada'
+      path: '/agenda-personalizada'
+      fullPath: '/brindes/agenda-personalizada'
+      preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
+      parentRoute: typeof BrindesRoute
+    }
+    '/downloads/': {
+      id: '/downloads/'
+      path: '/downloads'
+      fullPath: '/downloads/'
+      preLoaderRoute: typeof DownloadsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/checkout/': {
-      id: '/_authenticated/checkout/'
+    '/downloads/$slug': {
+      id: '/downloads/$slug'
+      path: '/downloads/$slug'
+      fullPath: '/downloads/$slug'
+      preLoaderRoute: typeof DownloadsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiquetas/preco': {
+      id: '/etiquetas/preco'
+      path: '/etiquetas/preco'
+      fullPath: '/etiquetas/preco'
+      preLoaderRoute: typeof EtiquetasPrecoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferramentas/': {
+      id: '/ferramentas/'
       path: '/'
-      fullPath: '/checkout/'
-      preLoaderRoute: typeof AuthenticatedCheckoutIndexRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
+      fullPath: '/ferramentas/'
+      preLoaderRoute: typeof FerramentasIndexRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/conversor-de-medidas': {
+      id: '/ferramentas/conversor-de-medidas'
+      path: '/conversor-de-medidas'
+      fullPath: '/ferramentas/conversor-de-medidas'
+      preLoaderRoute: typeof FerramentasConversorDeMedidasRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/gerador-de-codigo-de-barras': {
+      id: '/ferramentas/gerador-de-codigo-de-barras'
+      path: '/gerador-de-codigo-de-barras'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/gerador-zpl': {
+      id: '/ferramentas/gerador-zpl'
+      path: '/gerador-zpl'
+      fullPath: '/ferramentas/gerador-zpl'
+      preLoaderRoute: typeof FerramentasGeradorZplRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/planejador-de-bobina': {
+      id: '/ferramentas/planejador-de-bobina'
+      path: '/planejador-de-bobina'
+      fullPath: '/ferramentas/planejador-de-bobina'
+      preLoaderRoute: typeof FerramentasPlanejadorDeBobinaRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/planejador-de-folha': {
+      id: '/ferramentas/planejador-de-folha'
+      path: '/planejador-de-folha'
+      fullPath: '/ferramentas/planejador-de-folha'
+      preLoaderRoute: typeof FerramentasPlanejadorDeFolhaRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/fita-de-cetim/': {
+      id: '/fita-de-cetim/'
+      path: '/'
+      fullPath: '/fita-de-cetim/'
+      preLoaderRoute: typeof FitaDeCetimIndexRouteImport
+      parentRoute: typeof FitaDeCetimRoute
+    }
+    '/fita-de-cetim/impressora-para-cetim': {
+      id: '/fita-de-cetim/impressora-para-cetim'
+      path: '/impressora-para-cetim'
+      fullPath: '/fita-de-cetim/impressora-para-cetim'
+      preLoaderRoute: typeof FitaDeCetimImpressoraParaCetimRouteImport
+      parentRoute: typeof FitaDeCetimRoute
+    }
+    '/pagamento/aprovado': {
+      id: '/pagamento/aprovado'
+      path: '/pagamento/aprovado'
+      fullPath: '/pagamento/aprovado'
+      preLoaderRoute: typeof PagamentoAprovadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/pendente': {
+      id: '/pagamento/pendente'
+      path: '/pagamento/pendente'
+      fullPath: '/pagamento/pendente'
+      preLoaderRoute: typeof PagamentoPendenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/recusado': {
+      id: '/pagamento/recusado'
+      path: '/pagamento/recusado'
+      fullPath: '/pagamento/recusado'
+      preLoaderRoute: typeof PagamentoRecusadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/produto/$slug': {
+      id: '/produto/$slug'
+      path: '/produto/$slug'
+      fullPath: '/produto/$slug'
+      preLoaderRoute: typeof ProdutoSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/ferramentas/gerador-de-codigo-de-barras/$padrao': {
-      id: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
-      path: '/$padrao'
-      fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
-      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
-      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
-    }
-    '/etiquetas/personalizada/$tipo': {
-      id: '/etiquetas/personalizada/$tipo'
-      path: '/etiquetas/personalizada/$tipo'
-      fullPath: '/etiquetas/personalizada/$tipo'
-      preLoaderRoute: typeof EtiquetasPersonalizadaTipoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog/filtro/$hub': {
-      id: '/blog/filtro/$hub'
-      path: '/filtro/$hub'
-      fullPath: '/blog/filtro/$hub'
-      preLoaderRoute: typeof BlogFiltroHubRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/_authenticated/pedido/$id': {
-      id: '/_authenticated/pedido/$id'
-      path: '/pedido/$id'
-      fullPath: '/pedido/$id'
-      preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/etiquetas/editor': {
-      id: '/_authenticated/etiquetas/editor'
-      path: '/etiquetas/editor'
-      fullPath: '/etiquetas/editor'
-      preLoaderRoute: typeof AuthenticatedEtiquetasEditorRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/checkout/revisao': {
-      id: '/_authenticated/checkout/revisao'
-      path: '/revisao'
-      fullPath: '/checkout/revisao'
-      preLoaderRoute: typeof AuthenticatedCheckoutRevisaoRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
-    }
-    '/_authenticated/checkout/pagamento': {
-      id: '/_authenticated/checkout/pagamento'
-      path: '/pagamento'
-      fullPath: '/checkout/pagamento'
-      preLoaderRoute: typeof AuthenticatedCheckoutPagamentoRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
-    }
-    '/_authenticated/checkout/frete': {
-      id: '/_authenticated/checkout/frete'
-      path: '/frete'
-      fullPath: '/checkout/frete'
-      preLoaderRoute: typeof AuthenticatedCheckoutFreteRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
-    }
-    '/_authenticated/checkout/endereco': {
-      id: '/_authenticated/checkout/endereco'
-      path: '/endereco'
-      fullPath: '/checkout/endereco'
-      preLoaderRoute: typeof AuthenticatedCheckoutEnderecoRouteImport
-      parentRoute: typeof AuthenticatedCheckoutRoute
-    }
-    '/_authenticated/admin/importacao': {
-      id: '/_authenticated/admin/importacao'
-      path: '/importacao'
-      fullPath: '/admin/importacao'
-      preLoaderRoute: typeof AuthenticatedAdminImportacaoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/enriquecimento': {
-      id: '/_authenticated/admin/enriquecimento'
-      path: '/enriquecimento'
-      fullPath: '/admin/enriquecimento'
-      preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/downloads': {
-      id: '/_authenticated/admin/downloads'
-      path: '/downloads'
-      fullPath: '/admin/downloads'
-      preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/colaboradores': {
-      id: '/_authenticated/admin/colaboradores'
-      path: '/colaboradores'
-      fullPath: '/admin/colaboradores'
-      preLoaderRoute: typeof AuthenticatedAdminColaboradoresRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/artes': {
@@ -1431,32 +1319,130 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminArtesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/seo/': {
-      id: '/_authenticated/admin/seo/'
-      path: '/seo'
-      fullPath: '/admin/seo/'
-      preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
+    '/_authenticated/admin/colaboradores': {
+      id: '/_authenticated/admin/colaboradores'
+      path: '/colaboradores'
+      fullPath: '/admin/colaboradores'
+      preLoaderRoute: typeof AuthenticatedAdminColaboradoresRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/produtos/': {
-      id: '/_authenticated/admin/produtos/'
-      path: '/produtos'
-      fullPath: '/admin/produtos/'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
+    '/_authenticated/admin/downloads': {
+      id: '/_authenticated/admin/downloads'
+      path: '/downloads'
+      fullPath: '/admin/downloads'
+      preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/pedidos/': {
-      id: '/_authenticated/admin/pedidos/'
-      path: '/pedidos'
-      fullPath: '/admin/pedidos/'
-      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
+    '/_authenticated/admin/enriquecimento': {
+      id: '/_authenticated/admin/enriquecimento'
+      path: '/enriquecimento'
+      fullPath: '/admin/enriquecimento'
+      preLoaderRoute: typeof AuthenticatedAdminEnriquecimentoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/etiquetas/': {
-      id: '/_authenticated/admin/etiquetas/'
-      path: '/etiquetas'
-      fullPath: '/admin/etiquetas/'
-      preLoaderRoute: typeof AuthenticatedAdminEtiquetasIndexRouteImport
+    '/_authenticated/admin/importacao': {
+      id: '/_authenticated/admin/importacao'
+      path: '/importacao'
+      fullPath: '/admin/importacao'
+      preLoaderRoute: typeof AuthenticatedAdminImportacaoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/checkout/': {
+      id: '/_authenticated/checkout/'
+      path: '/'
+      fullPath: '/checkout/'
+      preLoaderRoute: typeof AuthenticatedCheckoutIndexRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/endereco': {
+      id: '/_authenticated/checkout/endereco'
+      path: '/endereco'
+      fullPath: '/checkout/endereco'
+      preLoaderRoute: typeof AuthenticatedCheckoutEnderecoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/frete': {
+      id: '/_authenticated/checkout/frete'
+      path: '/frete'
+      fullPath: '/checkout/frete'
+      preLoaderRoute: typeof AuthenticatedCheckoutFreteRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/pagamento': {
+      id: '/_authenticated/checkout/pagamento'
+      path: '/pagamento'
+      fullPath: '/checkout/pagamento'
+      preLoaderRoute: typeof AuthenticatedCheckoutPagamentoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/checkout/revisao': {
+      id: '/_authenticated/checkout/revisao'
+      path: '/revisao'
+      fullPath: '/checkout/revisao'
+      preLoaderRoute: typeof AuthenticatedCheckoutRevisaoRouteImport
+      parentRoute: typeof AuthenticatedCheckoutRoute
+    }
+    '/_authenticated/etiquetas/editor': {
+      id: '/_authenticated/etiquetas/editor'
+      path: '/etiquetas/editor'
+      fullPath: '/etiquetas/editor'
+      preLoaderRoute: typeof AuthenticatedEtiquetasEditorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/pedido/$id': {
+      id: '/_authenticated/pedido/$id'
+      path: '/pedido/$id'
+      fullPath: '/pedido/$id'
+      preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/blog/filtro/$hub': {
+      id: '/blog/filtro/$hub'
+      path: '/filtro/$hub'
+      fullPath: '/blog/filtro/$hub'
+      preLoaderRoute: typeof BlogFiltroHubRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/etiquetas/personalizada/': {
+      id: '/etiquetas/personalizada/'
+      path: '/etiquetas/personalizada'
+      fullPath: '/etiquetas/personalizada/'
+      preLoaderRoute: typeof EtiquetasPersonalizadaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/etiquetas/personalizada/$tipo': {
+      id: '/etiquetas/personalizada/$tipo'
+      path: '/etiquetas/personalizada/$tipo'
+      fullPath: '/etiquetas/personalizada/$tipo'
+      preLoaderRoute: typeof EtiquetasPersonalizadaTipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ferramentas/gerador-de-codigo-de-barras/': {
+      id: '/ferramentas/gerador-de-codigo-de-barras/'
+      path: '/'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras/'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRouteImport
+      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
+    '/ferramentas/gerador-de-codigo-de-barras/$padrao': {
+      id: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      path: '/$padrao'
+      fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
+      preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
+      parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
+    '/_authenticated/admin/clientes/': {
+      id: '/_authenticated/admin/clientes/'
+      path: '/clientes'
+      fullPath: '/admin/clientes/'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes/$id': {
+      id: '/_authenticated/admin/clientes/$id'
+      path: '/clientes/$id'
+      fullPath: '/admin/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/cupons/': {
@@ -1466,67 +1452,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCuponsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/clientes/': {
-      id: '/_authenticated/admin/clientes/'
-      path: '/clientes'
-      fullPath: '/admin/clientes/'
-      preLoaderRoute: typeof AuthenticatedAdminClientesIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/api/public/webhooks/mercadopago': {
-      id: '/api/public/webhooks/mercadopago'
-      path: '/api/public/webhooks/mercadopago'
-      fullPath: '/api/public/webhooks/mercadopago'
-      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/admin/seo/tecnico': {
-      id: '/_authenticated/admin/seo/tecnico'
-      path: '/seo/tecnico'
-      fullPath: '/admin/seo/tecnico'
-      preLoaderRoute: typeof AuthenticatedAdminSeoTecnicoRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/seo/redirecionamentos': {
-      id: '/_authenticated/admin/seo/redirecionamentos'
-      path: '/seo/redirecionamentos'
-      fullPath: '/admin/seo/redirecionamentos'
-      preLoaderRoute: typeof AuthenticatedAdminSeoRedirecionamentosRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/seo/paginas': {
-      id: '/_authenticated/admin/seo/paginas'
-      path: '/seo/paginas'
-      fullPath: '/admin/seo/paginas'
-      preLoaderRoute: typeof AuthenticatedAdminSeoPaginasRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/seo/integracoes': {
-      id: '/_authenticated/admin/seo/integracoes'
-      path: '/seo/integracoes'
-      fullPath: '/admin/seo/integracoes'
-      preLoaderRoute: typeof AuthenticatedAdminSeoIntegracoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/seo/configuracoes': {
-      id: '/_authenticated/admin/seo/configuracoes'
-      path: '/seo/configuracoes'
-      fullPath: '/admin/seo/configuracoes'
-      preLoaderRoute: typeof AuthenticatedAdminSeoConfiguracoesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/produtos/$id': {
-      id: '/_authenticated/admin/produtos/$id'
-      path: '/produtos/$id'
-      fullPath: '/admin/produtos/$id'
-      preLoaderRoute: typeof AuthenticatedAdminProdutosIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/pedidos/$id': {
-      id: '/_authenticated/admin/pedidos/$id'
-      path: '/pedidos/$id'
-      fullPath: '/admin/pedidos/$id'
-      preLoaderRoute: typeof AuthenticatedAdminPedidosIdRouteImport
+    '/_authenticated/admin/etiquetas/': {
+      id: '/_authenticated/admin/etiquetas/'
+      path: '/etiquetas'
+      fullPath: '/admin/etiquetas/'
+      preLoaderRoute: typeof AuthenticatedAdminEtiquetasIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/etiquetas/$id': {
@@ -1536,12 +1466,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEtiquetasIdRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/clientes/$id': {
-      id: '/_authenticated/admin/clientes/$id'
-      path: '/clientes/$id'
-      fullPath: '/admin/clientes/$id'
-      preLoaderRoute: typeof AuthenticatedAdminClientesIdRouteImport
+    '/_authenticated/admin/pedidos/': {
+      id: '/_authenticated/admin/pedidos/'
+      path: '/pedidos'
+      fullPath: '/admin/pedidos/'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/pedidos/$id': {
+      id: '/_authenticated/admin/pedidos/$id'
+      path: '/pedidos/$id'
+      fullPath: '/admin/pedidos/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPedidosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/': {
+      id: '/_authenticated/admin/produtos/'
+      path: '/produtos'
+      fullPath: '/admin/produtos/'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/produtos/$id': {
+      id: '/_authenticated/admin/produtos/$id'
+      path: '/produtos/$id'
+      fullPath: '/admin/produtos/$id'
+      preLoaderRoute: typeof AuthenticatedAdminProdutosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/': {
+      id: '/_authenticated/admin/seo/'
+      path: '/seo'
+      fullPath: '/admin/seo/'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/configuracoes': {
+      id: '/_authenticated/admin/seo/configuracoes'
+      path: '/seo/configuracoes'
+      fullPath: '/admin/seo/configuracoes'
+      preLoaderRoute: typeof AuthenticatedAdminSeoConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/integracoes': {
+      id: '/_authenticated/admin/seo/integracoes'
+      path: '/seo/integracoes'
+      fullPath: '/admin/seo/integracoes'
+      preLoaderRoute: typeof AuthenticatedAdminSeoIntegracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/paginas': {
+      id: '/_authenticated/admin/seo/paginas'
+      path: '/seo/paginas'
+      fullPath: '/admin/seo/paginas'
+      preLoaderRoute: typeof AuthenticatedAdminSeoPaginasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/redirecionamentos': {
+      id: '/_authenticated/admin/seo/redirecionamentos'
+      path: '/seo/redirecionamentos'
+      fullPath: '/admin/seo/redirecionamentos'
+      preLoaderRoute: typeof AuthenticatedAdminSeoRedirecionamentosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/seo/tecnico': {
+      id: '/_authenticated/admin/seo/tecnico'
+      path: '/seo/tecnico'
+      fullPath: '/admin/seo/tecnico'
+      preLoaderRoute: typeof AuthenticatedAdminSeoTecnicoRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/webhooks/mercadopago': {
+      id: '/api/public/webhooks/mercadopago'
+      path: '/api/public/webhooks/mercadopago'
+      fullPath: '/api/public/webhooks/mercadopago'
+      preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
