@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
   listProducts,
   updateProductStatus,
@@ -158,9 +158,18 @@ function ProductsAdmin() {
   const [toDelete, setToDelete] = useState<Row | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const { data } = useSuspenseQuery(
-    listOptions({ search, status, quality, kit, shipping, custom, packaging, sort, dir, page, pageSize }),
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 350);
+    return () => clearTimeout(t);
+  }, [search]);
+  const queryInput = useDeferredValue(
+    useMemo(
+      () => ({ search: debouncedSearch, status, quality, kit, shipping, custom, packaging, sort, dir, page, pageSize }),
+      [debouncedSearch, status, quality, kit, shipping, custom, packaging, sort, dir, page],
+    ),
   );
+  const { data } = useSuspenseQuery(listOptions(queryInput));
   const rows = data.rows as Row[];
   const totalPages = Math.max(1, Math.ceil(data.total / pageSize));
 
