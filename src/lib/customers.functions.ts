@@ -183,7 +183,7 @@ export const updateAdminCustomer = createServerFn({ method: "POST" })
     await assertStaff(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const cpf = data.cpf ? digits(data.cpf) : null;
-    if (cpf && cpf.length !== 11) throw new Error("CPF deve ter 11 dígitos");
+    if (!cpf || cpf.length !== 11) throw new Error("CPF obrigatório (11 dígitos), inclusive para empresas");
     const { error } = await supabaseAdmin.from("profiles").upsert({
       id: data.id,
       full_name: data.full_name,
