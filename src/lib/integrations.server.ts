@@ -186,10 +186,21 @@ function toTinyOrder(p: Awaited<ReturnType<typeof buildPayload>>) {
     valor_frete: p.order.shipping_total.toFixed(2),
     valor_desconto: p.order.discount_total.toFixed(2),
     forma_pagamento: PAY_LABEL[String(p.order.payment_method ?? "")] ?? undefined,
+    // Tiny: forma_envio C=Correios, T=Transportadora; sem ele o frete é ignorado
+    forma_envio: p.order.shipping_carrier
+      ? /correios/i.test(p.order.shipping_carrier) ? "C" : "T"
+      : undefined,
+    frete_por_conta: "R",
     nome_transportador: p.order.shipping_carrier ?? undefined,
     forma_frete: p.order.shipping_service ?? undefined,
     situacao: p.order.paid_at ? "aprovado" : "aberto",
-    obs: [p.order.notes, `Pedido site ${p.order.number}`].filter(Boolean).join(" | "),
+    obs: [
+      p.order.notes,
+      `Pedido site ${p.order.number}`,
+      p.order.shipping_carrier
+        ? `Frete: ${p.order.shipping_carrier} ${p.order.shipping_service ?? ""} R$ ${p.order.shipping_total.toFixed(2)} (Melhor Envio)`
+        : null,
+    ].filter(Boolean).join(" | "),
   };
   if (ship && ship !== addr) {
     pedido.endereco_entrega = {

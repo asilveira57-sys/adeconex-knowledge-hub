@@ -72,10 +72,9 @@ export const profileSchema = z.object({
   whatsapp: z.string().optional().nullable(),
   birth_date: z.string().optional().nullable(),
 }).superRefine((val, ctx) => {
-  if (val.customer_type === "pf") {
-    if (!val.cpf || !isValidCPF(val.cpf)) {
-      ctx.addIssue({ code: "custom", path: ["cpf"], message: "CPF inválido" });
-    }
+  // CPF obrigatório para PF e PJ (usado na postagem do Melhor Envio)
+  if (!val.cpf || !isValidCPF(val.cpf)) {
+    ctx.addIssue({ code: "custom", path: ["cpf"], message: "CPF obrigatório e válido" });
   }
 });
 

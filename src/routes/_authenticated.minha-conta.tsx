@@ -187,13 +187,11 @@ function PerfilTab({ account }: { account: Account }) {
             <Input id="full_name" required value={form.full_name}
               onChange={(e) => setForm({ ...form, full_name: e.target.value })} />
           </div>
-          {form.customer_type === "pf" && (
-            <div>
-              <Label htmlFor="cpf">CPF</Label>
-              <Input id="cpf" required value={form.cpf} placeholder="000.000.000-00"
-                onChange={(e) => setForm({ ...form, cpf: maskCPF(e.target.value) })} />
-            </div>
-          )}
+          <div>
+            <Label htmlFor="cpf">{form.customer_type === "pj" ? "CPF do responsável *" : "CPF *"}</Label>
+            <Input id="cpf" required value={form.cpf} placeholder="000.000.000-00"
+              onChange={(e) => setForm({ ...form, cpf: maskCPF(e.target.value) })} />
+          </div>
           <div>
             <Label htmlFor="birth_date">Nascimento</Label>
             <Input id="birth_date" type="date" value={form.birth_date}
