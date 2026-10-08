@@ -221,7 +221,9 @@ function AdminPedidoDetail() {
           <Card>
             <CardHeader><CardTitle className="text-base">Cliente</CardTitle></CardHeader>
             <CardContent className="text-sm space-y-1">
-              <p className="font-medium">{customer?.full_name ?? "—"}</p>
+              <p className="font-medium">
+                {customer?.full_name?.trim() || company?.trade_name || company?.legal_name || "—"}
+              </p>
               {customer?.email && <p className="text-muted-foreground">{customer.email}</p>}
               {customer?.phone && <p className="text-muted-foreground">Tel: {customer.phone}</p>}
               {customer?.whatsapp && <p className="text-muted-foreground">WhatsApp: {customer.whatsapp}</p>}
@@ -232,6 +234,13 @@ function AdminPedidoDetail() {
                   <p className="font-medium">{company.trade_name ?? company.legal_name}</p>
                   <p className="text-muted-foreground">CNPJ: {company.cnpj}</p>
                 </>
+              )}
+              {order.user_id && (
+                <Button asChild variant="outline" size="sm" className="mt-2">
+                  <Link to="/admin/clientes/$id" params={{ id: order.user_id }}>
+                    Abrir cadastro do cliente
+                  </Link>
+                </Button>
               )}
             </CardContent>
           </Card>

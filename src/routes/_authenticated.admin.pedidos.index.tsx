@@ -131,7 +131,18 @@ function AdminPedidosPage() {
                   </Link>
                   {o.requires_art && <Badge variant="outline" className="ml-2">arte</Badge>}
                 </TableCell>
-                <TableCell className="text-sm">{o.customer_name ?? "—"}</TableCell>
+                <TableCell className="text-sm">
+                  {o.customer_name ?? "—"}
+                  {o.user_id && (
+                    <Link
+                      to="/admin/clientes/$id"
+                      params={{ id: o.user_id }}
+                      className="ml-2 text-xs text-muted-foreground underline-offset-2 hover:underline"
+                    >
+                      ver cadastro
+                    </Link>
+                  )}
+                </TableCell>
                 <TableCell className="text-sm text-muted-foreground">
                   {new Date(o.created_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
                 </TableCell>
