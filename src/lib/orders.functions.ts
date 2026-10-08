@@ -178,7 +178,7 @@ export const getAdminOrder = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!order) throw new Error("Pedido não encontrado");
 
-    const [itemsRes, addrsRes, historyRes, paymentsRes, shipmentsRes, profileRes, companyRes] =
+    const [itemsRes, addrsRes, historyRes, paymentsRes, shipmentsRes, profileRes, companiesRes] =
       await Promise.all([
         context.supabase.from("order_items").select("*").eq("order_id", order.id).order("created_at"),
         context.supabase.from("order_addresses").select("*").eq("order_id", order.id),
@@ -190,10 +190,19 @@ export const getAdminOrder = createServerFn({ method: "GET" })
         context.supabase.from("payments").select("*").eq("order_id", order.id).order("created_at", { ascending: false }),
         context.supabase.from("shipments").select("*").eq("order_id", order.id).order("created_at", { ascending: false }),
         context.supabase.from("profiles").select("id, full_name, phone, whatsapp, cpf").eq("id", order.user_id).maybeSingle(),
-        order.company_id
-          ? context.supabase.from("companies").select("id, legal_name, trade_name, cnpj").eq("id", order.company_id).maybeSingle()
-          : Promise.resolve({ data: null }),
+        // Todas as empresas do cliente; a do pedido tem prioridade, senão a padrão.
+        context.supabase
+          .from("companies")
+          .select("id, legal_name, trade_name, cnpj, is_default")
+          .eq("user_id", order.user_id)
+          .order("is_default", { ascending: false }),
       ]);
+
+    const userCompanies = companiesRes.data ?? [];
+    const company =
+      (order.company_id ? userCompanies.find((c: any) => c.id === order.company_id) : null) ??
+      userCompanies[0] ??
+      null;
 
     // e-mail via admin (não vaza p/ front — só p/ staff)
     let customer_email: string | null = null;
@@ -211,7 +220,8 @@ export const getAdminOrder = createServerFn({ method: "GET" })
       payments: paymentsRes.data ?? [],
       shipments: shipmentsRes.data ?? [],
       customer: { ...(profileRes.data ?? {}), email: customer_email },
-      company: companyRes.data ?? null,
+      company,
+      companies: userCompanies,
     };
   });
 
