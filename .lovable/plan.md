@@ -1,38 +1,73 @@
-# Admin: Etiqueta personalizada (tipos, facas, artes prontas e post de blog)
+# Painel de vendas no Dashboard do admin
 
-## O que será criado
+O objetivo é ver, em uma tela só, de onde vêm as visitas, quanto vira pedido e onde se perde venda.
 
-1. **Novo menu "Etiqueta personalizada" no admin** (ao lado de "Artes", que continua só com as artes dos pedidos dos clientes).
-   - Lista de tipos de etiqueta: Preço, Corretor de imóveis, Patrimônio, Cartão de visita, Doce, Quadrada, Redonda, Identificação etc.
-   - Cada tipo tem: nome, descrição curta, uso, foto de capa, ativo/oculto e ordem.
+## O que aparece no painel
 
-2. **Cadastro de facas**
-   - Cada faca tem: código, formato (retangular, arredondada, redonda, oval), largura, altura, raio do canto, colunas, linhas, espaçamentos e margem.
-   - Cada tipo de etiqueta fica **sempre vinculado a pelo menos uma faca** (as medidas possíveis). Sem faca, não salva.
-   - A faca pode ser ligada ao produto em branco do catálogo, para virar pedido com preço.
+Filtro de período no topo (hoje, 7 dias, 30 dias, 90 dias ou personalizado), com comparação ao período anterior (↑/↓ %).
 
-3. **Artes prontas por tipo**
-   - Botão "Criar arte pronta" abre o mesmo editor que o cliente usa, já na medida da faca escolhida.
-   - O cliente vê essas artes como modelos para começar no editor.
+**1. Visitas**
+- Visitas totais e visitantes únicos
+- Gráfico de visitas por dia
+- Origem das visitas: Google, direto, Instagram, WhatsApp, outros sites
+- Celular x computador
+- Páginas mais vistas
 
-4. **Importar o que já existe**
-   - Os 6 modelos atuais do editor (preço 40×25, corretor 90×45, identificação etc.) e os produtos já marcados como "permite personalizar" entram como tipos, facas e artes prontas. Assim nada se perde.
+**2. Vendas**
+- Faturamento pago, número de pedidos, pedidos pagos e ticket médio
+- Gráfico de faturamento por dia
+- Pedidos por situação: aguardando pagamento, pago, em produção, enviado, entregue, cancelado
+- Forma de pagamento: Pix, cartão, boleto
+- Frete: valor total cobrado e transportadoras mais usadas
+- Cupons: quantidade de usos e desconto concedido
 
-5. **Post de blog para cada tipo**
-   - Aba "Blog" no tipo: título, resumo, para que serve, dicas de configuração, imagens, título e descrição para o Google.
-   - Página pública em `/etiquetas/personalizada/<tipo>` com o post, as medidas disponíveis, as artes prontas e o botão "Personalizar esta etiqueta".
-   - Entra no sitemap e na listagem do blog. Nesta primeira etapa, o texto pode ser gerado como rascunho e você revisa antes de publicar.
+**3. Funil de conversão**
+- Visitas → viu produto → adicionou ao carrinho → iniciou checkout → pedido criado → pago
+- Mostra a percentagem em cada etapa, para ver onde o cliente desiste
+- Taxa de conversão: pedidos pagos ÷ visitantes únicos
 
-6. **Página pública** `/etiquetas/personalizada` passa a mostrar os tipos cadastrados no admin.
+**4. Carrinho abandonado e pagamento pendente**
+- Carrinhos com itens e sem compra há mais de 24 horas: quantidade e valor parado
+- Pedidos "aguardando pagamento" há mais de 24 horas: lista com cliente, valor e botão de WhatsApp para retomar o contato
+- Lista de carrinhos abandonados de clientes logados, com nome, itens e valor
 
-## Fora desta primeira etapa
-- Mudar as artes dos pedidos (menu Artes continua como está).
-- Preço diferente por tipo (segue a tabela atual por quantidade).
+**5. Produtos**
+- Produtos mais visitados
+- Produtos mais vendidos, em unidades e em faturamento
+- Muito visitados e pouco vendidos: indica problema de preço, foto ou descrição
+- Mais adicionados ao carrinho sem compra
+
+**6. Clientes**
+- Clientes novos no período
+- Clientes que compraram mais de uma vez (recompra)
+- PF x PJ em pedidos e faturamento
+- Vendas por estado
+
+Os cards atuais do catálogo (sem imagem, sem preço etc.) continuam em uma aba "Catálogo".
+
+## Como as visitas serão contadas
+
+Hoje o site manda as visitas para o Google Analytics, mas o painel não consegue ler esses números de volta sem uma integração mais complexa. Por isso o site passa a registrar as próprias visitas:
+- Cada página vista, mais as aberturas de produto e os "adicionar ao carrinho"
+- Visitante identificado por um código anônimo no navegador, sem dados pessoais
+- Robôs e visitas do próprio admin ficam de fora
+
+Os números de visitas só começam a contar a partir da publicação. Pedidos, vendas e carrinhos já aparecem com o histórico completo.
+
+## Permissões
+
+O painel fica na seção Dashboard. Colaboradores sem permissão de pedidos veem só os números de visitas e de produtos, sem valores nem nomes de clientes.
+
+## Fora desta etapa
+
+- Leitura direta dos números do Google Analytics
+- E-mail automático de carrinho abandonado (fica para quando os e-mails estiverem configurados)
 
 ## Detalhes técnicos
-- Tabelas novas: `label_dies` (facas), `custom_label_types` (com campos de blog/SEO), `custom_label_type_dies` (vínculo N:N, validação de ≥1 faca no servidor), `label_templates` (layout jsonb, die_id, type_id, thumbnail). GRANTs + RLS: leitura pública só de publicados; escrita por `is_staff`.
-- Server fns em `src/lib/label-catalog.functions.ts`; seção de permissão `etiquetas` em staff_permissions/nav do admin.
-- Rotas: `_authenticated.admin.etiquetas.index.tsx`, `_authenticated.admin.etiquetas.$id.tsx`, `etiquetas.personalizada.$tipo.tsx` (head com SEO, JSON-LD Article + BreadcrumbList).
-- Editor recebe `?template=ID` e `?die=ID`; LABEL_TEMPLATES estáticos viram fallback.
-- Imagens no bucket catalog-media em `label-types/`.
-- Importação inicial via SQL dos templates atuais e produtos `is_customizable`.
+
+- Nova tabela `site_events` (session_id, visitor_id, event_type: page_view/view_item/add_to_cart/begin_checkout, path, product_id, referrer_host, utm_source, device, created_at), com índices em created_at, event_type e product_id. Insert anônimo via server route pública com validação, limite de tamanho e filtro de bot por user-agent; sem SELECT para anon; leitura feita por staff.
+- Tracker leve em `__root.tsx`, chamado na mudança de rota e nos hooks já existentes de `src/lib/analytics.ts` (view_item, add_to_cart, begin_checkout); usa `navigator.sendBeacon`. Rotas /admin ignoradas.
+- `src/lib/dashboard.functions.ts` com `getSalesDashboard({from, to})`, protegido por requireSupabaseAuth e is_staff. Agrega orders, order_items, carts/cart_items, coupon_redemptions, profiles, order_addresses e site_events. Valores monetários são removidos quando o usuário não tem a seção "pedidos".
+- Carrinho abandonado: carts com status active, com itens e updated_at anterior a 24 horas.
+- Gráficos com recharts (já disponível via shadcn chart); dashboard reescrito em abas Vendas / Visitas / Produtos / Catálogo.
+- Verificação: Playwright com sessão admin, conferindo os totais contra consultas SQL.
