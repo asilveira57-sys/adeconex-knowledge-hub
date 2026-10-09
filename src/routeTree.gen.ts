@@ -65,6 +65,7 @@ import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_au
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
@@ -382,6 +383,11 @@ const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   path: '/pedido/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
   id: '/filtro/$hub',
   path: '/filtro/$hub',
@@ -562,6 +568,7 @@ export interface FileRoutesByFullPath {
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -633,6 +640,7 @@ export interface FileRoutesByTo {
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -713,6 +721,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
@@ -793,6 +802,7 @@ export interface FileRouteTypes {
     | '/checkout/revisao'
     | '/etiquetas/editor'
     | '/pedido/$id'
+    | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -864,6 +874,7 @@ export interface FileRouteTypes {
     | '/checkout/revisao'
     | '/etiquetas/editor'
     | '/pedido/$id'
+    | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -943,6 +954,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/revisao'
     | '/_authenticated/etiquetas/editor'
     | '/_authenticated/pedido/$id'
+    | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
@@ -997,6 +1009,7 @@ export interface RootRouteChildren {
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
@@ -1396,6 +1409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/filtro/$hub': {
       id: '/blog/filtro/$hub'
       path: '/filtro/$hub'
@@ -1751,6 +1771,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
