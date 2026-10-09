@@ -235,6 +235,7 @@ function ProductPage() {
     lastViewedRef.current = key;
     trackViewItem({
       item_id: effSku ?? p.id,
+      product_id: p.id,
       item_name: p.name,
       item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
       item_category: p.categories[0]?.name,
@@ -565,6 +566,7 @@ function ProductPage() {
                             if (effUnitPrice != null) {
                               trackAddToCart({
                                 item_id: effSku ?? p.id,
+                                product_id: p.id,
                                 item_name: p.name,
                                 item_variant: selectedKit?.name ?? variantLabelFromOpts(selectedOpts) ?? undefined,
                                 item_category: p.categories[0]?.name,

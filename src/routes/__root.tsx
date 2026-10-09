@@ -17,6 +17,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { initAnalytics, trackEvent } from "@/lib/analytics";
+import { siteTrack } from "@/lib/site-tracker";
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
 import { useEffect, type ReactNode } from "react";
 
@@ -188,6 +189,7 @@ function RootComponent() {
 
   useEffect(() => {
     trackEvent("page_view", { page_path: pathname });
+    siteTrack("page_view");
   }, [pathname]);
 
   return (

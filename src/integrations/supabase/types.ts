@@ -2854,6 +2854,45 @@ export type Database = {
           },
         ]
       }
+      site_events: {
+        Row: {
+          created_at: string
+          device: string | null
+          event_type: string
+          id: number
+          path: string | null
+          product_id: string | null
+          referrer_host: string | null
+          session_id: string
+          utm_source: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          device?: string | null
+          event_type: string
+          id?: never
+          path?: string | null
+          product_id?: string | null
+          referrer_host?: string | null
+          session_id: string
+          utm_source?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          id?: never
+          path?: string | null
+          product_id?: string | null
+          referrer_host?: string | null
+          session_id?: string
+          utm_source?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string

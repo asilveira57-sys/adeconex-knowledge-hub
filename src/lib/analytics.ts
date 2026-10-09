@@ -1,3 +1,4 @@
+import { siteTrack } from "./site-tracker";
 /**
  * Tracking runtime — GA4 (gtag), Google Tag Manager, Google Ads e Meta Pixel.
  * A configuração vem da Central de SEO (site_settings) via getPublicTrackingConfig,
@@ -249,6 +250,8 @@ export interface EcomItem {
   /** Preço unitário em BRL. */
   price: number;
   quantity: number;
+  /** UUID do produto (usado no painel interno). */
+  product_id?: string;
 }
 
 const CURRENCY = "BRL";
@@ -460,6 +463,7 @@ export function trackSearchSortChange(
 /** Visualização de produto (PDP). */
 
 export function trackViewItem(item: EcomItem) {
+  siteTrack("view_item", item.product_id);
   const value = item.price * item.quantity;
   dispatchEcommerce((p) => {
     if (p.ga4Direct) {
@@ -480,6 +484,7 @@ export function trackViewItem(item: EcomItem) {
 
 /** Adição ao carrinho. */
 export function trackAddToCart(item: EcomItem) {
+  siteTrack("add_to_cart", item.product_id);
   const value = item.price * item.quantity;
   dispatchEcommerce((p) => {
     if (p.ga4Direct) {
@@ -500,6 +505,7 @@ export function trackAddToCart(item: EcomItem) {
 
 /** Início do checkout. */
 export function trackBeginCheckout(items: EcomItem[], value: number, coupon?: string | null) {
+  siteTrack("begin_checkout");
   dispatchEcommerce((p) => {
     const payload = { currency: CURRENCY, value, coupon: coupon || undefined, items: toGa4Items(items) };
     if (p.ga4Direct) window.gtag?.("event", "begin_checkout", payload);
