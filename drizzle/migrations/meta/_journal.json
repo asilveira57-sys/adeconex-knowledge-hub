@@ -43,6 +43,13 @@
       "when": 1791108810201,
       "tag": "0005_custom_label_types",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791579693479,
+      "tag": "0006_create_site_events",
+      "breakpoints": true
     }
   ]
 }
