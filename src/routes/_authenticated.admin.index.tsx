@@ -170,7 +170,7 @@ function ChartCard({ title, data, dataKey, fmt }: { title: string; data: any[]; 
             <XAxis dataKey="label" fontSize={11} tickLine={false} />
             <YAxis fontSize={11} tickLine={false} width={60} tickFormatter={(v) => fmt(v)} />
             <Tooltip formatter={(v: number) => fmt(v)} />
-            <Area type="monotone" dataKey={dataKey} stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.15} strokeWidth={2} />
+            <Area type="monotone" dataKey={dataKey} stroke="var(--color-primary)" fill="var(--color-primary)" fillOpacity={0.15} strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
       </CardContent>
