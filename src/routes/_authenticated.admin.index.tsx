@@ -224,7 +224,7 @@ function Funnel({ d }: { d: SalesDashboard }) {
           return (
             <div key={f.step} className="grid grid-cols-[160px_1fr_120px] items-center gap-3 text-sm">
               <span>{f.step}</span>
-              <div className="h-6 rounded bg-muted"><div className="h-6 rounded bg-primary/80" style={{ width: `${first ? Math.max(1, (f.value / first) * 100) : 0}%` }} /></div>
+              <div className="h-6 rounded bg-muted"><div className="h-6 rounded bg-primary/80" style={{ width: `${first ? Math.min(100, Math.max(1, (f.value / first) * 100)) : 0}%` }} /></div>
               <span className="tabular-nums text-right">{num(f.value)} {prev ? <span className="text-xs text-muted-foreground">({pct(f.value / prev)})</span> : null}</span>
             </div>
           );

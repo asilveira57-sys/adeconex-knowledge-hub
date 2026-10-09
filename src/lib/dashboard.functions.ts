@@ -259,7 +259,7 @@ export const getSalesDashboard = createServerFn({ method: "GET" })
         paidOrders: paid.length,
         prevPaidOrders: prevPaid.length,
         avgTicket: m(paid.length ? revenue / paid.length : 0),
-        conversion: visitors ? paid.length / visitors : null,
+        conversion: visitors >= 20 ? paid.length / visitors : null,
         byDay: uniqDays.map((d) => ({ day: d, revenue: money ? revenueByDay.get(d)?.revenue ?? 0 : 0, orders: revenueByDay.get(d)?.orders ?? 0 })),
         byStatus: top(byStatus, 20),
         byPayment: top(byPayment),
