@@ -1,3 +1,4 @@
+import { siteTrack } from "./site-tracker";
 /**
  * Tracking runtime — GA4 (gtag), Google Tag Manager, Google Ads e Meta Pixel.
  * A configuração vem da Central de SEO (site_settings) via getPublicTrackingConfig,
