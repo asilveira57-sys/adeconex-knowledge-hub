@@ -8,6 +8,7 @@ export const STAFF_SECTIONS = [
   { key: "clientes", label: "Clientes" },
   { key: "artes", label: "Artes" },
   { key: "produtos", label: "Produtos" },
+  { key: "categorias", label: "Categorias" },
   { key: "cupons", label: "Cupons" },
   { key: "seo", label: "SEO & Tracking" },
   { key: "importacao", label: "Importação" },
