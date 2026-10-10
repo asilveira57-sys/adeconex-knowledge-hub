@@ -157,6 +157,7 @@ export const getShowcase = createServerFn({ method: "GET" })
       .from("categories")
       .select("id, name, slug")
       .eq("slug", data.categorySlug)
+      .eq("is_published", true)
       .maybeSingle();
     if (!cat) return { category: null, products: [] as ShowcaseProduct[] };
 
@@ -222,7 +223,8 @@ export const getCatalogCategories = createServerFn({ method: "GET" }).handler(as
   const { data: cats, error: cErr } = await supabaseAdmin
     .from("categories")
     .select("id, name, slug")
-    .in("id", catIds);
+    .in("id", catIds)
+    .eq("is_published", true);
   if (cErr) throw new Error(cErr.message);
 
   const counts = new Map<string, number>();
@@ -329,6 +331,7 @@ export const listCatalog = createServerFn({ method: "GET" })
         .from("categories")
         .select("id")
         .eq("slug", data.categorySlug)
+        .eq("is_published", true)
         .maybeSingle();
       if (!cat) return empty;
       const { data: pcRows, error: pcErr } = await supabaseAdmin
