@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { deleteProductsWithBlocks } from "./product-deletion";
 
 /**
  * Edição profissional de produtos (Admin).
@@ -686,28 +687,8 @@ export const deleteProduct = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { ok: true, mode: "soft" as const };
     }
-    const { count } = await context.supabase
-      .from("order_items")
-      .select("*", { count: "exact", head: true })
-      .eq("product_id", data.productId);
-    if ((count ?? 0) > 0) {
-      throw new Error(
-        "Este produto já foi vendido e não pode ser excluído definitivamente. Use 'Descontinuar'.",
-      );
-    }
-    for (const table of [
-      "product_badge_assignments",
-      "product_faqs",
-      "product_images",
-      "product_videos",
-      "product_specifications",
-      "product_categories",
-      "product_variants",
-    ]) {
-      await (context.supabase as any).from(table).delete().eq("product_id", data.productId);
-    }
-    const { error } = await context.supabase.from("products").delete().eq("id", data.productId);
-    if (error) throw new Error(error.message);
+    const result = await deleteProductsWithBlocks(context.supabase, [data.productId]);
+    if (result.failures.length) throw new Error(result.failures[0]?.reason);
     return { ok: true, mode: "hard" as const };
   });
 
