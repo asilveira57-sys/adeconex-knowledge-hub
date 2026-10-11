@@ -1,0 +1,3 @@
+- [ ] Adicionar exclusão de produtos selecionados com confirmação e resultado por produto.
+- [ ] Registrar identificadores dos excluídos e bloquear futuras importações.
+- [ ] Testar seleção, exclusão e bloqueio, preservando produtos vendidos.
