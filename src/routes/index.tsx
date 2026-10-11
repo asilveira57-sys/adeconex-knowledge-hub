@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { ProductCarousel } from "@/components/product-carousel";
+import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Calculator,
   Download,
   Factory,
+  Gift,
+  Images,
   Layers,
   Printer,
   Star,
@@ -37,6 +40,7 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
@@ -211,22 +215,38 @@ function Solutions() {
     {
       icon: Tag,
       title: "Etiquetas adesivas",
+      categorySlug: "etiquetas-adesivas",
       copy: "BOPP, papel, térmica direta, transferência, removível e personalizada por aplicação.",
     },
     {
       icon: Layers,
       title: "Ribbons",
+      categorySlug: "ribbon",
       copy: "Cera, cera-resina e resina. Compatibilidade testada para Zebra, Argox, Elgin, TSC e Honeywell.",
     },
     {
       icon: Printer,
       title: "Impressoras térmicas",
+      categorySlug: "impressora-de-etiquetas",
       copy: "Desktop, industrial e mobile. Especificação técnica, vídeos e suporte pós-venda.",
     },
     {
       icon: Factory,
       title: "Etiquetas industriais",
+      categorySlug: "etiquetas-para-automacao",
       copy: "Identificação de produtos, embalagens, caixas e paletes para indústria e varejo.",
+    },
+    {
+      icon: Images,
+      title: "Gráfica rápida",
+      categorySlug: "grafica-rapida",
+      copy: "Impressão fotográfica, cartões de visita, encadernação e materiais personalizados para sua marca.",
+    },
+    {
+      icon: Gift,
+      title: "Brindes",
+      categorySlug: "brindes-personalizados",
+      copy: "Agendas, cadernos, calendários e presentes personalizados para empresas, eventos e ocasiões especiais.",
     },
   ];
   return (
@@ -246,13 +266,12 @@ function Solutions() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {c.copy}
             </p>
-            <Link
-              to="/catalogo"
-              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-foreground"
-            >
-              Ver linha
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            <Button asChild variant="link" className="mt-4 h-auto justify-start gap-1 p-0 text-foreground">
+              <Link to="/catalogo" search={{ cat: c.categorySlug }} aria-label={`Ver linha de ${c.title}`}>
+                Ver linha
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
           </article>
         ))}
       </div>
