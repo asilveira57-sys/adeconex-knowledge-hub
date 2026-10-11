@@ -10,7 +10,7 @@ export const deletionResultSchema = z.object({
 });
 
 export async function deleteProductsWithBlocks(
-  client: { rpc: (name: string, args: { product_ids: string[] }) => PromiseLike<{ data: unknown; error: { message: string } | null }> },
+  client: { rpc: (name: "delete_selected_products", args: { product_ids: string[] }) => PromiseLike<{ data: unknown; error: { message: string } | null }> },
   ids: string[],
 ) {
   const { productIds } = bulkDeleteProductsSchema.parse({ productIds: ids });
