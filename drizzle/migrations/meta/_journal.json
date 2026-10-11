@@ -50,6 +50,13 @@
       "when": 1791579693479,
       "tag": "0006_create_site_events",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791723243090,
+      "tag": "0007_product_deletion_import_blocks",
+      "breakpoints": true
     }
   ]
 }

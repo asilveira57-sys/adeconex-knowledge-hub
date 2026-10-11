@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
@@ -6,6 +7,7 @@ import {
   updateProductStatus,
   bulkUpdateStatus,
   deleteProduct,
+  bulkDeleteProducts,
   duplicateProduct,
 } from "@/lib/admin.functions";
 import { productPreviewOptions } from "@/lib/admin.queries";
@@ -105,6 +107,15 @@ const DEFAULT_INPUT: ListInput = {
 };
 
 export const Route = createFileRoute("/_authenticated/admin/produtos/")({
+  head: () => ({ meta: [
+    { title: "Produtos — Administração Adeconex" },
+    { name: "description", content: "Gestão do catálogo de produtos da Adeconex." },
+    { property: "og:title", content: "Produtos — Administração Adeconex" },
+    { property: "og:description", content: "Gestão do catálogo de produtos da Adeconex." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex,nofollow" },
+  ] }),
   loader: ({ context }) => context.queryClient.prefetchQuery(listOptions(DEFAULT_INPUT)),
   component: ProductsAdmin,
 });
@@ -156,6 +167,10 @@ function ProductsAdmin() {
   const pageSize = 25;
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [toDelete, setToDelete] = useState<Row | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [deleteFailures, setDeleteFailures] = useState<{ id: string; name: string; reason: string }[]>([]);
+  const deleteSelectedFn = useServerFn(bulkDeleteProducts);
+  const deleteProductFn = useServerFn(deleteProduct);
   const [busy, setBusy] = useState(false);
 
   const [debouncedSearch, setDebouncedSearch] = useState(search);
@@ -179,9 +194,17 @@ function ProductsAdmin() {
     else next.add(id);
     setSelected(next);
   };
+  const allPageSelected = rows.length > 0 && rows.every((row) => selected.has(row.id));
+  const somePageSelected = rows.some((row) => selected.has(row.id));
   const toggleAll = () => {
-    if (selected.size === rows.length) setSelected(new Set());
-    else setSelected(new Set(rows.map((r) => r.id)));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const row of rows) {
+        if (allPageSelected) next.delete(row.id);
+        else next.add(row.id);
+      }
+      return next;
+    });
   };
 
   const changeSort = (field: SortField) => {
@@ -241,12 +264,31 @@ function ProductsAdmin() {
     if (!toDelete) return;
     try {
       setBusy(true);
-      await deleteProduct({ data: { productId: toDelete.id } });
+      await deleteProductFn({ data: { productId: toDelete.id } });
+      setSelected((prev) => new Set([...prev].filter((id) => id !== toDelete.id)));
       qc.invalidateQueries({ queryKey: ["admin"] });
       toast.success("Produto excluído");
       setToDelete(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao excluir");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doBulkDelete = async () => {
+    if (!selected.size || busy) return;
+    setBusy(true);
+    try {
+      const result = await deleteSelectedFn({ data: { productIds: [...selected] } });
+      setSelected(new Set(result.failures.map((item) => item.id)));
+      setDeleteFailures(result.failures);
+      setBulkDeleteOpen(false);
+      await qc.invalidateQueries({ queryKey: ["admin"] });
+      if (result.deletedIds.length) toast.success(`${result.deletedIds.length} produto(s) excluído(s) e bloqueado(s) para reimportação`);
+      if (result.failures.length) toast.warning(`${result.failures.length} produto(s) não puderam ser excluídos`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao excluir selecionados");
     } finally {
       setBusy(false);
     }
@@ -283,7 +325,7 @@ function ProductsAdmin() {
           </p>
         </div>
         {selected.size > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-muted-foreground">{selected.size} selecionados</span>
             <Button size="sm" onClick={() => bulkPublish("published")}>
               <CheckCircle2 className="h-4 w-4" />
@@ -296,9 +338,23 @@ function ProductsAdmin() {
             <Button size="sm" variant="outline" onClick={() => bulkPublish("needs_review")}>
               Marcar p/ revisão
             </Button>
+            <Button size="sm" variant="destructive" disabled={busy} onClick={() => setBulkDeleteOpen(true)}>
+              <Trash2 className="h-4 w-4" />
+              Excluir selecionados ({selected.size})
+            </Button>
+            <Button size="sm" variant="ghost" disabled={busy} onClick={() => setSelected(new Set())}>Limpar seleção</Button>
           </div>
         )}
       </div>
+
+      {deleteFailures.length > 0 && (
+        <div role="status" className="border-l-2 border-destructive bg-muted p-4 text-sm">
+          <p className="font-medium">Produtos mantidos no catálogo</p>
+          <ul className="mt-2 space-y-1">
+            {deleteFailures.map((item) => <li key={item.id}>{item.name || "Produto não encontrado"}: {item.reason}</li>)}
+          </ul>
+        </div>
+      )}
 
       <Card>
         <CardContent className="space-y-3 p-4">
@@ -432,7 +488,7 @@ function ProductsAdmin() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-8">
-                  <Checkbox checked={selected.size > 0 && selected.size === rows.length} onCheckedChange={toggleAll} />
+                  <Checkbox aria-label="Selecionar todos os produtos desta página" disabled={busy || rows.length === 0} checked={allPageSelected ? true : somePageSelected ? "indeterminate" : false} onCheckedChange={toggleAll} />
                 </TableHead>
                 <TableHead className="w-16">Img</TableHead>
                 <SortHeader field="name" label="Nome" />
@@ -463,7 +519,7 @@ function ProductsAdmin() {
                 return (
                   <TableRow key={row.id} onMouseEnter={() => qc.prefetchQuery(productPreviewOptions(row.id))}>
                     <TableCell>
-                      <Checkbox checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} />
+                      <Checkbox aria-label={`Selecionar ${row.name}`} disabled={busy} checked={selected.has(row.id)} onCheckedChange={() => toggleSelect(row.id)} />
                     </TableCell>
                     <TableCell>
                       {mainImg ? (
@@ -652,6 +708,7 @@ function ProductsAdmin() {
             <AlertDialogDescription>
               “{toDelete?.name}” será removido definitivamente, junto com imagens, variantes, kits e
               especificações. Produtos já vendidos não podem ser excluídos — use “Ocultar”.
+              O produto também será marcado como “não importar novamente”.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -665,6 +722,23 @@ function ProductsAdmin() {
             >
               Excluir
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={(open) => !busy && setBulkDeleteOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir {selected.size} produto(s) selecionado(s)?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A exclusão é definitiva e remove imagens, variantes e especificações. Os produtos excluídos
+              serão marcados como “não importar novamente”. Produtos vinculados a pedidos serão preservados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+            <Button variant="destructive" disabled={busy} onClick={() => void doBulkDelete()}>
+              {busy ? "Excluindo…" : "Confirmar exclusão"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

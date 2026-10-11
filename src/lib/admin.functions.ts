@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { bulkDeleteProductsSchema, deleteProductsWithBlocks } from "./product-deletion";
 
 /**
  * Admin catalog server functions.
@@ -378,24 +379,17 @@ export const deleteProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertStaff(context);
 
-    const { count: orderCount, error: orderErr } = await context.supabase
-      .from("order_items")
-      .select("*", { count: "exact", head: true })
-      .eq("product_id", data.productId);
-    if (orderErr) throw new Error(orderErr.message);
-    if ((orderCount ?? 0) > 0) {
-      throw new Error(
-        "Este produto já faz parte de pedidos e não pode ser excluído. Use \"Ocultar\" ou \"Descontinuar\".",
-      );
-    }
-
-    // Remove vínculos que bloqueiam a exclusão
-    await context.supabase.from("cart_items").delete().eq("product_id", data.productId);
-    await context.supabase.from("bundle_offer_items").delete().eq("product_id", data.productId);
-
-    const { error } = await context.supabase.from("products").delete().eq("id", data.productId);
-    if (error) throw new Error(error.message);
+    const result = await deleteProductsWithBlocks(context.supabase, [data.productId]);
+    if (result.failures.length) throw new Error(result.failures[0]?.reason);
     return { ok: true };
+  });
+
+export const bulkDeleteProducts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => bulkDeleteProductsSchema.parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    return deleteProductsWithBlocks(context.supabase, data.productIds);
   });
 
 /** Duplica um produto (sem variantes/imagens) como rascunho oculto. */
