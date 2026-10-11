@@ -2049,6 +2049,33 @@ export type Database = {
           },
         ]
       }
+      product_import_blocks: {
+        Row: {
+          created_at: string
+          deleted_by: string | null
+          identity_kind: string
+          identity_value: string
+          product_id: string
+          product_name: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_by?: string | null
+          identity_kind: string
+          identity_value: string
+          product_id: string
+          product_name: string
+        }
+        Update: {
+          created_at?: string
+          deleted_by?: string | null
+          identity_kind?: string
+          identity_value?: string
+          product_id?: string
+          product_name?: string
+        }
+        Relationships: []
+      }
       product_relationships: {
         Row: {
           created_at: string
@@ -2979,6 +3006,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_selected_products: {
+        Args: { product_ids: string[] }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2988,6 +3019,13 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       next_order_number: { Args: never; Returns: string }
+      product_import_identities: {
+        Args: { p: Database["public"]["Tables"]["products"]["Row"] }
+        Returns: {
+          identity_kind: string
+          identity_value: string
+        }[]
+      }
       redeem_coupon: {
         Args: {
           _coupon_code: string
