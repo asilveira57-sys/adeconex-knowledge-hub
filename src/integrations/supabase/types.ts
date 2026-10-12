@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_email_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          recipient: string
+          reference: string | null
+          status: string
+          template_key: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient: string
+          reference?: string | null
+          status: string
+          template_key: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipient?: string
+          reference?: string | null
+          status?: string
+          template_key?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           created_at: string
@@ -398,6 +428,39 @@ export type Database = {
           trade_name?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      contact_submissions: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          segment: string | null
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          segment?: string | null
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          segment?: string | null
         }
         Relationships: []
       }
@@ -870,6 +933,45 @@ export type Database = {
         }
         Relationships: []
       }
+      email_template_settings: {
+        Row: {
+          body: string | null
+          closing: string | null
+          cta_label: string | null
+          enabled: boolean
+          heading: string | null
+          intro: string | null
+          key: string
+          subject: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body?: string | null
+          closing?: string | null
+          cta_label?: string | null
+          enabled?: boolean
+          heading?: string | null
+          intro?: string | null
+          key: string
+          subject?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string | null
+          closing?: string | null
+          cta_label?: string | null
+          enabled?: boolean
+          heading?: string | null
+          intro?: string | null
+          key?: string
+          subject?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       integration_logs: {
         Row: {
           action: string
@@ -1239,6 +1341,33 @@ export type Database = {
           slug?: string
           technical_notes?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          consent_at: string
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          source: string | null
+        }
+        Insert: {
+          consent_at?: string
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          source?: string | null
+        }
+        Update: {
+          consent_at?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          source?: string | null
         }
         Relationships: []
       }

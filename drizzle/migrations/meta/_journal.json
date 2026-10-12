@@ -57,6 +57,13 @@
       "when": 1791723243090,
       "tag": "0007_product_deletion_import_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791812598020,
+      "tag": "0008_app_emails",
+      "breakpoints": true
     }
   ]
 }
