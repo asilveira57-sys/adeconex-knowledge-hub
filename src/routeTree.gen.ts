@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
 import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authenticated.admin.downloads'
+import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated.admin.emails'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
@@ -340,6 +341,12 @@ const AuthenticatedAdminDownloadsRoute =
     path: '/downloads',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEmailsRoute =
+  AuthenticatedAdminEmailsRouteImport.update({
+    id: '/emails',
+    path: '/emails',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminEnriquecimentoRoute =
   AuthenticatedAdminEnriquecimentoRouteImport.update({
     id: '/enriquecimento',
@@ -587,6 +594,7 @@ export interface FileRoutesByFullPath {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -663,6 +671,7 @@ export interface FileRoutesByTo {
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
+  '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -748,6 +757,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
   '/_authenticated/admin/downloads': typeof AuthenticatedAdminDownloadsRoute
+  '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
@@ -833,6 +843,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/colaboradores'
     | '/admin/downloads'
+    | '/admin/emails'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -909,6 +920,7 @@ export interface FileRouteTypes {
     | '/admin/categorias'
     | '/admin/colaboradores'
     | '/admin/downloads'
+    | '/admin/emails'
     | '/admin/enriquecimento'
     | '/admin/importacao'
     | '/checkout/endereco'
@@ -993,6 +1005,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/colaboradores'
     | '/_authenticated/admin/downloads'
+    | '/_authenticated/admin/emails'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
     | '/_authenticated/checkout/endereco'
@@ -1406,6 +1419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDownloadsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/emails': {
+      id: '/_authenticated/admin/emails'
+      path: '/emails'
+      fullPath: '/admin/emails'
+      preLoaderRoute: typeof AuthenticatedAdminEmailsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/enriquecimento': {
       id: '/_authenticated/admin/enriquecimento'
       path: '/enriquecimento'
@@ -1652,6 +1672,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
   AuthenticatedAdminDownloadsRoute: typeof AuthenticatedAdminDownloadsRoute
+  AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -1677,6 +1698,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
   AuthenticatedAdminDownloadsRoute: AuthenticatedAdminDownloadsRoute,
+  AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
