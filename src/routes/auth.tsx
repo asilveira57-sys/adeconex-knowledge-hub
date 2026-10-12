@@ -5,6 +5,7 @@ import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sendWelcomeEmail } from "@/lib/app-emails.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search?: { redirect?: string }) => ({
@@ -37,6 +38,7 @@ function AuthPage() {
     supabase.auth.getSession().then(({ data }) => {
       const storedDestination = typeof window !== "undefined" ? window.sessionStorage.getItem("adeconex-auth-redirect") : null;
       if (mounted && data.session) {
+        void sendWelcomeEmail().catch(() => {});
         if (storedDestination) window.sessionStorage.removeItem("adeconex-auth-redirect");
         navigate({ to: (storedDestination || destination) as never, replace: true });
       }
@@ -51,6 +53,7 @@ function AuthPage() {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        void sendWelcomeEmail().catch(() => {});
         navigate({ to: destination as never });
       } else {
         const { error } = await supabase.auth.signUp({

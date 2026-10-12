@@ -459,6 +459,18 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     // 11) Fecha carrinho
     await supabase.from("carts").update({ status: "converted" }).eq("id", cart.id);
 
+    // 12) E-mail de pedido recebido (primeiro pedido tem texto especial)
+    try {
+      const { sendOrderEmail, isFirstOrder } = await import("@/lib/app-emails.server");
+      const first = await isFirstOrder(context.userId, order.id);
+      const isSb = token.startsWith("TEST-");
+      await sendOrderEmail(first ? "primeiro-pedido" : "pedido-recebido", order.id, {
+        ctaUrl: (isSb ? (prefJson.sandbox_init_point ?? prefJson.init_point) : prefJson.init_point) ?? undefined,
+      });
+    } catch (e) {
+      console.error("[order-email]", e);
+    }
+
     // Token TEST- => sandbox; APP_USR- => produção
     const isSandbox = token.startsWith("TEST-");
     const checkoutUrl = isSandbox

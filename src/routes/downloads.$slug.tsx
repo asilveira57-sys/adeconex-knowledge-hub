@@ -1,3 +1,4 @@
+import { DownloadEmailForm } from "@/components/newsletter-form";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, Download, FileText, HardDrive, Monitor, Tag } from "lucide-react";
@@ -166,6 +167,7 @@ function DownloadPage() {
             >
               <Download className="h-4 w-4" /> Baixar gratuitamente
             </a>
+            <DownloadEmailForm slug={item.slug} />
           </div>
           <div className="flex aspect-square items-center justify-center rounded-xl border hairline bg-card">
             {item.image_url ? (

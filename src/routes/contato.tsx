@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { trackGenerateLead } from "@/lib/analytics";
+import { submitContactForm } from "@/lib/app-emails.functions";
 import { getPlaceDetails, type PlaceDetails, type PlaceReview } from "@/lib/place.functions";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -56,6 +57,8 @@ export const Route = createFileRoute("/contato")({
 function ContatoPage() {
   const place = Route.useLoaderData() as PlaceDetails;
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const lat = place.location?.lat;
   const lng = place.location?.lng;
@@ -237,15 +240,28 @@ function ContatoPage() {
 
         <form
           className="mt-12 grid gap-4 rounded-2xl border hairline bg-card p-6 md:p-10"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            const data = new FormData(e.currentTarget);
-            trackGenerateLead({
-              source: "contato",
-              method: "form",
-              segment: (data.get("segmento") as string) || null,
-            });
-            setSent(true);
+            const form = e.currentTarget;
+            const data = new FormData(form);
+            const get = (k: string) => String(data.get(k) ?? "").trim();
+            setSendError(null);
+            setSending(true);
+            try {
+              await submitContactForm({
+                data: {
+                  nome: get("nome"), empresa: get("empresa"), email: get("email"),
+                  telefone: get("telefone"), segmento: get("segmento"), mensagem: get("mensagem"),
+                },
+              });
+              trackGenerateLead({ source: "contato", method: "form", segment: get("segmento") || null });
+              setSent(true);
+              form.reset();
+            } catch (err) {
+              setSendError(err instanceof Error && err.message.length < 120 ? err.message : "Confira nome e e-mail e tente novamente.");
+            } finally {
+              setSending(false);
+            }
           }}
         >
           <p className="eyebrow">Formulário de orçamento</p>
@@ -274,8 +290,10 @@ function ContatoPage() {
             type="submit"
             className="inline-flex w-fit items-center justify-center rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground"
           >
-            {sent ? "Solicitação enviada" : "Enviar solicitação"}
+            {sending ? "Enviando..." : sent ? "Solicitação enviada" : "Enviar solicitação"}
           </button>
+          {sent ? <p className="text-sm text-muted-foreground">Recebemos sua mensagem. Enviamos uma confirmação para o seu e-mail.</p> : null}
+          {sendError ? <p className="text-sm text-destructive">{sendError}</p> : null}
           <p className="text-xs text-muted-foreground">
             Os dados são tratados conforme nossa política de privacidade. Sem spam, sem repasse a
             terceiros.
