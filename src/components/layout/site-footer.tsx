@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Youtube, Linkedin, Star } from "lucide-react";
 import { primaryNav, secondaryNav } from "@/lib/nav";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -53,6 +54,7 @@ export function SiteFooter() {
               </Link>{" "}
               da Adeconex.
             </p>
+            <NewsletterForm />
           </div>
         </div>
 
