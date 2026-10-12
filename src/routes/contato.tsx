@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { trackGenerateLead } from "@/lib/analytics";
+import { submitContactForm } from "@/lib/app-emails.functions";
 import { getPlaceDetails, type PlaceDetails, type PlaceReview } from "@/lib/place.functions";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -56,6 +57,8 @@ export const Route = createFileRoute("/contato")({
 function ContatoPage() {
   const place = Route.useLoaderData() as PlaceDetails;
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const lat = place.location?.lat;
   const lng = place.location?.lng;
