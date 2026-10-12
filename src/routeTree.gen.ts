@@ -88,6 +88,9 @@ import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
 import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -520,6 +523,22 @@ const ApiPublicWebhooksMercadopagoRoute =
     path: '/api/public/webhooks/mercadopago',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -594,6 +613,9 @@ export interface FileRoutesByFullPath {
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -667,6 +689,9 @@ export interface FileRoutesByTo {
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -749,6 +774,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/_authenticated/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/_authenticated/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/_authenticated/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -831,6 +859,9 @@ export interface FileRouteTypes {
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/admin/clientes/'
     | '/admin/cupons/'
     | '/admin/etiquetas/'
@@ -904,6 +935,9 @@ export interface FileRouteTypes {
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/admin/clientes'
     | '/admin/cupons'
     | '/admin/etiquetas'
@@ -985,6 +1019,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo/redirecionamentos'
     | '/_authenticated/admin/seo/tecnico'
     | '/api/public/webhooks/mercadopago'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
+    | '/lovable/email/transactional/preview'
     | '/_authenticated/admin/clientes/'
     | '/_authenticated/admin/cupons/'
     | '/_authenticated/admin/etiquetas/'
@@ -1026,6 +1063,9 @@ export interface RootRouteChildren {
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1583,6 +1623,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1797,6 +1858,9 @@ const rootRouteChildren: RootRouteChildren = {
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
