@@ -15,6 +15,7 @@ export const STAFF_SECTIONS = [
   { key: "enriquecimento", label: "Enriquecimento" },
   { key: "downloads", label: "Downloads" },
   { key: "etiquetas", label: "Etiqueta personalizada" },
+  { key: "emails", label: "E-mails" },
 ] as const;
 
 export type MyPermissions = {

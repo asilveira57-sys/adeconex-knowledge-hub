@@ -4,8 +4,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { APP_EMAILS, APP_EMAIL_KEYS, mergeTexts } from "./app-emails.shared";
 
 async function assertEmailsStaff(context: { supabase: any; userId: string }) {
-  const { getMyPermissions } = await import("./staff.functions");
-  void getMyPermissions;
   const { data: staff } = await context.supabase.rpc("is_staff", { _user_id: context.userId });
   if (!staff) throw new Error("Acesso negado");
 }

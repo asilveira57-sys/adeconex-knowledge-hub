@@ -261,6 +261,22 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
       changed_by: context.userId,
       comment: data.comment ?? null,
     });
+
+    if (current.status !== data.status) {
+      const map: Partial<Record<string, import("./app-emails.shared").AppEmailKey>> = {
+        pago: "pagamento-confirmado",
+        em_producao: "pedido-em-producao",
+        arte_aprovada: "pedido-em-producao",
+        enviado: "pedido-enviado",
+        entregue: "pedido-entregue",
+        cancelado: "pedido-cancelado",
+      };
+      const key = map[data.status];
+      if (key) {
+        const { sendOrderEmail } = await import("./app-emails.server");
+        await sendOrderEmail(key, data.orderId);
+      }
+    }
     return { ok: true };
   });
 
