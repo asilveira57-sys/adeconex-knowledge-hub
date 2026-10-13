@@ -41,6 +41,7 @@ import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
+import { Route as FerramentasCalculadoraDeRibbonRouteImport } from './routes/ferramentas.calculadora-de-ribbon'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
 import { Route as FerramentasGeradorZplRouteImport } from './routes/ferramentas.gerador-zpl'
@@ -253,6 +254,12 @@ const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FerramentasRoute,
 } as any)
+const FerramentasCalculadoraDeRibbonRoute =
+  FerramentasCalculadoraDeRibbonRouteImport.update({
+    id: '/calculadora-de-ribbon',
+    path: '/calculadora-de-ribbon',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
 const FerramentasConversorDeMedidasRoute =
   FerramentasConversorDeMedidasRouteImport.update({
     id: '/conversor-de-medidas',
@@ -575,6 +582,7 @@ export interface FileRoutesByFullPath {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -653,6 +661,7 @@ export interface FileRoutesByTo {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
   '/ferramentas/planejador-de-bobina': typeof FerramentasPlanejadorDeBobinaRoute
@@ -738,6 +747,7 @@ export interface FileRoutesById {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -824,6 +834,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
@@ -902,6 +913,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
     | '/ferramentas/planejador-de-bobina'
@@ -986,6 +998,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
     | '/ferramentas/gerador-zpl'
@@ -1305,6 +1318,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/ferramentas/'
       preLoaderRoute: typeof FerramentasIndexRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/calculadora-de-ribbon': {
+      id: '/ferramentas/calculadora-de-ribbon'
+      path: '/calculadora-de-ribbon'
+      fullPath: '/ferramentas/calculadora-de-ribbon'
+      preLoaderRoute: typeof FerramentasCalculadoraDeRibbonRouteImport
       parentRoute: typeof FerramentasRoute
     }
     '/ferramentas/conversor-de-medidas': {
@@ -1811,6 +1831,7 @@ const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
   )
 
 interface FerramentasRouteChildren {
+  FerramentasCalculadoraDeRibbonRoute: typeof FerramentasCalculadoraDeRibbonRoute
   FerramentasConversorDeMedidasRoute: typeof FerramentasConversorDeMedidasRoute
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
   FerramentasGeradorZplRoute: typeof FerramentasGeradorZplRoute
@@ -1820,6 +1841,7 @@ interface FerramentasRouteChildren {
 }
 
 const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasCalculadoraDeRibbonRoute: FerramentasCalculadoraDeRibbonRoute,
   FerramentasConversorDeMedidasRoute: FerramentasConversorDeMedidasRoute,
   FerramentasGeradorDeCodigoDeBarrasRoute:
     FerramentasGeradorDeCodigoDeBarrasRouteWithChildren,
