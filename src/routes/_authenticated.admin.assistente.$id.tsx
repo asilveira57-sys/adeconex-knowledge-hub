@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowLeft, ArrowUp, Copy, ExternalLink, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { adminGetJourney, adminSaveJourney, adminListSolutions, adminSearchProducts } from "@/lib/solutions.functions";
 import {
-  ITEM_CATEGORIES, JOURNEY_STATUS, STEP_TYPES, slugify, validateJourney, type JourneyDraft, type RecDraft, type StepDraft, type Condition,
+  ITEM_CATEGORIES, JOURNEY_STATUS, STEP_TYPES, slugify, validateJourney, type JourneyDraft, type RecDraft, type StepDraft, type Condition, type Specs, TECH_LABEL, MATERIAL_LABEL, RIBBON_LABEL,
 } from "@/lib/solutions.shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,13 +26,53 @@ const newRec = (): RecDraft => ({
   id: uid(), product_id: null, item_category: "outros", role: null, reason: null, is_required: false, quantity: null, sort_order: 0,
   notes: null, is_active: true, show_when: null, ext_name: null, ext_description: null, ext_manufacturer: null, ext_model: null,
   ext_image_url: null, ext_platform: null, ext_original_url: null, ext_affiliate_url: null, is_affiliate: false, ext_offer_id: null,
-  ext_checked_at: null, ext_link_status: "ok", ext_button_text: null,
+  ext_checked_at: null, ext_link_status: "ok", ext_button_text: null, specs: {},
 });
 const newStep = (): StepDraft => ({
   id: uid(), internal_name: null, title: "Nova etapa", body: null, step_type: "text", image_url: null, image_alt: null, sort_order: 0,
   is_required: false, guidance: null, options: [], condition: null, recommendations: [],
 });
 function move<T>(arr: T[], i: number, d: number) { const a = [...arr]; const j = i + d; if (j < 0 || j >= a.length) return a; [a[i], a[j]] = [a[j], a[i]]; return a; }
+
+function SpecsEditor({ category, value, onChange }: { category: string; value: Specs; onChange: (v: Specs) => void }) {
+  if (!["impressora", "etiqueta", "ribbon"].includes(category)) return null;
+  const setNum = (k: "max_width_mm" | "width_mm", v: string) => {
+    const n = Number(v.replace(",", "."));
+    onChange({ ...value, [k]: v.trim() && n > 0 ? n : null });
+  };
+  return (
+    <div className="rounded-md border border-dashed p-3">
+      <p className="mb-2 text-xs font-medium">Dados técnicos para a conferência de compatibilidade (deixe em branco se não souber)</p>
+      <div className="grid gap-3 md:grid-cols-3">
+        {category === "impressora" ? (
+          <>
+            <div className="grid gap-1"><Label className="text-xs">Tecnologia</Label>
+              <select className={sel} value={value.tech ?? ""} onChange={(e) => onChange({ ...value, tech: (e.target.value || null) as Specs["tech"] })}>
+                <option value="">Não informado</option>{Object.entries(TECH_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select></div>
+            <div className="grid gap-1"><Label className="text-xs">Largura máxima de impressão (mm)</Label>
+              <Input inputMode="decimal" defaultValue={value.max_width_mm ?? ""} onBlur={(e) => setNum("max_width_mm", e.target.value)} /></div>
+          </>
+        ) : (
+          <div className="grid gap-1"><Label className="text-xs">Largura (mm)</Label>
+            <Input inputMode="decimal" defaultValue={value.width_mm ?? ""} onBlur={(e) => setNum("width_mm", e.target.value)} /></div>
+        )}
+        {category === "etiqueta" ? (
+          <div className="grid gap-1"><Label className="text-xs">Material</Label>
+            <select className={sel} value={value.material ?? ""} onChange={(e) => onChange({ ...value, material: (e.target.value || null) as Specs["material"] })}>
+              <option value="">Não informado</option>{Object.entries(MATERIAL_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select></div>
+        ) : null}
+        {category === "ribbon" ? (
+          <div className="grid gap-1"><Label className="text-xs">Tipo de ribbon</Label>
+            <select className={sel} value={value.ribbon_type ?? ""} onChange={(e) => onChange({ ...value, ribbon_type: (e.target.value || null) as Specs["ribbon_type"] })}>
+              <option value="">Não informado</option>{Object.entries(RIBBON_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select></div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 function F({ label, value, onChange, area, type, placeholder }: { label: string; value: string | null; onChange: (v: string | null) => void; area?: boolean; type?: string; placeholder?: string }) {
   return (
@@ -279,6 +319,7 @@ function JourneyEditor() {
                           <div className="md:col-span-3"><F area label="Descrição" value={r.ext_description} onChange={(v) => setRec(i, k, { ext_description: v })} /></div>
                         </div>
                       )}
+                      <SpecsEditor category={r.item_category} value={r.specs ?? {}} onChange={(specs) => setRec(i, k, { specs })} />
                       <div className="grid gap-3 md:grid-cols-3">
                         <div className="grid gap-1">
                           <Label className="text-xs">Tipo de item</Label>

@@ -3630,6 +3630,47 @@ export type Database = {
         }
         Relationships: []
       }
+      solution_events: {
+        Row: {
+          created_at: string
+          device: string | null
+          event_type: string
+          id: string
+          journey_id: string
+          rec_id: string | null
+          session_id: string
+          step_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device?: string | null
+          event_type: string
+          id?: string
+          journey_id: string
+          rec_id?: string | null
+          session_id: string
+          step_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          id?: string
+          journey_id?: string
+          rec_id?: string | null
+          session_id?: string
+          step_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_events_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "solution_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solution_journeys: {
         Row: {
           admin_name: string
@@ -3740,6 +3781,7 @@ export type Database = {
           role: string | null
           show_when: Json | null
           sort_order: number
+          specs: Json
           step_id: string
           updated_at: string
         }
@@ -3769,6 +3811,7 @@ export type Database = {
           role?: string | null
           show_when?: Json | null
           sort_order?: number
+          specs?: Json
           step_id: string
           updated_at?: string
         }
@@ -3798,6 +3841,7 @@ export type Database = {
           role?: string | null
           show_when?: Json | null
           sort_order?: number
+          specs?: Json
           step_id?: string
           updated_at?: string
         }

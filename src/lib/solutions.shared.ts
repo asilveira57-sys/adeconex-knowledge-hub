@@ -63,6 +63,7 @@ export type RecDraft = {
   ext_checked_at: string | null;
   ext_link_status: string;
   ext_button_text: string | null;
+  specs: Specs;
 };
 
 export type StepDraft = {
@@ -183,4 +184,91 @@ export function groupOfStep(t: StepType) {
 export function safeTotal(items: { price: number | null; external: boolean }[]) {
   if (items.length === 0 || items.some((i) => i.external || i.price == null)) return null;
   return items.reduce((s, i) => s + (i.price ?? 0), 0);
+}
+
+// ---------- Parte 2: dados técnicos e compatibilidade ----------
+
+export type Specs = {
+  tech?: "tt" | "dt" | "both" | null; // impressora: transferência térmica, térmica direta ou ambas
+  max_width_mm?: number | null; // impressora: largura máxima de impressão
+  width_mm?: number | null; // etiqueta / ribbon: largura
+  material?: "couche" | "bopp" | "poliester" | "termico" | null; // etiqueta
+  ribbon_type?: "cera" | "misto" | "resina" | null; // ribbon
+};
+
+export const TECH_LABEL = { tt: "Transferência térmica", dt: "Térmica direta", both: "Térmica direta e transferência" } as const;
+export const MATERIAL_LABEL = { couche: "Papel couchê", bopp: "BOPP", poliester: "Poliéster", termico: "Papel térmico" } as const;
+export const RIBBON_LABEL = { cera: "Cera", misto: "Misto (cera/resina)", resina: "Resina" } as const;
+
+export type CompatItem = { name: string; category: string; specs: Specs };
+export type CompatNote = { level: "error" | "warning" | "info"; message: string };
+
+const num = (v: unknown) => (typeof v === "number" && v > 0 ? v : null);
+
+/** Confere a combinação de itens escolhidos. Só avisa com base nos dados cadastrados; nunca inventa. */
+export function checkCompatibility(items: CompatItem[]): { notes: CompatNote[]; missing: string[] } {
+  const notes: CompatNote[] = [];
+  const missing: string[] = [];
+  const printers = items.filter((i) => i.category === "impressora");
+  const labels = items.filter((i) => i.category === "etiqueta");
+  const ribbons = items.filter((i) => i.category === "ribbon");
+
+  for (const p of printers) {
+    if (!num(p.specs.max_width_mm)) missing.push(`largura máxima de impressão de "${p.name}"`);
+    if (!p.specs.tech) missing.push(`tecnologia de impressão de "${p.name}"`);
+  }
+  for (const l of labels) {
+    if (!num(l.specs.width_mm)) missing.push(`largura da etiqueta "${l.name}"`);
+    if (!l.specs.material) missing.push(`material da etiqueta "${l.name}"`);
+  }
+  for (const r of ribbons) {
+    if (!num(r.specs.width_mm)) missing.push(`largura do ribbon "${r.name}"`);
+    if (!r.specs.ribbon_type) missing.push(`tipo do ribbon "${r.name}"`);
+  }
+
+  for (const p of printers) {
+    const max = num(p.specs.max_width_mm);
+    for (const l of labels) {
+      const w = num(l.specs.width_mm);
+      if (max && w && w > max) notes.push({ level: "error", message: `A etiqueta "${l.name}" (${w} mm) é mais larga que a área de impressão de "${p.name}" (${max} mm).` });
+    }
+    for (const r of ribbons) {
+      const w = num(r.specs.width_mm);
+      if (max && w && w > max) notes.push({ level: "error", message: `O ribbon "${r.name}" (${w} mm) é mais largo que "${p.name}" aceita (${max} mm).` });
+    }
+    if (p.specs.tech === "dt" && ribbons.length) notes.push({ level: "warning", message: `"${p.name}" imprime só em térmica direta e não usa ribbon.` });
+    if (p.specs.tech === "dt") for (const l of labels) if (l.specs.material && l.specs.material !== "termico")
+      notes.push({ level: "error", message: `"${p.name}" é térmica direta e precisa de etiqueta de papel térmico; "${l.name}" é ${MATERIAL_LABEL[l.specs.material]}.` });
+    if ((p.specs.tech === "tt" || p.specs.tech === "both") && !ribbons.length && labels.some((l) => l.specs.material && l.specs.material !== "termico"))
+      notes.push({ level: "warning", message: `As etiquetas escolhidas precisam de ribbon para imprimir em "${p.name}", mas nenhum ribbon está na lista.` });
+  }
+
+  for (const l of labels) {
+    const lw = num(l.specs.width_mm);
+    if (l.specs.material === "termico" && ribbons.length) notes.push({ level: "info", message: `"${l.name}" é papel térmico e dispensa ribbon.` });
+    for (const r of ribbons) {
+      const rw = num(r.specs.width_mm);
+      if (lw && rw && rw < lw) notes.push({ level: "warning", message: `O ribbon "${r.name}" (${rw} mm) é mais estreito que a etiqueta "${l.name}" (${lw} mm); parte da etiqueta não será impressa.` });
+      const m = l.specs.material, t = r.specs.ribbon_type;
+      if (m === "poliester" && t === "cera") notes.push({ level: "error", message: `Ribbon de cera não fixa bem em poliéster. Para "${l.name}", use ribbon de resina.` });
+      if (m === "poliester" && t === "misto") notes.push({ level: "warning", message: `Para poliéster ("${l.name}"), o ribbon de resina dá mais resistência que o misto.` });
+      if (m === "bopp" && t === "cera") notes.push({ level: "warning", message: `Em BOPP ("${l.name}"), o ribbon misto ou de resina resiste melhor que o de cera.` });
+    }
+  }
+  return { notes, missing };
+}
+
+/** Linhas da comparação lado a lado. */
+export function compareRows(items: { specs: Specs; category: string }[]) {
+  const rows: { label: string; values: string[] }[] = [];
+  const add = (label: string, f: (s: Specs) => string | null) => {
+    const values = items.map((i) => f(i.specs) ?? "—");
+    if (values.some((v) => v !== "—")) rows.push({ label, values });
+  };
+  add("Tecnologia", (s) => (s.tech ? TECH_LABEL[s.tech] : null));
+  add("Largura máxima de impressão", (s) => (num(s.max_width_mm) ? `${s.max_width_mm} mm` : null));
+  add("Largura", (s) => (num(s.width_mm) ? `${s.width_mm} mm` : null));
+  add("Material", (s) => (s.material ? MATERIAL_LABEL[s.material] : null));
+  add("Tipo de ribbon", (s) => (s.ribbon_type ? RIBBON_LABEL[s.ribbon_type] : null));
+  return rows;
 }

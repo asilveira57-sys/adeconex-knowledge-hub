@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { validateJourney, slugify, type JourneyDraft, type StepDraft, type RecDraft } from "./solutions.shared";
+import { validateJourney, slugify, type JourneyDraft, type StepDraft, type RecDraft, type Specs } from "./solutions.shared";
 
 // ---------- Público ----------
 
@@ -48,7 +48,7 @@ export const getPublicJourney = createServerFn({ method: "GET" })
           if (r.product_id && !p) return []; // produto oculto/removido: não mostra
           return [{
             id: r.id, item_category: r.item_category, role: r.role, reason: r.reason, is_required: r.is_required, quantity: r.quantity,
-            notes: r.notes, show_when: (r.show_when ?? null) as RecDraft["show_when"],
+            notes: r.notes, show_when: (r.show_when ?? null) as RecDraft["show_when"], specs: (r.specs ?? {}) as Specs,
             product: p ? { slug: p.slug, name: p.name, image_url: p.image_url, image_alt: p.image_alt, price: p.promotional_price ?? p.price } : null,
             external: p ? null : {
               name: r.ext_name ?? "", description: r.ext_description, manufacturer: r.ext_manufacturer, model: r.ext_model,
@@ -156,6 +156,11 @@ const recSchema = z.object({
   ext_name: n(200), ext_description: n(2000), ext_manufacturer: n(120), ext_model: n(120), ext_image_url: n(1000),
   ext_platform: n(120), ext_original_url: n(2000), ext_affiliate_url: n(2000), is_affiliate: z.boolean(),
   ext_offer_id: n(200), ext_checked_at: n(20), ext_link_status: z.string().max(30), ext_button_text: n(60),
+  specs: z.object({
+    tech: z.enum(["tt", "dt", "both"]).nullable().optional(), max_width_mm: z.number().positive().max(2000).nullable().optional(),
+    width_mm: z.number().positive().max(2000).nullable().optional(), material: z.enum(["couche", "bopp", "poliester", "termico"]).nullable().optional(),
+    ribbon_type: z.enum(["cera", "misto", "resina"]).nullable().optional(),
+  }).default({}),
 });
 const stepSchema = z.object({
   id: z.string().uuid(), internal_name: n(160), title: z.string().max(200), body: n(20000),
@@ -261,4 +266,50 @@ export const adminDeleteJourney = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("solution_journeys").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// ---------- Relatório de uso ----------
+export const adminSolutionReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ from: z.string().max(30), to: z.string().max(30) }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const sb = context.supabase;
+    const rows: { journey_id: string; event_type: string; step_id: string | null; rec_id: string | null; session_id: string }[] = [];
+    for (let off = 0; off < 50000; off += 1000) {
+      const { data: page, error } = await sb.from("solution_events").select("journey_id, event_type, step_id, rec_id, session_id")
+        .gte("created_at", data.from).lte("created_at", data.to).order("created_at").range(off, off + 999);
+      if (error) throw new Error(error.message);
+      rows.push(...(page ?? []));
+      if (!page || page.length < 1000) break;
+    }
+    const [{ data: js }, { data: steps }] = await Promise.all([
+      sb.from("solution_journeys").select("id, admin_name, slug"),
+      sb.from("solution_steps").select("id, title, journey_id, sort_order"),
+    ]);
+    const recIds = [...new Set(rows.map((r) => r.rec_id).filter(Boolean))] as string[];
+    const { data: recs } = recIds.length
+      ? await sb.from("solution_recommendations").select("id, ext_name, product_id, products(name)").in("id", recIds.slice(0, 200))
+      : { data: [] as any[] };
+    const recName = new Map((recs ?? []).map((r: any) => [r.id, r.ext_name ?? r.products?.name ?? "Item"]));
+    const journeys = (js ?? []).map((j) => {
+      const ev = rows.filter((r) => r.journey_id === j.id);
+      const uniq = (t: string) => new Set(ev.filter((e) => e.event_type === t).map((e) => e.session_id)).size;
+      const count = (t: string) => ev.filter((e) => e.event_type === t).length;
+      const stepCounts = (steps ?? []).filter((s) => s.journey_id === j.id).sort((a, b) => a.sort_order - b.sort_order)
+        .map((s) => ({ title: s.title, sessions: new Set(ev.filter((e) => e.event_type === "step" && e.step_id === s.id).map((e) => e.session_id)).size }));
+      const clicks = new Map<string, { name: string; type: string; n: number }>();
+      for (const e of ev) if (e.rec_id && e.event_type.startsWith("click_")) {
+        const k = e.rec_id + e.event_type;
+        const c = clicks.get(k) ?? { name: recName.get(e.rec_id) ?? "Item", type: e.event_type, n: 0 };
+        c.n++; clicks.set(k, c);
+      }
+      return {
+        id: j.id, name: j.admin_name, slug: j.slug,
+        views: uniq("view"), starts: uniq("start"), completes: uniq("complete"),
+        internal: count("click_internal"), external: count("click_external"), affiliate: count("click_affiliate"), compares: count("compare"),
+        steps: stepCounts, topClicks: [...clicks.values()].sort((a, b) => b.n - a.n).slice(0, 10),
+      };
+    }).filter((j) => j.views || j.starts || j.internal || j.external || j.affiliate);
+    return { journeys, total: rows.length };
   });
