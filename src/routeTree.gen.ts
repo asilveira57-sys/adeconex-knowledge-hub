@@ -113,6 +113,7 @@ import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_
 import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_authenticated.admin.seo.paginas'
 import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
 import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
+import { Route as ApiPublicJobsReviewEmailsRouteImport } from './routes/api/public/jobs/review-emails'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -680,6 +681,12 @@ const AuthenticatedAdminSeoTecnicoRoute =
     path: '/seo/tecnico',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicJobsReviewEmailsRoute =
+  ApiPublicJobsReviewEmailsRouteImport.update({
+    id: '/api/public/jobs/review-emails',
+    path: '/api/public/jobs/review-emails',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicWebhooksMercadopagoRoute =
   ApiPublicWebhooksMercadopagoRouteImport.update({
     id: '/api/public/webhooks/mercadopago',
@@ -801,6 +808,7 @@ export interface FileRoutesByFullPath {
   '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -903,6 +911,7 @@ export interface FileRoutesByTo {
   '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1014,6 +1023,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/_authenticated/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/_authenticated/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1125,6 +1135,7 @@ export interface FileRouteTypes {
     | '/admin/seo/paginas'
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
+    | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1227,6 +1238,7 @@ export interface FileRouteTypes {
     | '/admin/seo/paginas'
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
+    | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1337,6 +1349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo/paginas'
     | '/_authenticated/admin/seo/redirecionamentos'
     | '/_authenticated/admin/seo/tecnico'
+    | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1399,6 +1412,7 @@ export interface RootRouteChildren {
   CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
+  ApiPublicJobsReviewEmailsRoute: typeof ApiPublicJobsReviewEmailsRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2135,6 +2149,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoTecnicoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/jobs/review-emails': {
+      id: '/api/public/jobs/review-emails'
+      path: '/api/public/jobs/review-emails'
+      fullPath: '/api/public/jobs/review-emails'
+      preLoaderRoute: typeof ApiPublicJobsReviewEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/mercadopago': {
       id: '/api/public/webhooks/mercadopago'
       path: '/api/public/webhooks/mercadopago'
@@ -2412,6 +2433,7 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
+  ApiPublicJobsReviewEmailsRoute: ApiPublicJobsReviewEmailsRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
