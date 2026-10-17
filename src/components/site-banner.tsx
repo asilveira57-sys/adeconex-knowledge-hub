@@ -4,6 +4,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { getActiveBanners } from "@/lib/banners.functions";
 import { isExternalUrl, normalizePath, type SiteBanner } from "@/lib/banners.shared";
 import { trackEvent } from "@/lib/analytics";
+import { bannerTrack } from "@/lib/site-tracker";
 
 export const bannersQuery = { queryKey: ["site-banners"], queryFn: () => getActiveBanners(), staleTime: 5 * 60 * 1000 };
 
@@ -20,7 +21,7 @@ export function BannerPicture({ banner: b, slot = 0, priority = false, className
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver((e) => {
-      if (e[0]?.isIntersecting) { trackEvent("view_promotion", promo(b, slot)); io.disconnect(); }
+      if (e[0]?.isIntersecting) { trackEvent("view_promotion", promo(b, slot)); bannerTrack("impression", b.id, b.placement); io.disconnect(); }
     }, { threshold: 0.5 });
     io.observe(el);
     return () => io.disconnect();
@@ -52,7 +53,7 @@ export function BannerPicture({ banner: b, slot = 0, priority = false, className
       target={b.open_new_tab ? "_blank" : undefined}
       rel={rel}
       aria-label={b.cta_label || b.title || b.alt}
-      onClick={() => trackEvent("select_promotion", promo(b, slot))}
+      onClick={() => { trackEvent("select_promotion", promo(b, slot)); bannerTrack("click", b.id, b.placement); }}
       className={className}
     >
       {pic}

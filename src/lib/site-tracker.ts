@@ -50,3 +50,26 @@ export function siteTrack(type: EventType, productId?: string) {
     /* nunca quebrar a página */
   }
 }
+
+/** Visualização (1 por sessão por banner) ou clique em banner. */
+export function bannerTrack(event: "impression" | "click", bannerId: string, placement: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const path = location.pathname;
+    if (path.startsWith("/admin") || path.startsWith("/lovable")) return;
+    if (/bot|crawl|spider|headless|lighthouse/i.test(navigator.userAgent)) return;
+    const { v, s } = ids();
+    if (event === "impression") {
+      const k = `adx_bi_${s}_${bannerId}`;
+      if (sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, "1");
+    }
+    const body = JSON.stringify({
+      banner_id: bannerId, placement, event_type: event, visitor_id: v, session_id: s,
+      path: path.slice(0, 300), device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "mobile" : "desktop",
+    });
+    const url = "/api/public/banner-event";
+    if (navigator.sendBeacon) navigator.sendBeacon(url, new Blob([body], { type: "application/json" }));
+    else fetch(url, { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } });
+  } catch { /* nunca quebrar a página */ }
+}
