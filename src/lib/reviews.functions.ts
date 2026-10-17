@@ -370,3 +370,39 @@ export const runReviewEmailsNow = createServerFn({ method: "POST" })
     const { runReviewDispatch } = await import("./reviews.server");
     return runReviewDispatch();
   });
+
+export const listReviewInvites = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireReviewStaff(context);
+    const db = await admin();
+    const since = new Date(Date.now() - 120 * 86_400_000).toISOString();
+    const [{ data: reqs }, { data: delivered }] = await Promise.all([
+      db.from("review_requests")
+        .select("id, order_id, sent_at, reminder_sent_at, completed_at, clicked_at, expires_at, created_at, orders(order_number, delivered_at)")
+        .order("created_at", { ascending: false }).limit(300),
+      db.from("orders").select("id, order_number, delivered_at, review_requests(id)")
+        .eq("status", "entregue").not("delivered_at", "is", null).gte("delivered_at", since)
+        .order("delivered_at", { ascending: false }).limit(300),
+    ]);
+    const now = Date.now();
+    type Invite = { id: string; orderNumber: string; status: "aguardando" | "enviado" | "lembrete" | "respondido" | "expirado"; date: string | null; deliveredAt: string | null; sentAt: string | null; reminderAt: string | null; completedAt: string | null };
+    const out: Invite[] = [];
+    for (const r of reqs ?? []) {
+      const o = (r as unknown as { orders: { order_number: string; delivered_at: string | null } | null }).orders;
+      const status: Invite["status"] = r.completed_at ? "respondido"
+        : !r.sent_at ? "aguardando"
+        : new Date(r.expires_at).getTime() < now ? "expirado"
+        : r.reminder_sent_at ? "lembrete" : "enviado";
+      out.push({ id: r.id, orderNumber: o?.order_number ?? "—", status,
+        date: r.completed_at ?? r.reminder_sent_at ?? r.sent_at ?? r.created_at,
+        deliveredAt: o?.delivered_at ?? null, sentAt: r.sent_at, reminderAt: r.reminder_sent_at, completedAt: r.completed_at });
+    }
+    for (const o of delivered ?? []) {
+      const rr = (o as unknown as { review_requests: unknown[] | object | null }).review_requests;
+      if (rr && (Array.isArray(rr) ? rr.length : true)) continue;
+      const planned = new Date(new Date(o.delivered_at as string).getTime() + 7 * 86_400_000).toISOString();
+      out.push({ id: `o-${o.id}`, orderNumber: o.order_number, status: "aguardando", date: planned, deliveredAt: o.delivered_at, sentAt: null, reminderAt: null, completedAt: null });
+    }
+    return out;
+  });
