@@ -84,12 +84,14 @@ export function ReviewForm({
   const onFiles = async (files: FileList | null) => {
     if (!files?.length) return;
     setUploading(true);
+    let imgCount = images;
+    let vidCount = videos;
     try {
       for (const file of Array.from(files)) {
         const kind = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
         if (!kind) { toast.error(`${file.name}: formato não suportado`); continue; }
-        if (kind === "image" && (images + media.filter((m) => m.kind === "image").length >= REVIEW_MAX_IMAGES)) { toast.error("Máximo de 5 fotos"); continue; }
-        if (kind === "video" && videos >= 1) { toast.error("Máximo de 1 vídeo"); continue; }
+        if (kind === "image" && imgCount >= REVIEW_MAX_IMAGES) { toast.error("Máximo de 5 fotos"); continue; }
+        if (kind === "video" && vidCount >= 1) { toast.error("Máximo de 1 vídeo"); continue; }
         if (kind === "image" && file.size > REVIEW_MAX_IMAGE_BYTES) { toast.error(`${file.name}: foto acima de 8 MB`); continue; }
         if (kind === "video") {
           if (file.size > REVIEW_MAX_VIDEO_BYTES) { toast.error("Vídeo acima de 50 MB"); continue; }
@@ -102,6 +104,7 @@ export function ReviewForm({
           : await upAuth({ data: { kind, ext } });
         const { error } = await supabase.storage.from("review-media").uploadToSignedUrl(signed.path, signed.token, file, { contentType: file.type });
         if (error) { toast.error(`Falha ao enviar ${file.name}`); continue; }
+        if (kind === "image") imgCount++; else vidCount++;
         setMedia((m) => [...m, { kind, path: signed.path }]);
       }
     } catch (e) {
