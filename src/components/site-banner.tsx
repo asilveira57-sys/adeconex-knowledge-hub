@@ -5,6 +5,7 @@ import { getActiveBanners } from "@/lib/banners.functions";
 import { isExternalUrl, normalizePath, type SiteBanner } from "@/lib/banners.shared";
 import { trackEvent } from "@/lib/analytics";
 import { bannerTrack } from "@/lib/site-tracker";
+import { useBannersWithPreview } from "@/lib/banner-preview";
 
 export const bannersQuery = { queryKey: ["site-banners"], queryFn: () => getActiveBanners(), staleTime: 5 * 60 * 1000 };
 
@@ -93,12 +94,12 @@ export function BannerRotator({ banners, render, interval = 6000 }: {
 export function PageTopBanner() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data } = useQuery(bannersQuery);
-  if (pathname.startsWith("/admin")) return null;
   const path = normalizePath(pathname);
-  const list = (data ?? []).filter((b) => b.placement === "page_top" && normalizePath(b.page_path) === path);
+  const list = useBannersWithPreview("page_top", (data ?? []).filter((b) => b.placement === "page_top" && normalizePath(b.page_path) === path));
+  if (pathname.startsWith("/admin")) return null;
   if (!list.length) return null;
   return (
-    <div className="container-page pt-4">
+    <div data-banner-slot="page_top" className="container-page pt-4">
       <BannerRotator banners={list} render={(b, i) => (
         <BannerPicture banner={b} slot={i} width={1920} height={320}
           className="block overflow-hidden rounded-lg border hairline"

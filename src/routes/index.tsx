@@ -22,6 +22,7 @@ import { getPlaceDetails, type PlaceDetails } from "@/lib/place.functions";
 import { getActiveBanners } from "@/lib/banners.functions";
 import type { SiteBanner } from "@/lib/banners.shared";
 import { BannerPicture, BannerRotator } from "@/components/site-banner";
+import { useBannersWithPreview } from "@/lib/banner-preview";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -102,7 +103,8 @@ function Vitrines() {
 }
 
 /* ───────── Hero ───────── */
-function Hero({ rating, banners }: { rating: number; banners: SiteBanner[] }) {
+function Hero({ rating, banners: loaded }: { rating: number; banners: SiteBanner[] }) {
+  const banners = useBannersWithPreview("home_hero", loaded);
   return (
     <section className="relative overflow-hidden ink-surface">
       <div
@@ -166,7 +168,7 @@ function Hero({ rating, banners }: { rating: number; banners: SiteBanner[] }) {
 
         <div className="relative">
           {banners.length > 0 ? (
-            <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-white/10 shadow-elevated">
+            <div data-banner-slot="home_hero" className="relative aspect-[4/5] overflow-hidden rounded-xl border border-white/10 shadow-elevated">
               <BannerRotator banners={banners} render={(b, i) => (
                 <BannerPicture banner={b} slot={i} priority={i === 0} width={1200} height={1500}
                   className="block h-full w-full" imgClassName="h-full w-full object-cover" />
@@ -297,13 +299,14 @@ function Solutions() {
 }
 
 /* ───────── Catalog teaser ───────── */
-function CatalogTeaser({ banners }: { banners: SiteBanner[] }) {
+function CatalogTeaser({ banners: loaded }: { banners: SiteBanner[] }) {
+  const banners = useBannersWithPreview("home_secondary", loaded);
   return (
     <Section tone="muted">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div className="order-2 lg:order-1">
           {banners.length > 0 ? (
-            <div className="overflow-hidden rounded-xl border hairline">
+            <div data-banner-slot="home_secondary" className="overflow-hidden rounded-xl border hairline">
               <BannerRotator banners={banners} render={(b, i) => (
                 <BannerPicture banner={b} slot={i} width={1600} height={1200}
                   className="block" imgClassName="aspect-[4/3] w-full object-cover" />
