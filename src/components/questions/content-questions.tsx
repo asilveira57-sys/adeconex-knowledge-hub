@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { MessageCircleQuestion } from "lucide-react";
+import { BadgeCheck, MessageCircleQuestion } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,8 @@ export function ContentQuestions({ target, title, initial }: { target: QuestionT
                 <div className="flex items-start gap-3">
                   <UserAvatar avatar={q.avatar} size={36} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-muted-foreground">{q.author} perguntou</p>
+                    <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">{q.author} perguntou
+                      {q.verified ? <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 font-medium text-primary"><BadgeCheck className="h-3 w-3" aria-hidden="true" /> Compra verificada</span> : null}</p>
                     <h3 className="mt-0.5 whitespace-pre-line break-words text-base font-medium">{q.question}</h3>
                   </div>
                 </div>

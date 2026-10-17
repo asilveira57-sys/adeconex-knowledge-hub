@@ -67,5 +67,7 @@ export type PublicQuestion = {
   answer: string;
   publishedAt: string;
   author: string;
+  /** Cliente comprou o produto (só para perguntas de produto). */
+  verified: boolean;
   avatar: { kind: "preset"; key: AvatarPresetKey } | { kind: "upload"; path: string } | null;
 };
