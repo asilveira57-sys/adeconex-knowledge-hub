@@ -17,6 +17,7 @@ import { ShippingCepQuote } from "@/components/shipping-cep-quote";
 import { BundleOffersSection } from "@/components/bundle-offers-section";
 import { Badge } from "@/components/ui/badge";
 import { ProductBadgePills } from "@/components/product-badge-pills";
+import { ProductReviewsSection, ReviewSummaryInline, productReviewsOptions } from "@/components/reviews/product-reviews";
 import {
   Accordion,
   AccordionContent,
@@ -36,13 +37,19 @@ const productOptions = (slug: string) =>
   });
 
 export const Route = createFileRoute("/produto/$slug")({
-  loader: ({ params, context }) =>
-    context.queryClient.ensureQueryData(productOptions(params.slug)),
+  loader: async ({ params, context }) => {
+    const product = await context.queryClient.ensureQueryData(productOptions(params.slug));
+    const reviews = await context.queryClient
+      .ensureQueryData(productReviewsOptions(product.id))
+      .catch(() => null);
+    return { product, reviews };
+  },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
       return { meta: [{ title: "Produto não encontrado — Adeconex" }, { name: "robots", content: "noindex" }] };
     }
-    const p = loaderData;
+    const p = loaderData.product;
+    const rv = loaderData.reviews;
     const url = absoluteUrl(`/produto/${params.slug}`);
     const title = p.seo_title ?? `${p.name} — Adeconex`;
     const description =
@@ -69,6 +76,23 @@ export const Route = createFileRoute("/produto/$slug")({
       category: p.categories[0]?.name,
       url,
     };
+    if (rv && rv.stats.count > 0 && rv.stats.average != null) {
+      productSchema.aggregateRating = {
+        "@type": "AggregateRating",
+        ratingValue: rv.stats.average,
+        reviewCount: rv.stats.count,
+        bestRating: 5,
+        worstRating: 0.5,
+      };
+      productSchema.review = rv.reviews.slice(0, 10).map((r) => ({
+        "@type": "Review",
+        author: { "@type": "Person", name: r.display_name },
+        datePublished: r.created_at.slice(0, 10),
+        name: r.title || undefined,
+        reviewBody: r.body,
+        reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 0.5 },
+      }));
+    }
     if (priceNum != null) {
       productSchema.offers = {
         "@type": "Offer",
@@ -177,6 +201,7 @@ function variantLabelFromOpts(opts: Record<string, string>): string | null {
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productOptions(slug));
+  const { reviews: initialReviews } = Route.useLoaderData();
   const [idx, setIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const { add } = useCart();
@@ -361,6 +386,8 @@ function ProductPage() {
                 {p.short_description}
               </p>
             )}
+
+            {initialReviews ? <ReviewSummaryInline data={initialReviews} /> : null}
 
             <div className="flex flex-wrap items-center gap-3 text-xs font-mono uppercase tracking-[0.14em] text-muted-foreground">
               {effSku && <span>SKU <span className="text-foreground">{effSku}</span></span>}
@@ -786,6 +813,16 @@ function ProductPage() {
             </Accordion>
           </section>
         )}
+
+        {initialReviews ? (
+          <ProductReviewsSection
+            productId={p.id}
+            productName={p.name}
+            productSlug={slug}
+            shareUrl={absoluteUrl(`/produto/${slug}`)}
+            initial={initialReviews}
+          />
+        ) : null}
 
         {/* CTA final */}
         <section className="mx-auto mt-20 max-w-3xl rounded-xl border hairline bg-gradient-to-br from-surface-2 to-card p-8 text-center shadow-card">

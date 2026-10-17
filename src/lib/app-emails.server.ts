@@ -12,7 +12,7 @@ export async function sendAppEmail(
   key: AppEmailKey,
   to: string | null | undefined,
   vars: Vars,
-  opts: { idempotencyKey: string; reference?: string; ctaUrl?: string; force?: boolean },
+  opts: { idempotencyKey: string; reference?: string; ctaUrl?: string; force?: boolean; extraData?: Record<string, unknown> },
 ): Promise<{ status: "sent" | "suppressed" | "failed" | "disabled" | "skipped" }> {
   const def = getAppEmailDef(key);
   if (!def) return { status: "skipped" };
@@ -47,6 +47,7 @@ export async function sendAppEmail(
         ctaLabel: t.cta_label,
         ctaUrl: opts.ctaUrl ?? SITE_URL,
         closing: t.closing,
+        ...(opts.extraData ?? {}),
       },
     });
     if (!result.sent) {

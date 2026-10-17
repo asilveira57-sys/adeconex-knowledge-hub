@@ -14,6 +14,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
+import { Route as AvaliacoesDeProdutosRouteImport } from './routes/avaliacoes-de-produtos'
 import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BoppRouteImport } from './routes/bopp'
@@ -47,6 +48,7 @@ import { Route as TrocasEDevolucoesRouteImport } from './routes/trocas-e-devoluc
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
+import { Route as AvaliarTokenRouteImport } from './routes/avaliar.$token'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
@@ -70,6 +72,7 @@ import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusa
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
+import { Route as AuthenticatedAdminAvaliacoesRouteImport } from './routes/_authenticated.admin.avaliacoes'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
@@ -137,6 +140,11 @@ const AuthRoute = AuthRouteImport.update({
 const AvaliacoesRoute = AvaliacoesRouteImport.update({
   id: '/avaliacoes',
   path: '/avaliacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliacoesDeProdutosRoute = AvaliacoesDeProdutosRouteImport.update({
+  id: '/avaliacoes-de-produtos',
+  path: '/avaliacoes-de-produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const B2bRoute = B2bRouteImport.update({
@@ -304,6 +312,11 @@ const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   path: '/minha-conta',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AvaliarTokenRoute = AvaliarTokenRouteImport.update({
+  id: '/avaliar/$token',
+  path: '/avaliar/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -427,6 +440,12 @@ const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
   path: '/artes',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAvaliacoesRoute =
+  AuthenticatedAdminAvaliacoesRouteImport.update({
+    id: '/avaliacoes',
+    path: '/avaliacoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRoute =
   AuthenticatedAdminBannersRouteImport.update({
     id: '/banners',
@@ -689,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
@@ -722,6 +742,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -744,6 +765,7 @@ export interface FileRoutesByFullPath {
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -795,6 +817,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/bopp': typeof BoppRoute
   '/cancelamento-e-reembolso': typeof CancelamentoEReembolsoRoute
@@ -822,6 +845,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/trocas-e-devolucoes': typeof TrocasEDevolucoesRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -843,6 +867,7 @@ export interface FileRoutesByTo {
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -896,6 +921,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
@@ -929,6 +955,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -951,6 +978,7 @@ export interface FileRoutesById {
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/_authenticated/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -1004,6 +1032,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -1037,6 +1066,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1059,6 +1089,7 @@ export interface FileRouteTypes {
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/artes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/colaboradores'
@@ -1110,6 +1141,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/bopp'
     | '/cancelamento-e-reembolso'
@@ -1137,6 +1169,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/trocas-e-devolucoes'
     | '/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1158,6 +1191,7 @@ export interface FileRouteTypes {
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/artes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/colaboradores'
@@ -1210,6 +1244,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -1243,6 +1278,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1265,6 +1301,7 @@ export interface FileRouteTypes {
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/artes'
+    | '/_authenticated/admin/avaliacoes'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/colaboradores'
@@ -1318,6 +1355,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   AvaliacoesRoute: typeof AvaliacoesRoute
+  AvaliacoesDeProdutosRoute: typeof AvaliacoesDeProdutosRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRouteWithChildren
   BoppRoute: typeof BoppRoute
@@ -1348,6 +1386,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
+  AvaliarTokenRoute: typeof AvaliarTokenRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
@@ -1401,6 +1440,13 @@ declare module '@tanstack/react-router' {
       path: '/avaliacoes'
       fullPath: '/avaliacoes'
       preLoaderRoute: typeof AvaliacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliacoes-de-produtos': {
+      id: '/avaliacoes-de-produtos'
+      path: '/avaliacoes-de-produtos'
+      fullPath: '/avaliacoes-de-produtos'
+      preLoaderRoute: typeof AvaliacoesDeProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/b2b': {
@@ -1634,6 +1680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/avaliar/$token': {
+      id: '/avaliar/$token'
+      path: '/avaliar/$token'
+      fullPath: '/avaliar/$token'
+      preLoaderRoute: typeof AvaliarTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/': {
       id: '/blog/'
       path: '/'
@@ -1793,6 +1846,13 @@ declare module '@tanstack/react-router' {
       path: '/artes'
       fullPath: '/admin/artes'
       preLoaderRoute: typeof AuthenticatedAdminArtesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/avaliacoes': {
+      id: '/_authenticated/admin/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AuthenticatedAdminAvaliacoesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/banners': {
@@ -2108,6 +2168,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminArtesRoute: typeof AuthenticatedAdminArtesRoute
+  AuthenticatedAdminAvaliacoesRoute: typeof AuthenticatedAdminAvaliacoesRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
@@ -2138,6 +2199,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminArtesRoute: AuthenticatedAdminArtesRoute,
+  AuthenticatedAdminAvaliacoesRoute: AuthenticatedAdminAvaliacoesRoute,
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
@@ -2306,6 +2368,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   AvaliacoesRoute: AvaliacoesRoute,
+  AvaliacoesDeProdutosRoute: AvaliacoesDeProdutosRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRouteWithChildren,
   BoppRoute: BoppRoute,
@@ -2336,6 +2399,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
   TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
+  AvaliarTokenRoute: AvaliarTokenRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,

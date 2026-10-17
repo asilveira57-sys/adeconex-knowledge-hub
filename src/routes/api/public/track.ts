@@ -35,6 +35,10 @@ export const Route = createFileRoute("/api/public/track")({
           utm_source: d.utm_source || null,
           device: d.device ?? null,
         });
+        if (d.event_type === "page_view") {
+          const { maybeRunReviewDispatch } = await import("@/lib/reviews.server");
+          await maybeRunReviewDispatch();
+        }
         return new Response(null, { status: 204 });
       },
     },

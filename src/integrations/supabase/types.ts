@@ -2346,6 +2346,151 @@ export type Database = {
           },
         ]
       }
+      product_review_media: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          position: number
+          review_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          position?: number
+          review_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          position?: number
+          review_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_review_media_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "product_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_review_votes: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+          voter_key: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+          voter_key: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+          voter_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_review_votes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "product_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_reviews: {
+        Row: {
+          admin_reply: string | null
+          body: string
+          city: string | null
+          created_at: string
+          display_name: string
+          featured: boolean
+          helpful_count: number
+          id: string
+          moderation_flags: string[]
+          order_id: string | null
+          product_id: string
+          rating: number
+          rejection_reason: string | null
+          replied_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          verified_purchase: boolean
+        }
+        Insert: {
+          admin_reply?: string | null
+          body: string
+          city?: string | null
+          created_at?: string
+          display_name: string
+          featured?: boolean
+          helpful_count?: number
+          id?: string
+          moderation_flags?: string[]
+          order_id?: string | null
+          product_id: string
+          rating: number
+          rejection_reason?: string | null
+          replied_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+          verified_purchase?: boolean
+        }
+        Update: {
+          admin_reply?: string | null
+          body?: string
+          city?: string | null
+          created_at?: string
+          display_name?: string
+          featured?: boolean
+          helpful_count?: number
+          id?: string
+          moderation_flags?: string[]
+          order_id?: string | null
+          product_id?: string
+          rating?: number
+          rejection_reason?: string | null
+          replied_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          verified_purchase?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_specifications: {
         Row: {
           created_at: string
@@ -2602,9 +2747,13 @@ export type Database = {
           promotional_price: number | null
           published_at: string | null
           quality_flags: Json
+          rating_avg: number | null
+          rating_count: number
           raw_html: string | null
           redirect_status: string
           reference: string | null
+          review_highlights: string | null
+          review_highlights_count: number
           roll_quantity: number | null
           sells_by_kit: boolean
           seo_description: string | null
@@ -2679,9 +2828,13 @@ export type Database = {
           promotional_price?: number | null
           published_at?: string | null
           quality_flags?: Json
+          rating_avg?: number | null
+          rating_count?: number
           raw_html?: string | null
           redirect_status?: string
           reference?: string | null
+          review_highlights?: string | null
+          review_highlights_count?: number
           roll_quantity?: number | null
           sells_by_kit?: boolean
           seo_description?: string | null
@@ -2756,9 +2909,13 @@ export type Database = {
           promotional_price?: number | null
           published_at?: string | null
           quality_flags?: Json
+          rating_avg?: number | null
+          rating_count?: number
           raw_html?: string | null
           redirect_status?: string
           reference?: string | null
+          review_highlights?: string | null
+          review_highlights_count?: number
           roll_quantity?: number | null
           sells_by_kit?: boolean
           seo_description?: string | null
@@ -2869,6 +3026,68 @@ export type Database = {
           whatsapp?: string | null
         }
         Relationships: []
+      }
+      review_dispatch_state: {
+        Row: {
+          id: number
+          last_run_at: string
+        }
+        Insert: {
+          id?: number
+          last_run_at?: string
+        }
+        Update: {
+          id?: number
+          last_run_at?: string
+        }
+        Relationships: []
+      }
+      review_requests: {
+        Row: {
+          clicked_at: string | null
+          completed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          order_id: string
+          reminder_sent_at: string | null
+          sent_at: string | null
+          token_hash: string
+          user_id: string
+        }
+        Insert: {
+          clicked_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          order_id: string
+          reminder_sent_at?: string | null
+          sent_at?: string | null
+          token_hash: string
+          user_id: string
+        }
+        Update: {
+          clicked_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          order_id?: string
+          reminder_sent_at?: string | null
+          sent_at?: string | null
+          token_hash?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seo_pages: {
         Row: {
