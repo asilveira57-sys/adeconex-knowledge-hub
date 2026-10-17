@@ -18,9 +18,20 @@ export const createCatalogLead = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     rateLimit(`lead:${data.email.toLowerCase()}`);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Se a pessoa estiver logada, liga a pesquisa à conta dela.
+    let userId: string | null = null;
+    try {
+      const { getRequestHeader } = await import("@tanstack/react-start/server");
+      const auth = getRequestHeader("authorization");
+      if (auth?.startsWith("Bearer ")) {
+        const { data: u } = await supabaseAdmin.auth.getUser(auth.slice(7));
+        userId = u.user?.id ?? null;
+      }
+    } catch { /* visitante sem login */ }
     const { data: row, error } = await supabaseAdmin
       .from("catalog_leads")
       .insert({
+        user_id: userId,
         name: data.name, email: data.email.toLowerCase(), phone: data.phone, consent: true,
         search_params: data.searchParams, product_ids: data.productIds,
       })
@@ -86,4 +97,32 @@ export const adminCanExportLeads = createServerFn({ method: "GET" })
     const { loadPermissions } = await import("./staff.functions");
     const p = await loadPermissions(context);
     return { canExport: p.canExportCustomers };
+  });
+
+/** Cliente logado: pesquisas salvas pela conta ou pelo mesmo e-mail. */
+export const listMyCatalogLists = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const email = String((context.claims as any)?.email ?? "").toLowerCase();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin.from("catalog_leads").select("id, token, search_params, product_ids, created_at")
+      .order("created_at", { ascending: false }).limit(100);
+    q = email ? q.or(`user_id.eq.${context.userId},email.eq.${email}`) : q.eq("user_id", context.userId);
+    const { data, error } = await q;
+    if (error) throw new Error("Não foi possível carregar suas pesquisas.");
+    return (data ?? []).map((r) => ({ id: r.id, token: r.token, createdAt: r.created_at, count: r.product_ids.length,
+      searchParams: (r.search_params ?? {}) as Record<string, string | number | boolean> }));
+  });
+
+export const deleteMyCatalogList = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    const email = String((context.claims as any)?.email ?? "").toLowerCase();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin.from("catalog_leads").delete().eq("id", data.id);
+    q = email ? q.or(`user_id.eq.${context.userId},email.eq.${email}`) : q.eq("user_id", context.userId);
+    const { error } = await q;
+    if (error) throw new Error("Não foi possível apagar.");
+    return { ok: true };
   });
