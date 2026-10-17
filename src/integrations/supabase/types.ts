@@ -3073,6 +3073,72 @@ export type Database = {
           },
         ]
       }
+      site_banners: {
+        Row: {
+          active: boolean
+          alt: string
+          created_at: string
+          cta_label: string | null
+          ends_at: string | null
+          id: string
+          image_desktop_url: string
+          image_mobile_url: string | null
+          link_url: string | null
+          name: string
+          nofollow: boolean
+          open_new_tab: boolean
+          page_path: string | null
+          placement: string
+          sort_order: number
+          starts_at: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alt?: string
+          created_at?: string
+          cta_label?: string | null
+          ends_at?: string | null
+          id?: string
+          image_desktop_url: string
+          image_mobile_url?: string | null
+          link_url?: string | null
+          name?: string
+          nofollow?: boolean
+          open_new_tab?: boolean
+          page_path?: string | null
+          placement?: string
+          sort_order?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alt?: string
+          created_at?: string
+          cta_label?: string | null
+          ends_at?: string | null
+          id?: string
+          image_desktop_url?: string
+          image_mobile_url?: string | null
+          link_url?: string | null
+          name?: string
+          nofollow?: boolean
+          open_new_tab?: boolean
+          page_path?: string | null
+          placement?: string
+          sort_order?: number
+          starts_at?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_events: {
         Row: {
           created_at: string
