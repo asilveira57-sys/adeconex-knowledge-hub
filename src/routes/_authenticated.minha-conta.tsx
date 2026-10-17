@@ -34,6 +34,8 @@ import {
   onlyDigits,
   fetchViaCep,
 } from "@/lib/account.validation";
+import { listMyCatalogLists, deleteMyCatalogList } from "@/lib/catalog-leads.functions";
+import { Bookmark, Trash2 as TrashIcon } from "lucide-react";
 import { listMyOrders, ORDER_STATUS_LABEL } from "@/lib/orders.functions";
 import { listMyDesigns, listMyCustomOrderItems, deleteDesign } from "@/lib/labels.functions";
 import { SHAPE_LABELS, type LabelShape } from "@/lib/labels/shared";
@@ -123,6 +125,7 @@ function MinhaContaPage() {
           <TabsTrigger value="enderecos"><MapPin className="h-4 w-4 mr-1.5" />Endereços</TabsTrigger>
           <TabsTrigger value="pedidos"><Package className="h-4 w-4 mr-1.5" />Pedidos</TabsTrigger>
           <TabsTrigger value="personalizado"><Sparkles className="h-4 w-4 mr-1.5" />Personalizado</TabsTrigger>
+          <TabsTrigger value="pesquisas"><Bookmark className="h-4 w-4 mr-1.5" />Pesquisas salvas</TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil" className="space-y-6"><AvatarPicker profile={data.profile} /><PerfilTab account={data} /></TabsContent>
@@ -130,6 +133,7 @@ function MinhaContaPage() {
         <TabsContent value="enderecos"><EnderecosTab account={data} /></TabsContent>
         <TabsContent value="pedidos"><PedidosTab /></TabsContent>
         <TabsContent value="personalizado"><PersonalizadoTab /></TabsContent>
+        <TabsContent value="pesquisas"><PesquisasTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -989,6 +993,58 @@ function EmptyState({
       <p className="mt-3 font-medium">{title}</p>
       <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       {action && <div className="mt-4">{action}</div>}
+    </div>
+  );
+}
+
+function describeSearch(p: Record<string, string | number | boolean>) {
+  const parts: string[] = [];
+  if (p.q) parts.push(`"${p.q}"`);
+  for (const k of ["categoria", "marca", "aplicacao", "material"]) if (p[k]) parts.push(String(p[k]).replace(/-/g, " "));
+  return parts.length ? parts.join(" · ") : "Catálogo completo";
+}
+
+function PesquisasTab() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({ queryKey: ["my-catalog-lists"], queryFn: () => listMyCatalogLists() });
+  const del = useMutation({
+    mutationFn: (id: string) => deleteMyCatalogList({ data: { id } }),
+    onSuccess: () => { toast.success("Pesquisa apagada"); qc.invalidateQueries({ queryKey: ["my-catalog-lists"] }); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  const lists = data ?? [];
+  if (lists.length === 0) {
+    return (
+      <EmptyState
+        icon={Bookmark}
+        title="Você ainda não salvou pesquisas"
+        description="No catálogo, use o botão “Salvar / compartilhar pesquisa” e ela aparece aqui para abrir quando quiser."
+        action={<Link to="/catalogo"><Button variant="outline">Ver catálogo</Button></Link>}
+      />
+    );
+  }
+  return (
+    <div className="space-y-2">
+      {lists.map((l) => (
+        <div key={l.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-card p-4">
+          <div className="min-w-0">
+            <p className="font-medium capitalize-first">{describeSearch(l.searchParams)}</p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(l.createdAt).toLocaleDateString("pt-BR", { dateStyle: "short" })} · {l.count} {l.count === 1 ? "produto" : "produtos"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/catalogo/lista/$token" params={{ token: l.token }}>
+              <Button size="sm">Abrir lista</Button>
+            </Link>
+            <Button size="sm" variant="ghost" aria-label="Apagar pesquisa" disabled={del.isPending}
+              onClick={() => { if (confirm("Apagar esta pesquisa salva?")) del.mutate(l.id); }}>
+              <TrashIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
