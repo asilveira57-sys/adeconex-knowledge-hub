@@ -53,6 +53,8 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as ComecePorAquiIndexRouteImport } from './routes/comece-por-aqui.index'
+import { Route as ComecePorAquiSlugRouteImport } from './routes/comece-por-aqui.$slug'
 import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
@@ -340,6 +342,16 @@ const BrindesAgendaPersonalizadaRoute =
     path: '/agenda-personalizada',
     getParentRoute: () => BrindesRoute,
   } as any)
+const ComecePorAquiIndexRoute = ComecePorAquiIndexRouteImport.update({
+  id: '/comece-por-aqui/',
+  path: '/comece-por-aqui/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComecePorAquiSlugRoute = ComecePorAquiSlugRouteImport.update({
+  id: '/comece-por-aqui/$slug',
+  path: '/comece-por-aqui/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
   id: '/downloads/',
   path: '/downloads/',
@@ -759,6 +771,7 @@ export interface FileRoutesByFullPath {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -775,6 +788,7 @@ export interface FileRoutesByFullPath {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/comece-por-aqui/': typeof ComecePorAquiIndexRoute
   '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -864,6 +878,7 @@ export interface FileRoutesByTo {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -879,6 +894,7 @@ export interface FileRoutesByTo {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog': typeof BlogIndexRoute
   '/brindes': typeof BrindesIndexRoute
+  '/comece-por-aqui': typeof ComecePorAquiIndexRoute
   '/downloads': typeof DownloadsIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
@@ -976,6 +992,7 @@ export interface FileRoutesById {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -992,6 +1009,7 @@ export interface FileRoutesById {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/comece-por-aqui/': typeof ComecePorAquiIndexRoute
   '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -1089,6 +1107,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1105,6 +1124,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/comece-por-aqui/'
     | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -1194,6 +1214,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1209,6 +1230,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog'
     | '/brindes'
+    | '/comece-por-aqui'
     | '/downloads'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -1305,6 +1327,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1321,6 +1344,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/comece-por-aqui/'
     | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -1413,12 +1437,14 @@ export interface RootRouteChildren {
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
   AvaliarTokenRoute: typeof AvaliarTokenRoute
+  ComecePorAquiSlugRoute: typeof ComecePorAquiSlugRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
+  ComecePorAquiIndexRoute: typeof ComecePorAquiIndexRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicBannerEventRoute: typeof ApiPublicBannerEventRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
@@ -1741,6 +1767,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/brindes/agenda-personalizada'
       preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
       parentRoute: typeof BrindesRoute
+    }
+    '/comece-por-aqui/': {
+      id: '/comece-por-aqui/'
+      path: '/comece-por-aqui'
+      fullPath: '/comece-por-aqui/'
+      preLoaderRoute: typeof ComecePorAquiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comece-por-aqui/$slug': {
+      id: '/comece-por-aqui/$slug'
+      path: '/comece-por-aqui/$slug'
+      fullPath: '/comece-por-aqui/$slug'
+      preLoaderRoute: typeof ComecePorAquiSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/downloads/': {
       id: '/downloads/'
@@ -2443,12 +2483,14 @@ const rootRouteChildren: RootRouteChildren = {
   TermosDeUsoRoute: TermosDeUsoRoute,
   TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
   AvaliarTokenRoute: AvaliarTokenRoute,
+  ComecePorAquiSlugRoute: ComecePorAquiSlugRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
+  ComecePorAquiIndexRoute: ComecePorAquiIndexRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicBannerEventRoute: ApiPublicBannerEventRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
