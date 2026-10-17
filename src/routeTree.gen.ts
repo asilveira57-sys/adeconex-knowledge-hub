@@ -62,6 +62,7 @@ import { Route as AuthenticatedAdminDownloadsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminEmailsRouteImport } from './routes/_authenticated.admin.emails'
 import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_authenticated.admin.enriquecimento'
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
+import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated.admin.leads'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
@@ -71,6 +72,7 @@ import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_auth
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
+import { Route as CatalogoListaTokenRouteImport } from './routes/catalogo_.lista.$token'
 import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
@@ -373,6 +375,11 @@ const AuthenticatedAdminImportacaoRoute =
     path: '/importacao',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminLeadsRoute = AuthenticatedAdminLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedCheckoutIndexRoute =
   AuthenticatedCheckoutIndexRouteImport.update({
     id: '/',
@@ -423,6 +430,11 @@ const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
   id: '/filtro/$hub',
   path: '/filtro/$hub',
   getParentRoute: () => BlogRoute,
+} as any)
+const CatalogoListaTokenRoute = CatalogoListaTokenRouteImport.update({
+  id: '/catalogo_/lista/$token',
+  path: '/catalogo/lista/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EtiquetasPersonalizadaIndexRoute =
   EtiquetasPersonalizadaIndexRouteImport.update({
@@ -613,6 +625,7 @@ export interface FileRoutesByFullPath {
   '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -621,6 +634,7 @@ export interface FileRoutesByFullPath {
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -692,6 +706,7 @@ export interface FileRoutesByTo {
   '/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -700,6 +715,7 @@ export interface FileRoutesByTo {
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -780,6 +796,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/emails': typeof AuthenticatedAdminEmailsRoute
   '/_authenticated/admin/enriquecimento': typeof AuthenticatedAdminEnriquecimentoRoute
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
+  '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/_authenticated/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -788,6 +805,7 @@ export interface FileRoutesById {
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
+  '/catalogo_/lista/$token': typeof CatalogoListaTokenRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -868,6 +886,7 @@ export interface FileRouteTypes {
     | '/admin/emails'
     | '/admin/enriquecimento'
     | '/admin/importacao'
+    | '/admin/leads'
     | '/checkout/endereco'
     | '/checkout/frete'
     | '/checkout/pagamento'
@@ -876,6 +895,7 @@ export interface FileRouteTypes {
     | '/pedido/$id'
     | '/api/public/track'
     | '/blog/filtro/$hub'
+    | '/catalogo/lista/$token'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin/'
@@ -947,6 +967,7 @@ export interface FileRouteTypes {
     | '/admin/emails'
     | '/admin/enriquecimento'
     | '/admin/importacao'
+    | '/admin/leads'
     | '/checkout/endereco'
     | '/checkout/frete'
     | '/checkout/pagamento'
@@ -955,6 +976,7 @@ export interface FileRouteTypes {
     | '/pedido/$id'
     | '/api/public/track'
     | '/blog/filtro/$hub'
+    | '/catalogo/lista/$token'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/admin'
@@ -1034,6 +1056,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/emails'
     | '/_authenticated/admin/enriquecimento'
     | '/_authenticated/admin/importacao'
+    | '/_authenticated/admin/leads'
     | '/_authenticated/checkout/endereco'
     | '/_authenticated/checkout/frete'
     | '/_authenticated/checkout/pagamento'
@@ -1042,6 +1065,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pedido/$id'
     | '/api/public/track'
     | '/blog/filtro/$hub'
+    | '/catalogo_/lista/$token'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
@@ -1099,6 +1123,7 @@ export interface RootRouteChildren {
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
@@ -1480,6 +1505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminImportacaoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/leads': {
+      id: '/_authenticated/admin/leads'
+      path: '/leads'
+      fullPath: '/admin/leads'
+      preLoaderRoute: typeof AuthenticatedAdminLeadsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/checkout/': {
       id: '/_authenticated/checkout/'
       path: '/'
@@ -1542,6 +1574,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/filtro/$hub'
       preLoaderRoute: typeof BlogFiltroHubRouteImport
       parentRoute: typeof BlogRoute
+    }
+    '/catalogo_/lista/$token': {
+      id: '/catalogo_/lista/$token'
+      path: '/catalogo/lista/$token'
+      fullPath: '/catalogo/lista/$token'
+      preLoaderRoute: typeof CatalogoListaTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/etiquetas/personalizada/': {
       id: '/etiquetas/personalizada/'
@@ -1715,6 +1754,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminEmailsRoute: typeof AuthenticatedAdminEmailsRoute
   AuthenticatedAdminEnriquecimentoRoute: typeof AuthenticatedAdminEnriquecimentoRoute
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
+  AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
   AuthenticatedAdminEtiquetasIdRoute: typeof AuthenticatedAdminEtiquetasIdRoute
@@ -1741,6 +1781,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEmailsRoute: AuthenticatedAdminEmailsRoute,
   AuthenticatedAdminEnriquecimentoRoute: AuthenticatedAdminEnriquecimentoRoute,
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
+  AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
   AuthenticatedAdminEtiquetasIdRoute: AuthenticatedAdminEtiquetasIdRoute,
@@ -1922,6 +1963,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,

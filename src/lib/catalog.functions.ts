@@ -732,3 +732,31 @@ export const getToolShowcase = createServerFn({ method: "GET" })
     });
     return { products };
   });
+
+/** Carrega produtos publicados por id, preservando a ordem recebida (lista salva do catálogo). */
+export async function loadShowcaseByIds(ids: string[]): Promise<ShowcaseProduct[]> {
+  if (ids.length === 0) return [];
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: prods, error } = await supabaseAdmin
+    .from("products")
+    .select("id, name, slug, short_description, price, promotional_price")
+    .in("id", ids.slice(0, 60))
+    .in("status", ["enriched", "published"]);
+  if (error) throw new Error(error.message);
+  const images = await attachImages(prods ?? []);
+  const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
+  const byId = new Map((prods ?? []).map((p) => [p.id, p]));
+  return ids.flatMap((id) => {
+    const p = byId.get(id);
+    if (!p) return [];
+    const img = images.get(p.id);
+    return [{
+      id: p.id, name: p.name, slug: p.slug, short_description: p.short_description,
+      price: p.price !== null ? Number(p.price) : null,
+      promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
+      image_url: img ? publicUrl(base, img.storage_path) ?? img.source_url : null,
+      image_alt: img?.alt_text ?? p.name,
+      badges: [],
+    }];
+  });
+}

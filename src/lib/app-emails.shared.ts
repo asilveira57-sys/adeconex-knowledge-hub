@@ -13,7 +13,8 @@ export type AppEmailKey =
   | "contato-confirmacao"
   | "contato-aviso-interno"
   | "newsletter-inscricao"
-  | "download-link";
+  | "download-link"
+  | "catalogo-lista";
 
 export type AppEmailTexts = {
   subject: string;
@@ -232,6 +233,21 @@ export const APP_EMAILS: AppEmailDef[] = [
       intro: "Segue o link para baixar {arquivo}.",
       body: "Na página do download você também encontra o passo a passo de instalação. Precisa de ajuda? Responda este e-mail.",
       cta_label: "Baixar agora",
+      closing: SIGN,
+    },
+  },
+  {
+    key: "catalogo-lista",
+    group: "Contato e conteúdo",
+    name: "Sua lista do catálogo",
+    when: "Quando a pessoa salva uma pesquisa do catálogo e pede por e-mail.",
+    variables: ["nome", "quantidade", "link"],
+    defaults: {
+      subject: "Sua lista do catálogo Adeconex",
+      heading: "Sua lista está pronta",
+      intro: "Olá, {nome}! Salvamos os {quantidade} produtos da sua pesquisa no catálogo.",
+      body: "No link você vê os produtos com preço atualizado e pode baixar o PDF. Quer um orçamento? É só responder este e-mail ou chamar no WhatsApp (27) 99273-3033.",
+      cta_label: "Abrir minha lista",
       closing: SIGN,
     },
   },
