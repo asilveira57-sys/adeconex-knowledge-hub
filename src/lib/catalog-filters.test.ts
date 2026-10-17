@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mocks = vi.hoisted(() => ({ queries: [] as Array<{ table: string; eq: Array<[string, unknown]>; range: number[] }> }));
+const mocks = vi.hoisted(() => ({ queries: [] as Array<{ table: string; eq: Array<[string, unknown]>; range: number[]; order: Array<{ column: string; ascending: boolean }> }> }));
 
 vi.mock("@tanstack/react-start", () => ({
   createServerFn: () => ({
@@ -10,14 +10,14 @@ vi.mock("@tanstack/react-start", () => ({
 }));
 
 function query(table: string) {
-  const record = { table, eq: [] as Array<[string, unknown]>, range: [] as number[] };
+  const record = { table, eq: [] as Array<[string, unknown]>, range: [] as number[], order: [] as Array<{ column: string; ascending: boolean }> };
   mocks.queries.push(record);
   const result = { data: [] as unknown[], error: null, count: 0 };
   const builder = {
     select: () => builder,
     eq: (key: string, value: unknown) => { record.eq.push([key, value]); return builder; },
     in: () => builder,
-    order: () => builder,
+    order: (column: string, options?: { ascending?: boolean }) => { record.order.push({ column, ascending: options?.ascending !== false }); return builder; },
     range: (from: number, to: number) => { record.range = [from, to]; return builder; },
     maybeSingle: async () => ({ data: record.eq.some(([, value]) => value === "unknown") ? null : { id: `${table}-id` }, error: null }),
     then: (resolve: (value: typeof result) => unknown) => Promise.resolve(result).then(resolve),
@@ -64,6 +64,22 @@ describe("catalog taxonomy filters", () => {
         (q) => q.table === "product_badges" && q.eq.some(([key, value]) => key === "key" && value === "free_shipping"),
       );
       expect(askedForFreeShipping, JSON.stringify(input)).toBe(false);
+    }
+  });
+
+  it("orders products by the chosen sort option", async () => {
+    const expectations: Array<[string, string, boolean]> = [
+      ["name_asc", "name", true],
+      ["price_asc", "price", true],
+      ["price_desc", "price", false],
+      ["newest", "published_at", false],
+      ["relevance", "updated_at", false],
+    ];
+    for (const [sort, column, ascending] of expectations) {
+      mocks.queries.length = 0;
+      await run({ data: { ...defaults, sort } });
+      const products = mocks.queries.find((q) => q.table === "products");
+      expect(products?.order, sort).toEqual([{ column, ascending }]);
     }
   });
 });
