@@ -14,6 +14,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AvaliacoesRouteImport } from './routes/avaliacoes'
+import { Route as AvaliacoesDeProdutosRouteImport } from './routes/avaliacoes-de-produtos'
 import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BoppRouteImport } from './routes/bopp'
@@ -47,6 +48,7 @@ import { Route as TrocasEDevolucoesRouteImport } from './routes/trocas-e-devoluc
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
+import { Route as AvaliarTokenRouteImport } from './routes/avaliar.$token'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
@@ -137,6 +139,11 @@ const AuthRoute = AuthRouteImport.update({
 const AvaliacoesRoute = AvaliacoesRouteImport.update({
   id: '/avaliacoes',
   path: '/avaliacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvaliacoesDeProdutosRoute = AvaliacoesDeProdutosRouteImport.update({
+  id: '/avaliacoes-de-produtos',
+  path: '/avaliacoes-de-produtos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const B2bRoute = B2bRouteImport.update({
@@ -303,6 +310,11 @@ const AuthenticatedMinhaContaRoute = AuthenticatedMinhaContaRouteImport.update({
   id: '/minha-conta',
   path: '/minha-conta',
   getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AvaliarTokenRoute = AvaliarTokenRouteImport.update({
+  id: '/avaliar/$token',
+  path: '/avaliar/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
@@ -689,6 +701,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
@@ -722,6 +735,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -795,6 +809,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/bopp': typeof BoppRoute
   '/cancelamento-e-reembolso': typeof CancelamentoEReembolsoRoute
@@ -822,6 +837,7 @@ export interface FileRoutesByTo {
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/trocas-e-devolucoes': typeof TrocasEDevolucoesRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -896,6 +912,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/avaliacoes': typeof AvaliacoesRoute
+  '/avaliacoes-de-produtos': typeof AvaliacoesDeProdutosRoute
   '/b2b': typeof B2bRoute
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
@@ -929,6 +946,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
+  '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
@@ -1004,6 +1022,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -1037,6 +1056,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1110,6 +1130,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/bopp'
     | '/cancelamento-e-reembolso'
@@ -1137,6 +1158,7 @@ export interface FileRouteTypes {
     | '/termos-de-uso'
     | '/trocas-e-devolucoes'
     | '/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1210,6 +1232,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/avaliacoes'
+    | '/avaliacoes-de-produtos'
     | '/b2b'
     | '/blog'
     | '/bopp'
@@ -1243,6 +1266,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/minha-conta'
+    | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
@@ -1318,6 +1342,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   AvaliacoesRoute: typeof AvaliacoesRoute
+  AvaliacoesDeProdutosRoute: typeof AvaliacoesDeProdutosRoute
   B2bRoute: typeof B2bRoute
   BlogRoute: typeof BlogRouteWithChildren
   BoppRoute: typeof BoppRoute
@@ -1348,6 +1373,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
+  AvaliarTokenRoute: typeof AvaliarTokenRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
@@ -1401,6 +1427,13 @@ declare module '@tanstack/react-router' {
       path: '/avaliacoes'
       fullPath: '/avaliacoes'
       preLoaderRoute: typeof AvaliacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/avaliacoes-de-produtos': {
+      id: '/avaliacoes-de-produtos'
+      path: '/avaliacoes-de-produtos'
+      fullPath: '/avaliacoes-de-produtos'
+      preLoaderRoute: typeof AvaliacoesDeProdutosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/b2b': {
@@ -1633,6 +1666,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/minha-conta'
       preLoaderRoute: typeof AuthenticatedMinhaContaRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/avaliar/$token': {
+      id: '/avaliar/$token'
+      path: '/avaliar/$token'
+      fullPath: '/avaliar/$token'
+      preLoaderRoute: typeof AvaliarTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/blog/': {
       id: '/blog/'
@@ -2306,6 +2346,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   AvaliacoesRoute: AvaliacoesRoute,
+  AvaliacoesDeProdutosRoute: AvaliacoesDeProdutosRoute,
   B2bRoute: B2bRoute,
   BlogRoute: BlogRouteWithChildren,
   BoppRoute: BoppRoute,
@@ -2336,6 +2377,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
   TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
+  AvaliarTokenRoute: AvaliarTokenRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
