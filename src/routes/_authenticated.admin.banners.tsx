@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { BarChart3, ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { BarChart3, Monitor, Smartphone, ExternalLink, AlertTriangle, CheckCircle2, ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { PLACEMENTS, isBannerLive, normalizePath, type BannerPlacement, type SiteBanner } from "@/lib/banners.shared";
+import { PLACEMENTS, isBannerLive, isExternalUrl, normalizePath, type BannerPlacement, type SiteBanner } from "@/lib/banners.shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -210,8 +210,9 @@ function BannerDialog({ edit, count, onClose, onSaved }: { edit: Edit; count: nu
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[92vh] max-w-6xl overflow-y-auto">
         <DialogHeader><DialogTitle>{f.id ? "Editar banner" : "Novo banner"} — {info.label}</DialogTitle></DialogHeader>
+        <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,440px)]">
         <div className="space-y-4">
           <div className="space-y-1.5"><Label>Nome interno (ex.: "Black Friday Ribbons")</Label><Input value={f.name ?? ""} onChange={(e) => set({ name: e.target.value })} /></div>
           {f.placement === "page_top" && (
@@ -243,11 +244,124 @@ function BannerDialog({ edit, count, onClose, onSaved }: { edit: Edit; count: nu
           </div>
           <label className="flex items-center justify-between gap-3 rounded-md border hairline p-3 text-sm">Banner ativo <Switch checked={f.active ?? true} onCheckedChange={(v) => set({ active: v })} /></label>
         </div>
+        <BannerPreview f={f} />
+        </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={save} disabled={!!busy}>{busy === "save" ? "Salvando..." : "Salvar banner"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+const FRAME: Record<BannerPlacement, { desktop: string; mobile: string; dw: number; dh: number; mw: number; mh: number }> = {
+  home_hero: { desktop: "aspect-[4/5]", mobile: "aspect-[4/5]", dw: 1200, dh: 1500, mw: 1080, mh: 1350 },
+  home_secondary: { desktop: "aspect-[4/3]", mobile: "aspect-[4/3]", dw: 1600, dh: 1200, mw: 1080, mh: 810 },
+  page_top: { desktop: "aspect-[6/1]", mobile: "aspect-[3/1]", dw: 1920, dh: 320, mw: 1080, mh: 360 },
+};
+
+/** Prévia ao vivo do banner como aparece no site, com checagem do destino. */
+function BannerPreview({ f }: { f: Edit }) {
+  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
+  const fr = FRAME[f.placement];
+  const mobile = device === "mobile";
+  const src = mobile ? f.image_mobile_url || f.image_desktop_url : f.image_desktop_url;
+  const usingFallback = mobile && !f.image_mobile_url && !!f.image_desktop_url;
+  const link = f.link_url?.trim() || "";
+  const validLink = !link || /^(\/|https?:\/\/)/.test(link);
+  const ext = isExternalUrl(link);
+  const testHref = link.startsWith("/") ? link : link;
+  const target = { w: mobile ? fr.mw : fr.dw, h: mobile ? fr.mh : fr.dh };
+  const ratioOff = dims ? Math.abs(dims.w / dims.h - target.w / target.h) / (target.w / target.h) > 0.08 : false;
+  const small = dims ? dims.w < target.w * 0.6 : false;
+
+  const img = src ? (
+    <img key={src} src={src} alt={f.alt || ""} title={f.title || undefined} onLoad={(e) => setDims({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })} className="h-full w-full object-cover" />
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">Envie a imagem para ver a prévia</div>
+  );
+  const banner = <div className={`overflow-hidden rounded-md border hairline ${mobile ? fr.mobile : fr.desktop}`}>{img}</div>;
+
+  // Mockup simplificado da página onde o banner aparece
+  const page = f.placement === "home_hero" ? (
+    <div className={`grid items-center gap-3 rounded-md bg-ink p-3 ${mobile ? "" : "grid-cols-[1.1fr_1fr]"}`}>
+      <div className="space-y-1.5">
+        <div className="h-1.5 w-12 rounded bg-background/30" />
+        <div className="h-3 w-full rounded bg-background/80" /><div className="h-3 w-3/4 rounded bg-primary" />
+        <div className="h-1.5 w-5/6 rounded bg-background/30" /><div className="mt-2 h-4 w-16 rounded bg-background" />
+      </div>
+      <div className={mobile ? "mx-auto w-3/4" : ""}>{banner}</div>
+    </div>
+  ) : f.placement === "home_secondary" ? (
+    <div className={`grid items-center gap-3 rounded-md bg-muted p-3 ${mobile ? "" : "grid-cols-[1fr_1.1fr]"}`}>
+      {banner}
+      <div className="space-y-1.5"><div className="h-1.5 w-12 rounded bg-foreground/30" /><div className="h-3 w-full rounded bg-foreground/70" /><div className="h-1.5 w-5/6 rounded bg-foreground/20" /><div className="h-1.5 w-4/6 rounded bg-foreground/20" /></div>
+    </div>
+  ) : (
+    <div className="space-y-2">{banner}<div className="grid grid-cols-3 gap-2">{[0, 1, 2].map((i) => <div key={i} className="h-10 rounded bg-muted" />)}</div></div>
+  );
+
+  return (
+    <div className="space-y-3 lg:sticky lg:top-0 lg:self-start">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold">Prévia ao vivo</p>
+        <div className="inline-flex rounded-md border hairline p-0.5">
+          {([["desktop", Monitor, "Computador"], ["mobile", Smartphone, "Celular"]] as const).map(([k, Icon, l]) => (
+            <button key={k} type="button" onClick={() => { setDevice(k); setDims(null); }} aria-pressed={device === k}
+              className={`inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs ${device === k ? "bg-primary text-primary-foreground" : "hover:bg-accent"}`}>
+              <Icon className="h-3.5 w-3.5" /> {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={`mx-auto overflow-hidden rounded-lg border hairline bg-background shadow-sm ${mobile ? "w-[260px] rounded-[1.5rem] border-4" : "w-full"}`}>
+        <div className="flex items-center gap-1.5 border-b hairline bg-muted px-2 py-1.5">
+          {!mobile && <><span className="h-2 w-2 rounded-full bg-foreground/20" /><span className="h-2 w-2 rounded-full bg-foreground/20" /><span className="h-2 w-2 rounded-full bg-foreground/20" /></>}
+          <span className="ml-1 truncate rounded bg-background px-2 py-0.5 font-mono text-[10px] text-muted-foreground">
+            adeconex.com.br{f.placement === "page_top" ? normalizePath(f.page_path) || "/…" : "/"}
+          </span>
+        </div>
+        <div className="h-5 border-b hairline bg-background px-2"><div className="mt-1.5 h-2 w-14 rounded bg-foreground/60" /></div>
+        <div className="p-2">{page}</div>
+      </div>
+
+      <ul className="space-y-1.5 text-xs">
+        {usingFallback && <Check warn>Sem imagem de celular: o celular usará a imagem principal recortada.</Check>}
+        {dims && <Check warn={ratioOff || small}>Imagem {dims.w} × {dims.h} px {ratioOff ? `— proporção diferente da recomendada (${target.w} × ${target.h}); as bordas serão cortadas.` : small ? "— resolução baixa, pode ficar borrada." : "— proporção correta."}</Check>}
+        <Check warn={!f.alt?.trim()}>{f.alt?.trim() ? `Alt: "${f.alt}"` : "Falta o texto alternativo (alt)."}</Check>
+      </ul>
+
+      <div className="space-y-2 rounded-md border hairline p-3 text-xs">
+        <p className="font-semibold">Destino do clique</p>
+        {!link ? <p className="text-muted-foreground">Sem link — o banner não será clicável.</p> : !validLink ? (
+          <p className="flex gap-1 text-destructive"><AlertTriangle className="h-3.5 w-3.5 shrink-0" /> O link deve começar com / ou https://</p>
+        ) : (
+          <>
+            <p className="break-all font-mono">{link.startsWith("/") ? `adeconex.com.br${link}` : link}</p>
+            <div className="flex flex-wrap gap-1">
+              <Badge variant="outline">{ext ? "Site externo" : "Página do site"}</Badge>
+              <Badge variant="outline">{f.open_new_tab ? "Abre em nova aba" : "Abre na mesma aba"}</Badge>
+              {f.nofollow && <Badge variant="outline">nofollow</Badge>}
+              {ext && !f.open_new_tab && <Badge variant="secondary">Dica: abra externos em nova aba</Badge>}
+            </div>
+            <Button type="button" variant="outline" size="sm" asChild>
+              <a href={testHref} target="_blank" rel="noopener noreferrer"><ExternalLink className="mr-1 h-3.5 w-3.5" /> Testar link</a>
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Check({ warn, children }: { warn?: boolean; children: React.ReactNode }) {
+  return (
+    <li className={`flex gap-1.5 ${warn ? "text-destructive" : "text-muted-foreground"}`}>
+      {warn ? <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />}
+      <span>{children}</span>
+    </li>
   );
 }
