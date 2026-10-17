@@ -12,6 +12,8 @@ export type ShowcaseProduct = {
   image_url: string | null;
   image_alt: string | null;
   badges: ProductBadge[];
+  rating_avg?: number | null;
+  rating_count?: number;
 };
 
 export type ProductBadge = {
@@ -171,7 +173,7 @@ export const getShowcase = createServerFn({ method: "GET" })
 
     const { data: prods, error } = await supabaseAdmin
       .from("products")
-      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at")
+      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at, rating_avg, rating_count")
       .in("id", ids)
       .in("status", ["enriched", "published"])
       .eq("is_available", true)
@@ -195,6 +197,8 @@ export const getShowcase = createServerFn({ method: "GET" })
         promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
         image_url,
         image_alt: img?.alt_text ?? p.name,
+        rating_avg: (p as { rating_avg?: number | null }).rating_avg != null ? Number((p as { rating_avg?: number | null }).rating_avg) : null,
+        rating_count: (p as { rating_count?: number }).rating_count ?? 0,
         badges: badgesByProduct.get(p.id) ?? [],
       };
     });
@@ -388,7 +392,7 @@ export const listCatalog = createServerFn({ method: "GET" })
 
     let q = supabaseAdmin
       .from("products")
-      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at", { count: "exact" })
+      .select("id, name, slug, short_description, price, promotional_price, stock_quantity, published_at, rating_avg, rating_count", { count: "exact" })
       .in("status", ["enriched", "published"])
       .eq("is_available", true);
 
@@ -423,6 +427,8 @@ export const listCatalog = createServerFn({ method: "GET" })
         promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
         image_url,
         image_alt: img?.alt_text ?? p.name,
+        rating_avg: (p as { rating_avg?: number | null }).rating_avg != null ? Number((p as { rating_avg?: number | null }).rating_avg) : null,
+        rating_count: (p as { rating_count?: number }).rating_count ?? 0,
         badges: badgesByProduct.get(p.id) ?? [],
       };
     });
@@ -693,7 +699,7 @@ export const getToolShowcase = createServerFn({ method: "GET" })
 
     const { data: prods } = await supabaseAdmin
       .from("products")
-      .select("id, name, slug, short_description, price, promotional_price, updated_at")
+      .select("id, name, slug, short_description, price, promotional_price, updated_at, rating_avg, rating_count")
       .in("id", candidateIds)
       .in("status", ["enriched", "published"])
       .eq("is_available", true)
@@ -727,6 +733,8 @@ export const getToolShowcase = createServerFn({ method: "GET" })
         promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
         image_url: img ? publicUrl(base, img.storage_path) ?? img.source_url : null,
         image_alt: img?.alt_text ?? p.name,
+        rating_avg: (p as { rating_avg?: number | null }).rating_avg != null ? Number((p as { rating_avg?: number | null }).rating_avg) : null,
+        rating_count: (p as { rating_count?: number }).rating_count ?? 0,
         badges: badgesByProduct.get(p.id) ?? [],
       };
     });
@@ -739,7 +747,7 @@ export async function loadShowcaseByIds(ids: string[]): Promise<ShowcaseProduct[
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: prods, error } = await supabaseAdmin
     .from("products")
-    .select("id, name, slug, short_description, price, promotional_price")
+    .select("id, name, slug, short_description, price, promotional_price, rating_avg, rating_count")
     .in("id", ids.slice(0, 60))
     .in("status", ["enriched", "published"]);
   if (error) throw new Error(error.message);
@@ -756,6 +764,8 @@ export async function loadShowcaseByIds(ids: string[]): Promise<ShowcaseProduct[
       promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
       image_url: img ? publicUrl(base, img.storage_path) ?? img.source_url : null,
       image_alt: img?.alt_text ?? p.name,
+      rating_avg: (p as { rating_avg?: number | null }).rating_avg != null ? Number((p as { rating_avg?: number | null }).rating_avg) : null,
+      rating_count: (p as { rating_count?: number }).rating_count ?? 0,
       badges: [],
     }];
   });
