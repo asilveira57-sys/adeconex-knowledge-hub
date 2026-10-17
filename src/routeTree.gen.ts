@@ -82,6 +82,7 @@ import { Route as AuthenticatedAdminEnriquecimentoRouteImport } from './routes/_
 import { Route as AuthenticatedAdminImportacaoRouteImport } from './routes/_authenticated.admin.importacao'
 import { Route as AuthenticatedAdminLeadsRouteImport } from './routes/_authenticated.admin.leads'
 import { Route as AuthenticatedAdminPaginasRouteImport } from './routes/_authenticated.admin.paginas'
+import { Route as AuthenticatedAdminPerguntasRouteImport } from './routes/_authenticated.admin.perguntas'
 import { Route as AuthenticatedCheckoutIndexRouteImport } from './routes/_authenticated.checkout.index'
 import { Route as AuthenticatedCheckoutEnderecoRouteImport } from './routes/_authenticated.checkout.endereco'
 import { Route as AuthenticatedCheckoutFreteRouteImport } from './routes/_authenticated.checkout.frete'
@@ -500,6 +501,12 @@ const AuthenticatedAdminPaginasRoute =
     path: '/paginas',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPerguntasRoute =
+  AuthenticatedAdminPerguntasRouteImport.update({
+    id: '/perguntas',
+    path: '/perguntas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedCheckoutIndexRoute =
   AuthenticatedCheckoutIndexRouteImport.update({
     id: '/',
@@ -782,6 +789,7 @@ export interface FileRoutesByFullPath {
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/paginas': typeof AuthenticatedAdminPaginasRoute
+  '/admin/perguntas': typeof AuthenticatedAdminPerguntasRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -885,6 +893,7 @@ export interface FileRoutesByTo {
   '/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/admin/paginas': typeof AuthenticatedAdminPaginasRoute
+  '/admin/perguntas': typeof AuthenticatedAdminPerguntasRoute
   '/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -997,6 +1006,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/importacao': typeof AuthenticatedAdminImportacaoRoute
   '/_authenticated/admin/leads': typeof AuthenticatedAdminLeadsRoute
   '/_authenticated/admin/paginas': typeof AuthenticatedAdminPaginasRoute
+  '/_authenticated/admin/perguntas': typeof AuthenticatedAdminPerguntasRoute
   '/_authenticated/checkout/endereco': typeof AuthenticatedCheckoutEnderecoRoute
   '/_authenticated/checkout/frete': typeof AuthenticatedCheckoutFreteRoute
   '/_authenticated/checkout/pagamento': typeof AuthenticatedCheckoutPagamentoRoute
@@ -1109,6 +1119,7 @@ export interface FileRouteTypes {
     | '/admin/importacao'
     | '/admin/leads'
     | '/admin/paginas'
+    | '/admin/perguntas'
     | '/checkout/endereco'
     | '/checkout/frete'
     | '/checkout/pagamento'
@@ -1212,6 +1223,7 @@ export interface FileRouteTypes {
     | '/admin/importacao'
     | '/admin/leads'
     | '/admin/paginas'
+    | '/admin/perguntas'
     | '/checkout/endereco'
     | '/checkout/frete'
     | '/checkout/pagamento'
@@ -1323,6 +1335,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/importacao'
     | '/_authenticated/admin/leads'
     | '/_authenticated/admin/paginas'
+    | '/_authenticated/admin/perguntas'
     | '/_authenticated/checkout/endereco'
     | '/_authenticated/checkout/frete'
     | '/_authenticated/checkout/pagamento'
@@ -1932,6 +1945,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPaginasRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/perguntas': {
+      id: '/_authenticated/admin/perguntas'
+      path: '/perguntas'
+      fullPath: '/admin/perguntas'
+      preLoaderRoute: typeof AuthenticatedAdminPerguntasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/checkout/': {
       id: '/_authenticated/checkout/'
       path: '/'
@@ -2199,6 +2219,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminImportacaoRoute: typeof AuthenticatedAdminImportacaoRoute
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminPaginasRoute: typeof AuthenticatedAdminPaginasRoute
+  AuthenticatedAdminPerguntasRoute: typeof AuthenticatedAdminPerguntasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminBannersRelatorioRoute: typeof AuthenticatedAdminBannersRelatorioRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
@@ -2230,6 +2251,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminImportacaoRoute: AuthenticatedAdminImportacaoRoute,
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminPaginasRoute: AuthenticatedAdminPaginasRoute,
+  AuthenticatedAdminPerguntasRoute: AuthenticatedAdminPerguntasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminBannersRelatorioRoute:
     AuthenticatedAdminBannersRelatorioRoute,

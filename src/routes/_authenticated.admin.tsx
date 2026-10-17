@@ -45,6 +45,7 @@ const navItems = [
   { to: "/admin/banners", key: "banners", label: "Banners", icon: ImageIcon, exact: false },
   { to: "/admin/paginas", key: "paginas", label: "Páginas institucionais", icon: FileText, exact: false },
   { to: "/admin/avaliacoes", key: "avaliacoes", label: "Avaliações", icon: Star, exact: false },
+  { to: "/admin/perguntas", key: "perguntas", label: "Perguntas", icon: MessageCircleQuestion, exact: false },
   { to: "/admin/emails", key: "emails", label: "E-mails", icon: Mail, exact: false },
   { to: "/admin/colaboradores", key: "colaboradores", label: "Colaboradores", icon: UserCog, exact: false },
 ] as const;

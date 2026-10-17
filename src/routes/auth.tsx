@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { sendWelcomeEmail } from "@/lib/app-emails.functions";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search?: { redirect?: string }) => ({
+  validateSearch: (search?: { redirect?: string; motivo?: string }) => ({
     redirect: typeof search?.redirect === "string" ? search.redirect : undefined,
+    motivo: search?.motivo === "pergunta" ? ("pergunta" as const) : undefined,
   }),
   head: () => ({
     meta: [
@@ -97,7 +98,9 @@ function AuthPage() {
             {mode === "signin" ? "Entrar" : "Criar conta"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acesso ao painel administrativo Adeconex 2030.
+            {search.motivo === "pergunta"
+              ? "Para enviar uma pergunta, entre na sua conta ou faça seu cadastro."
+              : "Acesso ao painel administrativo Adeconex 2030."}
           </p>
         </div>
         <form onSubmit={submit} className="space-y-4">
