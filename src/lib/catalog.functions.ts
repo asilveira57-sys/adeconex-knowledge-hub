@@ -244,6 +244,25 @@ export const getCatalogBadges = createServerFn({ method: "GET" }).handler(async 
   return { badges: (data ?? []).map((b) => ({ key: b.key, label: b.label, color: b.color, priority: Number(b.priority ?? 0) })) };
 });
 
+/** Only published taxonomy with available public products becomes a filter. */
+export const getCatalogFacets = createServerFn({ method: "GET" }).handler(async () => {
+  const { createCatalogPublicClient } = await import("@/lib/catalog-public.server");
+  const client = createCatalogPublicClient();
+  const [brands, applications] = await Promise.all([
+    client.from("brands").select("name, slug, products!inner(id)")
+      .eq("is_published", true).eq("products.is_available", true)
+      .eq("products.status", "published").order("name"),
+    client.from("applications").select("name, slug, products!inner(id)")
+      .eq("is_published", true).eq("products.is_available", true)
+      .eq("products.status", "published").order("name"),
+  ]);
+  if (brands.error || applications.error) throw new Error("Não foi possível carregar os filtros.");
+  return {
+    brands: (brands.data ?? []).map(({ name, slug }) => ({ name, slug })),
+    applications: (applications.data ?? []).map(({ name, slug }) => ({ name, slug })),
+  };
+});
+
 /**
  * Resolve os ids de produtos que possuem um determinado selo, combinando
  * atribuições manuais vigentes e a regra automática do selo.
@@ -303,6 +322,8 @@ export const listCatalog = createServerFn({ method: "GET" })
     z
       .object({
         categorySlug: z.string().optional(),
+        brandSlug: z.string().optional(),
+        applicationSlug: z.string().optional(),
         badge: z.string().optional(),
         freeShipping: z.boolean().optional(),
         onSale: z.boolean().optional(),
@@ -316,6 +337,19 @@ export const listCatalog = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const empty = { items: [] as ShowcaseProduct[], total: 0, page: data.page, pageSize: data.pageSize };
+
+    const { createCatalogPublicClient } = await import("@/lib/catalog-public.server");
+    const publicClient = createCatalogPublicClient();
+    const [brandResult, applicationResult] = await Promise.all([
+      data.brandSlug
+        ? publicClient.from("brands").select("id").eq("slug", data.brandSlug).eq("is_published", true).maybeSingle()
+        : Promise.resolve(null),
+      data.applicationSlug
+        ? publicClient.from("applications").select("id").eq("slug", data.applicationSlug).eq("is_published", true).maybeSingle()
+        : Promise.resolve(null),
+    ]);
+    if (brandResult?.error || applicationResult?.error) throw new Error("Não foi possível aplicar os filtros.");
+    if ((data.brandSlug && !brandResult?.data) || (data.applicationSlug && !applicationResult?.data)) return empty;
 
     let productIds: string[] | null = null;
     const intersect = (next: string[]) => {
@@ -353,6 +387,8 @@ export const listCatalog = createServerFn({ method: "GET" })
       .eq("is_available", true);
 
     if (productIds) q = q.in("id", productIds);
+    if (brandResult?.data) q = q.eq("brand_id", brandResult.data.id);
+    if (applicationResult?.data) q = q.eq("application_id", applicationResult.data.id);
     if (data.availability === "in_stock") q = q.gt("stock_quantity", 0);
     if (data.onSale) q = q.not("promotional_price", "is", null).gt("promotional_price", 0);
 
