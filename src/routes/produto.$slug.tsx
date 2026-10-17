@@ -67,6 +67,7 @@ export const Route = createFileRoute("/produto/$slug")({
     const productSchema: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "Product",
+      "@id": `${url}#product`,
       name: p.name,
       description,
       sku: p.sku ?? undefined,
@@ -81,6 +82,7 @@ export const Route = createFileRoute("/produto/$slug")({
         "@type": "AggregateRating",
         ratingValue: rv.stats.average,
         reviewCount: rv.stats.count,
+        ratingCount: rv.stats.count,
         bestRating: 5,
         worstRating: 0.5,
       };
@@ -93,16 +95,42 @@ export const Route = createFileRoute("/produto/$slug")({
         reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 0.5 },
       }));
     }
+    // Política de devolução (direito de arrependimento — CDC art. 49, 7 dias)
+    const returnPolicy = {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: "BR",
+      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+      merchantReturnDays: 7,
+      returnMethod: "https://schema.org/ReturnByMail",
+      merchantReturnLink: absoluteUrl("/trocas-e-devolucoes"),
+    };
+    const availability = p.is_available ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+    const seller = { "@type": "Organization", name: "Adeconex", url: BASE_URL };
+    const kitPrices = (p.kits ?? [])
+      .map((k) => k.promotional_price ?? k.price)
+      .filter((v): v is number => v != null && v > 0);
     if (priceNum != null) {
       productSchema.offers = {
         "@type": "Offer",
         priceCurrency: "BRL",
-        price: priceNum,
-        availability: p.is_available
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+        price: Number(priceNum).toFixed(2),
+        availability,
+        itemCondition: "https://schema.org/NewCondition",
         url,
-        seller: { "@type": "Organization", name: "Adeconex" },
+        seller,
+        hasMerchantReturnPolicy: returnPolicy,
+      };
+    } else if (kitPrices.length) {
+      productSchema.offers = {
+        "@type": "AggregateOffer",
+        priceCurrency: "BRL",
+        lowPrice: Math.min(...kitPrices).toFixed(2),
+        highPrice: Math.max(...kitPrices).toFixed(2),
+        offerCount: kitPrices.length,
+        availability,
+        itemCondition: "https://schema.org/NewCondition",
+        url,
+        seller,
       };
     }
 
