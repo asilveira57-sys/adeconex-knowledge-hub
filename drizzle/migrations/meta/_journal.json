@@ -113,6 +113,13 @@
       "when": 1792245133648,
       "tag": "0015_solution_assistant",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792245626148,
+      "tag": "0016_solution_public_read_fix",
+      "breakpoints": true
     }
   ]
 }
