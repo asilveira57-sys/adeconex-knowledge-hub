@@ -215,6 +215,15 @@ export const listQuestionsAdmin = createServerFn({ method: "POST" })
       const { data: ps } = await db.from("profiles").select("id, full_name").in("id", ids);
       for (const p of ps ?? []) people.set(p.id, p.full_name ?? "");
     }
+    const verifiedKeys = new Set<string>();
+    {
+      const { findVerifiedOrder } = await import("./reviews.server");
+      const pairs = [...new Set((rows ?? []).filter((r) => r.product_id).map((r) => `${r.user_id}|${r.product_id}`))];
+      await Promise.all(pairs.map(async (k) => {
+        const [u, pid] = k.split("|");
+        if (await findVerifiedOrder(u, pid)) verifiedKeys.add(k);
+      }));
+    }
     const counts: Record<string, number> = {};
     await Promise.all((["pending", "answered", "published", "cancelled"] as const).map(async (s) => {
       const { count } = await db.from("content_questions").select("id", { count: "exact", head: true }).eq("status", s);
@@ -233,6 +242,7 @@ export const listQuestionsAdmin = createServerFn({ method: "POST" })
           contentUrl: prod ? `/produto/${prod.slug}` : dl ? `/downloads/${dl.slug}` : r.tool_path ?? "/",
           question: r.question, answer: r.answer, status: r.status as "pending" | "answered" | "published" | "cancelled",
           consent: r.identity_consent, consentAt: r.identity_consent_at,
+          verified: !!r.product_id && verifiedKeys.has(`${r.user_id}|${r.product_id}`),
           answeredAt: r.answered_at, publishedAt: r.published_at, cancelReason: r.cancel_reason, createdAt: r.created_at,
         };
       }),

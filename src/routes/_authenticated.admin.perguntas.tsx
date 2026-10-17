@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ExternalLink, History } from "lucide-react";
+import { BadgeCheck, ExternalLink, History } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +109,9 @@ function QuestionCard({ r, onChange }: { r: Row; onChange: () => void }) {
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Badge variant={r.status === "published" ? "default" : r.status === "cancelled" ? "destructive" : "secondary"}>{QUESTION_STATUS_LABEL[r.status]}</Badge>
           <Badge variant="outline">{CONTENT_TYPE_LABEL[r.type]}</Badge>
+          {r.type === "product" ? (r.verified
+            ? <Badge className="gap-1"><BadgeCheck className="h-3 w-3" /> Compra verificada</Badge>
+            : <Badge variant="outline" className="text-muted-foreground">Sem compra deste produto</Badge>) : null}
           <a href={r.contentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium hover:underline">{r.contentLabel} <ExternalLink className="h-3 w-3" /></a>
           <span className="ml-auto text-muted-foreground">Enviada em {dt(r.createdAt)}</span>
         </div>
