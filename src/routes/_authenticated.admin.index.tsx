@@ -307,7 +307,7 @@ function RecoveryTab({ d }: { d: SalesDashboard }) {
   return (
     <div className="mt-4 space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Kpi label="Carrinhos abandonados" value={num(r.abandonedCount)} hint="sem compra há +24h (últimos 60 dias)" />
+        <Kpi label="Carrinhos abandonados" value={num(r.abandonedCount)} hint="iniciados e não finalizados há +24h (últimos 60 dias)" />
         <Kpi label="Valor parado em carrinhos" value={brl(r.abandonedValue)} />
         <Kpi label="Pedidos sem pagamento" value={num(r.pendingCount)} hint="aguardando há +24h" />
         <Kpi label="Valor sem pagamento" value={brl(r.pendingValue)} />
