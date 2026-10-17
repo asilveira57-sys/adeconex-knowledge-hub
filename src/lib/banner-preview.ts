@@ -20,11 +20,7 @@ if (typeof window !== "undefined" && isBannerPreviewMode()) {
     if (e.origin !== location.origin || e.data?.type !== PREVIEW_MSG) return;
     current = e.data.banner as SiteBanner;
     subs.forEach((f) => f());
-    const center = () => {
-      const el = document.querySelector<HTMLElement>(`[data-banner-slot="${current?.placement}"]`);
-      if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - (window.innerHeight - el.offsetHeight) / 2), behavior: "instant" as ScrollBehavior });
-    };
-    [300, 1000, 2000].forEach((ms) => setTimeout(center, ms));
+
   });
   window.parent.postMessage({ type: PREVIEW_MSG + "-ready" }, location.origin);
 }
@@ -36,6 +32,16 @@ function usePreviewBanner(): SiteBanner | null {
 /** Substitui os banners de um formato pelo banner em edição, quando em modo prévia. */
 export function useBannersWithPreview(placement: SiteBanner["placement"], banners: SiteBanner[]): SiteBanner[] {
   const p = usePreviewBanner();
+  const match = !!p && p.placement === placement;
+  useEffect(() => {
+    if (!match) return;
+    const center = () => {
+      const el = document.querySelector<HTMLElement>(`[data-banner-slot="${placement}"]`);
+      if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - (window.innerHeight - el.offsetHeight) / 2), behavior: "instant" as ScrollBehavior });
+    };
+    const ts = [50, 600, 1500].map((ms) => setTimeout(center, ms));
+    return () => ts.forEach(clearTimeout);
+  }, [match, placement, p?.image_desktop_url, p?.image_mobile_url]);
   return p && p.placement === placement ? [p] : banners;
 }
 
