@@ -19,7 +19,7 @@ import {
 import { initAnalytics, trackEvent } from "@/lib/analytics";
 import { siteTrack } from "@/lib/site-tracker";
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
