@@ -20,9 +20,9 @@ if (typeof window !== "undefined" && isBannerPreviewMode()) {
     if (e.origin !== location.origin || e.data?.type !== PREVIEW_MSG) return;
     current = e.data.banner as SiteBanner;
     subs.forEach((f) => f());
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       document.querySelector("[data-banner-slot='" + current?.placement + "']")?.scrollIntoView({ block: "center" });
-    });
+    }, 400);
   });
   window.parent.postMessage({ type: PREVIEW_MSG + "-ready" }, location.origin);
 }
