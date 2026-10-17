@@ -121,7 +121,7 @@ interface ActivePlatforms {
 }
 
 function resolvePlatforms(config: PublicTrackingConfig): ActivePlatforms {
-  const domain = config.canonical_domain || "https://www.adeconex.com.br";
+  const domain = config.canonical_domain || "https://adeconex.com.br";
   const gtmActive =
     config.gtm.enabled &&
     !!config.gtm.container_id &&

@@ -20,7 +20,7 @@ const COMPANY = {
   phone: "(27) 3318-6565",
   whatsapp: "(27) 99273-3033",
   email: "vendas@adeconex.com.br",
-  website: "www.adeconex.com.br",
+  website: "adeconex.com.br",
 };
 
 const RED: [number, number, number] = [239, 51, 58];
