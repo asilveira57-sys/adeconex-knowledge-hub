@@ -19,12 +19,13 @@ import {
 import { initAnalytics, trackEvent } from "@/lib/analytics";
 import { siteTrack } from "@/lib/site-tracker";
 import { getPublicTrackingConfig } from "@/lib/seo-central.functions";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PageTopBanner } from "@/components/site-banner";
+import { usePreviewModeFlag } from "@/lib/banner-preview";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { LaunchNoticePopup } from "@/components/launch-notice-popup";
@@ -188,7 +189,10 @@ function RootComponent() {
     initAnalytics();
   }, []);
 
+  const [previewMode, setPreviewMode] = useState(false);
+  usePreviewModeFlag(setPreviewMode);
   useEffect(() => {
+    if (location.search.includes("banner_preview")) return;
     trackEvent("page_view", { page_path: pathname });
     siteTrack("page_view");
   }, [pathname]);
@@ -203,9 +207,11 @@ function RootComponent() {
         </main>
         <SiteFooter />
       </div>
+      {!previewMode && (<>
       <LaunchNoticePopup />
       <CookieConsentBanner />
       <WhatsappFloatButton />
+      </>)}
 
 
       <Toaster richColors position="top-right" />

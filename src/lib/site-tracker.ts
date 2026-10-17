@@ -29,7 +29,7 @@ export function siteTrack(type: EventType, productId?: string) {
   if (typeof window === "undefined") return;
   try {
     const path = location.pathname;
-    if (path.startsWith("/admin") || path.startsWith("/lovable")) return;
+    if (path.startsWith("/admin") || path.startsWith("/lovable") || location.search.includes("banner_preview")) return;
     if (/bot|crawl|spider|headless|lighthouse/i.test(navigator.userAgent)) return;
     const { v, s } = ids();
     const t = firstTouch();
@@ -56,7 +56,7 @@ export function bannerTrack(event: "impression" | "click", bannerId: string, pla
   if (typeof window === "undefined") return;
   try {
     const path = location.pathname;
-    if (path.startsWith("/admin") || path.startsWith("/lovable")) return;
+    if (path.startsWith("/admin") || path.startsWith("/lovable") || location.search.includes("banner_preview")) return;
     if (/bot|crawl|spider|headless|lighthouse/i.test(navigator.userAgent)) return;
     const { v, s } = ids();
     if (event === "impression") {
