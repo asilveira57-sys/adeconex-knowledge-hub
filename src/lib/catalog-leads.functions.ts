@@ -31,7 +31,7 @@ export const createCatalogLead = createServerFn({ method: "POST" })
   });
 
 /** Público: registra o canal escolhido e, se for e-mail, envia o link. */
-export const useCatalogLeadChannel = createServerFn({ method: "POST" })
+export const recordCatalogLeadChannel = createServerFn({ method: "POST" })
   .inputValidator((v) => z.object({ token: z.string().min(10).max(64), channel: z.enum(LEAD_CHANNELS) }).parse(v))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
