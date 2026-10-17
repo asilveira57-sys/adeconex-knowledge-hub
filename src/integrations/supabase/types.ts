@@ -1014,6 +1014,27 @@ export type Database = {
         }
         Relationships: []
       }
+      institutional_pages: {
+        Row: {
+          content: Json
+          key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       integration_logs: {
         Row: {
           action: string
