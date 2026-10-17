@@ -86,6 +86,7 @@ import { Route as AuthenticatedCheckoutPagamentoRouteImport } from './routes/_au
 import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_authenticated.checkout.revisao'
 import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
+import { Route as ApiPublicBannerEventRouteImport } from './routes/api/public/banner-event'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as CatalogoListaTokenRouteImport } from './routes/catalogo_.lista.$token'
@@ -93,6 +94,7 @@ import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etique
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
+import { Route as AuthenticatedAdminBannersRelatorioRouteImport } from './routes/_authenticated.admin.banners_.relatorio'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
 import { Route as AuthenticatedAdminCuponsIndexRouteImport } from './routes/_authenticated.admin.cupons.index'
@@ -519,6 +521,11 @@ const AuthenticatedPedidoIdRoute = AuthenticatedPedidoIdRouteImport.update({
   path: '/pedido/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicBannerEventRoute = ApiPublicBannerEventRouteImport.update({
+  id: '/api/public/banner-event',
+  path: '/api/public/banner-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -557,6 +564,12 @@ const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
     id: '/$padrao',
     path: '/$padrao',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
+  } as any)
+const AuthenticatedAdminBannersRelatorioRoute =
+  AuthenticatedAdminBannersRelatorioRouteImport.update({
+    id: '/banners_/relatorio',
+    path: '/banners/relatorio',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminClientesIndexRoute =
   AuthenticatedAdminClientesIndexRouteImport.update({
@@ -746,6 +759,7 @@ export interface FileRoutesByFullPath {
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/banner-event': typeof ApiPublicBannerEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
@@ -755,6 +769,7 @@ export interface FileRoutesByFullPath {
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -843,6 +858,7 @@ export interface FileRoutesByTo {
   '/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/banner-event': typeof ApiPublicBannerEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
@@ -852,6 +868,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -949,6 +966,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/revisao': typeof AuthenticatedCheckoutRevisaoRoute
   '/_authenticated/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
+  '/api/public/banner-event': typeof ApiPublicBannerEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo_/lista/$token': typeof CatalogoListaTokenRoute
@@ -958,6 +976,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/_authenticated/admin/banners_/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/_authenticated/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
   '/_authenticated/admin/pedidos/$id': typeof AuthenticatedAdminPedidosIdRoute
@@ -1055,6 +1074,7 @@ export interface FileRouteTypes {
     | '/checkout/revisao'
     | '/etiquetas/editor'
     | '/pedido/$id'
+    | '/api/public/banner-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo/lista/$token'
@@ -1064,6 +1084,7 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
     | '/admin/pedidos/$id'
@@ -1152,6 +1173,7 @@ export interface FileRouteTypes {
     | '/checkout/revisao'
     | '/etiquetas/editor'
     | '/pedido/$id'
+    | '/api/public/banner-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo/lista/$token'
@@ -1161,6 +1183,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/etiquetas/personalizada'
     | '/ferramentas/gerador-de-codigo-de-barras'
+    | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
     | '/admin/pedidos/$id'
@@ -1257,6 +1280,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/revisao'
     | '/_authenticated/etiquetas/editor'
     | '/_authenticated/pedido/$id'
+    | '/api/public/banner-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo_/lista/$token'
@@ -1266,6 +1290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/_authenticated/admin/banners_/relatorio'
     | '/_authenticated/admin/clientes/$id'
     | '/_authenticated/admin/etiquetas/$id'
     | '/_authenticated/admin/pedidos/$id'
@@ -1330,6 +1355,7 @@ export interface RootRouteChildren {
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
+  ApiPublicBannerEventRoute: typeof ApiPublicBannerEventRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
@@ -1881,6 +1907,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPedidoIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/banner-event': {
+      id: '/api/public/banner-event'
+      path: '/api/public/banner-event'
+      fullPath: '/api/public/banner-event'
+      preLoaderRoute: typeof ApiPublicBannerEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -1929,6 +1962,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ferramentas/gerador-de-codigo-de-barras/$padrao'
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
+    }
+    '/_authenticated/admin/banners_/relatorio': {
+      id: '/_authenticated/admin/banners_/relatorio'
+      path: '/banners/relatorio'
+      fullPath: '/admin/banners/relatorio'
+      preLoaderRoute: typeof AuthenticatedAdminBannersRelatorioRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/clientes/': {
       id: '/_authenticated/admin/clientes/'
@@ -2078,6 +2118,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminLeadsRoute: typeof AuthenticatedAdminLeadsRoute
   AuthenticatedAdminPaginasRoute: typeof AuthenticatedAdminPaginasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminBannersRelatorioRoute: typeof AuthenticatedAdminBannersRelatorioRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
   AuthenticatedAdminEtiquetasIdRoute: typeof AuthenticatedAdminEtiquetasIdRoute
   AuthenticatedAdminPedidosIdRoute: typeof AuthenticatedAdminPedidosIdRoute
@@ -2107,6 +2148,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminLeadsRoute: AuthenticatedAdminLeadsRoute,
   AuthenticatedAdminPaginasRoute: AuthenticatedAdminPaginasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminBannersRelatorioRoute:
+    AuthenticatedAdminBannersRelatorioRoute,
   AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
   AuthenticatedAdminEtiquetasIdRoute: AuthenticatedAdminEtiquetasIdRoute,
   AuthenticatedAdminPedidosIdRoute: AuthenticatedAdminPedidosIdRoute,
@@ -2300,6 +2343,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
+  ApiPublicBannerEventRoute: ApiPublicBannerEventRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,

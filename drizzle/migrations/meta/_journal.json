@@ -85,6 +85,13 @@
       "when": 1792239431897,
       "tag": "0011_site_banners",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792239723717,
+      "tag": "0012_banner_events",
+      "breakpoints": true
     }
   ]
 }

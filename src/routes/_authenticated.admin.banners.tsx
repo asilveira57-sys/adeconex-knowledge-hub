@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, Upload } from "lucide-react";
+import { BarChart3, ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PLACEMENTS, isBannerLive, normalizePath, type BannerPlacement, type SiteBanner } from "@/lib/banners.shared";
@@ -70,9 +70,12 @@ function BannersAdmin() {
 
   return (
     <div className="space-y-8">
+      <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <h1 className="font-display text-2xl font-bold">Banners</h1>
         <p className="text-sm text-muted-foreground">Troque as imagens da página principal e coloque uma tarja no topo de qualquer página. Sem banner ativo, o site mostra a imagem padrão.</p>
+      </div>
+        <Button variant="outline" size="sm" asChild><Link to="/admin/banners/relatorio"><BarChart3 className="mr-1 h-4 w-4" /> Relatório</Link></Button>
       </div>
 
       {ORDER.map((pl) => {
