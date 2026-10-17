@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { sendWelcomeEmail } from "@/lib/app-emails.functions";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search?: { redirect?: string; motivo?: string }) => ({
+  validateSearch: (search?: { redirect?: string; motivo?: string }): { redirect?: string; motivo?: "pergunta" } => ({
     redirect: typeof search?.redirect === "string" ? search.redirect : undefined,
     motivo: search?.motivo === "pergunta" ? ("pergunta" as const) : undefined,
   }),

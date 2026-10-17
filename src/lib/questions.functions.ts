@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { loadPermissions } from "./staff.functions";
 import { abbreviateName } from "./reviews.shared";
@@ -263,7 +264,7 @@ export const moderateQuestion = createServerFn({ method: "POST" })
     const now = new Date().toISOString();
     const answer = data.answer !== undefined ? clean(data.answer) : cur.answer ?? "";
     if (answer.length > ANSWER_MAX) throw new Error(`Resposta com no máximo ${ANSWER_MAX} caracteres`);
-    let patch: Record<string, unknown> = {};
+    let patch: Database["public"]["Tables"]["content_questions"]["Update"] = {};
     let note: string | null = null;
     switch (data.action) {
       case "save_draft":
