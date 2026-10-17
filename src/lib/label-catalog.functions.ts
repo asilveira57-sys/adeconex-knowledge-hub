@@ -133,6 +133,19 @@ export const getPublicTemplate = createServerFn({ method: "GET" })
     return row ? toTemplate(row) : null;
   });
 
+/** Editor (logado): equipe também abre artes ocultas para conferir antes de publicar. */
+export const getEditorTemplate = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<LabelTemplate | null> => {
+    const { data: row } = await context.supabase
+      .from("label_templates")
+      .select(TEMPLATE_COLUMNS)
+      .eq("id", data.id)
+      .maybeSingle();
+    return row ? toTemplate(row) : null;
+  });
+
 /* ---------- Admin ---------- */
 
 export const adminListLabelTypes = createServerFn({ method: "GET" })

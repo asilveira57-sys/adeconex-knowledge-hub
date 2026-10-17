@@ -695,7 +695,7 @@ function ProductPage() {
               <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                 <Button asChild variant="outline" size="lg" className="flex-1">
                   <a
-                    href={`https://wa.me/5527999999999?text=${waMsg}`}
+                    href={`https://wa.me/5527992733033?text=${waMsg}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -797,7 +797,7 @@ function ProductPage() {
           </p>
           <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
             <Button asChild size="lg">
-              <a href={`https://wa.me/5527999999999?text=${waMsg}`} target="_blank" rel="noopener noreferrer">
+              <a href={`https://wa.me/5527992733033?text=${waMsg}`} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp comercial
               </a>
             </Button>
