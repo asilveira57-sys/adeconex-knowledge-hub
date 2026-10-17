@@ -18,18 +18,32 @@ import { Route as B2bRouteImport } from './routes/b2b'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as BoppRouteImport } from './routes/bopp'
 import { Route as BrindesRouteImport } from './routes/brindes'
+import { Route as CancelamentoEReembolsoRouteImport } from './routes/cancelamento-e-reembolso'
 import { Route as CarrinhoRouteImport } from './routes/carrinho'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
+import { Route as ComoComprarRouteImport } from './routes/como-comprar'
 import { Route as ConhecimentoRouteImport } from './routes/conhecimento'
 import { Route as ContatoRouteImport } from './routes/contato'
+import { Route as DiferenciaisRouteImport } from './routes/diferenciais'
 import { Route as EmpresaRouteImport } from './routes/empresa'
+import { Route as EntregaEFreteRouteImport } from './routes/entrega-e-frete'
 import { Route as FerramentasRouteImport } from './routes/ferramentas'
 import { Route as FitaDeCetimRouteImport } from './routes/fita-de-cetim'
+import { Route as FormasDePagamentoRouteImport } from './routes/formas-de-pagamento'
+import { Route as GarantiaRouteImport } from './routes/garantia'
 import { Route as GeradorQrcodeRouteImport } from './routes/gerador-qrcode'
+import { Route as MissaoVisaoValoresRouteImport } from './routes/missao-visao-valores'
+import { Route as NossaHistoriaRouteImport } from './routes/nossa-historia'
+import { Route as PerguntasFrequentesRouteImport } from './routes/perguntas-frequentes'
+import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
+import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
+import { Route as QuemSomosRouteImport } from './routes/quem-somos'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as RibbonRouteImport } from './routes/ribbon'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
+import { Route as TrocasEDevolucoesRouteImport } from './routes/trocas-e-devolucoes'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated.checkout'
 import { Route as AuthenticatedMinhaContaRouteImport } from './routes/_authenticated.minha-conta'
@@ -141,6 +155,11 @@ const BrindesRoute = BrindesRouteImport.update({
   path: '/brindes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CancelamentoEReembolsoRoute = CancelamentoEReembolsoRouteImport.update({
+  id: '/cancelamento-e-reembolso',
+  path: '/cancelamento-e-reembolso',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CarrinhoRoute = CarrinhoRouteImport.update({
   id: '/carrinho',
   path: '/carrinho',
@@ -149,6 +168,11 @@ const CarrinhoRoute = CarrinhoRouteImport.update({
 const CatalogoRoute = CatalogoRouteImport.update({
   id: '/catalogo',
   path: '/catalogo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComoComprarRoute = ComoComprarRouteImport.update({
+  id: '/como-comprar',
+  path: '/como-comprar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConhecimentoRoute = ConhecimentoRouteImport.update({
@@ -161,9 +185,19 @@ const ContatoRoute = ContatoRouteImport.update({
   path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiferenciaisRoute = DiferenciaisRouteImport.update({
+  id: '/diferenciais',
+  path: '/diferenciais',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EmpresaRoute = EmpresaRouteImport.update({
   id: '/empresa',
   path: '/empresa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntregaEFreteRoute = EntregaEFreteRouteImport.update({
+  id: '/entrega-e-frete',
+  path: '/entrega-e-frete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FerramentasRoute = FerramentasRouteImport.update({
@@ -176,9 +210,49 @@ const FitaDeCetimRoute = FitaDeCetimRouteImport.update({
   path: '/fita-de-cetim',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FormasDePagamentoRoute = FormasDePagamentoRouteImport.update({
+  id: '/formas-de-pagamento',
+  path: '/formas-de-pagamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GarantiaRoute = GarantiaRouteImport.update({
+  id: '/garantia',
+  path: '/garantia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GeradorQrcodeRoute = GeradorQrcodeRouteImport.update({
   id: '/gerador-qrcode',
   path: '/gerador-qrcode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissaoVisaoValoresRoute = MissaoVisaoValoresRouteImport.update({
+  id: '/missao-visao-valores',
+  path: '/missao-visao-valores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NossaHistoriaRoute = NossaHistoriaRouteImport.update({
+  id: '/nossa-historia',
+  path: '/nossa-historia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerguntasFrequentesRoute = PerguntasFrequentesRouteImport.update({
+  id: '/perguntas-frequentes',
+  path: '/perguntas-frequentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDeCookiesRoute = PoliticaDeCookiesRouteImport.update({
+  id: '/politica-de-cookies',
+  path: '/politica-de-cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
+  id: '/politica-de-privacidade',
+  path: '/politica-de-privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuemSomosRoute = QuemSomosRouteImport.update({
+  id: '/quem-somos',
+  path: '/quem-somos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
@@ -199,6 +273,16 @@ const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosDeUsoRoute = TermosDeUsoRouteImport.update({
+  id: '/termos-de-uso',
+  path: '/termos-de-uso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrocasEDevolucoesRoute = TrocasEDevolucoesRouteImport.update({
+  id: '/trocas-e-devolucoes',
+  path: '/trocas-e-devolucoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -582,18 +666,32 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
+  '/cancelamento-e-reembolso': typeof CancelamentoEReembolsoRoute
   '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
+  '/como-comprar': typeof ComoComprarRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
+  '/diferenciais': typeof DiferenciaisRoute
   '/empresa': typeof EmpresaRoute
+  '/entrega-e-frete': typeof EntregaEFreteRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
+  '/formas-de-pagamento': typeof FormasDePagamentoRoute
+  '/garantia': typeof GarantiaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
+  '/missao-visao-valores': typeof MissaoVisaoValoresRoute
+  '/nossa-historia': typeof NossaHistoriaRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/trocas-e-devolucoes': typeof TrocasEDevolucoesRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
@@ -668,16 +766,30 @@ export interface FileRoutesByTo {
   '/avaliacoes': typeof AvaliacoesRoute
   '/b2b': typeof B2bRoute
   '/bopp': typeof BoppRoute
+  '/cancelamento-e-reembolso': typeof CancelamentoEReembolsoRoute
   '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
+  '/como-comprar': typeof ComoComprarRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
+  '/diferenciais': typeof DiferenciaisRoute
   '/empresa': typeof EmpresaRoute
+  '/entrega-e-frete': typeof EntregaEFreteRoute
+  '/formas-de-pagamento': typeof FormasDePagamentoRoute
+  '/garantia': typeof GarantiaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
+  '/missao-visao-valores': typeof MissaoVisaoValoresRoute
+  '/nossa-historia': typeof NossaHistoriaRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/trocas-e-devolucoes': typeof TrocasEDevolucoesRoute
   '/minha-conta': typeof AuthenticatedMinhaContaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
@@ -753,18 +865,32 @@ export interface FileRoutesById {
   '/blog': typeof BlogRouteWithChildren
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
+  '/cancelamento-e-reembolso': typeof CancelamentoEReembolsoRoute
   '/carrinho': typeof CarrinhoRoute
   '/catalogo': typeof CatalogoRoute
+  '/como-comprar': typeof ComoComprarRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
+  '/diferenciais': typeof DiferenciaisRoute
   '/empresa': typeof EmpresaRoute
+  '/entrega-e-frete': typeof EntregaEFreteRoute
   '/ferramentas': typeof FerramentasRouteWithChildren
   '/fita-de-cetim': typeof FitaDeCetimRouteWithChildren
+  '/formas-de-pagamento': typeof FormasDePagamentoRoute
+  '/garantia': typeof GarantiaRoute
   '/gerador-qrcode': typeof GeradorQrcodeRoute
+  '/missao-visao-valores': typeof MissaoVisaoValoresRoute
+  '/nossa-historia': typeof NossaHistoriaRoute
+  '/perguntas-frequentes': typeof PerguntasFrequentesRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/quem-somos': typeof QuemSomosRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/ribbon': typeof RibbonRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos-de-uso': typeof TermosDeUsoRoute
+  '/trocas-e-devolucoes': typeof TrocasEDevolucoesRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRouteWithChildren
   '/_authenticated/minha-conta': typeof AuthenticatedMinhaContaRoute
@@ -843,18 +969,32 @@ export interface FileRouteTypes {
     | '/blog'
     | '/bopp'
     | '/brindes'
+    | '/cancelamento-e-reembolso'
     | '/carrinho'
     | '/catalogo'
+    | '/como-comprar'
     | '/conhecimento'
     | '/contato'
+    | '/diferenciais'
     | '/empresa'
+    | '/entrega-e-frete'
     | '/ferramentas'
     | '/fita-de-cetim'
+    | '/formas-de-pagamento'
+    | '/garantia'
     | '/gerador-qrcode'
+    | '/missao-visao-valores'
+    | '/nossa-historia'
+    | '/perguntas-frequentes'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidade'
+    | '/quem-somos'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/trocas-e-devolucoes'
     | '/admin'
     | '/checkout'
     | '/minha-conta'
@@ -929,16 +1069,30 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/b2b'
     | '/bopp'
+    | '/cancelamento-e-reembolso'
     | '/carrinho'
     | '/catalogo'
+    | '/como-comprar'
     | '/conhecimento'
     | '/contato'
+    | '/diferenciais'
     | '/empresa'
+    | '/entrega-e-frete'
+    | '/formas-de-pagamento'
+    | '/garantia'
     | '/gerador-qrcode'
+    | '/missao-visao-valores'
+    | '/nossa-historia'
+    | '/perguntas-frequentes'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidade'
+    | '/quem-somos'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/trocas-e-devolucoes'
     | '/minha-conta'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
@@ -1013,18 +1167,32 @@ export interface FileRouteTypes {
     | '/blog'
     | '/bopp'
     | '/brindes'
+    | '/cancelamento-e-reembolso'
     | '/carrinho'
     | '/catalogo'
+    | '/como-comprar'
     | '/conhecimento'
     | '/contato'
+    | '/diferenciais'
     | '/empresa'
+    | '/entrega-e-frete'
     | '/ferramentas'
     | '/fita-de-cetim'
+    | '/formas-de-pagamento'
+    | '/garantia'
     | '/gerador-qrcode'
+    | '/missao-visao-valores'
+    | '/nossa-historia'
+    | '/perguntas-frequentes'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidade'
+    | '/quem-somos'
     | '/redefinir-senha'
     | '/ribbon'
     | '/robots.txt'
     | '/sitemap.xml'
+    | '/termos-de-uso'
+    | '/trocas-e-devolucoes'
     | '/_authenticated/admin'
     | '/_authenticated/checkout'
     | '/_authenticated/minha-conta'
@@ -1103,18 +1271,32 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRouteWithChildren
   BoppRoute: typeof BoppRoute
   BrindesRoute: typeof BrindesRouteWithChildren
+  CancelamentoEReembolsoRoute: typeof CancelamentoEReembolsoRoute
   CarrinhoRoute: typeof CarrinhoRoute
   CatalogoRoute: typeof CatalogoRoute
+  ComoComprarRoute: typeof ComoComprarRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
+  DiferenciaisRoute: typeof DiferenciaisRoute
   EmpresaRoute: typeof EmpresaRoute
+  EntregaEFreteRoute: typeof EntregaEFreteRoute
   FerramentasRoute: typeof FerramentasRouteWithChildren
   FitaDeCetimRoute: typeof FitaDeCetimRouteWithChildren
+  FormasDePagamentoRoute: typeof FormasDePagamentoRoute
+  GarantiaRoute: typeof GarantiaRoute
   GeradorQrcodeRoute: typeof GeradorQrcodeRoute
+  MissaoVisaoValoresRoute: typeof MissaoVisaoValoresRoute
+  NossaHistoriaRoute: typeof NossaHistoriaRoute
+  PerguntasFrequentesRoute: typeof PerguntasFrequentesRoute
+  PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
+  PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
+  QuemSomosRoute: typeof QuemSomosRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   RibbonRoute: typeof RibbonRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosDeUsoRoute: typeof TermosDeUsoRoute
+  TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
@@ -1197,6 +1379,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrindesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cancelamento-e-reembolso': {
+      id: '/cancelamento-e-reembolso'
+      path: '/cancelamento-e-reembolso'
+      fullPath: '/cancelamento-e-reembolso'
+      preLoaderRoute: typeof CancelamentoEReembolsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/carrinho': {
       id: '/carrinho'
       path: '/carrinho'
@@ -1209,6 +1398,13 @@ declare module '@tanstack/react-router' {
       path: '/catalogo'
       fullPath: '/catalogo'
       preLoaderRoute: typeof CatalogoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/como-comprar': {
+      id: '/como-comprar'
+      path: '/como-comprar'
+      fullPath: '/como-comprar'
+      preLoaderRoute: typeof ComoComprarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/conhecimento': {
@@ -1225,11 +1421,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diferenciais': {
+      id: '/diferenciais'
+      path: '/diferenciais'
+      fullPath: '/diferenciais'
+      preLoaderRoute: typeof DiferenciaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/empresa': {
       id: '/empresa'
       path: '/empresa'
       fullPath: '/empresa'
       preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrega-e-frete': {
+      id: '/entrega-e-frete'
+      path: '/entrega-e-frete'
+      fullPath: '/entrega-e-frete'
+      preLoaderRoute: typeof EntregaEFreteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ferramentas': {
@@ -1246,11 +1456,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FitaDeCetimRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/formas-de-pagamento': {
+      id: '/formas-de-pagamento'
+      path: '/formas-de-pagamento'
+      fullPath: '/formas-de-pagamento'
+      preLoaderRoute: typeof FormasDePagamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/garantia': {
+      id: '/garantia'
+      path: '/garantia'
+      fullPath: '/garantia'
+      preLoaderRoute: typeof GarantiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/gerador-qrcode': {
       id: '/gerador-qrcode'
       path: '/gerador-qrcode'
       fullPath: '/gerador-qrcode'
       preLoaderRoute: typeof GeradorQrcodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/missao-visao-valores': {
+      id: '/missao-visao-valores'
+      path: '/missao-visao-valores'
+      fullPath: '/missao-visao-valores'
+      preLoaderRoute: typeof MissaoVisaoValoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nossa-historia': {
+      id: '/nossa-historia'
+      path: '/nossa-historia'
+      fullPath: '/nossa-historia'
+      preLoaderRoute: typeof NossaHistoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perguntas-frequentes': {
+      id: '/perguntas-frequentes'
+      path: '/perguntas-frequentes'
+      fullPath: '/perguntas-frequentes'
+      preLoaderRoute: typeof PerguntasFrequentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-cookies': {
+      id: '/politica-de-cookies'
+      path: '/politica-de-cookies'
+      fullPath: '/politica-de-cookies'
+      preLoaderRoute: typeof PoliticaDeCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidade': {
+      id: '/politica-de-privacidade'
+      path: '/politica-de-privacidade'
+      fullPath: '/politica-de-privacidade'
+      preLoaderRoute: typeof PoliticaDePrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quem-somos': {
+      id: '/quem-somos'
+      path: '/quem-somos'
+      fullPath: '/quem-somos'
+      preLoaderRoute: typeof QuemSomosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/redefinir-senha': {
@@ -1279,6 +1545,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos-de-uso': {
+      id: '/termos-de-uso'
+      path: '/termos-de-uso'
+      fullPath: '/termos-de-uso'
+      preLoaderRoute: typeof TermosDeUsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trocas-e-devolucoes': {
+      id: '/trocas-e-devolucoes'
+      path: '/trocas-e-devolucoes'
+      fullPath: '/trocas-e-devolucoes'
+      preLoaderRoute: typeof TrocasEDevolucoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -1943,18 +2223,32 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRouteWithChildren,
   BoppRoute: BoppRoute,
   BrindesRoute: BrindesRouteWithChildren,
+  CancelamentoEReembolsoRoute: CancelamentoEReembolsoRoute,
   CarrinhoRoute: CarrinhoRoute,
   CatalogoRoute: CatalogoRoute,
+  ComoComprarRoute: ComoComprarRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
+  DiferenciaisRoute: DiferenciaisRoute,
   EmpresaRoute: EmpresaRoute,
+  EntregaEFreteRoute: EntregaEFreteRoute,
   FerramentasRoute: FerramentasRouteWithChildren,
   FitaDeCetimRoute: FitaDeCetimRouteWithChildren,
+  FormasDePagamentoRoute: FormasDePagamentoRoute,
+  GarantiaRoute: GarantiaRoute,
   GeradorQrcodeRoute: GeradorQrcodeRoute,
+  MissaoVisaoValoresRoute: MissaoVisaoValoresRoute,
+  NossaHistoriaRoute: NossaHistoriaRoute,
+  PerguntasFrequentesRoute: PerguntasFrequentesRoute,
+  PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
+  PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
+  QuemSomosRoute: QuemSomosRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   RibbonRoute: RibbonRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosDeUsoRoute: TermosDeUsoRoute,
+  TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
