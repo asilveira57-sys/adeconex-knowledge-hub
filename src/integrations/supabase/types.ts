@@ -74,6 +74,42 @@ export type Database = {
         }
         Relationships: []
       }
+      banner_events: {
+        Row: {
+          banner_id: string
+          created_at: string
+          device: string | null
+          event_type: string
+          id: number
+          path: string | null
+          placement: string
+          session_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          banner_id: string
+          created_at?: string
+          device?: string | null
+          event_type: string
+          id?: never
+          path?: string | null
+          placement: string
+          session_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          banner_id?: string
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          id?: never
+          path?: string | null
+          placement?: string
+          session_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           created_at: string
