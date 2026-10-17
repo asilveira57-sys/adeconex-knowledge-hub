@@ -121,7 +121,7 @@ function CategoriesPage() {
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value, slug: form.id ? form.slug : slugify(e.target.value) })} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label>Endereço (slug)</Label><Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+/, "") })} onBlur={() => setForm((f) => ({ ...f, slug: slugify(f.slug) }))} /></div>
+                <div><Label>Endereço (slug)</Label><Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+/, "") })} onBlur={() => setForm((f) => (f ? { ...f, slug: slugify(f.slug) } : f))} /></div>
                 <div><Label>Ordem</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></div>
               </div>
               <div>
