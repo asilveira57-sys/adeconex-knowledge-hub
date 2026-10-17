@@ -19,6 +19,7 @@ export const STAFF_SECTIONS = [
   { key: "leads", label: "Leads do catálogo" },
   { key: "banners", label: "Banners" },
   { key: "paginas", label: "Páginas institucionais" },
+  { key: "avaliacoes", label: "Avaliações" },
 ] as const;
 
 export type MyPermissions = {

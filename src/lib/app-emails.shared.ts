@@ -14,7 +14,10 @@ export type AppEmailKey =
   | "contato-aviso-interno"
   | "newsletter-inscricao"
   | "download-link"
-  | "catalogo-lista";
+  | "catalogo-lista"
+  | "avaliacao-pedido"
+  | "avaliacao-lembrete"
+  | "avaliacao-aviso-interno";
 
 export type AppEmailTexts = {
   subject: string;
@@ -249,6 +252,52 @@ export const APP_EMAILS: AppEmailDef[] = [
       body: "No link você vê os produtos com preço atualizado e pode baixar o PDF. Quer um orçamento? É só responder este e-mail ou chamar no WhatsApp (27) 99273-3033.",
       cta_label: "Abrir minha lista",
       closing: SIGN,
+    },
+  },
+  {
+    key: "avaliacao-pedido",
+    group: "Pedidos",
+    name: "Pedido de avaliação",
+    when: "7 dias depois de o pedido ser marcado como entregue. Mostra estrelas clicáveis para cada produto.",
+    variables: ["nome", "numero_pedido", "link"],
+    defaults: {
+      subject: "{nome}, como foi sua experiência com a Adeconex?",
+      heading: "Como foi sua experiência?",
+      intro: "Olá, {nome}! Faz uma semana que o pedido {numero_pedido} chegou.",
+      body: "Sua opinião ajuda outros clientes a escolher o produto certo. Toque nas estrelas abaixo — leva menos de 1 minuto e você pode incluir fotos ou vídeo.",
+      cta_label: "Avaliar meus produtos",
+      closing: SIGN,
+    },
+  },
+  {
+    key: "avaliacao-lembrete",
+    group: "Pedidos",
+    name: "Lembrete de avaliação",
+    when: "Único lembrete, 7 dias após o pedido de avaliação, se o cliente ainda não avaliou.",
+    variables: ["nome", "numero_pedido", "link"],
+    defaults: {
+      subject: "Ainda dá tempo de avaliar seu pedido {numero_pedido}",
+      heading: "Conta pra gente o que achou?",
+      intro: "Olá, {nome}! Ainda não recebemos sua avaliação do pedido {numero_pedido}.",
+      body: "Este é o último lembrete — prometemos não insistir. Sua nota fica visível na página do produto e ajuda muito outros compradores.",
+      cta_label: "Avaliar agora",
+      closing: SIGN,
+    },
+  },
+  {
+    key: "avaliacao-aviso-interno",
+    group: "Pedidos",
+    name: "Nova avaliação (aviso para vendas@)",
+    when: "Enviado para vendas@adeconex.com.br quando chega uma avaliação nova para moderar.",
+    variables: ["nome", "produto", "nota", "mensagem", "link"],
+    internal: true,
+    defaults: {
+      subject: "Nova avaliação ({nota}★) — {produto}",
+      heading: "Nova avaliação para moderar",
+      intro: "{nome} avaliou {produto} com nota {nota}.",
+      body: "{mensagem}",
+      cta_label: "Moderar avaliações",
+      closing: "Site Adeconex",
     },
   },
 ];
