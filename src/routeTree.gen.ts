@@ -72,6 +72,7 @@ import { Route as PagamentoRecusadoRouteImport } from './routes/pagamento.recusa
 import { Route as ProdutoSlugRouteImport } from './routes/produto.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated.admin.index'
 import { Route as AuthenticatedAdminArtesRouteImport } from './routes/_authenticated.admin.artes'
+import { Route as AuthenticatedAdminAvaliacoesRouteImport } from './routes/_authenticated.admin.avaliacoes'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated.admin.banners'
 import { Route as AuthenticatedAdminCategoriasRouteImport } from './routes/_authenticated.admin.categorias'
 import { Route as AuthenticatedAdminColaboradoresRouteImport } from './routes/_authenticated.admin.colaboradores'
@@ -439,6 +440,12 @@ const AuthenticatedAdminArtesRoute = AuthenticatedAdminArtesRouteImport.update({
   path: '/artes',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAvaliacoesRoute =
+  AuthenticatedAdminAvaliacoesRouteImport.update({
+    id: '/avaliacoes',
+    path: '/avaliacoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRoute =
   AuthenticatedAdminBannersRouteImport.update({
     id: '/banners',
@@ -758,6 +765,7 @@ export interface FileRoutesByFullPath {
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -859,6 +867,7 @@ export interface FileRoutesByTo {
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
   '/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -969,6 +978,7 @@ export interface FileRoutesById {
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
   '/_authenticated/admin/artes': typeof AuthenticatedAdminArtesRoute
+  '/_authenticated/admin/avaliacoes': typeof AuthenticatedAdminAvaliacoesRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categorias': typeof AuthenticatedAdminCategoriasRoute
   '/_authenticated/admin/colaboradores': typeof AuthenticatedAdminColaboradoresRoute
@@ -1079,6 +1089,7 @@ export interface FileRouteTypes {
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/admin/artes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/colaboradores'
@@ -1180,6 +1191,7 @@ export interface FileRouteTypes {
     | '/ferramentas'
     | '/fita-de-cetim'
     | '/admin/artes'
+    | '/admin/avaliacoes'
     | '/admin/banners'
     | '/admin/categorias'
     | '/admin/colaboradores'
@@ -1289,6 +1301,7 @@ export interface FileRouteTypes {
     | '/ferramentas/'
     | '/fita-de-cetim/'
     | '/_authenticated/admin/artes'
+    | '/_authenticated/admin/avaliacoes'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categorias'
     | '/_authenticated/admin/colaboradores'
@@ -1835,6 +1848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminArtesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/avaliacoes': {
+      id: '/_authenticated/admin/avaliacoes'
+      path: '/avaliacoes'
+      fullPath: '/admin/avaliacoes'
+      preLoaderRoute: typeof AuthenticatedAdminAvaliacoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/banners': {
       id: '/_authenticated/admin/banners'
       path: '/banners'
@@ -2148,6 +2168,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminArtesRoute: typeof AuthenticatedAdminArtesRoute
+  AuthenticatedAdminAvaliacoesRoute: typeof AuthenticatedAdminAvaliacoesRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriasRoute: typeof AuthenticatedAdminCategoriasRoute
   AuthenticatedAdminColaboradoresRoute: typeof AuthenticatedAdminColaboradoresRoute
@@ -2178,6 +2199,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminArtesRoute: AuthenticatedAdminArtesRoute,
+  AuthenticatedAdminAvaliacoesRoute: AuthenticatedAdminAvaliacoesRoute,
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriasRoute: AuthenticatedAdminCategoriasRoute,
   AuthenticatedAdminColaboradoresRoute: AuthenticatedAdminColaboradoresRoute,
