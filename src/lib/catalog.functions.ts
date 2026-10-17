@@ -206,18 +206,14 @@ export const getCatalogCategories = createServerFn({ method: "GET" }).handler(as
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data: prods, error } = await supabaseAdmin
     .from("products")
-    .select("id")
+    .select("id, product_categories(category_id)")
     .in("status", ["enriched", "published"])
     .eq("is_available", true);
   if (error) throw new Error(error.message);
-  const ids = (prods ?? []).map((p) => p.id);
-  if (ids.length === 0) return { categories: [] as CatalogCategory[] };
-
-  const { data: pcRows, error: pcErr } = await supabaseAdmin
-    .from("product_categories")
-    .select("product_id, category_id")
-    .in("product_id", ids);
-  if (pcErr) throw new Error(pcErr.message);
+  // Fetch relationships in the same query: sending every product UUID in an
+  // IN filter exceeds the request URL limit as the catalog grows.
+  const pcRows = (prods ?? []).flatMap((p) => p.product_categories);
+  if (pcRows.length === 0) return { categories: [] as CatalogCategory[] };
 
   const catIds = Array.from(new Set((pcRows ?? []).map((r) => r.category_id)));
   const { data: cats, error: cErr } = await supabaseAdmin

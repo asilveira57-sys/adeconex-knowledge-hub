@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -123,12 +123,27 @@ export const Route = createFileRoute("/catalogo")({
       },
       { property: "og:title", content: "Catálogo técnico — Adeconex" },
       { property: "og:description", content: "Filtre por família e encontre etiquetas, ribbons e insumos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "/catalogo" },
     ],
     links: [{ rel: "canonical", href: "/catalogo" }],
   }),
+  errorComponent: CatalogError,
+  notFoundComponent: () => <div className="container-page py-16">Catálogo não encontrado.</div>,
   component: CatalogPage,
 });
+
+function CatalogError() {
+  const router = useRouter();
+  return (
+    <section className="container-page py-16" role="alert">
+      <h1 className="text-2xl font-semibold">Não foi possível carregar o catálogo</h1>
+      <p className="mt-3 text-muted-foreground">Tente novamente para consultar os produtos.</p>
+      <Button className="mt-6" onClick={() => router.invalidate()}>Tentar novamente</Button>
+    </section>
+  );
+}
 
 function money(v: number | null): string | null {
   if (v === null || v === undefined) return null;
