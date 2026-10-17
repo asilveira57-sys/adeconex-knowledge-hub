@@ -72,7 +72,7 @@ import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_auth
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
-import { Route as CatalogoListaTokenRouteImport } from './routes/catalogo.lista.$token'
+import { Route as CatalogoListaTokenRouteImport } from './routes/catalogo_.lista.$token'
 import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etiquetas.personalizada.index'
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
@@ -432,9 +432,9 @@ const BlogFiltroHubRoute = BlogFiltroHubRouteImport.update({
   getParentRoute: () => BlogRoute,
 } as any)
 const CatalogoListaTokenRoute = CatalogoListaTokenRouteImport.update({
-  id: '/lista/$token',
-  path: '/lista/$token',
-  getParentRoute: () => CatalogoRoute,
+  id: '/catalogo_/lista/$token',
+  path: '/catalogo/lista/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EtiquetasPersonalizadaIndexRoute =
   EtiquetasPersonalizadaIndexRouteImport.update({
@@ -583,7 +583,7 @@ export interface FileRoutesByFullPath {
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
-  '/catalogo': typeof CatalogoRouteWithChildren
+  '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
   '/empresa': typeof EmpresaRoute
@@ -669,7 +669,7 @@ export interface FileRoutesByTo {
   '/b2b': typeof B2bRoute
   '/bopp': typeof BoppRoute
   '/carrinho': typeof CarrinhoRoute
-  '/catalogo': typeof CatalogoRouteWithChildren
+  '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
   '/empresa': typeof EmpresaRoute
@@ -754,7 +754,7 @@ export interface FileRoutesById {
   '/bopp': typeof BoppRoute
   '/brindes': typeof BrindesRouteWithChildren
   '/carrinho': typeof CarrinhoRoute
-  '/catalogo': typeof CatalogoRouteWithChildren
+  '/catalogo': typeof CatalogoRoute
   '/conhecimento': typeof ConhecimentoRoute
   '/contato': typeof ContatoRoute
   '/empresa': typeof EmpresaRoute
@@ -805,7 +805,7 @@ export interface FileRoutesById {
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
-  '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
+  '/catalogo_/lista/$token': typeof CatalogoListaTokenRoute
   '/etiquetas/personalizada/$tipo': typeof EtiquetasPersonalizadaTipoRoute
   '/ferramentas/gerador-de-codigo-de-barras/$padrao': typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -1065,7 +1065,7 @@ export interface FileRouteTypes {
     | '/_authenticated/pedido/$id'
     | '/api/public/track'
     | '/blog/filtro/$hub'
-    | '/catalogo/lista/$token'
+    | '/catalogo_/lista/$token'
     | '/etiquetas/personalizada/$tipo'
     | '/ferramentas/gerador-de-codigo-de-barras/$padrao'
     | '/_authenticated/admin/'
@@ -1104,7 +1104,7 @@ export interface RootRouteChildren {
   BoppRoute: typeof BoppRoute
   BrindesRoute: typeof BrindesRouteWithChildren
   CarrinhoRoute: typeof CarrinhoRoute
-  CatalogoRoute: typeof CatalogoRouteWithChildren
+  CatalogoRoute: typeof CatalogoRoute
   ConhecimentoRoute: typeof ConhecimentoRoute
   ContatoRoute: typeof ContatoRoute
   EmpresaRoute: typeof EmpresaRoute
@@ -1123,6 +1123,7 @@ export interface RootRouteChildren {
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
+  CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
@@ -1574,12 +1575,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogFiltroHubRouteImport
       parentRoute: typeof BlogRoute
     }
-    '/catalogo/lista/$token': {
-      id: '/catalogo/lista/$token'
-      path: '/lista/$token'
+    '/catalogo_/lista/$token': {
+      id: '/catalogo_/lista/$token'
+      path: '/catalogo/lista/$token'
       fullPath: '/catalogo/lista/$token'
       preLoaderRoute: typeof CatalogoListaTokenRouteImport
-      parentRoute: typeof CatalogoRoute
+      parentRoute: typeof rootRouteImport
     }
     '/etiquetas/personalizada/': {
       id: '/etiquetas/personalizada/'
@@ -1872,18 +1873,6 @@ const BrindesRouteChildren: BrindesRouteChildren = {
 const BrindesRouteWithChildren =
   BrindesRoute._addFileChildren(BrindesRouteChildren)
 
-interface CatalogoRouteChildren {
-  CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
-}
-
-const CatalogoRouteChildren: CatalogoRouteChildren = {
-  CatalogoListaTokenRoute: CatalogoListaTokenRoute,
-}
-
-const CatalogoRouteWithChildren = CatalogoRoute._addFileChildren(
-  CatalogoRouteChildren,
-)
-
 interface FerramentasGeradorDeCodigoDeBarrasRouteChildren {
   FerramentasGeradorDeCodigoDeBarrasPadraoRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRoute
   FerramentasGeradorDeCodigoDeBarrasIndexRoute: typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
@@ -1955,7 +1944,7 @@ const rootRouteChildren: RootRouteChildren = {
   BoppRoute: BoppRoute,
   BrindesRoute: BrindesRouteWithChildren,
   CarrinhoRoute: CarrinhoRoute,
-  CatalogoRoute: CatalogoRouteWithChildren,
+  CatalogoRoute: CatalogoRoute,
   ConhecimentoRoute: ConhecimentoRoute,
   ContatoRoute: ContatoRoute,
   EmpresaRoute: EmpresaRoute,
@@ -1974,6 +1963,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProdutoSlugRoute: ProdutoSlugRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
+  CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
