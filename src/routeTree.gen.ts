@@ -93,6 +93,7 @@ import { Route as AuthenticatedCheckoutRevisaoRouteImport } from './routes/_auth
 import { Route as AuthenticatedEtiquetasEditorRouteImport } from './routes/_authenticated.etiquetas.editor'
 import { Route as AuthenticatedPedidoIdRouteImport } from './routes/_authenticated.pedido.$id'
 import { Route as ApiPublicBannerEventRouteImport } from './routes/api/public/banner-event'
+import { Route as ApiPublicSolutionEventRouteImport } from './routes/api/public/solution-event'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 import { Route as BlogFiltroHubRouteImport } from './routes/blog.filtro.$hub'
 import { Route as CatalogoListaTokenRouteImport } from './routes/catalogo_.lista.$token'
@@ -567,6 +568,11 @@ const ApiPublicBannerEventRoute = ApiPublicBannerEventRouteImport.update({
   path: '/api/public/banner-event',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSolutionEventRoute = ApiPublicSolutionEventRouteImport.update({
+  id: '/api/public/solution-event',
+  path: '/api/public/solution-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
   id: '/api/public/track',
   path: '/api/public/track',
@@ -825,6 +831,7 @@ export interface FileRoutesByFullPath {
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/banner-event': typeof ApiPublicBannerEventRoute
+  '/api/public/solution-event': typeof ApiPublicSolutionEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
@@ -933,6 +940,7 @@ export interface FileRoutesByTo {
   '/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/banner-event': typeof ApiPublicBannerEventRoute
+  '/api/public/solution-event': typeof ApiPublicSolutionEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo/lista/$token': typeof CatalogoListaTokenRoute
@@ -1050,6 +1058,7 @@ export interface FileRoutesById {
   '/_authenticated/etiquetas/editor': typeof AuthenticatedEtiquetasEditorRoute
   '/_authenticated/pedido/$id': typeof AuthenticatedPedidoIdRoute
   '/api/public/banner-event': typeof ApiPublicBannerEventRoute
+  '/api/public/solution-event': typeof ApiPublicSolutionEventRoute
   '/api/public/track': typeof ApiPublicTrackRoute
   '/blog/filtro/$hub': typeof BlogFiltroHubRoute
   '/catalogo_/lista/$token': typeof CatalogoListaTokenRoute
@@ -1167,6 +1176,7 @@ export interface FileRouteTypes {
     | '/etiquetas/editor'
     | '/pedido/$id'
     | '/api/public/banner-event'
+    | '/api/public/solution-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo/lista/$token'
@@ -1275,6 +1285,7 @@ export interface FileRouteTypes {
     | '/etiquetas/editor'
     | '/pedido/$id'
     | '/api/public/banner-event'
+    | '/api/public/solution-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo/lista/$token'
@@ -1391,6 +1402,7 @@ export interface FileRouteTypes {
     | '/_authenticated/etiquetas/editor'
     | '/_authenticated/pedido/$id'
     | '/api/public/banner-event'
+    | '/api/public/solution-event'
     | '/api/public/track'
     | '/blog/filtro/$hub'
     | '/catalogo_/lista/$token'
@@ -1473,6 +1485,7 @@ export interface RootRouteChildren {
   ComecePorAquiIndexRoute: typeof ComecePorAquiIndexRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicBannerEventRoute: typeof ApiPublicBannerEventRoute
+  ApiPublicSolutionEventRoute: typeof ApiPublicSolutionEventRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
   CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
@@ -2074,6 +2087,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicBannerEventRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/solution-event': {
+      id: '/api/public/solution-event'
+      path: '/api/public/solution-event'
+      fullPath: '/api/public/solution-event'
+      preLoaderRoute: typeof ApiPublicSolutionEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/track': {
       id: '/api/public/track'
       path: '/api/public/track'
@@ -2538,6 +2558,7 @@ const rootRouteChildren: RootRouteChildren = {
   ComecePorAquiIndexRoute: ComecePorAquiIndexRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicBannerEventRoute: ApiPublicBannerEventRoute,
+  ApiPublicSolutionEventRoute: ApiPublicSolutionEventRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
   CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
