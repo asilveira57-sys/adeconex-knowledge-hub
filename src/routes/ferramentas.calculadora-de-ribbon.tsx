@@ -67,7 +67,8 @@ function RibbonCalculatorPage() {
   const [quantity, setQuantity] = useState(1000);
   const [columns, setColumns] = useState(1);
   const [width, setWidth] = useState(0);
-  const [perLabelRoll, setPerLabelRoll] = useState(0);
+  const [rollMode, setRollMode] = useState<"qtd" | "metros">("qtd");
+  const [rollInput, setRollInput] = useState(0);
   const [safety, setSafety] = useState(0);
 
   const changeUnit = (u: "mm" | "cm") => {
@@ -179,8 +180,9 @@ function RibbonCalculatorPage() {
             </div>
             {wcheck ? (
               <p className={`text-xs ${wcheck.fits ? "text-muted-foreground" : "text-destructive"}`}>
-                Largura ocupada: {fmt(wcheck.totalMm, 0)} mm de {PRINTER_USABLE_WIDTH_MM} mm úteis
-                {wcheck.fits ? " — cabe na impressora de 4\"." : " — não cabe na maioria das impressoras (109 mm de boca)."}
+                Largura ocupada: {fmt(wcheck.totalMm, 1)} mm (etiquetas + 3 mm entre colunas + 1,5 mm em cada borda) de{" "}
+                {PRINTER_USABLE_WIDTH_MM} mm de boca
+                {wcheck.fits ? " — cabe na impressora de 4\"." : " — não cabe na maioria das impressoras."}
               </p>
             ) : (
               <p className={`text-xs ${columns > 4 ? "text-destructive" : "text-muted-foreground"}`}>
@@ -190,9 +192,24 @@ function RibbonCalculatorPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="ribbon-rolo">Etiquetas por rolo (opcional)</Label>
-                <Input id="ribbon-rolo" type="number" inputMode="numeric" min={0} value={perLabelRoll || ""}
-                  placeholder="ex.: 1000" onChange={(e) => setPerLabelRoll(Math.round(num(e.target.value)))} />
+                <Select value={rollMode} onValueChange={(v) => setRollMode(v as "qtd" | "metros")}>
+                  <SelectTrigger className="h-7 w-auto border-none px-0 text-sm font-medium shadow-none" aria-label="Rolo de etiqueta">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="qtd">Etiquetas por rolo</SelectItem>
+                    <SelectItem value="metros">Metros do rolo de etiqueta</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input id="ribbon-rolo" type="number" inputMode="decimal" min={0} value={rollInput || ""}
+                  placeholder={rollMode === "qtd" ? "ex.: 1000" : "ex.: 50"} aria-label="Rolo de etiqueta"
+                  onChange={(e) => setRollInput(num(e.target.value))} />
+                {rollMode === "metros" && rollInput > 0 && (
+                  <p className="text-[11px] text-muted-foreground">
+                    Um rolo de {fmt(rollInput, 1)} m tem cerca de{" "}
+                    <strong className="text-foreground">{perLabelRoll.toLocaleString("pt-BR")} etiquetas</strong>.
+                  </p>
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label>Margem de segurança</Label>
