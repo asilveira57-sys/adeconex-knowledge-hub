@@ -1,3 +1,4 @@
+import { Stars } from "@/components/reviews/star-rating";
 import { useEffect } from "react";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -49,6 +50,12 @@ export function ProductCard({ p }: { p: ShowcaseProduct }) {
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="line-clamp-2 text-sm font-medium leading-snug">{p.name}</h3>
+        {p.rating_count ? (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Stars value={p.rating_avg ?? 0} size={12} />
+            <span className="tabular-nums">({p.rating_count})</span>
+          </span>
+        ) : null}
         {p.short_description && (
           <p className="line-clamp-2 text-xs text-muted-foreground">{p.short_description}</p>
         )}
