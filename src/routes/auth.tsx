@@ -42,7 +42,7 @@ function AuthPage() {
       if (mounted && data.session) {
         void sendWelcomeEmail().catch(() => {});
         if (storedDestination) window.sessionStorage.removeItem("adeconex-auth-redirect");
-        navigate({ to: (storedDestination || destination) as never, replace: true });
+        navigate({ href: storedDestination || destination, replace: true });
       }
     });
     return () => { mounted = false; };
@@ -56,7 +56,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         void sendWelcomeEmail().catch(() => {});
-        navigate({ to: destination as never });
+        navigate({ href: destination });
       } else {
         const { error } = await supabase.auth.signUp({
           email, password,
@@ -83,7 +83,7 @@ function AuthPage() {
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: destination as never });
+      navigate({ href: destination });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao entrar com Google");
     } finally { setGoogleLoading(false); }
