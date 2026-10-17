@@ -64,6 +64,13 @@
       "when": 1791812598020,
       "tag": "0008_app_emails",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792237430385,
+      "tag": "0009_catalog_leads",
+      "breakpoints": true
     }
   ]
 }

@@ -333,6 +333,48 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_leads: {
+        Row: {
+          channels: string[]
+          consent: boolean
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string
+          product_ids: string[]
+          search_params: Json
+          token: string
+          user_id: string | null
+        }
+        Insert: {
+          channels?: string[]
+          consent?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone: string
+          product_ids?: string[]
+          search_params?: Json
+          token?: string
+          user_id?: string | null
+        }
+        Update: {
+          channels?: string[]
+          consent?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string
+          product_ids?: string[]
+          search_params?: Json
+          token?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
