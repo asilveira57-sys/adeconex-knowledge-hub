@@ -26,7 +26,7 @@ const newRec = (): RecDraft => ({
   id: uid(), product_id: null, item_category: "outros", role: null, reason: null, is_required: false, quantity: null, sort_order: 0,
   notes: null, is_active: true, show_when: null, ext_name: null, ext_description: null, ext_manufacturer: null, ext_model: null,
   ext_image_url: null, ext_platform: null, ext_original_url: null, ext_affiliate_url: null, is_affiliate: false, ext_offer_id: null,
-  ext_checked_at: null, ext_link_status: "ok", ext_button_text: null,
+  ext_checked_at: null, ext_link_status: "ok", ext_button_text: null, specs: {},
 });
 const newStep = (): StepDraft => ({
   id: uid(), internal_name: null, title: "Nova etapa", body: null, step_type: "text", image_url: null, image_alt: null, sort_order: 0,

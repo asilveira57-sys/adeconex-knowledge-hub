@@ -48,7 +48,7 @@ export const getPublicJourney = createServerFn({ method: "GET" })
           if (r.product_id && !p) return []; // produto oculto/removido: não mostra
           return [{
             id: r.id, item_category: r.item_category, role: r.role, reason: r.reason, is_required: r.is_required, quantity: r.quantity,
-            notes: r.notes, show_when: (r.show_when ?? null) as RecDraft["show_when"],
+            notes: r.notes, show_when: (r.show_when ?? null) as RecDraft["show_when"], specs: (r.specs ?? {}) as Specs,
             product: p ? { slug: p.slug, name: p.name, image_url: p.image_url, image_alt: p.image_alt, price: p.promotional_price ?? p.price } : null,
             external: p ? null : {
               name: r.ext_name ?? "", description: r.ext_description, manufacturer: r.ext_manufacturer, model: r.ext_model,
@@ -156,6 +156,11 @@ const recSchema = z.object({
   ext_name: n(200), ext_description: n(2000), ext_manufacturer: n(120), ext_model: n(120), ext_image_url: n(1000),
   ext_platform: n(120), ext_original_url: n(2000), ext_affiliate_url: n(2000), is_affiliate: z.boolean(),
   ext_offer_id: n(200), ext_checked_at: n(20), ext_link_status: z.string().max(30), ext_button_text: n(60),
+  specs: z.object({
+    tech: z.enum(["tt", "dt", "both"]).nullable().optional(), max_width_mm: z.number().positive().max(2000).nullable().optional(),
+    width_mm: z.number().positive().max(2000).nullable().optional(), material: z.enum(["couche", "bopp", "poliester", "termico"]).nullable().optional(),
+    ribbon_type: z.enum(["cera", "misto", "resina"]).nullable().optional(),
+  }).default({}),
 });
 const stepSchema = z.object({
   id: z.string().uuid(), internal_name: n(160), title: z.string().max(200), body: n(20000),
