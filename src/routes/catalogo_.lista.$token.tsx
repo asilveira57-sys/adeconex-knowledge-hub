@@ -12,7 +12,7 @@ import adeconexLogo from "@/assets/brand/logo-adeconex-oficial.png";
 const listQuery = (token: string) =>
   queryOptions({ queryKey: ["catalog-list", token], queryFn: () => getCatalogList({ data: { token } }), staleTime: 60_000 });
 
-export const Route = createFileRoute("/catalogo/lista/$token")({
+export const Route = createFileRoute("/catalogo_/lista/$token")({
   loader: async ({ context, params }) => {
     const d = await context.queryClient.ensureQueryData(listQuery(params.token));
     if (!d) throw notFound();
