@@ -196,7 +196,6 @@ export const adminSaveJourney = createServerFn({ method: "POST" })
     const drop = (old ?? []).map((s: any) => s.id).filter((id: string) => !keep.has(id));
     if (drop.length) await sb.from("solution_steps").delete().in("id", drop);
     if (stepRows.length) {
-      // primeiro sem condição (evita referência a etapa ainda inexistente), depois com.
       const { error } = await sb.from("solution_steps").upsert(stepRows);
       if (error) return { ok: false as const, errors: [error.message] };
     }

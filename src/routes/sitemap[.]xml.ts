@@ -60,6 +60,16 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ferramentas/conversor-de-medidas", changefreq: "monthly", priority: "0.8" },
           { path: "/ferramentas/calculadora-de-ribbon", changefreq: "monthly", priority: "0.8" },
           { path: "/ferramentas/calculadora-de-etiquetas-por-rolo", changefreq: "monthly", priority: "0.8" },
+          { path: "/comece-por-aqui", changefreq: "weekly", priority: "0.85" },
+          ...(await (async () => {
+            try {
+              const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+              const { data } = await supabaseAdmin.from("solution_journeys").select("slug").eq("status", "published").eq("indexable", true);
+              return (data ?? []).map((d) => ({ path: `/comece-por-aqui/${d.slug}`, changefreq: "monthly" as const, priority: "0.8" }));
+            } catch {
+              return [];
+            }
+          })()),
           { path: "/downloads", changefreq: "weekly", priority: "0.8" },
           { path: "/avaliacoes-de-produtos", changefreq: "daily", priority: "0.7" },
           ...(await (async () => {

@@ -21,6 +21,7 @@ export const STAFF_SECTIONS = [
   { key: "paginas", label: "Páginas institucionais" },
   { key: "avaliacoes", label: "Avaliações" },
   { key: "perguntas", label: "Perguntas e respostas" },
+  { key: "assistente", label: "Assistente de soluções" },
 ] as const;
 
 export type MyPermissions = {

@@ -100,6 +100,7 @@ import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etique
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
+import { Route as AuthenticatedAdminAssistenteIndexRouteImport } from './routes/_authenticated.admin.assistente.index'
 import { Route as AuthenticatedAdminBannersRelatorioRouteImport } from './routes/_authenticated.admin.banners_.relatorio'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
@@ -604,6 +605,12 @@ const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
     path: '/$padrao',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
   } as any)
+const AuthenticatedAdminAssistenteIndexRoute =
+  AuthenticatedAdminAssistenteIndexRouteImport.update({
+    id: '/assistente/',
+    path: '/assistente/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRelatorioRoute =
   AuthenticatedAdminBannersRelatorioRouteImport.update({
     id: '/banners_/relatorio',
@@ -835,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/assistente/': typeof AuthenticatedAdminAssistenteIndexRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -941,6 +949,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/assistente': typeof AuthenticatedAdminAssistenteIndexRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -1056,6 +1065,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/admin/assistente/': typeof AuthenticatedAdminAssistenteIndexRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/_authenticated/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/_authenticated/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -1171,6 +1181,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/admin/assistente/'
     | '/admin/clientes/'
     | '/admin/cupons/'
     | '/admin/etiquetas/'
@@ -1277,6 +1288,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/admin/assistente'
     | '/admin/clientes'
     | '/admin/cupons'
     | '/admin/etiquetas'
@@ -1391,6 +1403,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/admin/assistente/'
     | '/_authenticated/admin/clientes/'
     | '/_authenticated/admin/cupons/'
     | '/_authenticated/admin/etiquetas/'
@@ -2097,6 +2110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
     }
+    '/_authenticated/admin/assistente/': {
+      id: '/_authenticated/admin/assistente/'
+      path: '/assistente'
+      fullPath: '/admin/assistente/'
+      preLoaderRoute: typeof AuthenticatedAdminAssistenteIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/banners_/relatorio': {
       id: '/_authenticated/admin/banners_/relatorio'
       path: '/banners/relatorio'
@@ -2271,6 +2291,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoPaginasRoute: typeof AuthenticatedAdminSeoPaginasRoute
   AuthenticatedAdminSeoRedirecionamentosRoute: typeof AuthenticatedAdminSeoRedirecionamentosRoute
   AuthenticatedAdminSeoTecnicoRoute: typeof AuthenticatedAdminSeoTecnicoRoute
+  AuthenticatedAdminAssistenteIndexRoute: typeof AuthenticatedAdminAssistenteIndexRoute
   AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
   AuthenticatedAdminCuponsIndexRoute: typeof AuthenticatedAdminCuponsIndexRoute
   AuthenticatedAdminEtiquetasIndexRoute: typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -2306,6 +2327,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoRedirecionamentosRoute:
     AuthenticatedAdminSeoRedirecionamentosRoute,
   AuthenticatedAdminSeoTecnicoRoute: AuthenticatedAdminSeoTecnicoRoute,
+  AuthenticatedAdminAssistenteIndexRoute:
+    AuthenticatedAdminAssistenteIndexRoute,
   AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
   AuthenticatedAdminCuponsIndexRoute: AuthenticatedAdminCuponsIndexRoute,
   AuthenticatedAdminEtiquetasIndexRoute: AuthenticatedAdminEtiquetasIndexRoute,
