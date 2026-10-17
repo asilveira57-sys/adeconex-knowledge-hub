@@ -59,7 +59,7 @@ export const getCatalogList = createServerFn({ method: "GET" })
       .select("search_params, product_ids, created_at").eq("token", data.token).maybeSingle();
     if (!lead) return null;
     const products = await loadShowcaseByIds(lead.product_ids);
-    return { searchParams: lead.search_params as Record<string, unknown>, createdAt: lead.created_at, products };
+    return { searchParams: (lead.search_params ?? {}) as Record<string, string | number | boolean>, createdAt: lead.created_at, products };
   });
 
 export const adminListCatalogLeads = createServerFn({ method: "GET" })
