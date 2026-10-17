@@ -334,7 +334,7 @@ export const moderateReview = createServerFn({ method: "POST" })
   }).parse(v))
   .handler(async ({ data, context }) => {
     await requireReviewStaff(context);
-    const patch: Record<string, unknown> = {};
+    const patch: { status?: string; rejection_reason?: string | null; admin_reply?: string | null; replied_at?: string | null; featured?: boolean } = {};
     if (data.action === "approve") Object.assign(patch, { status: "approved", rejection_reason: null });
     if (data.action === "reject") Object.assign(patch, { status: "rejected", rejection_reason: data.reason ?? null });
     if (data.action === "hide") patch.status = "hidden";
