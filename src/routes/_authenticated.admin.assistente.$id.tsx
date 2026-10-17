@@ -34,6 +34,46 @@ const newStep = (): StepDraft => ({
 });
 function move<T>(arr: T[], i: number, d: number) { const a = [...arr]; const j = i + d; if (j < 0 || j >= a.length) return a; [a[i], a[j]] = [a[j], a[i]]; return a; }
 
+function SpecsEditor({ category, value, onChange }: { category: string; value: Specs; onChange: (v: Specs) => void }) {
+  if (!["impressora", "etiqueta", "ribbon"].includes(category)) return null;
+  const setNum = (k: "max_width_mm" | "width_mm", v: string) => {
+    const n = Number(v.replace(",", "."));
+    onChange({ ...value, [k]: v.trim() && n > 0 ? n : null });
+  };
+  return (
+    <div className="rounded-md border border-dashed p-3">
+      <p className="mb-2 text-xs font-medium">Dados técnicos para a conferência de compatibilidade (deixe em branco se não souber)</p>
+      <div className="grid gap-3 md:grid-cols-3">
+        {category === "impressora" ? (
+          <>
+            <div className="grid gap-1"><Label className="text-xs">Tecnologia</Label>
+              <select className={sel} value={value.tech ?? ""} onChange={(e) => onChange({ ...value, tech: (e.target.value || null) as Specs["tech"] })}>
+                <option value="">Não informado</option>{Object.entries(TECH_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select></div>
+            <div className="grid gap-1"><Label className="text-xs">Largura máxima de impressão (mm)</Label>
+              <Input inputMode="decimal" defaultValue={value.max_width_mm ?? ""} onBlur={(e) => setNum("max_width_mm", e.target.value)} /></div>
+          </>
+        ) : (
+          <div className="grid gap-1"><Label className="text-xs">Largura (mm)</Label>
+            <Input inputMode="decimal" defaultValue={value.width_mm ?? ""} onBlur={(e) => setNum("width_mm", e.target.value)} /></div>
+        )}
+        {category === "etiqueta" ? (
+          <div className="grid gap-1"><Label className="text-xs">Material</Label>
+            <select className={sel} value={value.material ?? ""} onChange={(e) => onChange({ ...value, material: (e.target.value || null) as Specs["material"] })}>
+              <option value="">Não informado</option>{Object.entries(MATERIAL_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select></div>
+        ) : null}
+        {category === "ribbon" ? (
+          <div className="grid gap-1"><Label className="text-xs">Tipo de ribbon</Label>
+            <select className={sel} value={value.ribbon_type ?? ""} onChange={(e) => onChange({ ...value, ribbon_type: (e.target.value || null) as Specs["ribbon_type"] })}>
+              <option value="">Não informado</option>{Object.entries(RIBBON_LABEL).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select></div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function F({ label, value, onChange, area, type, placeholder }: { label: string; value: string | null; onChange: (v: string | null) => void; area?: boolean; type?: string; placeholder?: string }) {
   return (
     <div className="grid gap-1">
@@ -279,6 +319,7 @@ function JourneyEditor() {
                           <div className="md:col-span-3"><F area label="Descrição" value={r.ext_description} onChange={(v) => setRec(i, k, { ext_description: v })} /></div>
                         </div>
                       )}
+                      <SpecsEditor category={r.item_category} value={r.specs ?? {}} onChange={(specs) => setRec(i, k, { specs })} />
                       <div className="grid gap-3 md:grid-cols-3">
                         <div className="grid gap-1">
                           <Label className="text-xs">Tipo de item</Label>
