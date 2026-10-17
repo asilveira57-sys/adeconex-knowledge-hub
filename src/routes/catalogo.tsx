@@ -12,7 +12,7 @@ import {
 } from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
-import { ImageOff, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ImageOff, ChevronLeft, ChevronRight, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -317,7 +317,8 @@ function SortControl() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+      <ArrowUpDown className="h-4 w-4 shrink-0 text-signal" aria-hidden />
+      <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-foreground">
         Ordenar por
       </label>
       <span className="relative inline-flex items-center">
@@ -336,7 +337,7 @@ function SortControl() {
             });
             navigate({ search: (prev: CatalogSearch) => ({ ...prev, sort: nextSort, page: 1 }) });
           }}
-          className="h-10 appearance-none rounded-md border hairline bg-surface-2 pl-4 pr-9 text-sm font-semibold text-foreground transition-colors hover:border-signal focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
+          className="h-10 appearance-none rounded-md border border-foreground/20 bg-surface-2 pl-4 pr-9 text-sm font-semibold text-foreground shadow-sm transition-colors hover:border-signal focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
         >
           {SORTS.map((s) => (
             <option key={s.value} value={s.value}>
