@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/ui/password-input";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -57,8 +58,8 @@ function ResetPage() {
             <p className="text-sm text-muted-foreground">Abra esta página pelo link enviado ao seu e-mail.</p>
           ) : (
             <form onSubmit={submit} className="space-y-3">
-              <Input type="password" placeholder="Nova senha" value={pw} onChange={(e) => setPw(e.target.value)} />
-              <Input type="password" placeholder="Confirme a nova senha" value={pw2} onChange={(e) => setPw2(e.target.value)} />
+              <PasswordInput placeholder="Nova senha" value={pw} onChange={(e) => setPw(e.target.value)} />
+              <PasswordInput placeholder="Confirme a nova senha" value={pw2} onChange={(e) => setPw2(e.target.value)} />
               <Button type="submit" className="w-full" disabled={busy}>Salvar nova senha</Button>
             </form>
           )}
