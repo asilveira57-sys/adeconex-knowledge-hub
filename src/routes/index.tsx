@@ -19,6 +19,9 @@ import heroImg from "@/assets/hero-printer.jpg";
 import labelsImg from "@/assets/labels-macro.jpg";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { getPlaceDetails, type PlaceDetails } from "@/lib/place.functions";
+import { getActiveBanners } from "@/lib/banners.functions";
+import type { SiteBanner } from "@/lib/banners.shared";
+import { BannerPicture, BannerRotator } from "@/components/site-banner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -44,19 +47,24 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "/" }],
   }),
-  loader: () => getPlaceDetails(),
+  loader: async () => {
+    const [place, banners] = await Promise.all([getPlaceDetails(), getActiveBanners().catch(() => [] as SiteBanner[])]);
+    return { place, banners };
+  },
   staleTime: 60 * 60 * 1000,
   component: HomePage,
 });
 
 function HomePage() {
-  const place = Route.useLoaderData() as PlaceDetails;
+  const { place, banners } = Route.useLoaderData() as { place: PlaceDetails; banners: SiteBanner[] };
+  const hero = banners.filter((b) => b.placement === "home_hero");
+  const secondary = banners.filter((b) => b.placement === "home_secondary");
   return (
     <>
-      <Hero rating={place.rating} />
+      <Hero rating={place.rating} banners={hero} />
       <TrustStrip />
       <Solutions />
-      <CatalogTeaser />
+      <CatalogTeaser banners={secondary} />
       <Vitrines />
       <ToolsPreview />
       <ProofAndSocial place={place} />
@@ -94,7 +102,7 @@ function Vitrines() {
 }
 
 /* ───────── Hero ───────── */
-function Hero({ rating }: { rating: number }) {
+function Hero({ rating, banners }: { rating: number; banners: SiteBanner[] }) {
   return (
     <section className="relative overflow-hidden ink-surface">
       <div
@@ -157,6 +165,14 @@ function Hero({ rating }: { rating: number }) {
         </div>
 
         <div className="relative">
+          {banners.length > 0 ? (
+            <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-white/10 shadow-elevated">
+              <BannerRotator banners={banners} render={(b, i) => (
+                <BannerPicture banner={b} slot={i} priority={i === 0} width={1200} height={1500}
+                  className="block h-full w-full" imgClassName="h-full w-full object-cover" />
+              )} />
+            </div>
+          ) : (
           <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-white/10 shadow-elevated">
             <img
               src={heroImg}
@@ -176,6 +192,7 @@ function Hero({ rating }: { rating: number }) {
               </p>
             </div>
           </div>
+          )}
           <div className="absolute -bottom-4 -left-4 hidden rounded-lg border border-white/10 bg-ink/80 p-3 text-xs font-mono text-white/70 backdrop-blur md:block">
             ZPL · GS1 · 203/300 dpi
           </div>
@@ -280,11 +297,19 @@ function Solutions() {
 }
 
 /* ───────── Catalog teaser ───────── */
-function CatalogTeaser() {
+function CatalogTeaser({ banners }: { banners: SiteBanner[] }) {
   return (
     <Section tone="muted">
       <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
         <div className="order-2 lg:order-1">
+          {banners.length > 0 ? (
+            <div className="overflow-hidden rounded-xl border hairline">
+              <BannerRotator banners={banners} render={(b, i) => (
+                <BannerPicture banner={b} slot={i} width={1600} height={1200}
+                  className="block" imgClassName="aspect-[4/3] w-full object-cover" />
+              )} />
+            </div>
+          ) : (
           <div className="overflow-hidden rounded-xl border hairline">
             <img
               src={labelsImg}
@@ -295,6 +320,7 @@ function CatalogTeaser() {
               className="aspect-[4/3] w-full object-cover"
             />
           </div>
+          )}
         </div>
         <div className="order-1 lg:order-2">
           <p className="eyebrow">Catálogo técnico</p>

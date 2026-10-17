@@ -17,6 +17,7 @@ export const STAFF_SECTIONS = [
   { key: "etiquetas", label: "Etiqueta personalizada" },
   { key: "emails", label: "E-mails" },
   { key: "leads", label: "Leads do catálogo" },
+  { key: "banners", label: "Banners" },
   { key: "paginas", label: "Páginas institucionais" },
 ] as const;
 

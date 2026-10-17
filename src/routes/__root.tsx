@@ -24,6 +24,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/layout/site-header";
+import { PageTopBanner } from "@/components/site-banner";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Toaster } from "@/components/ui/sonner";
 import { LaunchNoticePopup } from "@/components/launch-notice-popup";
@@ -197,6 +198,7 @@ function RootComponent() {
       <div className="flex min-h-screen flex-col bg-background">
         <SiteHeader />
         <main className="flex-1">
+          <PageTopBanner />
           <Outlet />
         </main>
         <SiteFooter />
