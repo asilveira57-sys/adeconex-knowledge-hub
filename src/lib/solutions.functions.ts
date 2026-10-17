@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { validateJourney, slugify, type JourneyDraft, type StepDraft, type RecDraft } from "./solutions.shared";
+import { validateJourney, slugify, type JourneyDraft, type StepDraft, type RecDraft, type Specs } from "./solutions.shared";
 
 // ---------- Público ----------
 
@@ -266,4 +266,50 @@ export const adminDeleteJourney = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("solution_journeys").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+// ---------- Relatório de uso ----------
+export const adminSolutionReport = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ from: z.string().max(30), to: z.string().max(30) }).parse(v))
+  .handler(async ({ data, context }) => {
+    await assertStaff(context);
+    const sb = context.supabase;
+    const rows: { journey_id: string; event_type: string; step_id: string | null; rec_id: string | null; session_id: string }[] = [];
+    for (let off = 0; off < 50000; off += 1000) {
+      const { data: page, error } = await sb.from("solution_events").select("journey_id, event_type, step_id, rec_id, session_id")
+        .gte("created_at", data.from).lte("created_at", data.to).order("created_at").range(off, off + 999);
+      if (error) throw new Error(error.message);
+      rows.push(...(page ?? []));
+      if (!page || page.length < 1000) break;
+    }
+    const [{ data: js }, { data: steps }] = await Promise.all([
+      sb.from("solution_journeys").select("id, admin_name, slug"),
+      sb.from("solution_steps").select("id, title, journey_id, sort_order"),
+    ]);
+    const recIds = [...new Set(rows.map((r) => r.rec_id).filter(Boolean))] as string[];
+    const { data: recs } = recIds.length
+      ? await sb.from("solution_recommendations").select("id, ext_name, product_id, products(name)").in("id", recIds.slice(0, 200))
+      : { data: [] as any[] };
+    const recName = new Map((recs ?? []).map((r: any) => [r.id, r.ext_name ?? r.products?.name ?? "Item"]));
+    const journeys = (js ?? []).map((j) => {
+      const ev = rows.filter((r) => r.journey_id === j.id);
+      const uniq = (t: string) => new Set(ev.filter((e) => e.event_type === t).map((e) => e.session_id)).size;
+      const count = (t: string) => ev.filter((e) => e.event_type === t).length;
+      const stepCounts = (steps ?? []).filter((s) => s.journey_id === j.id).sort((a, b) => a.sort_order - b.sort_order)
+        .map((s) => ({ title: s.title, sessions: new Set(ev.filter((e) => e.event_type === "step" && e.step_id === s.id).map((e) => e.session_id)).size }));
+      const clicks = new Map<string, { name: string; type: string; n: number }>();
+      for (const e of ev) if (e.rec_id && e.event_type.startsWith("click_")) {
+        const k = e.rec_id + e.event_type;
+        const c = clicks.get(k) ?? { name: recName.get(e.rec_id) ?? "Item", type: e.event_type, n: 0 };
+        c.n++; clicks.set(k, c);
+      }
+      return {
+        id: j.id, name: j.admin_name, slug: j.slug,
+        views: uniq("view"), starts: uniq("start"), completes: uniq("complete"),
+        internal: count("click_internal"), external: count("click_external"), affiliate: count("click_affiliate"), compares: count("compare"),
+        steps: stepCounts, topClicks: [...clicks.values()].sort((a, b) => b.n - a.n).slice(0, 10),
+      };
+    }).filter((j) => j.views || j.starts || j.internal || j.external || j.affiliate);
+    return { journeys, total: rows.length };
   });

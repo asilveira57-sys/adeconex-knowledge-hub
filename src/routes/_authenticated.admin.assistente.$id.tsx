@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowLeft, ArrowUp, Copy, ExternalLink, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { adminGetJourney, adminSaveJourney, adminListSolutions, adminSearchProducts } from "@/lib/solutions.functions";
 import {
-  ITEM_CATEGORIES, JOURNEY_STATUS, STEP_TYPES, slugify, validateJourney, type JourneyDraft, type RecDraft, type StepDraft, type Condition,
+  ITEM_CATEGORIES, JOURNEY_STATUS, STEP_TYPES, slugify, validateJourney, type JourneyDraft, type RecDraft, type StepDraft, type Condition, type Specs, TECH_LABEL, MATERIAL_LABEL, RIBBON_LABEL,
 } from "@/lib/solutions.shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
