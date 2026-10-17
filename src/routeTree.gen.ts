@@ -101,6 +101,7 @@ import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquet
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
 import { Route as AuthenticatedAdminAssistenteIndexRouteImport } from './routes/_authenticated.admin.assistente.index'
+import { Route as AuthenticatedAdminAssistenteIdRouteImport } from './routes/_authenticated.admin.assistente.$id'
 import { Route as AuthenticatedAdminBannersRelatorioRouteImport } from './routes/_authenticated.admin.banners_.relatorio'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
@@ -611,6 +612,12 @@ const AuthenticatedAdminAssistenteIndexRoute =
     path: '/assistente/',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAssistenteIdRoute =
+  AuthenticatedAdminAssistenteIdRouteImport.update({
+    id: '/assistente/$id',
+    path: '/assistente/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRelatorioRoute =
   AuthenticatedAdminBannersRelatorioRouteImport.update({
     id: '/banners_/relatorio',
@@ -827,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -934,6 +942,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -1050,6 +1059,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/_authenticated/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/_authenticated/admin/banners_/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/_authenticated/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -1166,6 +1176,7 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/admin/assistente/$id'
     | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
@@ -1273,6 +1284,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/etiquetas/personalizada'
     | '/ferramentas/gerador-de-codigo-de-barras'
+    | '/admin/assistente/$id'
     | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
@@ -1388,6 +1400,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/_authenticated/admin/assistente/$id'
     | '/_authenticated/admin/banners_/relatorio'
     | '/_authenticated/admin/clientes/$id'
     | '/_authenticated/admin/etiquetas/$id'
@@ -2117,6 +2130,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAssistenteIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/assistente/$id': {
+      id: '/_authenticated/admin/assistente/$id'
+      path: '/assistente/$id'
+      fullPath: '/admin/assistente/$id'
+      preLoaderRoute: typeof AuthenticatedAdminAssistenteIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/banners_/relatorio': {
       id: '/_authenticated/admin/banners_/relatorio'
       path: '/banners/relatorio'
@@ -2281,6 +2301,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPaginasRoute: typeof AuthenticatedAdminPaginasRoute
   AuthenticatedAdminPerguntasRoute: typeof AuthenticatedAdminPerguntasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminAssistenteIdRoute: typeof AuthenticatedAdminAssistenteIdRoute
   AuthenticatedAdminBannersRelatorioRoute: typeof AuthenticatedAdminBannersRelatorioRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
   AuthenticatedAdminEtiquetasIdRoute: typeof AuthenticatedAdminEtiquetasIdRoute
@@ -2314,6 +2335,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPaginasRoute: AuthenticatedAdminPaginasRoute,
   AuthenticatedAdminPerguntasRoute: AuthenticatedAdminPerguntasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminAssistenteIdRoute: AuthenticatedAdminAssistenteIdRoute,
   AuthenticatedAdminBannersRelatorioRoute:
     AuthenticatedAdminBannersRelatorioRoute,
   AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
