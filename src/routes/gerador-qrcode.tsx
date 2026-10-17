@@ -1,3 +1,4 @@
+import { ProductShowcaseGrid } from "@/components/product-showcase-grid";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { QrGenerator } from "@/components/tools/qr-generator";
 import { Section, SectionHeader } from "@/components/ui/section";
@@ -385,6 +386,7 @@ function QrCodePage() {
           </div>
         </div>
       </Section>
+      <ProductShowcaseGrid kind="labels" />
     </>
   );
 }
