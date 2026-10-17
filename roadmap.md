@@ -3,3 +3,5 @@
 - [x] Testar seleção, exclusão e bloqueio, preservando produtos vendidos.
 - [x] Adicionar filtros combináveis de categoria, marca e aplicação ao catálogo.
 - [x] Verificar filtros, limpeza e persistência ao recarregar o catálogo.
+- [x] Remover o filtro de frete grátis do catálogo e links antigos com esse filtro.
+- [x] Conferir no navegador que o catálogo e a URL antiga funcionam sem frete grátis.

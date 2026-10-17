@@ -57,10 +57,13 @@ describe("catalog taxonomy filters", () => {
   });
 
   it("no longer resolves products by the free shipping badge", async () => {
-    await run({ data: { ...defaults, freeShipping: true } });
-    const askedForFreeShipping = mocks.queries.some(
-      (q) => q.table === "product_badges" && q.eq.some(([key, value]) => key === "key" && value === "free_shipping"),
-    );
-    expect(askedForFreeShipping).toBe(false);
+    for (const input of [{ freeShipping: true }, { badge: "free_shipping" }]) {
+      mocks.queries.length = 0;
+      await run({ data: { ...defaults, ...input } });
+      const askedForFreeShipping = mocks.queries.some(
+        (q) => q.table === "product_badges" && q.eq.some(([key, value]) => key === "key" && value === "free_shipping"),
+      );
+      expect(askedForFreeShipping, JSON.stringify(input)).toBe(false);
+    }
   });
 });

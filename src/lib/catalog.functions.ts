@@ -377,7 +377,8 @@ export const listCatalog = createServerFn({ method: "GET" })
       intersect((pcRows ?? []).map((r) => r.product_id));
     }
 
-    if (data.badge) intersect(await productIdsWithBadge(data.badge));
+    if (data.badge && !CATALOG_BADGE_FILTER_EXCLUSIONS.includes(data.badge))
+      intersect(await productIdsWithBadge(data.badge));
 
 
     if (productIds !== null && (productIds as string[]).length === 0) return empty;
