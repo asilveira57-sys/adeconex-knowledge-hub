@@ -53,6 +53,8 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as ComecePorAquiIndexRouteImport } from './routes/comece-por-aqui.index'
+import { Route as ComecePorAquiSlugRouteImport } from './routes/comece-por-aqui.$slug'
 import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
@@ -98,6 +100,8 @@ import { Route as EtiquetasPersonalizadaIndexRouteImport } from './routes/etique
 import { Route as EtiquetasPersonalizadaTipoRouteImport } from './routes/etiquetas.personalizada.$tipo'
 import { Route as FerramentasGeradorDeCodigoDeBarrasIndexRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.index'
 import { Route as FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras.$padrao'
+import { Route as AuthenticatedAdminAssistenteIndexRouteImport } from './routes/_authenticated.admin.assistente.index'
+import { Route as AuthenticatedAdminAssistenteIdRouteImport } from './routes/_authenticated.admin.assistente.$id'
 import { Route as AuthenticatedAdminBannersRelatorioRouteImport } from './routes/_authenticated.admin.banners_.relatorio'
 import { Route as AuthenticatedAdminClientesIndexRouteImport } from './routes/_authenticated.admin.clientes.index'
 import { Route as AuthenticatedAdminClientesIdRouteImport } from './routes/_authenticated.admin.clientes.$id'
@@ -340,6 +344,16 @@ const BrindesAgendaPersonalizadaRoute =
     path: '/agenda-personalizada',
     getParentRoute: () => BrindesRoute,
   } as any)
+const ComecePorAquiIndexRoute = ComecePorAquiIndexRouteImport.update({
+  id: '/comece-por-aqui/',
+  path: '/comece-por-aqui/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComecePorAquiSlugRoute = ComecePorAquiSlugRouteImport.update({
+  id: '/comece-por-aqui/$slug',
+  path: '/comece-por-aqui/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DownloadsIndexRoute = DownloadsIndexRouteImport.update({
   id: '/downloads/',
   path: '/downloads/',
@@ -592,6 +606,18 @@ const FerramentasGeradorDeCodigoDeBarrasPadraoRoute =
     path: '/$padrao',
     getParentRoute: () => FerramentasGeradorDeCodigoDeBarrasRoute,
   } as any)
+const AuthenticatedAdminAssistenteIndexRoute =
+  AuthenticatedAdminAssistenteIndexRouteImport.update({
+    id: '/assistente/',
+    path: '/assistente/',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAssistenteIdRoute =
+  AuthenticatedAdminAssistenteIdRouteImport.update({
+    id: '/assistente/$id',
+    path: '/assistente/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBannersRelatorioRoute =
   AuthenticatedAdminBannersRelatorioRouteImport.update({
     id: '/banners_/relatorio',
@@ -759,6 +785,7 @@ export interface FileRoutesByFullPath {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -775,6 +802,7 @@ export interface FileRoutesByFullPath {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/comece-por-aqui/': typeof ComecePorAquiIndexRoute
   '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -806,6 +834,7 @@ export interface FileRoutesByFullPath {
   '/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -821,6 +850,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/assistente/': typeof AuthenticatedAdminAssistenteIndexRoute
   '/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -864,6 +894,7 @@ export interface FileRoutesByTo {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -879,6 +910,7 @@ export interface FileRoutesByTo {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog': typeof BlogIndexRoute
   '/brindes': typeof BrindesIndexRoute
+  '/comece-por-aqui': typeof ComecePorAquiIndexRoute
   '/downloads': typeof DownloadsIndexRoute
   '/ferramentas': typeof FerramentasIndexRoute
   '/fita-de-cetim': typeof FitaDeCetimIndexRoute
@@ -910,6 +942,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/admin/banners/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -925,6 +958,7 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/admin/assistente': typeof AuthenticatedAdminAssistenteIndexRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesIndexRoute
   '/admin/cupons': typeof AuthenticatedAdminCuponsIndexRoute
   '/admin/etiquetas': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -976,6 +1010,7 @@ export interface FileRoutesById {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
   '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
@@ -992,6 +1027,7 @@ export interface FileRoutesById {
   '/produto/$slug': typeof ProdutoSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/brindes/': typeof BrindesIndexRoute
+  '/comece-por-aqui/': typeof ComecePorAquiIndexRoute
   '/downloads/': typeof DownloadsIndexRoute
   '/ferramentas/': typeof FerramentasIndexRoute
   '/fita-de-cetim/': typeof FitaDeCetimIndexRoute
@@ -1023,6 +1059,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/': typeof AuthenticatedCheckoutIndexRoute
   '/etiquetas/personalizada/': typeof EtiquetasPersonalizadaIndexRoute
   '/ferramentas/gerador-de-codigo-de-barras/': typeof FerramentasGeradorDeCodigoDeBarrasIndexRoute
+  '/_authenticated/admin/assistente/$id': typeof AuthenticatedAdminAssistenteIdRoute
   '/_authenticated/admin/banners_/relatorio': typeof AuthenticatedAdminBannersRelatorioRoute
   '/_authenticated/admin/clientes/$id': typeof AuthenticatedAdminClientesIdRoute
   '/_authenticated/admin/etiquetas/$id': typeof AuthenticatedAdminEtiquetasIdRoute
@@ -1038,6 +1075,7 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/_authenticated/admin/assistente/': typeof AuthenticatedAdminAssistenteIndexRoute
   '/_authenticated/admin/clientes/': typeof AuthenticatedAdminClientesIndexRoute
   '/_authenticated/admin/cupons/': typeof AuthenticatedAdminCuponsIndexRoute
   '/_authenticated/admin/etiquetas/': typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -1089,6 +1127,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1105,6 +1144,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/comece-por-aqui/'
     | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -1136,6 +1176,7 @@ export interface FileRouteTypes {
     | '/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/admin/assistente/$id'
     | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
@@ -1151,6 +1192,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/admin/assistente/'
     | '/admin/clientes/'
     | '/admin/cupons/'
     | '/admin/etiquetas/'
@@ -1194,6 +1236,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1209,6 +1252,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog'
     | '/brindes'
+    | '/comece-por-aqui'
     | '/downloads'
     | '/ferramentas'
     | '/fita-de-cetim'
@@ -1240,6 +1284,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/etiquetas/personalizada'
     | '/ferramentas/gerador-de-codigo-de-barras'
+    | '/admin/assistente/$id'
     | '/admin/banners/relatorio'
     | '/admin/clientes/$id'
     | '/admin/etiquetas/$id'
@@ -1255,6 +1300,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/admin/assistente'
     | '/admin/clientes'
     | '/admin/cupons'
     | '/admin/etiquetas'
@@ -1305,6 +1351,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
     | '/ferramentas/calculadora-de-etiquetas-por-rolo'
@@ -1321,6 +1368,7 @@ export interface FileRouteTypes {
     | '/produto/$slug'
     | '/blog/'
     | '/brindes/'
+    | '/comece-por-aqui/'
     | '/downloads/'
     | '/ferramentas/'
     | '/fita-de-cetim/'
@@ -1352,6 +1400,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/'
     | '/etiquetas/personalizada/'
     | '/ferramentas/gerador-de-codigo-de-barras/'
+    | '/_authenticated/admin/assistente/$id'
     | '/_authenticated/admin/banners_/relatorio'
     | '/_authenticated/admin/clientes/$id'
     | '/_authenticated/admin/etiquetas/$id'
@@ -1367,6 +1416,7 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
+    | '/_authenticated/admin/assistente/'
     | '/_authenticated/admin/clientes/'
     | '/_authenticated/admin/cupons/'
     | '/_authenticated/admin/etiquetas/'
@@ -1413,12 +1463,14 @@ export interface RootRouteChildren {
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
   AvaliarTokenRoute: typeof AvaliarTokenRoute
+  ComecePorAquiSlugRoute: typeof ComecePorAquiSlugRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
   PagamentoAprovadoRoute: typeof PagamentoAprovadoRoute
   PagamentoPendenteRoute: typeof PagamentoPendenteRoute
   PagamentoRecusadoRoute: typeof PagamentoRecusadoRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
+  ComecePorAquiIndexRoute: typeof ComecePorAquiIndexRoute
   DownloadsIndexRoute: typeof DownloadsIndexRoute
   ApiPublicBannerEventRoute: typeof ApiPublicBannerEventRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
@@ -1742,6 +1794,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
       parentRoute: typeof BrindesRoute
     }
+    '/comece-por-aqui/': {
+      id: '/comece-por-aqui/'
+      path: '/comece-por-aqui'
+      fullPath: '/comece-por-aqui/'
+      preLoaderRoute: typeof ComecePorAquiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comece-por-aqui/$slug': {
+      id: '/comece-por-aqui/$slug'
+      path: '/comece-por-aqui/$slug'
+      fullPath: '/comece-por-aqui/$slug'
+      preLoaderRoute: typeof ComecePorAquiSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/downloads/': {
       id: '/downloads/'
       path: '/downloads'
@@ -2057,6 +2123,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FerramentasGeradorDeCodigoDeBarrasPadraoRouteImport
       parentRoute: typeof FerramentasGeradorDeCodigoDeBarrasRoute
     }
+    '/_authenticated/admin/assistente/': {
+      id: '/_authenticated/admin/assistente/'
+      path: '/assistente'
+      fullPath: '/admin/assistente/'
+      preLoaderRoute: typeof AuthenticatedAdminAssistenteIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/assistente/$id': {
+      id: '/_authenticated/admin/assistente/$id'
+      path: '/assistente/$id'
+      fullPath: '/admin/assistente/$id'
+      preLoaderRoute: typeof AuthenticatedAdminAssistenteIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/banners_/relatorio': {
       id: '/_authenticated/admin/banners_/relatorio'
       path: '/banners/relatorio'
@@ -2221,6 +2301,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminPaginasRoute: typeof AuthenticatedAdminPaginasRoute
   AuthenticatedAdminPerguntasRoute: typeof AuthenticatedAdminPerguntasRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminAssistenteIdRoute: typeof AuthenticatedAdminAssistenteIdRoute
   AuthenticatedAdminBannersRelatorioRoute: typeof AuthenticatedAdminBannersRelatorioRoute
   AuthenticatedAdminClientesIdRoute: typeof AuthenticatedAdminClientesIdRoute
   AuthenticatedAdminEtiquetasIdRoute: typeof AuthenticatedAdminEtiquetasIdRoute
@@ -2231,6 +2312,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSeoPaginasRoute: typeof AuthenticatedAdminSeoPaginasRoute
   AuthenticatedAdminSeoRedirecionamentosRoute: typeof AuthenticatedAdminSeoRedirecionamentosRoute
   AuthenticatedAdminSeoTecnicoRoute: typeof AuthenticatedAdminSeoTecnicoRoute
+  AuthenticatedAdminAssistenteIndexRoute: typeof AuthenticatedAdminAssistenteIndexRoute
   AuthenticatedAdminClientesIndexRoute: typeof AuthenticatedAdminClientesIndexRoute
   AuthenticatedAdminCuponsIndexRoute: typeof AuthenticatedAdminCuponsIndexRoute
   AuthenticatedAdminEtiquetasIndexRoute: typeof AuthenticatedAdminEtiquetasIndexRoute
@@ -2253,6 +2335,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminPaginasRoute: AuthenticatedAdminPaginasRoute,
   AuthenticatedAdminPerguntasRoute: AuthenticatedAdminPerguntasRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminAssistenteIdRoute: AuthenticatedAdminAssistenteIdRoute,
   AuthenticatedAdminBannersRelatorioRoute:
     AuthenticatedAdminBannersRelatorioRoute,
   AuthenticatedAdminClientesIdRoute: AuthenticatedAdminClientesIdRoute,
@@ -2266,6 +2349,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSeoRedirecionamentosRoute:
     AuthenticatedAdminSeoRedirecionamentosRoute,
   AuthenticatedAdminSeoTecnicoRoute: AuthenticatedAdminSeoTecnicoRoute,
+  AuthenticatedAdminAssistenteIndexRoute:
+    AuthenticatedAdminAssistenteIndexRoute,
   AuthenticatedAdminClientesIndexRoute: AuthenticatedAdminClientesIndexRoute,
   AuthenticatedAdminCuponsIndexRoute: AuthenticatedAdminCuponsIndexRoute,
   AuthenticatedAdminEtiquetasIndexRoute: AuthenticatedAdminEtiquetasIndexRoute,
@@ -2443,12 +2528,14 @@ const rootRouteChildren: RootRouteChildren = {
   TermosDeUsoRoute: TermosDeUsoRoute,
   TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
   AvaliarTokenRoute: AvaliarTokenRoute,
+  ComecePorAquiSlugRoute: ComecePorAquiSlugRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,
   PagamentoAprovadoRoute: PagamentoAprovadoRoute,
   PagamentoPendenteRoute: PagamentoPendenteRoute,
   PagamentoRecusadoRoute: PagamentoRecusadoRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
+  ComecePorAquiIndexRoute: ComecePorAquiIndexRoute,
   DownloadsIndexRoute: DownloadsIndexRoute,
   ApiPublicBannerEventRoute: ApiPublicBannerEventRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,

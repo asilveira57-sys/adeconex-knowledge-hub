@@ -5,6 +5,7 @@ export type NavItem = {
 };
 
 export const primaryNav: NavItem[] = [
+  { to: "/comece-por-aqui", label: "Comece por aqui", description: "Monte sua solução de impressão passo a passo" },
   { to: "/empresa", label: "Empresa", description: "Quem somos, fábrica e equipe" },
   { to: "/catalogo", label: "Catálogo", description: "Produtos técnicos com ficha completa" },
   { to: "/etiquetas/personalizada", label: "Etiqueta personalizada", description: "Crie sua arte no editor e receba impressa" },
