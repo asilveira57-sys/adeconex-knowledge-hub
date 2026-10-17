@@ -632,3 +632,65 @@ export const getProductBySlug = createServerFn({ method: "GET" })
   });
 
 
+
+const TOOL_SHOWCASE_CATEGORIES: Record<"ribbon" | "labels", string[]> = {
+  ribbon: ["ribbon-cera", "ribbon-misto", "ribbon-resina"],
+  labels: ["etiquetas-adesivas", "etiqueta-couche", "etiqueta-bopp", "etiqueta-termica", "etiqueta-mercado-envios"],
+};
+
+/** Vitrine das ferramentas/blog: mais vendidos (pedidos pagos) + fallback por categoria. Ribbon fixa 110×74 no topo. */
+export const getToolShowcase = createServerFn({ method: "GET" })
+  .inputValidator((v) =>
+    z.object({ kind: z.enum(["ribbon", "labels"]), limit: z.number().int().min(1).max(24).default(8) }).parse(v),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cats } = await supabaseAdmin
+      .from("categories").select("id").in("slug", TOOL_SHOWCASE_CATEGORIES[data.kind]).eq("is_published", true);
+    const catIds = (cats ?? []).map((c) => c.id);
+    if (!catIds.length) return { products: [] as ShowcaseProduct[] };
+    const { data: pc } = await supabaseAdmin.from("product_categories").select("product_id").in("category_id", catIds);
+    const candidateIds = [...new Set((pc ?? []).map((r) => r.product_id))];
+    if (!candidateIds.length) return { products: [] as ShowcaseProduct[] };
+
+    const { data: prods } = await supabaseAdmin
+      .from("products")
+      .select("id, name, slug, short_description, price, promotional_price, updated_at")
+      .in("id", candidateIds)
+      .in("status", ["enriched", "published"])
+      .eq("is_available", true)
+      .order("updated_at", { ascending: false })
+      .limit(300);
+    const list = prods ?? [];
+
+    const sold = new Map<string, number>();
+    const { data: paid } = await supabaseAdmin.from("orders").select("id").not("paid_at", "is", null).limit(1000);
+    const paidIds = (paid ?? []).map((o) => o.id);
+    if (paidIds.length) {
+      const { data: items } = await supabaseAdmin
+        .from("order_items").select("product_id, quantity").in("order_id", paidIds).limit(5000);
+      for (const it of items ?? []) if (it.product_id) sold.set(it.product_id, (sold.get(it.product_id) ?? 0) + Number(it.quantity ?? 0));
+    }
+    const pinned = (n: string) => data.kind === "ribbon" && /110/.test(n) && /\b74\b|74\s*m/i.test(n);
+    const ranked = [...list].sort((a, b) => {
+      const pa = pinned(a.name) ? 1 : 0, pb = pinned(b.name) ? 1 : 0;
+      if (pa !== pb) return pb - pa;
+      return (sold.get(b.id) ?? 0) - (sold.get(a.id) ?? 0);
+    }).slice(0, data.limit);
+
+    const imagesByProduct = await attachImages(ranked);
+    const badgesByProduct = await attachBadges(ranked as any);
+    const base = (process.env.SUPABASE_URL ?? "").replace(/\/$/, "");
+    const products: ShowcaseProduct[] = ranked.map((p) => {
+      const img = imagesByProduct.get(p.id);
+      return {
+        id: p.id, name: p.name, slug: p.slug, short_description: p.short_description,
+        price: p.price !== null ? Number(p.price) : null,
+        promotional_price: p.promotional_price !== null ? Number(p.promotional_price) : null,
+        image_url: img ? publicUrl(base, img.storage_path) ?? img.source_url : null,
+        image_alt: img?.alt_text ?? p.name,
+        badges: badgesByProduct.get(p.id) ?? [],
+      };
+    });
+    return { products };
+  });
