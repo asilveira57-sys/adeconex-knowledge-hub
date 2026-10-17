@@ -27,7 +27,13 @@ export const createCatalogLead = createServerFn({ method: "POST" })
       .select("id, token")
       .single();
     if (error || !row) throw new Error("Não foi possível salvar sua lista. Tente novamente.");
-    return { id: row.id, token: row.token, count: data.productIds.length };
+    // Envio automático da lista para o e-mail informado.
+    const { sendAppEmail, SITE_URL } = await import("./app-emails.server");
+    const r = await sendAppEmail("catalogo-lista", data.email.toLowerCase(),
+      { nome: data.name.split(" ")[0], quantidade: String(data.productIds.length) },
+      { idempotencyKey: `catalog-list-${row.id}`, reference: row.id, ctaUrl: catalogListUrl(SITE_URL, row.token) });
+    if (r.status === "sent") await supabaseAdmin.from("catalog_leads").update({ channels: ["email"] }).eq("id", row.id);
+    return { id: row.id, token: row.token, count: data.productIds.length, emailStatus: r.status };
   });
 
 /** Público: registra o canal escolhido e, se for e-mail, envia o link. */
@@ -46,7 +52,7 @@ export const recordCatalogLeadChannel = createServerFn({ method: "POST" })
     const { sendAppEmail, SITE_URL } = await import("./app-emails.server");
     const r = await sendAppEmail("catalogo-lista", lead.email,
       { nome: lead.name.split(" ")[0], quantidade: String(lead.product_ids.length) },
-      { idempotencyKey: `catalog-list-${lead.id}`, reference: lead.id, ctaUrl: catalogListUrl(SITE_URL, data.token) });
+      { idempotencyKey: `catalog-list-${lead.id}-again-${Date.now()}`, reference: lead.id, ctaUrl: catalogListUrl(SITE_URL, data.token) });
     return { ok: r.status === "sent" || r.status === "suppressed" || r.status === "disabled" };
   });
 
