@@ -194,7 +194,7 @@ function PagamentoStep() {
               )}
             </button>
             <a
-              href={`https://wa.me/5527999999999?text=${waMsg}`}
+              href={`https://wa.me/5527992733033?text=${waMsg}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex h-11 items-center justify-center gap-2 rounded-md border hairline bg-card px-6 text-sm font-semibold hover:bg-accent"

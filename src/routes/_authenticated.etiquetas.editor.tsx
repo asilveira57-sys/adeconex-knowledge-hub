@@ -24,7 +24,7 @@ import {
   type LabelLayer,
   type LabelShape,
 } from "@/lib/labels/shared";
-import { getPublicTemplate } from "@/lib/label-catalog.functions";
+import { getEditorTemplate } from "@/lib/label-catalog.functions";
 import { parseSizeParam, templateToDesign } from "@/lib/labels/catalog-shared";
 
 export const Route = createFileRoute("/_authenticated/etiquetas/editor")({
@@ -79,7 +79,7 @@ function designFromSaved(d: SavedDesign): LabelDesign {
 
 function EditorPage() {
   const { design: designId, produto, modelo, medida } = Route.useSearch();
-  const templateFn = useServerFn(getPublicTemplate);
+  const templateFn = useServerFn(getEditorTemplate);
   const template = useQuery({
     queryKey: ["label-template", modelo],
     queryFn: () => templateFn({ data: { id: modelo! } }),
