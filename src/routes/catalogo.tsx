@@ -12,7 +12,7 @@ import {
 } from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
-import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
+import { ImageOff, ChevronLeft, ChevronRight, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -53,7 +53,7 @@ const SORTS = [
   { value: "newest", label: "Mais recentes" },
   { value: "price_asc", label: "Menor preço" },
   { value: "price_desc", label: "Maior preço" },
-  { value: "name_asc", label: "A–Z" },
+  { value: "name_asc", label: "Nome A–Z" },
 ] as const;
 
 const categoriesOptions = queryOptions({
@@ -305,9 +305,23 @@ function AdvancedFilters() {
             Limpar filtros
           </Button>
         )}
-        <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
-          Ordenar
-        </label>
+      </div>
+    </div>
+  );
+}
+
+/** Ordenação do catálogo: relevância, preço, nome e novidades. */
+function SortControl() {
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/catalogo" });
+
+  return (
+    <div className="flex items-center gap-2">
+      <ArrowUpDown className="h-4 w-4 shrink-0 text-signal" aria-hidden />
+      <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-foreground">
+        Ordenar por
+      </label>
+      <span className="relative inline-flex items-center">
         <select
           id="catalog-sort"
           value={search.sort}
@@ -321,9 +335,9 @@ function AdvancedFilters() {
               previousSort: search.sort,
               pageNumber: search.page,
             });
-            patch({ sort: nextSort });
+            navigate({ search: (prev: CatalogSearch) => ({ ...prev, sort: nextSort, page: 1 }) });
           }}
-          className="rounded-md border hairline bg-surface-2 px-3 py-1.5 text-xs"
+          className="h-10 appearance-none rounded-md border border-foreground/20 bg-surface-2 pl-4 pr-9 text-sm font-semibold text-foreground shadow-sm transition-colors hover:border-signal focus:outline-none focus-visible:ring-2 focus-visible:ring-signal"
         >
           {SORTS.map((s) => (
             <option key={s.value} value={s.value}>
@@ -331,7 +345,8 @@ function AdvancedFilters() {
             </option>
           ))}
         </select>
-      </div>
+        <ChevronDown className="pointer-events-none absolute right-3 h-4 w-4 text-muted-foreground" aria-hidden />
+      </span>
     </div>
   );
 }
@@ -413,6 +428,12 @@ function CatalogGrid() {
 
   return (
     <>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs text-muted-foreground">
+          <span className="font-mono text-sm font-semibold text-foreground">{data.total}</span> produtos
+        </p>
+        <SortControl />
+      </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {items.map((p, i) => (
           <Link

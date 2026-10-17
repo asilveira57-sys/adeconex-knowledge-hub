@@ -5,3 +5,5 @@
 - [x] Verificar filtros, limpeza e persistência ao recarregar o catálogo.
 - [x] Remover o filtro de frete grátis do catálogo e links antigos com esse filtro.
 - [x] Conferir no navegador que o catálogo e a URL antiga funcionam sem frete grátis.
+- [x] Exibir ordenação do catálogo por nome, preço e relevância acima da lista de produtos.
+- [x] Testar cada opção de ordenação e conferir o controle no navegador.
