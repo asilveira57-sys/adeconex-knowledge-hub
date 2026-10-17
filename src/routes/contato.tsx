@@ -88,17 +88,6 @@ function ContatoPage() {
     sameAs: [INSTAGRAM, YOUTUBE, place.googleMapsUri],
     priceRange: "$$",
     ...(lat ? { geo: { "@type": "GeoCoordinates", latitude: lat, longitude: lng } } : {}),
-    ...(place.reviewCount
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: place.rating,
-            reviewCount: place.reviewCount,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }
-      : {}),
   };
 
   return (

@@ -90,28 +90,7 @@ function AvaliacoesPage() {
         }
       : {}),
     ...(openingHoursSpec.length ? { openingHoursSpecification: openingHoursSpec } : {}),
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: place.rating,
-      reviewCount: place.reviewCount,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    review: place.reviews
-      .filter((r) => r.text.trim().length > 20)
-      .slice(0, 8)
-      .map((r) => ({
-        "@type": "Review",
-        author: { "@type": "Person", name: r.author },
-        datePublished: r.publishTime,
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: r.rating,
-          bestRating: 5,
-          worstRating: 1,
-        },
-        reviewBody: r.text,
-      })),
+    // Notas do Google não entram no schema: o Google proíbe marcar avaliações vindas de outros sites.
   };
 
   return (

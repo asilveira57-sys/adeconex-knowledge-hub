@@ -166,7 +166,7 @@ export function buildPublicTrackingConfig(settings: Record<string, any>): Public
       environment: meta.environment ?? "production",
     },
     search_console_verification: gsc.verification_meta ?? "",
-    canonical_domain: general.canonical_domain || "https://www.adeconex.com.br",
+    canonical_domain: general.canonical_domain || "https://adeconex.com.br",
   };
 }
 

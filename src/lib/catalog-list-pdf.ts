@@ -37,7 +37,7 @@ export async function buildCatalogListPdf(opts: {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = 210, M = 14;
-  const site = typeof window !== "undefined" ? window.location.origin : "https://www.adeconex.com.br";
+  const site = typeof window !== "undefined" ? window.location.origin : "https://adeconex.com.br";
   const header = async () => {
     const logo = await toDataUrl(opts.logoUrl);
     if (logo) doc.addImage(logo.data, logo.fmt, M, 10, 50, 12.4);

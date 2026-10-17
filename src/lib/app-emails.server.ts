@@ -1,6 +1,6 @@
 import { getAppEmailDef, interpolate, mergeTexts, type AppEmailKey } from "./app-emails.shared";
 
-export const SITE_URL = "https://www.adeconex.com.br";
+export const SITE_URL = "https://adeconex.com.br";
 
 type Vars = Record<string, string | null | undefined>;
 
