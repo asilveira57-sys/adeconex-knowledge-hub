@@ -1,3 +1,4 @@
+import { ProductShowcaseGrid } from "@/components/product-showcase-grid";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section } from "@/components/ui/section";
@@ -261,6 +262,7 @@ function BlogPostPage() {
           </div>
         ) : null}
       </Section>
+      <ProductShowcaseGrid kind={/ribbon/i.test(`${post.slug} ${post.title}`) ? "ribbon" : "labels"} />
     </>
   );
 }

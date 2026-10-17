@@ -41,6 +41,7 @@ import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
 import { Route as DownloadsSlugRouteImport } from './routes/downloads.$slug'
 import { Route as EtiquetasPrecoRouteImport } from './routes/etiquetas.preco'
 import { Route as FerramentasIndexRouteImport } from './routes/ferramentas.index'
+import { Route as FerramentasCalculadoraDeEtiquetasPorRoloRouteImport } from './routes/ferramentas.calculadora-de-etiquetas-por-rolo'
 import { Route as FerramentasCalculadoraDeRibbonRouteImport } from './routes/ferramentas.calculadora-de-ribbon'
 import { Route as FerramentasConversorDeMedidasRouteImport } from './routes/ferramentas.conversor-de-medidas'
 import { Route as FerramentasGeradorDeCodigoDeBarrasRouteImport } from './routes/ferramentas.gerador-de-codigo-de-barras'
@@ -254,6 +255,12 @@ const FerramentasIndexRoute = FerramentasIndexRouteImport.update({
   path: '/',
   getParentRoute: () => FerramentasRoute,
 } as any)
+const FerramentasCalculadoraDeEtiquetasPorRoloRoute =
+  FerramentasCalculadoraDeEtiquetasPorRoloRouteImport.update({
+    id: '/calculadora-de-etiquetas-por-rolo',
+    path: '/calculadora-de-etiquetas-por-rolo',
+    getParentRoute: () => FerramentasRoute,
+  } as any)
 const FerramentasCalculadoraDeRibbonRoute =
   FerramentasCalculadoraDeRibbonRouteImport.update({
     id: '/calculadora-de-ribbon',
@@ -582,6 +589,7 @@ export interface FileRoutesByFullPath {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
   '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -661,6 +669,7 @@ export interface FileRoutesByTo {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
   '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-zpl': typeof FerramentasGeradorZplRoute
@@ -747,6 +756,7 @@ export interface FileRoutesById {
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
+  '/ferramentas/calculadora-de-etiquetas-por-rolo': typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
   '/ferramentas/calculadora-de-ribbon': typeof FerramentasCalculadoraDeRibbonRoute
   '/ferramentas/conversor-de-medidas': typeof FerramentasConversorDeMedidasRoute
   '/ferramentas/gerador-de-codigo-de-barras': typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -834,6 +844,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-etiquetas-por-rolo'
     | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -913,6 +924,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-etiquetas-por-rolo'
     | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-zpl'
@@ -998,6 +1010,7 @@ export interface FileRouteTypes {
     | '/brindes/agenda-personalizada'
     | '/downloads/$slug'
     | '/etiquetas/preco'
+    | '/ferramentas/calculadora-de-etiquetas-por-rolo'
     | '/ferramentas/calculadora-de-ribbon'
     | '/ferramentas/conversor-de-medidas'
     | '/ferramentas/gerador-de-codigo-de-barras'
@@ -1318,6 +1331,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/ferramentas/'
       preLoaderRoute: typeof FerramentasIndexRouteImport
+      parentRoute: typeof FerramentasRoute
+    }
+    '/ferramentas/calculadora-de-etiquetas-por-rolo': {
+      id: '/ferramentas/calculadora-de-etiquetas-por-rolo'
+      path: '/calculadora-de-etiquetas-por-rolo'
+      fullPath: '/ferramentas/calculadora-de-etiquetas-por-rolo'
+      preLoaderRoute: typeof FerramentasCalculadoraDeEtiquetasPorRoloRouteImport
       parentRoute: typeof FerramentasRoute
     }
     '/ferramentas/calculadora-de-ribbon': {
@@ -1831,6 +1851,7 @@ const FerramentasGeradorDeCodigoDeBarrasRouteWithChildren =
   )
 
 interface FerramentasRouteChildren {
+  FerramentasCalculadoraDeEtiquetasPorRoloRoute: typeof FerramentasCalculadoraDeEtiquetasPorRoloRoute
   FerramentasCalculadoraDeRibbonRoute: typeof FerramentasCalculadoraDeRibbonRoute
   FerramentasConversorDeMedidasRoute: typeof FerramentasConversorDeMedidasRoute
   FerramentasGeradorDeCodigoDeBarrasRoute: typeof FerramentasGeradorDeCodigoDeBarrasRouteWithChildren
@@ -1841,6 +1862,8 @@ interface FerramentasRouteChildren {
 }
 
 const FerramentasRouteChildren: FerramentasRouteChildren = {
+  FerramentasCalculadoraDeEtiquetasPorRoloRoute:
+    FerramentasCalculadoraDeEtiquetasPorRoloRoute,
   FerramentasCalculadoraDeRibbonRoute: FerramentasCalculadoraDeRibbonRoute,
   FerramentasConversorDeMedidasRoute: FerramentasConversorDeMedidasRoute,
   FerramentasGeradorDeCodigoDeBarrasRoute:

@@ -27,7 +27,7 @@ function money(v: number | null): string | null {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function ProductCard({ p }: { p: ShowcaseProduct }) {
+export function ProductCard({ p }: { p: ShowcaseProduct }) {
   const price = money(p.promotional_price ?? p.price);
   const strike = p.promotional_price && p.price ? money(p.price) : null;
   return (

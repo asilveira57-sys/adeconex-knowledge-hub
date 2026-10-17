@@ -55,6 +55,10 @@ export const Route = createFileRoute("/ferramentas/calculadora-de-ribbon")({
       ],
     };
   },
+  validateSearch: (s: Record<string, unknown>) => {
+    const n = (v: unknown) => (Number(v) > 0 ? Number(v) : undefined);
+    return { altura: n(s.altura), colunas: n(s.colunas), quantidade: n(s.quantidade), largura: n(s.largura) };
+  },
   component: RibbonCalculatorPage,
 });
 
@@ -63,11 +67,12 @@ const fmt = (n: number, digits = 2) =>
 const num = (v: string) => Math.max(0, Number(v.replace(",", ".")) || 0);
 
 function RibbonCalculatorPage() {
-  const [height, setHeight] = useState(50);
+  const search = Route.useSearch();
+  const [height, setHeight] = useState(search.altura ?? 50);
   const [unit, setUnit] = useState<"mm" | "cm">("mm");
-  const [quantity, setQuantity] = useState(1000);
-  const [columns, setColumns] = useState(1);
-  const [width, setWidth] = useState(0);
+  const [quantity, setQuantity] = useState(Math.round(search.quantidade ?? 1000));
+  const [columns, setColumns] = useState(Math.round(search.colunas ?? 1));
+  const [width, setWidth] = useState(search.largura ?? 0);
   const [rollMode, setRollMode] = useState<"qtd" | "metros">("qtd");
   const [rollInput, setRollInput] = useState(0);
   const [safety, setSafety] = useState(0);
@@ -291,6 +296,9 @@ function RibbonCalculatorPage() {
 
       <div className="container-page pb-16">
         <div className="flex flex-wrap gap-3">
+          <Button asChild>
+            <Link to="/ferramentas/calculadora-de-etiquetas-por-rolo">Etiquetas por rolo / metragem</Link>
+          </Button>
           <Button asChild variant="outline">
             <Link to="/ferramentas/planejador-de-bobina">Planejador de bobina</Link>
           </Button>

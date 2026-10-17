@@ -45,6 +45,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ferramentas/planejador-de-bobina", changefreq: "monthly", priority: "0.85" },
           { path: "/ferramentas/conversor-de-medidas", changefreq: "monthly", priority: "0.8" },
           { path: "/ferramentas/calculadora-de-ribbon", changefreq: "monthly", priority: "0.8" },
+          { path: "/ferramentas/calculadora-de-etiquetas-por-rolo", changefreq: "monthly", priority: "0.8" },
           { path: "/downloads", changefreq: "weekly", priority: "0.8" },
           ...(await (async () => {
             try {

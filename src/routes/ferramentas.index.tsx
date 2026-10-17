@@ -25,6 +25,7 @@ export const Route = createFileRoute("/ferramentas/")({
         { to: "/ferramentas/planejador-de-bobina", label: "Planejador de Corte em Bobina" },
         { to: "/ferramentas/conversor-de-medidas", label: "Conversor de Medidas" },
         { to: "/ferramentas/calculadora-de-ribbon", label: "Calculadora de Consumo de Ribbon" },
+        { to: "/ferramentas/calculadora-de-etiquetas-por-rolo", label: "Calculadora de Etiquetas por Rolo" },
       ]}
       features={[
         "Gerador de Código de Barras (EAN, Code 128, GS1-128, ITF-14, SSCC, DataMatrix)",
