@@ -1,3 +1,4 @@
+import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -42,7 +43,8 @@ export const Route = createFileRoute("/produto/$slug")({
     const reviews = await context.queryClient
       .ensureQueryData(productReviewsOptions(product.id))
       .catch(() => null);
-    return { product, reviews };
+    const questions = await loadQuestions({ type: "product", id: product.id });
+    return { product, reviews, questions };
   },
   head: ({ params, loaderData }) => {
     if (!loaderData) {
@@ -229,7 +231,7 @@ function variantLabelFromOpts(opts: Record<string, string>): string | null {
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productOptions(slug));
-  const { reviews: initialReviews } = Route.useLoaderData();
+  const { reviews: initialReviews, questions: initialQuestions } = Route.useLoaderData();
   const [idx, setIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const { add } = useCart();
@@ -851,6 +853,8 @@ function ProductPage() {
             initial={initialReviews}
           />
         ) : null}
+
+        <ContentQuestions target={{ type: "product", id: p.id }} title={p.name} initial={initialQuestions} />
 
         {/* CTA final */}
         <section className="mx-auto mt-20 max-w-3xl rounded-xl border hairline bg-gradient-to-br from-surface-2 to-card p-8 text-center shadow-card">

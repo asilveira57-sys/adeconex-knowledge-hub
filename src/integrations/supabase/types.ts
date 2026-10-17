@@ -542,6 +542,122 @@ export type Database = {
         }
         Relationships: []
       }
+      content_question_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          note: string | null
+          question_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          question_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          question_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_question_events_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "content_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          cancel_reason: string | null
+          cancelled_at: string | null
+          content_type: string
+          created_at: string
+          download_id: string | null
+          id: string
+          identity_consent: boolean
+          identity_consent_at: string | null
+          product_id: string | null
+          published_at: string | null
+          published_by: string | null
+          question: string
+          status: string
+          tool_path: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          content_type: string
+          created_at?: string
+          download_id?: string | null
+          id?: string
+          identity_consent?: boolean
+          identity_consent_at?: string | null
+          product_id?: string | null
+          published_at?: string | null
+          published_by?: string | null
+          question: string
+          status?: string
+          tool_path?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          content_type?: string
+          created_at?: string
+          download_id?: string | null
+          id?: string
+          identity_consent?: boolean
+          identity_consent_at?: string | null
+          product_id?: string | null
+          published_at?: string | null
+          published_by?: string | null
+          question?: string
+          status?: string
+          tool_path?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_questions_download_id_fkey"
+            columns: ["download_id"]
+            isOneToOne: false
+            referencedRelation: "downloads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_questions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupon_categories: {
         Row: {
           category_id: string
@@ -2990,6 +3106,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_preset: string | null
           avatar_url: string | null
           birth_date: string | null
           cpf: string | null
@@ -3002,6 +3119,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          avatar_preset?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null
@@ -3014,6 +3132,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          avatar_preset?: string | null
           avatar_url?: string | null
           birth_date?: string | null
           cpf?: string | null

@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { myPermissionsQuery } from "@/hooks/use-permissions";
-import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog, Download, Tags, FolderTree, Mail, ListChecks, FileText, Image as ImageIcon, Star } from "lucide-react";
+import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog, Download, Tags, FolderTree, Mail, ListChecks, FileText, Image as ImageIcon, Star, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -45,6 +45,7 @@ const navItems = [
   { to: "/admin/banners", key: "banners", label: "Banners", icon: ImageIcon, exact: false },
   { to: "/admin/paginas", key: "paginas", label: "Páginas institucionais", icon: FileText, exact: false },
   { to: "/admin/avaliacoes", key: "avaliacoes", label: "Avaliações", icon: Star, exact: false },
+  { to: "/admin/perguntas", key: "perguntas", label: "Perguntas", icon: MessageCircleQuestion, exact: false },
   { to: "/admin/emails", key: "emails", label: "E-mails", icon: Mail, exact: false },
   { to: "/admin/colaboradores", key: "colaboradores", label: "Colaboradores", icon: UserCog, exact: false },
 ] as const;

@@ -1,3 +1,4 @@
+import { ContentQuestions } from "@/components/questions/content-questions";
 import { ProductShowcaseGrid } from "@/components/product-showcase-grid";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { QrGenerator } from "@/components/tools/qr-generator";
@@ -386,6 +387,7 @@ function QrCodePage() {
           </div>
         </div>
       </Section>
+      <ContentQuestions target={{ type: "tool", path: "/gerador-qrcode" }} title="o gerador de QR Code" />
       <ProductShowcaseGrid kind="labels" />
     </>
   );

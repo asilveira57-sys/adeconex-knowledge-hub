@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { sendWelcomeEmail } from "@/lib/app-emails.functions";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search?: { redirect?: string }) => ({
+  validateSearch: (search?: { redirect?: string; motivo?: string }): { redirect?: string; motivo?: "pergunta" } => ({
     redirect: typeof search?.redirect === "string" ? search.redirect : undefined,
+    motivo: search?.motivo === "pergunta" ? ("pergunta" as const) : undefined,
   }),
   head: () => ({
     meta: [
@@ -41,7 +42,7 @@ function AuthPage() {
       if (mounted && data.session) {
         void sendWelcomeEmail().catch(() => {});
         if (storedDestination) window.sessionStorage.removeItem("adeconex-auth-redirect");
-        navigate({ to: (storedDestination || destination) as never, replace: true });
+        navigate({ href: storedDestination || destination, replace: true });
       }
     });
     return () => { mounted = false; };
@@ -55,7 +56,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         void sendWelcomeEmail().catch(() => {});
-        navigate({ to: destination as never });
+        navigate({ href: destination });
       } else {
         const { error } = await supabase.auth.signUp({
           email, password,
@@ -82,7 +83,7 @@ function AuthPage() {
       });
       if (result.error) throw result.error;
       if (result.redirected) return;
-      navigate({ to: destination as never });
+      navigate({ href: destination });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao entrar com Google");
     } finally { setGoogleLoading(false); }
@@ -97,7 +98,9 @@ function AuthPage() {
             {mode === "signin" ? "Entrar" : "Criar conta"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acesso ao painel administrativo Adeconex 2030.
+            {search.motivo === "pergunta"
+              ? "Para enviar uma pergunta, entre na sua conta ou faça seu cadastro."
+              : "Acesso ao painel administrativo Adeconex 2030."}
           </p>
         </div>
         <form onSubmit={submit} className="space-y-4">

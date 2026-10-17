@@ -1,3 +1,4 @@
+import { AvatarPicker } from "@/components/questions/avatar-picker";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -124,7 +125,7 @@ function MinhaContaPage() {
           <TabsTrigger value="personalizado"><Sparkles className="h-4 w-4 mr-1.5" />Personalizado</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="perfil"><PerfilTab account={data} /></TabsContent>
+        <TabsContent value="perfil" className="space-y-6"><AvatarPicker profile={data.profile} /><PerfilTab account={data} /></TabsContent>
         <TabsContent value="empresas"><EmpresasTab account={data} /></TabsContent>
         <TabsContent value="enderecos"><EnderecosTab account={data} /></TabsContent>
         <TabsContent value="pedidos"><PedidosTab /></TabsContent>
