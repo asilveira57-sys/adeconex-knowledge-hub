@@ -15,27 +15,33 @@ import { showcaseToEcomItem } from "@/lib/analytics-list";
 import { ImageOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ProductBadgePills } from "@/components/product-badge-pills";
 import {
   getCatalogBadges,
   getCatalogCategories,
+  getCatalogFacets,
   listCatalog,
   type ShowcaseProduct,
 } from "@/lib/catalog.functions";
 
 const searchSchema = z.object({
-  cat: fallback(z.string().optional(), undefined).default(undefined as unknown as string),
+  cat: z.string().optional(),
+  marca: z.string().optional(),
+  aplicacao: z.string().optional(),
   badge: fallback(z.string().optional(), undefined).default(undefined as unknown as string),
   frete: fallback(z.boolean(), false).default(false),
   promo: fallback(z.boolean(), false).default(false),
   disp: fallback(z.string(), "all").default("all"),
   sort: fallback(z.string(), "relevance").default("relevance"),
-  page: fallback(z.number().int().min(1), 1).default(1),
+  page: fallback(z.number().int(), 1).default(1),
 });
 
 type CatalogSearch = {
   cat?: string;
+  marca?: string;
+  aplicacao?: string;
   badge?: string;
   frete: boolean;
   promo: boolean;
@@ -58,6 +64,12 @@ const categoriesOptions = queryOptions({
   staleTime: 5 * 60_000,
 });
 
+const facetsOptions = queryOptions({
+  queryKey: ["catalog", "facets"],
+  queryFn: () => getCatalogFacets(),
+  staleTime: 5 * 60_000,
+});
+
 const badgesOptions = queryOptions({
   queryKey: ["catalog", "badges"],
   queryFn: () => getCatalogBadges(),
@@ -66,6 +78,8 @@ const badgesOptions = queryOptions({
 
 type ListFilters = {
   cat?: string;
+  marca?: string;
+  aplicacao?: string;
   badge?: string;
   frete: boolean;
   promo: boolean;
@@ -81,6 +95,8 @@ const listOptions = (f: ListFilters) =>
       listCatalog({
         data: {
           categorySlug: f.cat,
+          brandSlug: f.marca,
+          applicationSlug: f.aplicacao,
           badge: f.badge,
           freeShipping: f.frete || undefined,
           onSale: f.promo || undefined,
@@ -88,7 +104,7 @@ const listOptions = (f: ListFilters) =>
           sort: (["relevance", "newest", "price_asc", "price_desc", "name_asc"].includes(f.sort)
             ? f.sort
             : "relevance") as "relevance",
-          page: f.page,
+          page: Math.max(1, f.page),
           pageSize: 12,
         },
       }),
@@ -99,6 +115,8 @@ export const Route = createFileRoute("/catalogo")({
   validateSearch: zodValidator(searchSchema),
   loaderDeps: ({ search }) => ({
     cat: search.cat,
+    marca: search.marca,
+    aplicacao: search.aplicacao,
     badge: search.badge,
     frete: search.frete,
     promo: search.promo,
@@ -110,6 +128,7 @@ export const Route = createFileRoute("/catalogo")({
     await Promise.all([
       context.queryClient.ensureQueryData(categoriesOptions),
       context.queryClient.ensureQueryData(badgesOptions),
+      context.queryClient.ensureQueryData(facetsOptions),
       context.queryClient.ensureQueryData(listOptions(deps)),
     ]);
   },
@@ -119,10 +138,10 @@ export const Route = createFileRoute("/catalogo")({
       {
         name: "description",
         content:
-          "Etiquetas couchê, BOPP, ribbons e mais. Filtre por tipo de produto e navegue por páginas.",
+          "Etiquetas couchê, BOPP, ribbons e mais. Encontre produtos por categoria, marca e aplicação.",
       },
       { property: "og:title", content: "Catálogo técnico — Adeconex" },
-      { property: "og:description", content: "Filtre por família e encontre etiquetas, ribbons e insumos." },
+      { property: "og:description", content: "Encontre etiquetas, ribbons e insumos por categoria, marca e aplicação." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:url", content: "/catalogo" },
@@ -199,21 +218,39 @@ const pillClass = (active: boolean) =>
       : "text-muted-foreground hover:border-signal hover:text-foreground",
   );
 
-function CategoryFilter({ active }: { active: string | undefined }) {
-  const { data } = useSuspenseQuery(categoriesOptions);
+function CatalogTaxonomyFilters() {
+  const search = Route.useSearch();
+  const { data: categoryData } = useSuspenseQuery(categoriesOptions);
+  const { data: facets } = useSuspenseQuery(facetsOptions);
   const navigate = useNavigate({ from: "/catalogo" });
-  const setCat = (slug: string | undefined) =>
-    navigate({ search: (prev: CatalogSearch) => ({ ...prev, cat: slug, page: 1 }) });
-
+  const filters = [
+    { key: "cat" as const, label: "Categoria", all: "Todas as categorias", options: categoryData.categories },
+    { key: "marca" as const, label: "Marca", all: "Todas as marcas", options: facets.brands },
+    { key: "aplicacao" as const, label: "Aplicação", all: "Todas as aplicações", options: facets.applications },
+  ];
   return (
-    <div className="flex flex-wrap gap-2">
-      <button type="button" onClick={() => setCat(undefined)} className={pillClass(!active)}>
-        Todos
-      </button>
-      {data.categories.map((c) => (
-        <button key={c.slug} type="button" onClick={() => setCat(c.slug)} className={pillClass(c.slug === active)}>
-          {c.name} <span className="ml-1 opacity-60">{c.count}</span>
-        </button>
+    <div className="grid gap-4 sm:grid-cols-3">
+      {filters.map((filter) => (
+        <div key={filter.key} className="min-w-0 space-y-2">
+          <label htmlFor={`catalog-${filter.key}`} className="text-sm font-medium">{filter.label}</label>
+          <Select
+            value={search[filter.key] || "__all"}
+            onValueChange={(value) => navigate({ search: (prev) => ({ ...prev, [filter.key]: value === "__all" ? undefined : value, page: 1 }) })}
+          >
+            <SelectTrigger id={`catalog-${filter.key}`} className="h-11 bg-surface-2" aria-label={filter.label}>
+              <SelectValue placeholder={filter.all} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">{filter.all}</SelectItem>
+              {search[filter.key] && !filter.options.some((option) => option.slug === search[filter.key]) && (
+                <SelectItem value={search[filter.key] ?? "__unknown"}>Opção indisponível</SelectItem>
+              )}
+              {filter.options.map((option) => (
+                <SelectItem key={option.slug} value={option.slug}>{option.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       ))}
     </div>
   );
@@ -228,53 +265,53 @@ function AdvancedFilters() {
     navigate({ search: (prev: CatalogSearch) => ({ ...prev, ...next, page: 1 }) });
 
   const hasFilters =
-    !!search.cat || !!search.badge || search.frete || search.promo || search.disp !== "all" || search.sort !== "relevance";
+    !!search.cat || !!search.marca || !!search.aplicacao || !!search.badge || search.frete || search.promo || search.disp !== "all" || search.sort !== "relevance";
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 border-t hairline pt-4">
       <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Selo</span>
-      <button type="button" onClick={() => patch({ badge: undefined })} className={pillClass(!search.badge)}>
+      <Button variant="ghost" size="sm" type="button" onClick={() => patch({ badge: undefined })} className={pillClass(!search.badge)}>
         Qualquer
-      </button>
+      </Button>
       {data.badges.map((b) => (
-        <button
+        <Button variant="ghost" size="sm"
           key={b.key}
           type="button"
           onClick={() => patch({ badge: search.badge === b.key ? undefined : b.key })}
           className={pillClass(search.badge === b.key)}
         >
           {b.label}
-        </button>
+        </Button>
       ))}
 
       <span className="ml-2 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Filtros</span>
-      <button type="button" onClick={() => patch({ frete: !search.frete })} className={pillClass(search.frete)}>
+      <Button variant="ghost" size="sm" type="button" onClick={() => patch({ frete: !search.frete })} className={pillClass(search.frete)}>
         Frete grátis
-      </button>
-      <button type="button" onClick={() => patch({ promo: !search.promo })} className={pillClass(search.promo)}>
+      </Button>
+      <Button variant="ghost" size="sm" type="button" onClick={() => patch({ promo: !search.promo })} className={pillClass(search.promo)}>
         Preço promocional
-      </button>
-      <button
+      </Button>
+      <Button variant="ghost" size="sm"
         type="button"
         onClick={() => patch({ disp: search.disp === "in_stock" ? "all" : "in_stock" })}
         className={pillClass(search.disp === "in_stock")}
       >
         Em estoque
-      </button>
+      </Button>
 
       <div className="ml-auto flex items-center gap-2">
         {hasFilters && (
-          <button
+          <Button variant="ghost" size="sm"
             type="button"
             onClick={() =>
               navigate({
-                search: () => ({ cat: undefined, badge: undefined, frete: false, promo: false, disp: "all", sort: "relevance", page: 1 }),
+                search: () => ({ cat: undefined, marca: undefined, aplicacao: undefined, badge: undefined, frete: false, promo: false, disp: "all", sort: "relevance", page: 1 }),
               })
             }
             className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
           >
             Limpar filtros
-          </button>
+          </Button>
         )}
         <label htmlFor="catalog-sort" className="text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
           Ordenar
@@ -311,6 +348,8 @@ function AdvancedFilters() {
 function buildSearchTerm(s: CatalogSearch): string | null {
   const parts: string[] = [];
   if (s.cat) parts.push(`cat:${s.cat}`);
+  if (s.marca) parts.push(`marca:${s.marca}`);
+  if (s.aplicacao) parts.push(`aplicacao:${s.aplicacao}`);
   if (s.badge) parts.push(`selo:${s.badge}`);
   if (s.frete) parts.push("frete_gratis");
   if (s.promo) parts.push("promocao");
@@ -323,6 +362,8 @@ function buildSearchTerm(s: CatalogSearch): string | null {
 function buildActiveFilters(s: CatalogSearch): Record<string, string | number | boolean> {
   const f: Record<string, string | number | boolean> = {};
   if (s.cat) f.category = s.cat;
+  if (s.marca) f.brand = s.marca;
+  if (s.aplicacao) f.application = s.aplicacao;
   if (s.badge) f.badge = s.badge;
   if (s.frete) f.free_shipping = true;
   if (s.promo) f.on_sale = true;
@@ -334,7 +375,7 @@ function buildActiveFilters(s: CatalogSearch): Record<string, string | number | 
 function CatalogGrid() {
 
   const search = Route.useSearch();
-  const { page } = search;
+  const page = Math.max(1, search.page);
   const navigate = useNavigate({ from: "/catalogo" });
   const { data } = useSuspenseQuery(listOptions(search));
   const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
@@ -348,7 +389,7 @@ function CatalogGrid() {
 
   // view_search_results: termo, filtros aplicados e quantidade exibida — dispara
   // uma vez por combinação de filtros/página, mesmo quando não há resultados.
-  const filtersKey = JSON.stringify([search.cat, search.badge, search.frete, search.promo, search.disp, search.sort, page]);
+  const filtersKey = JSON.stringify([search.cat, search.marca, search.aplicacao, search.badge, search.frete, search.promo, search.disp, search.sort, page]);
   useEffect(() => {
     trackViewSearchResults({
       searchTerm,
@@ -453,14 +494,13 @@ function CatalogGrid() {
 
 
 function CatalogPage() {
-  const { cat } = Route.useSearch();
   return (
     <>
       <Section>
         <SectionHeader
           eyebrow="Catálogo"
           title="Encontre a etiqueta certa"
-          description="Filtre por família de produto e navegue por páginas. Cada item traz ficha técnica, compatibilidade e canais de compra."
+          
         />
       </Section>
       <section className="pb-20">
@@ -471,7 +511,7 @@ function CatalogPage() {
             }
           >
             <div className="mb-8">
-              <CategoryFilter active={cat} />
+              <CatalogTaxonomyFilters />
               <AdvancedFilters />
             </div>
           </Suspense>
