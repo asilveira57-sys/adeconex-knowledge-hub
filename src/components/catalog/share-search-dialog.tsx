@@ -27,7 +27,7 @@ export function ShareSearchDialog({ filters, searchParams }: { filters: Filters;
   const [form, setForm] = useState({ name: "", email: "", phone: "", consent: false, website: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState<{ token: string; count: number } | null>(null);
+  const [saved, setSaved] = useState<{ token: string; count: number; emailStatus: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [pdf, setPdf] = useState<Blob | null>(null);
   const create = useServerFn(createCatalogLead);
@@ -63,7 +63,7 @@ export function ShareSearchDialog({ filters, searchParams }: { filters: Filters;
     setSaving(true);
     try {
       const r = await create({ data: parsed.data });
-      setSaved({ token: r.token, count: r.count });
+      setSaved({ token: r.token, count: r.count, emailStatus: r.emailStatus });
       trackEvent("generate_lead", { lead_source: "catalog_share", items: r.count });
       // Gera o PDF já, para que o clique em "Baixar" funcione inclusive no celular.
       const l = await getList({ data: { token: r.token } });
@@ -140,11 +140,20 @@ export function ShareSearchDialog({ filters, searchParams }: { filters: Filters;
           </form>
         ) : (
           <div className="grid gap-2">
+            {saved.emailStatus === "sent" ? (
+              <p role="status" className="rounded-md border border-border bg-surface-2 p-3 text-sm">
+                <Check className="mr-1 inline h-4 w-4 text-signal" /> Enviamos a lista para <strong>{form.email}</strong>. Confira também a caixa de spam.
+              </p>
+            ) : (
+              <p role="status" className="rounded-md border border-border bg-surface-2 p-3 text-sm text-muted-foreground">
+                Não conseguimos enviar o e-mail agora. Baixe o PDF ou envie pelo WhatsApp.
+              </p>
+            )}
             <Button onClick={() => channel("pdf")} disabled={!pdf} className="justify-start gap-2">
               {pdf ? <FileDown className="h-4 w-4" /> : <Loader2 className="h-4 w-4 animate-spin" />} Baixar PDF
             </Button>
             <Button variant="outline" onClick={() => channel("email")} disabled={busy === "email"} className="justify-start gap-2">
-              <Mail className="h-4 w-4" /> Receber no e-mail ({form.email})
+              <Mail className="h-4 w-4" /> {saved.emailStatus === "sent" ? "Reenviar e-mail" : `Receber no e-mail (${form.email})`}
             </Button>
             <Button variant="outline" onClick={() => channel("whatsapp")} className="justify-start gap-2">
               <MessageCircle className="h-4 w-4" /> Enviar pelo WhatsApp
