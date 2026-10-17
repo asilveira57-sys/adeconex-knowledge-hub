@@ -16,6 +16,7 @@ export const STAFF_SECTIONS = [
   { key: "downloads", label: "Downloads" },
   { key: "etiquetas", label: "Etiqueta personalizada" },
   { key: "emails", label: "E-mails" },
+  { key: "leads", label: "Leads do catálogo" },
 ] as const;
 
 export type MyPermissions = {
