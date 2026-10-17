@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { ProductBadgePills } from "@/components/product-badge-pills";
+import { ShareSearchDialog } from "@/components/catalog/share-search-dialog";
 import {
   getCatalogBadges,
   getCatalogCategories,
@@ -432,7 +433,20 @@ function CatalogGrid() {
         <p className="text-xs text-muted-foreground">
           <span className="font-mono text-sm font-semibold text-foreground">{data.total}</span> produtos
         </p>
-        <SortControl />
+        <div className="flex flex-wrap items-center gap-3">
+          <ShareSearchDialog
+            filters={{
+              categorySlug: search.cat, brandSlug: search.marca, applicationSlug: search.aplicacao, badge: search.badge,
+              onSale: search.promo || undefined, availability: search.disp === "in_stock" ? "in_stock" : "all",
+              sort: (["relevance", "newest", "price_asc", "price_desc", "name_asc"].includes(search.sort) ? search.sort : "relevance") as "relevance",
+            }}
+            searchParams={Object.fromEntries(
+              Object.entries({ cat: search.cat, marca: search.marca, aplicacao: search.aplicacao, badge: search.badge, promo: search.promo, disp: search.disp, sort: search.sort })
+                .filter(([, v]) => v !== undefined && v !== null) as [string, string | boolean][],
+            )}
+          />
+          <SortControl />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {items.map((p, i) => (
