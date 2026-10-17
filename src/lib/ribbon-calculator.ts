@@ -1,7 +1,8 @@
 // Cálculo de consumo de ribbon — função pura, reaproveitável (ex.: páginas de produto).
 
 export const RIBBON_SPACING_MM = 3;
-export const PRINTER_USABLE_WIDTH_MM = 104; // impressoras de 4" (109 mm de boca)
+export const PRINTER_USABLE_WIDTH_MM = 109; // boca das impressoras de 4"
+export const LINER_EDGE_MM = 1.5; // borda do liner em cada lado
 export const RIBBON_ROLLS_M = [74, 90, 300, 450];
 
 export interface RibbonPreset {
@@ -50,6 +51,12 @@ export function rollYield(rollM: number, totalM: number, stepMm: number, columns
 
 export function widthCheck(widthMm: number, columns: number) {
   const cols = Math.max(1, Math.floor(columns) || 1);
-  const totalMm = widthMm * cols + (cols - 1) * RIBBON_SPACING_MM;
+  const totalMm = widthMm * cols + (cols - 1) * RIBBON_SPACING_MM + LINER_EDGE_MM * 2;
   return { totalMm, fits: totalMm <= PRINTER_USABLE_WIDTH_MM };
+}
+
+/** Quantas etiquetas cabem num rolo de etiqueta com X metros. */
+export function labelsInRollLength(rollLengthM: number, stepMm: number, columns: number) {
+  if (rollLengthM <= 0 || stepMm <= 0) return 0;
+  return Math.floor((rollLengthM * 1000) / stepMm) * Math.max(1, Math.floor(columns) || 1);
 }
