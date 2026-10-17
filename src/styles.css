@@ -76,6 +76,7 @@
 
   /* Primary = Adeconex red */
   --primary: oklch(0.60 0.22 25);
+  --star: oklch(0.80 0.16 75);
   --primary-foreground: oklch(0.99 0.005 0);
 
   --secondary: oklch(0.96 0.008 25);

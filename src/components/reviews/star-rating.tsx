@@ -7,14 +7,14 @@ function StarShape({ fill, size, gradId }: { fill: 0 | 0.5 | 1; size: number; gr
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" className="shrink-0">
       <defs>
         <linearGradient id={gradId}>
-          <stop offset="50%" stopColor="var(--star, hsl(38 92% 55%))" />
+          <stop offset="50%" stopColor="var(--star)" />
           <stop offset="50%" stopColor="transparent" />
         </linearGradient>
       </defs>
       <path
         d={d}
-        fill={fill === 1 ? "var(--star, hsl(38 92% 55%))" : fill === 0.5 ? `url(#${gradId})` : "transparent"}
-        stroke="var(--star, hsl(38 92% 55%))"
+        fill={fill === 1 ? "var(--star)" : fill === 0.5 ? `url(#${gradId})` : "transparent"}
+        stroke="var(--star)"
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
@@ -27,7 +27,7 @@ export function Stars({ value, size = 16, className }: { value: number | null | 
   const id = useId();
   const v = Math.round((value ?? 0) * 2) / 2;
   return (
-    <span className={cn("inline-flex items-center gap-0.5 text-warning", className)} role="img" aria-label={`Nota ${String(v).replace(".", ",")} de 5`}>
+    <span className={cn("inline-flex items-center gap-0.5", className)} role="img" aria-label={`Nota ${String(v).replace(".", ",")} de 5`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <StarShape key={i} size={size} gradId={`${id}-${i}`} fill={v >= i ? 1 : v >= i - 0.5 ? 0.5 : 0} />
       ))}
