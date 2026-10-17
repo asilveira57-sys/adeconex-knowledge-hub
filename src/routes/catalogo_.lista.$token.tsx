@@ -49,7 +49,7 @@ function ListPage() {
   }, [data, filters, token]);
 
   if (!data) return null;
-  const wa = `https://wa.me/5527992733033?text=${encodeURIComponent(`Olá! Quero um orçamento da minha lista do catálogo: ${typeof window !== "undefined" ? window.location.href : ""}`)}`;
+  const wa = `https://wa.me/5527992733033?text=${encodeURIComponent(`Olá! Quero um orçamento da minha lista do catálogo: https://www.adeconex.com.br/catalogo/lista/${token}`)}`;
 
   return (
     <Section>
