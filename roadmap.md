@@ -1,3 +1,5 @@
 - [x] Adicionar exclusão de produtos selecionados com confirmação e resultado por produto.
 - [x] Registrar identificadores dos excluídos e bloquear futuras importações.
 - [x] Testar seleção, exclusão e bloqueio, preservando produtos vendidos.
+- [ ] Adicionar filtros combináveis de categoria, marca e aplicação ao catálogo.
+- [ ] Verificar filtros, limpeza e persistência ao recarregar o catálogo.
