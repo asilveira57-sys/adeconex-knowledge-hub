@@ -23,13 +23,13 @@ export const Route = createFileRoute("/_authenticated/admin/assistente/")({
 
 type Cat = Awaited<ReturnType<typeof adminListSolutions>>["categories"][number];
 const emptyCat = { slug: "", name: "", short_description: null, description: null, cover_url: null, cover_alt: null, icon: null,
-  sort_order: 0, is_active: false, seo_title: null, seo_description: null, seo_content: null } as const;
+  sort_order: 0, is_active: false, seo_title: null, seo_description: null, seo_content: null };
 
 function AssistenteAdmin() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({ queryKey: ["admin-solutions"], queryFn: () => adminListSolutions() });
-  const [cat, setCat] = useState<(Partial<Cat> & typeof emptyCat) | null>(null);
+  const [cat, setCat] = useState<any>(null);
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-solutions"] });
   const err = (e: unknown) => toast.error(e instanceof Error ? e.message : "Erro");
 
@@ -116,8 +116,8 @@ function AssistenteAdmin() {
                 ["seo_title", "Título SEO"], ["seo_description", "Meta description", true], ["seo_content", "Conteúdo complementar para SEO", true]] as const).map(([k, l, area]) => (
                 <div key={k} className="grid gap-1">
                   <Label htmlFor={`c-${k}`}>{l}</Label>
-                  {area ? <Textarea id={`c-${k}`} value={(cat as any)[k] ?? ""} onChange={(e) => setCat({ ...cat, [k]: e.target.value } as any)} />
-                    : <Input id={`c-${k}`} value={(cat as any)[k] ?? ""} onChange={(e) => setCat({ ...cat, [k]: e.target.value } as any)} />}
+                  {area ? <Textarea id={`c-${k}`} value={(cat as any)[k] ?? ""} onChange={(e) => setCat({ ...cat, [k]: e.target.value })} />
+                    : <Input id={`c-${k}`} value={(cat as any)[k] ?? ""} onChange={(e) => setCat({ ...cat, [k]: e.target.value })} />}
                 </div>
               ))}
               <div className="flex items-center gap-6">
