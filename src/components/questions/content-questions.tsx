@@ -82,7 +82,17 @@ export function ContentQuestions({ target, title, initial }: { target: QuestionT
                   <UserAvatar avatar={q.avatar} size={36} />
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">{q.author} perguntou
-                      {q.verified ? <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 font-medium text-primary"><BadgeCheck className="h-3 w-3" aria-hidden="true" /> Compra verificada</span> : null}</p>
+                      {q.verified ? (
+                        <>
+                          <span
+                            className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 font-medium text-primary"
+                            title="Quem perguntou tem um pedido pago deste produto na Adeconex."
+                          >
+                            <BadgeCheck className="h-3 w-3" aria-hidden="true" /> Compra verificada
+                          </span>
+                          <span className="text-muted-foreground">— quem perguntou comprou este produto na Adeconex.</span>
+                        </>
+                      ) : null}</p>
                     <h3 className="mt-0.5 whitespace-pre-line break-words text-base font-medium">{q.question}</h3>
                   </div>
                 </div>
