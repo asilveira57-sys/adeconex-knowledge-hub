@@ -3576,6 +3576,310 @@ export type Database = {
         }
         Relationships: []
       }
+      solution_categories: {
+        Row: {
+          cover_alt: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          seo_content: string | null
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          seo_content?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          seo_content?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      solution_journeys: {
+        Row: {
+          admin_name: string
+          canonical_url: string | null
+          category_id: string | null
+          closing: string | null
+          content_after: string | null
+          content_before: string | null
+          cover_alt: string | null
+          cover_url: string | null
+          created_at: string
+          faqs: Json
+          h1: string | null
+          id: string
+          indexable: boolean
+          intro: string | null
+          presentation: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          sort_order: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_name: string
+          canonical_url?: string | null
+          category_id?: string | null
+          closing?: string | null
+          content_after?: string | null
+          content_before?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          faqs?: Json
+          h1?: string | null
+          id?: string
+          indexable?: boolean
+          intro?: string | null
+          presentation?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          sort_order?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_name?: string
+          canonical_url?: string | null
+          category_id?: string | null
+          closing?: string | null
+          content_after?: string | null
+          content_before?: string | null
+          cover_alt?: string | null
+          cover_url?: string | null
+          created_at?: string
+          faqs?: Json
+          h1?: string | null
+          id?: string
+          indexable?: boolean
+          intro?: string | null
+          presentation?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_journeys_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "solution_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solution_recommendations: {
+        Row: {
+          created_at: string
+          ext_affiliate_url: string | null
+          ext_button_text: string | null
+          ext_checked_at: string | null
+          ext_description: string | null
+          ext_image_url: string | null
+          ext_link_status: string
+          ext_manufacturer: string | null
+          ext_model: string | null
+          ext_name: string | null
+          ext_offer_id: string | null
+          ext_original_url: string | null
+          ext_platform: string | null
+          id: string
+          is_active: boolean
+          is_affiliate: boolean
+          is_required: boolean
+          item_category: string
+          notes: string | null
+          product_id: string | null
+          quantity: string | null
+          reason: string | null
+          role: string | null
+          show_when: Json | null
+          sort_order: number
+          step_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ext_affiliate_url?: string | null
+          ext_button_text?: string | null
+          ext_checked_at?: string | null
+          ext_description?: string | null
+          ext_image_url?: string | null
+          ext_link_status?: string
+          ext_manufacturer?: string | null
+          ext_model?: string | null
+          ext_name?: string | null
+          ext_offer_id?: string | null
+          ext_original_url?: string | null
+          ext_platform?: string | null
+          id?: string
+          is_active?: boolean
+          is_affiliate?: boolean
+          is_required?: boolean
+          item_category?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity?: string | null
+          reason?: string | null
+          role?: string | null
+          show_when?: Json | null
+          sort_order?: number
+          step_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ext_affiliate_url?: string | null
+          ext_button_text?: string | null
+          ext_checked_at?: string | null
+          ext_description?: string | null
+          ext_image_url?: string | null
+          ext_link_status?: string
+          ext_manufacturer?: string | null
+          ext_model?: string | null
+          ext_name?: string | null
+          ext_offer_id?: string | null
+          ext_original_url?: string | null
+          ext_platform?: string | null
+          id?: string
+          is_active?: boolean
+          is_affiliate?: boolean
+          is_required?: boolean
+          item_category?: string
+          notes?: string | null
+          product_id?: string | null
+          quantity?: string | null
+          reason?: string | null
+          role?: string | null
+          show_when?: Json | null
+          sort_order?: number
+          step_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_recommendations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solution_recommendations_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "solution_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solution_steps: {
+        Row: {
+          body: string | null
+          condition: Json | null
+          created_at: string
+          guidance: string | null
+          id: string
+          image_alt: string | null
+          image_url: string | null
+          internal_name: string | null
+          is_required: boolean
+          journey_id: string
+          options: Json
+          sort_order: number
+          step_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          condition?: Json | null
+          created_at?: string
+          guidance?: string | null
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          internal_name?: string | null
+          is_required?: boolean
+          journey_id: string
+          options?: Json
+          sort_order?: number
+          step_type?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          condition?: Json | null
+          created_at?: string
+          guidance?: string | null
+          id?: string
+          image_alt?: string | null
+          image_url?: string | null
+          internal_name?: string | null
+          is_required?: boolean
+          journey_id?: string
+          options?: Json
+          sort_order?: number
+          step_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solution_steps_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "solution_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_permissions: {
         Row: {
           can_export_customers: boolean
