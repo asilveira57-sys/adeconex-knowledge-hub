@@ -21,7 +21,8 @@ if (typeof window !== "undefined" && isBannerPreviewMode()) {
     current = e.data.banner as SiteBanner;
     subs.forEach((f) => f());
     setTimeout(() => {
-      document.querySelector("[data-banner-slot='" + current?.placement + "']")?.scrollIntoView({ block: "center" });
+      const el = document.querySelector<HTMLElement>(`[data-banner-slot="${current?.placement}"]`);
+      if (el) window.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + window.scrollY - (window.innerHeight - el.offsetHeight) / 2), behavior: "instant" as ScrollBehavior });
     }, 400);
   });
   window.parent.postMessage({ type: PREVIEW_MSG + "-ready" }, location.origin);
