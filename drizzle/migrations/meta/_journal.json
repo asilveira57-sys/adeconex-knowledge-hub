@@ -71,6 +71,13 @@
       "when": 1792237430385,
       "tag": "0009_catalog_leads",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792239078367,
+      "tag": "0010_institutional_pages",
+      "breakpoints": true
     }
   ]
 }

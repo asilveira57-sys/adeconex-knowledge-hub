@@ -4,8 +4,8 @@ import { INSTITUTIONAL_PAGES, type InstPage } from "@/content/institutional-page
 
 const SITE = "https://adeconex.com.br";
 
-export function institutionalHead(key: string) {
-  const p = INSTITUTIONAL_PAGES[key];
+export function institutionalHead(key: string, loaded?: InstPage) {
+  const p = loaded ?? INSTITUTIONAL_PAGES[key];
   const url = `${SITE}${p.path}`;
   return {
     meta: [
@@ -21,8 +21,7 @@ export function institutionalHead(key: string) {
   };
 }
 
-export function InstitutionalPage({ pageKey }: { pageKey: string }) {
-  const p: InstPage = INSTITUTIONAL_PAGES[pageKey];
+export function InstitutionalPage({ page: p }: { page: InstPage }) {
   return (
     <>
       <section className="border-b hairline bg-surface-2">
@@ -31,8 +30,8 @@ export function InstitutionalPage({ pageKey }: { pageKey: string }) {
             <Link to="/" className="hover:text-foreground">Início</Link> <span aria-hidden>/</span> {p.group}
           </nav>
           <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">{p.h1}</h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{p.intro}</p>
-          <p className="mt-4 text-xs text-muted-foreground">Atualizado em {p.updated}</p>
+          {p.intro && <p className="mt-4 max-w-2xl text-lg text-muted-foreground">{p.intro}</p>}
+          {p.updated && <p className="mt-4 text-xs text-muted-foreground">Atualizado em {p.updated}</p>}
         </div>
       </section>
       <div className="container-page max-w-3xl py-12">
@@ -42,15 +41,15 @@ export function InstitutionalPage({ pageKey }: { pageKey: string }) {
           </p>
         )}
         <div className="space-y-10">
-          {p.sections.map((s) => (
-            <section key={s.heading}>
+          {p.sections.map((s, i) => (
+            <section key={i}>
               <h2 className="font-display text-2xl font-semibold tracking-tight">{s.heading}</h2>
-              {s.paragraphs?.map((t) => (
-                <p key={t} className="mt-3 leading-relaxed text-ink-soft">{t}</p>
+              {s.paragraphs?.map((t, j) => (
+                <p key={j} className="mt-3 leading-relaxed text-ink-soft">{t}</p>
               ))}
-              {s.list && (
+              {s.list && s.list.length > 0 && (
                 <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed text-ink-soft">
-                  {s.list.map((t) => <li key={t}>{t}</li>)}
+                  {s.list.map((t, j) => <li key={j}>{t}</li>)}
                 </ul>
               )}
               {s.pending && (
@@ -61,7 +60,7 @@ export function InstitutionalPage({ pageKey }: { pageKey: string }) {
             </section>
           ))}
         </div>
-        {p.links && (
+        {p.links && p.links.length > 0 && (
           <div className="mt-12 flex flex-wrap gap-3 border-t hairline pt-8">
             {p.links.map((l) => (
               <Link key={l.to} to={l.to} className="inline-flex items-center gap-1.5 rounded-md border hairline px-4 py-2 text-sm font-medium hover:bg-accent">
