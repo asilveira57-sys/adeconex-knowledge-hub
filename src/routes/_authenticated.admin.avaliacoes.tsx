@@ -13,6 +13,7 @@ import { Stars } from "@/components/reviews/star-rating";
 import { reviewMediaUrl } from "@/components/reviews/media-url";
 import { deleteReviewMedia, listReviewsAdmin, moderateReview, runReviewEmailsNow } from "@/lib/reviews.functions";
 import { REVIEW_STATUS_LABEL, formatRating } from "@/lib/reviews.shared";
+import { ReviewInvites } from "@/components/reviews/review-invites";
 
 export const Route = createFileRoute("/_authenticated/admin/avaliacoes")({
   head: () => ({
@@ -79,6 +80,8 @@ function AdminReviews() {
           <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Produtos publicados sem avaliação</p><p className="mt-1 text-2xl font-semibold tabular-nums">{s.productsWithoutReviews}</p></CardContent></Card>
         </div>
       ) : null}
+
+      <ReviewInvites />
 
       <div className="flex flex-wrap items-center gap-2">
         {(["pending", "approved", "rejected", "hidden", "all"] as Status[]).map((k) => (
