@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Youtube, Linkedin, Star } from "lucide-react";
-import { primaryNav, secondaryNav } from "@/lib/nav";
+import { primaryNav } from "@/lib/nav";
+import { FOOTER_GROUPS } from "@/content/institutional-pages";
+import { openCookiePreferences } from "@/lib/consent";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 export function SiteFooter() {
@@ -8,7 +10,7 @@ export function SiteFooter() {
   return (
     <footer className="border-t hairline bg-surface-2">
       <div className="container-page py-14">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
           <div>
             <p className="font-display text-lg font-semibold tracking-tight">
               Adeconex
@@ -31,7 +33,14 @@ export function SiteFooter() {
           </div>
 
           <FooterCol title="Plataforma" items={primaryNav} />
-          <FooterCol title="Institucional" items={secondaryNav} />
+          <FooterCol title="Institucional" items={FOOTER_GROUPS.institucional} />
+          <FooterCol title="Ajuda e atendimento" items={FOOTER_GROUPS.ajuda} />
+          <div>
+            <FooterCol title="Legal e privacidade" items={FOOTER_GROUPS.legal} />
+            <button type="button" onClick={openCookiePreferences} className="mt-2 text-sm text-ink-soft underline-offset-2 hover:text-foreground hover:underline">
+              Preferências de cookies
+            </button>
+          </div>
 
           <div>
             <p className="eyebrow">Avaliações</p>
@@ -60,7 +69,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-3 border-t hairline pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
           <p>© {year} Adeconex. Todos os direitos reservados.</p>
-          <p className="font-mono">CNPJ • Impressão térmica • Identificação • Logística</p>
+          <p>Adeconex Ind e Com Ltda · CNPJ 09.406.758/0001-07 · Vila Velha - ES</p>
         </div>
       </div>
     </footer>

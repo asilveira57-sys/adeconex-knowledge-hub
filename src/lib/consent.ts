@@ -35,3 +35,15 @@ export function onConsentChange(fn: Listener): () => void {
   listeners.add(fn);
   return () => listeners.delete(fn);
 }
+
+const OPEN_EVENT = "adeconex:open-cookie-preferences";
+
+/** Reabre o painel de preferências de cookies (link do rodapé). */
+export function openCookiePreferences() {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(OPEN_EVENT));
+}
+
+export function onOpenCookiePreferences(fn: () => void): () => void {
+  window.addEventListener(OPEN_EVENT, fn);
+  return () => window.removeEventListener(OPEN_EVENT, fn);
+}
