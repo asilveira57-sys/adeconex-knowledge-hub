@@ -31,7 +31,6 @@ const searchSchema = z.object({
   marca: z.string().optional(),
   aplicacao: z.string().optional(),
   badge: fallback(z.string().optional(), undefined).default(undefined as unknown as string),
-  frete: fallback(z.boolean(), false).default(false),
   promo: fallback(z.boolean(), false).default(false),
   disp: fallback(z.string(), "all").default("all"),
   sort: fallback(z.string(), "relevance").default("relevance"),
@@ -43,7 +42,6 @@ type CatalogSearch = {
   marca?: string;
   aplicacao?: string;
   badge?: string;
-  frete: boolean;
   promo: boolean;
   disp: string;
   sort: string;
@@ -81,7 +79,6 @@ type ListFilters = {
   marca?: string;
   aplicacao?: string;
   badge?: string;
-  frete: boolean;
   promo: boolean;
   disp: string;
   sort: string;
@@ -98,7 +95,6 @@ const listOptions = (f: ListFilters) =>
           brandSlug: f.marca,
           applicationSlug: f.aplicacao,
           badge: f.badge,
-          freeShipping: f.frete || undefined,
           onSale: f.promo || undefined,
           availability: f.disp === "in_stock" ? "in_stock" : "all",
           sort: (["relevance", "newest", "price_asc", "price_desc", "name_asc"].includes(f.sort)
@@ -118,7 +114,6 @@ export const Route = createFileRoute("/catalogo")({
     marca: search.marca,
     aplicacao: search.aplicacao,
     badge: search.badge,
-    frete: search.frete,
     promo: search.promo,
     disp: search.disp,
     sort: search.sort,
@@ -265,7 +260,7 @@ function AdvancedFilters() {
     navigate({ search: (prev: CatalogSearch) => ({ ...prev, ...next, page: 1 }) });
 
   const hasFilters =
-    !!search.cat || !!search.marca || !!search.aplicacao || !!search.badge || search.frete || search.promo || search.disp !== "all" || search.sort !== "relevance";
+    !!search.cat || !!search.marca || !!search.aplicacao || !!search.badge || search.promo || search.disp !== "all" || search.sort !== "relevance";
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2 border-t hairline pt-4">
@@ -285,9 +280,6 @@ function AdvancedFilters() {
       ))}
 
       <span className="ml-2 text-[10px] font-mono uppercase tracking-[0.18em] text-muted-foreground">Filtros</span>
-      <Button variant="ghost" size="sm" type="button" onClick={() => patch({ frete: !search.frete })} className={pillClass(search.frete)}>
-        Frete grátis
-      </Button>
       <Button variant="ghost" size="sm" type="button" onClick={() => patch({ promo: !search.promo })} className={pillClass(search.promo)}>
         Preço promocional
       </Button>
@@ -305,7 +297,7 @@ function AdvancedFilters() {
             type="button"
             onClick={() =>
               navigate({
-                search: () => ({ cat: undefined, marca: undefined, aplicacao: undefined, badge: undefined, frete: false, promo: false, disp: "all", sort: "relevance", page: 1 }),
+                search: () => ({ cat: undefined, marca: undefined, aplicacao: undefined, badge: undefined, promo: false, disp: "all", sort: "relevance", page: 1 }),
               })
             }
             className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground"
@@ -351,7 +343,6 @@ function buildSearchTerm(s: CatalogSearch): string | null {
   if (s.marca) parts.push(`marca:${s.marca}`);
   if (s.aplicacao) parts.push(`aplicacao:${s.aplicacao}`);
   if (s.badge) parts.push(`selo:${s.badge}`);
-  if (s.frete) parts.push("frete_gratis");
   if (s.promo) parts.push("promocao");
   if (s.disp === "in_stock") parts.push("em_estoque");
   if (s.sort && s.sort !== "relevance") parts.push(`ordem:${s.sort}`);
@@ -365,7 +356,6 @@ function buildActiveFilters(s: CatalogSearch): Record<string, string | number | 
   if (s.marca) f.brand = s.marca;
   if (s.aplicacao) f.application = s.aplicacao;
   if (s.badge) f.badge = s.badge;
-  if (s.frete) f.free_shipping = true;
   if (s.promo) f.on_sale = true;
   if (s.disp === "in_stock") f.in_stock = true;
   if (s.sort && s.sort !== "relevance") f.sort = s.sort;
@@ -389,7 +379,7 @@ function CatalogGrid() {
 
   // view_search_results: termo, filtros aplicados e quantidade exibida — dispara
   // uma vez por combinação de filtros/página, mesmo quando não há resultados.
-  const filtersKey = JSON.stringify([search.cat, search.marca, search.aplicacao, search.badge, search.frete, search.promo, search.disp, search.sort, page]);
+  const filtersKey = JSON.stringify([search.cat, search.marca, search.aplicacao, search.badge, search.promo, search.disp, search.sort, page]);
   useEffect(() => {
     trackViewSearchResults({
       searchTerm,

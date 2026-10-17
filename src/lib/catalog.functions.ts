@@ -325,7 +325,6 @@ export const listCatalog = createServerFn({ method: "GET" })
         brandSlug: z.string().optional(),
         applicationSlug: z.string().optional(),
         badge: z.string().optional(),
-        freeShipping: z.boolean().optional(),
         onSale: z.boolean().optional(),
         availability: z.enum(["all", "in_stock"]).default("all"),
         sort: z.enum(["relevance", "newest", "price_asc", "price_desc", "name_asc"]).default("relevance"),
@@ -373,7 +372,7 @@ export const listCatalog = createServerFn({ method: "GET" })
     }
 
     if (data.badge) intersect(await productIdsWithBadge(data.badge));
-    if (data.freeShipping) intersect(await productIdsWithBadge("free_shipping"));
+
 
     if (productIds !== null && (productIds as string[]).length === 0) return empty;
 
