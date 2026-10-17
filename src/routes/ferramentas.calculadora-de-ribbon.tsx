@@ -14,6 +14,7 @@ import {
   ribbonConsumption,
   rollYield,
   widthCheck,
+  labelsInRollLength,
 } from "@/lib/ribbon-calculator";
 
 const PATH = "/ferramentas/calculadora-de-ribbon";
@@ -86,6 +87,8 @@ function RibbonCalculatorPage() {
     () => ribbonConsumption({ heightMm, quantity, columns, safetyPercent: safety }),
     [heightMm, quantity, columns, safety],
   );
+  const perLabelRoll =
+    rollMode === "qtd" ? Math.round(rollInput) : labelsInRollLength(rollInput, calc.stepMm, calc.columns);
   const wcheck = widthMm > 0 ? widthCheck(widthMm, calc.columns) : null;
   const showStep = unit === "mm" ? `${fmt(calc.stepMm)} mm` : `${fmt(calc.stepMm / 10)} cm`;
 
