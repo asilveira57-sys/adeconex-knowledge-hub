@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { absoluteUrl } from "@/lib/seo";
+import { ToolFaq, faqJsonLd } from "@/components/tools/tool-faq";
+import { LABEL_ROLL_FAQ } from "@/content/calculator-faqs";
 import { PRINTER_USABLE_WIDTH_MM, RIBBON_PRESETS, widthCheck } from "@/lib/ribbon-calculator";
 import { DEFAULT_GAP_MM, labelsForRollLength, rollLengthForLabels } from "@/lib/label-roll-calculator";
 
@@ -30,6 +32,7 @@ export const Route = createFileRoute("/ferramentas/calculadora-de-etiquetas-por-
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
+        faqJsonLd(LABEL_ROLL_FAQ),
         {
           type: "application/ld+json",
           children: JSON.stringify({
@@ -236,6 +239,7 @@ function LabelRollPage() {
           </Card>
         </div>
       </div>
+      <ToolFaq items={LABEL_ROLL_FAQ} />
     </>
   );
 }
