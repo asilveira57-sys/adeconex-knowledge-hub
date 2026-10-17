@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useRouterState, useNavigate } 
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { myPermissionsQuery } from "@/hooks/use-permissions";
-import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog, Download, Tags, FolderTree, Mail, ListChecks, FileText, Image as ImageIcon, Star } from "lucide-react";
+import { LayoutDashboard, PackageSearch, UploadCloud, Sparkles, LogOut, ShoppingBag, TicketPercent, Palette, Globe2, Users, UserCog, Download, Tags, FolderTree, Mail, ListChecks, FileText, Image as ImageIcon, Star, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({

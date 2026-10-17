@@ -1,3 +1,4 @@
+import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
 import { DownloadEmailForm } from "@/components/newsletter-form";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -18,7 +19,8 @@ export const Route = createFileRoute("/downloads/$slug")({
   loader: async ({ context, params }) => {
     const res = await context.queryClient.ensureQueryData(downloadQuery(params.slug));
     if (!res) throw notFound();
-    return res;
+    const questions = await loadQuestions({ type: "download", id: res.item.id });
+    return { ...res, questions };
   },
   head: ({ loaderData, params }) => {
     const it = loaderData?.item;
@@ -128,6 +130,7 @@ export const Route = createFileRoute("/downloads/$slug")({
 function DownloadPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(downloadQuery(slug));
+  const { questions } = Route.useLoaderData();
   if (!data) return null;
   const { item, related } = data;
   // O conteúdo antigo começa com <h1>; a página já tem H1, então rebaixamos.
@@ -232,6 +235,7 @@ function DownloadPage() {
           <Link to="/downloads" className="text-primary underline">Ver todos os drivers e softwares</Link>
         </p>
       </section>
+      <ContentQuestions target={{ type: "download", id: item.id }} title={item.title} initial={questions} />
     </>
   );
 }

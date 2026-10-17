@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getMyQuestionIdentity, getPublishedQuestions, submitQuestion } from "@/lib/questions.functions";
-import { ANONYMOUS_LABEL, QUESTIONS_PAGE_SIZE, QUESTION_MAX, QUESTION_MIN, type PublicQuestion } from "@/lib/questions.shared";
+import { ANONYMOUS_LABEL, QUESTION_MAX, QUESTION_MIN, type PublicQuestion } from "@/lib/questions.shared";
 import { UserAvatar } from "./user-avatar";
 
 export type QuestionTarget = { type: "product"; id: string } | { type: "download"; id: string } | { type: "tool"; path: string };
@@ -99,7 +99,6 @@ export function ContentQuestions({ target, title, initial }: { target: QuestionT
           <Button variant="outline" onClick={more} disabled={loadingMore}>{loadingMore ? "Carregando…" : `Ver mais perguntas (${total - items.length})`}</Button>
         </div>
       ) : null}
-      {items.length >= QUESTIONS_PAGE_SIZE ? null : null}
     </section>
   );
 }
