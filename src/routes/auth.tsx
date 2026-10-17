@@ -1,3 +1,4 @@
+import { PasswordInput } from "@/components/ui/password-input";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,7 +107,7 @@ function AuthPage() {
           </div>
           <div>
             <Label htmlFor="password">Senha</Label>
-            <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "signin" ? "current-password" : "new-password"} />
+            <PasswordInput id="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "signin" ? "current-password" : "new-password"} />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           {notice && <p className="text-sm text-green-600">{notice}</p>}
