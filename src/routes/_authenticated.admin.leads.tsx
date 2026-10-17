@@ -31,7 +31,7 @@ const fmtPhone = (p: string) => (p.length >= 10 ? `(${p.slice(-11, -9) || p.slic
 
 function LeadsPage() {
   const { data, isLoading } = useQuery({ queryKey: ["admin", "catalog-leads"], queryFn: () => adminListCatalogLeads() });
-  const { data: perms } = usePermissions();
+  const perms = usePermissions();
   const [q, setQ] = useState("");
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
