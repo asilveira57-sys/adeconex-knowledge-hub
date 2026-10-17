@@ -1,17 +1,25 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Printer } from "lucide-react";
+import { AlertTriangle, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { absoluteUrl } from "@/lib/seo";
+import {
+  PRINTER_USABLE_WIDTH_MM,
+  RIBBON_PRESETS,
+  RIBBON_ROLLS_M,
+  ribbonConsumption,
+  rollYield,
+  widthCheck,
+} from "@/lib/ribbon-calculator";
 
 const PATH = "/ferramentas/calculadora-de-ribbon";
-const TITLE = "Calculadora de Consumo de Ribbon — Metragem por Quantidade de Etiquetas | Adeconex";
+const TITLE = "Calculadora de Consumo de Ribbon — Metragem e Rendimento por Rolo | Adeconex";
 const DESCRIPTION =
-  "Informe a altura da etiqueta e a quantidade a imprimir e saiba quantos metros de ribbon você vai consumir. Considera o espaçamento de 3 mm entre etiquetas. Grátis e direto no navegador.";
+  "Calcule quantos metros de ribbon sua impressão consome considerando altura, colunas e 3 mm de espaçamento. Veja o rendimento e a sobra em rolos de 74, 90, 300 e 450 m.";
 
 export const Route = createFileRoute("/ferramentas/calculadora-de-ribbon")({
   head: () => {
@@ -49,26 +57,42 @@ export const Route = createFileRoute("/ferramentas/calculadora-de-ribbon")({
   component: RibbonCalculatorPage,
 });
 
-const SPACING_MM = 3;
-
-const RIBBON_ROLLS = [74, 90, 300, 450];
-
 const fmt = (n: number, digits = 2) =>
   n.toLocaleString("pt-BR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const num = (v: string) => Math.max(0, Number(v.replace(",", ".")) || 0);
 
 function RibbonCalculatorPage() {
   const [height, setHeight] = useState(50);
   const [unit, setUnit] = useState<"mm" | "cm">("mm");
   const [quantity, setQuantity] = useState(1000);
+  const [columns, setColumns] = useState(1);
+  const [width, setWidth] = useState(0);
+  const [perLabelRoll, setPerLabelRoll] = useState(0);
+  const [safety, setSafety] = useState(0);
 
-  const { stepMm, totalMm } = useMemo(() => {
-    const baseMm = unit === "cm" ? height * 10 : height;
-    const step = Math.max(0, baseMm) + SPACING_MM;
-    return { stepMm: step, totalMm: step * Math.max(0, quantity) };
-  }, [height, unit, quantity]);
+  const changeUnit = (u: "mm" | "cm") => {
+    if (u === unit) return;
+    setHeight((h) => Math.round((u === "cm" ? h / 10 : h * 10) * 100) / 100);
+    setWidth((w) => Math.round((u === "cm" ? w / 10 : w * 10) * 100) / 100);
+    setUnit(u);
+  };
 
-  const totalM = totalMm / 1000;
-  const stepCm = stepMm / 10;
+  const toMm = (v: number) => (unit === "cm" ? v * 10 : v);
+  const heightMm = toMm(height);
+  const widthMm = toMm(width);
+
+  const calc = useMemo(
+    () => ribbonConsumption({ heightMm, quantity, columns, safetyPercent: safety }),
+    [heightMm, quantity, columns, safety],
+  );
+  const wcheck = widthMm > 0 ? widthCheck(widthMm, calc.columns) : null;
+  const showStep = unit === "mm" ? `${fmt(calc.stepMm)} mm` : `${fmt(calc.stepMm / 10)} cm`;
+
+  const applyPreset = (p: (typeof RIBBON_PRESETS)[number]) => {
+    setHeight(unit === "cm" ? p.heightMm / 10 : p.heightMm);
+    setWidth(unit === "cm" ? p.widthMm / 10 : p.widthMm);
+    setColumns(p.columns);
+  };
 
   return (
     <>
@@ -84,8 +108,8 @@ function RibbonCalculatorPage() {
             Calculadora de Consumo de Ribbon
           </h1>
           <p className="mt-4 max-w-3xl text-muted-foreground md:text-lg">
-            Informe a altura da etiqueta e a quantidade a imprimir para saber quantos metros de ribbon a impressão vai
-            consumir. O cálculo considera automaticamente 3 mm de espaçamento entre etiquetas.
+            Informe a altura da etiqueta, a quantidade e o número de colunas para saber quantos metros de ribbon a
+            impressão consome e quanto rende cada rolo. O cálculo soma 3 mm de espaçamento entre etiquetas.
           </p>
         </div>
       </section>
@@ -98,54 +122,96 @@ function RibbonCalculatorPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-[1fr_auto] items-end gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="ribbon-altura">Altura da etiqueta</Label>
-                <Input
-                  id="ribbon-altura"
-                  type="number"
-                  inputMode="decimal"
-                  min={0}
-                  value={height}
-                  onChange={(e) => setHeight(Math.max(0, Number(e.target.value.replace(",", ".")) || 0))}
-                />
-                <p className="text-[11px] text-muted-foreground">
-                  Ex.: 50 em milímetros ou 5 em centímetros — o espaçamento de 3 mm é somado automaticamente.
-                </p>
+            <div className="space-y-1.5">
+              <Label>Modelos prontos</Label>
+              <div className="flex flex-wrap gap-2">
+                {RIBBON_PRESETS.map((p) => (
+                  <Button key={p.label} type="button" size="sm" variant="outline" onClick={() => applyPreset(p)}>
+                    {p.label}
+                  </Button>
+                ))}
               </div>
-              <Select value={unit} onValueChange={(v) => setUnit(v as "mm" | "cm")}>
-                <SelectTrigger className="w-28" aria-label="Unidade da altura">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mm">mm</SelectItem>
-                  <SelectItem value="cm">cm</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="ribbon-qtd">Quantidade de etiquetas</Label>
-              <Input
-                id="ribbon-qtd"
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(0, Math.round(Number(e.target.value) || 0)))}
-              />
+              <Label>Unidade</Label>
+              <Select value={unit} onValueChange={(v) => changeUnit(v as "mm" | "cm")}>
+                <SelectTrigger className="w-32" aria-label="Unidade">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mm">milímetros</SelectItem>
+                  <SelectItem value="cm">centímetros</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">Ao trocar, os valores são convertidos (50 mm = 5 cm).</p>
             </div>
 
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <p className="font-medium">Como o cálculo é feito</p>
-              <p className="mt-1 text-muted-foreground">
-                Altura informada ({fmt(height)} {unit}) + 3 mm de espaçamento ={" "}
-                <strong className="text-foreground">
-                  {unit === "mm" ? `${fmt(stepMm)} mm` : `${fmt(stepCm)} cm`}
-                </strong>{" "}
-                por etiqueta. Multiplicado pelas {quantity.toLocaleString("pt-BR")} etiquetas, dá o consumo total de
-                ribbon.
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ribbon-altura">Altura da etiqueta ({unit})</Label>
+                <Input id="ribbon-altura" type="number" inputMode="decimal" min={0} value={height}
+                  onChange={(e) => setHeight(num(e.target.value))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ribbon-largura">Largura ({unit}, opcional)</Label>
+                <Input id="ribbon-largura" type="number" inputMode="decimal" min={0} value={width || ""}
+                  onChange={(e) => setWidth(num(e.target.value))} />
+              </div>
+            </div>
+            {heightMm > 200 && (
+              <p className="flex items-center gap-1.5 text-xs text-destructive">
+                <AlertTriangle className="h-3.5 w-3.5" /> Etiqueta incomum (acima de 20 cm) — confira a unidade.
               </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ribbon-qtd">Quantidade de etiquetas</Label>
+                <Input id="ribbon-qtd" type="number" inputMode="numeric" min={0} value={quantity}
+                  onChange={(e) => setQuantity(Math.round(num(e.target.value)))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ribbon-col">Colunas</Label>
+                <Input id="ribbon-col" type="number" inputMode="numeric" min={1} max={10} value={columns}
+                  onChange={(e) => setColumns(Math.max(1, Math.round(num(e.target.value))))} />
+              </div>
+            </div>
+            {wcheck ? (
+              <p className={`text-xs ${wcheck.fits ? "text-muted-foreground" : "text-destructive"}`}>
+                Largura ocupada: {fmt(wcheck.totalMm, 0)} mm de {PRINTER_USABLE_WIDTH_MM} mm úteis
+                {wcheck.fits ? " — cabe na impressora de 4\"." : " — não cabe na maioria das impressoras (109 mm de boca)."}
+              </p>
+            ) : (
+              <p className={`text-xs ${columns > 4 ? "text-destructive" : "text-muted-foreground"}`}>
+                A maioria das impressoras tem 109 mm de boca — informe a largura ou confirme que as colunas cabem.
+              </p>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ribbon-rolo">Etiquetas por rolo (opcional)</Label>
+                <Input id="ribbon-rolo" type="number" inputMode="numeric" min={0} value={perLabelRoll || ""}
+                  placeholder="ex.: 1000" onChange={(e) => setPerLabelRoll(Math.round(num(e.target.value)))} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Margem de segurança</Label>
+                <Select value={String(safety)} onValueChange={(v) => setSafety(Number(v))}>
+                  <SelectTrigger aria-label="Margem de segurança"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Sem margem</SelectItem>
+                    <SelectItem value="5">+5%</SelectItem>
+                    <SelectItem value="10">+10%</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground">Como o cálculo é feito</p>
+              ({fmt(height)} {unit} + 3 mm) = <strong className="text-foreground">{showStep}</strong> por etiqueta ×{" "}
+              {quantity.toLocaleString("pt-BR")} etiquetas ÷ {calc.columns} coluna(s)
+              {safety > 0 ? ` + ${safety}%` : ""}.
             </div>
           </CardContent>
         </Card>
@@ -155,66 +221,49 @@ function RibbonCalculatorPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Consumo de ribbon</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <div className="rounded-lg border hairline bg-surface-1 p-4 text-center">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Consumo total</p>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Você vai utilizar</p>
                 <p className="mt-1 font-display text-4xl font-semibold tabular-nums">
-                  {fmt(totalM)} <span className="text-lg font-normal text-muted-foreground">m</span>
+                  {fmt(calc.totalM)} <span className="text-lg font-normal text-muted-foreground">m</span>
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  equivale a {fmt(totalMm / 10, 1)} cm ({totalMm.toLocaleString("pt-BR")} mm) de ribbon
+                  de ribbon, fora desperdício de calibração e emendas · {calc.rowsNeeded.toLocaleString("pt-BR")}{" "}
+                  avanços de {showStep}
                 </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-md bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Passo por etiqueta</p>
-                  <p className="mt-0.5 font-semibold tabular-nums">
-                    {unit === "mm" ? `${fmt(stepMm)} mm` : `${fmt(stepCm)} cm`}
-                  </p>
-                </div>
-                <div className="rounded-md bg-muted/50 p-3">
-                  <p className="text-xs text-muted-foreground">Etiquetas</p>
-                  <p className="mt-0.5 font-semibold tabular-nums">{quantity.toLocaleString("pt-BR")}</p>
-                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Rolos necessários</CardTitle>
+              <CardTitle className="text-base">Rendimento por rolo de ribbon</CardTitle>
             </CardHeader>
-            <CardContent>
-              <table className="w-full text-left text-sm">
-                <thead className="border-b hairline text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="py-2">Rolo</th>
-                    <th className="py-2">Quantidade</th>
-                    <th className="py-2 text-right">Metros comprados</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y hairline">
-                  {RIBBON_ROLLS.map((roll) => {
-                    const rolls = totalM > 0 ? Math.ceil(totalM / roll) : 0;
-                    return (
-                      <tr key={roll}>
-                        <td className="py-2 font-medium">{roll} m</td>
-                        <td className="py-2 tabular-nums text-muted-foreground">
-                          {rolls} {rolls === 1 ? "rolo" : "rolos"}
-                        </td>
-                        <td className="py-2 text-right tabular-nums text-muted-foreground">
-                          {fmt(rolls * roll, 0)} m
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-              <p className="mt-3 text-[11px] text-muted-foreground">
-                Quantidades inteiras de rolos — o ribbon não vem parcial. Comprar sempre um pouco acima do consumo
-                evita trocar o rolo no meio da tiragem.
-              </p>
+            <CardContent className="space-y-3">
+              {RIBBON_ROLLS_M.map((roll) => {
+                const y = rollYield(roll, calc.totalM, calc.stepMm, calc.columns, perLabelRoll);
+                return (
+                  <div key={roll} className="rounded-md border hairline p-3 text-sm">
+                    <p className="font-semibold">Ribbon de {roll} m</p>
+                    <ul className="mt-1 space-y-0.5 text-muted-foreground">
+                      <li>
+                        {y.leftoverM >= 0 ? (
+                          <>Esta tiragem usa {fmt(calc.totalM)} m e <strong className="text-foreground">sobram {fmt(y.leftoverM)} m</strong>.</>
+                        ) : (
+                          <>Não basta: precisa de <strong className="text-foreground">{y.rollsNeeded} rolos</strong> ({fmt(-y.leftoverM)} m a mais que um rolo).</>
+                        )}
+                      </li>
+                      <li>Rende {fmt(y.runs)} tiragens iguais a esta.</li>
+                      <li>Imprime cerca de {y.labelsPerRibbon.toLocaleString("pt-BR")} etiquetas deste tamanho.</li>
+                      {y.labelRolls !== null && (
+                        <li>
+                          Equivale a {fmt(y.labelRolls, 1)} rolos de {perLabelRoll.toLocaleString("pt-BR")} etiquetas.
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
         </div>
