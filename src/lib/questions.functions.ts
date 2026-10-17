@@ -58,6 +58,13 @@ export const getPublishedQuestions = createServerFn({ method: "GET" })
       const { data: ps } = await db.from("profiles").select("id, full_name, avatar_url, avatar_preset").in("id", consented);
       for (const p of ps ?? []) profiles.set(p.id, p);
     }
+    const verified = new Set<string>();
+    if (cols.product_id && rows?.length) {
+      const { findVerifiedOrder } = await import("./reviews.server");
+      await Promise.all([...new Set(rows.map((r) => r.user_id))].map(async (u) => {
+        if (await findVerifiedOrder(u, cols.product_id!)) verified.add(u);
+      }));
+    }
     return {
       total: count ?? 0,
       items: (rows ?? []).map((r) => {
@@ -66,6 +73,7 @@ export const getPublishedQuestions = createServerFn({ method: "GET" })
           id: r.id, question: r.question, answer: r.answer ?? "", publishedAt: r.published_at ?? "",
           author: p ? abbreviateName(p.full_name) : ANONYMOUS_LABEL,
           avatar: p ? avatarOf(p) : null,
+          verified: verified.has(r.user_id),
         };
       }),
     };
