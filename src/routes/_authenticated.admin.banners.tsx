@@ -30,6 +30,7 @@ export const Route = createFileRoute("/_authenticated/admin/banners")({
 
 type Edit = Partial<SiteBanner> & { placement: BannerPlacement };
 const ORDER: BannerPlacement[] = ["home_hero", "home_secondary", "page_top"];
+const fmtDT = (iso: string) => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const toLocal = (iso: string | null | undefined) => (iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "");
 
 function BannersAdmin() {
@@ -108,7 +109,8 @@ function BannersAdmin() {
                           {b.link_url ? `→ ${b.link_url}` : "Sem link"}
                         </p>
                         <div className="mt-1 flex flex-wrap gap-1">
-                          <Badge variant={live ? "default" : "secondary"}>{live ? "No ar" : b.active ? "Fora do período" : "Desativado"}</Badge>
+                          <Badge variant={live ? "default" : "secondary"}>{live ? "No ar" : !b.active ? "Desativado" : b.starts_at && new Date(b.starts_at) > new Date() ? "Agendado" : "Encerrado"}</Badge>
+                          {(b.starts_at || b.ends_at) && <Badge variant="outline">{b.starts_at ? `de ${fmtDT(b.starts_at)}` : "desde já"} {b.ends_at ? `até ${fmtDT(b.ends_at)}` : "sem fim"}</Badge>}
                           {!b.alt && <Badge variant="destructive">Sem texto alternativo</Badge>}
                           {!b.image_mobile_url && <Badge variant="outline">Sem versão celular</Badge>}
                         </div>
@@ -239,8 +241,9 @@ function BannerDialog({ edit, count, onClose, onSaved }: { edit: Edit; count: nu
             <label className="flex items-center justify-between gap-3 rounded-md border hairline p-3 text-sm">Link patrocinado (nofollow) <Switch checked={!!f.nofollow} onCheckedChange={(v) => set({ nofollow: v })} /></label>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1.5"><Label>Início (opcional)</Label><Input type="datetime-local" value={toLocal(f.starts_at)} onChange={(e) => set({ starts_at: e.target.value || null })} /></div>
-            <div className="space-y-1.5"><Label>Fim (opcional)</Label><Input type="datetime-local" value={toLocal(f.ends_at)} onChange={(e) => set({ ends_at: e.target.value || null })} /></div>
+            <p className="text-xs text-muted-foreground md:col-span-2">Veiculação: o banner entra no ar e sai sozinho nesses horários (horário de Brasília). Deixe em branco para começar já e não ter fim.</p>
+            <div className="space-y-1.5"><Label>Início da veiculação</Label><Input type="datetime-local" value={toLocal(f.starts_at)} onChange={(e) => set({ starts_at: e.target.value || null })} /></div>
+            <div className="space-y-1.5"><Label>Fim da veiculação</Label><Input type="datetime-local" value={toLocal(f.ends_at)} onChange={(e) => set({ ends_at: e.target.value || null })} /></div>
           </div>
           <label className="flex items-center justify-between gap-3 rounded-md border hairline p-3 text-sm">Banner ativo <Switch checked={f.active ?? true} onCheckedChange={(v) => set({ active: v })} /></label>
         </div>
