@@ -232,6 +232,9 @@ export const getCatalogCategories = createServerFn({ method: "GET" }).handler(as
   return { categories };
 });
 
+/** Selos que não viram filtro no catálogo: o site não trabalha com frete grátis. */
+const CATALOG_BADGE_FILTER_EXCLUSIONS = ["free_shipping"];
+
 /** Lista os selos ativos para uso como filtro na vitrine. */
 export const getCatalogBadges = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -241,7 +244,10 @@ export const getCatalogBadges = createServerFn({ method: "GET" }).handler(async 
     .eq("is_active", true)
     .order("priority", { ascending: true });
   if (error) throw new Error(error.message);
-  return { badges: (data ?? []).map((b) => ({ key: b.key, label: b.label, color: b.color, priority: Number(b.priority ?? 0) })) };
+  const badges = (data ?? [])
+    .filter((b) => !CATALOG_BADGE_FILTER_EXCLUSIONS.includes(b.key))
+    .map((b) => ({ key: b.key, label: b.label, color: b.color, priority: Number(b.priority ?? 0) }));
+  return { badges };
 });
 
 /** Only published taxonomy with available public products becomes a filter. */

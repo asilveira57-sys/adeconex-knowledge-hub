@@ -55,4 +55,12 @@ describe("catalog taxonomy filters", () => {
     expect(await run({ data: { ...defaults, applicationSlug: "unknown" } })).toMatchObject({ total: 0 });
     expect(mocks.queries.some((q) => q.table === "products")).toBe(false);
   });
+
+  it("no longer resolves products by the free shipping badge", async () => {
+    await run({ data: { ...defaults, freeShipping: true } });
+    const askedForFreeShipping = mocks.queries.some(
+      (q) => q.table === "product_badges" && q.eq.some(([key, value]) => key === "key" && value === "free_shipping"),
+    );
+    expect(askedForFreeShipping).toBe(false);
+  });
 });
