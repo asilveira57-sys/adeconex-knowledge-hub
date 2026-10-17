@@ -61,6 +61,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/ferramentas/calculadora-de-ribbon", changefreq: "monthly", priority: "0.8" },
           { path: "/ferramentas/calculadora-de-etiquetas-por-rolo", changefreq: "monthly", priority: "0.8" },
           { path: "/downloads", changefreq: "weekly", priority: "0.8" },
+          { path: "/avaliacoes-de-produtos", changefreq: "daily", priority: "0.7" },
           ...(await (async () => {
             try {
               const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
