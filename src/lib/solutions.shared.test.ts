@@ -23,7 +23,7 @@ describe("assistente de soluções", () => {
     j.steps[0].recommendations.push({ id: "r", product_id: null, item_category: "leitor", role: null, reason: null, is_required: false,
       quantity: null, sort_order: 0, notes: null, is_active: true, show_when: null, ext_name: "Leitor", ext_description: null,
       ext_manufacturer: null, ext_model: null, ext_image_url: null, ext_platform: "Mercado Livre", ext_original_url: null,
-      ext_affiliate_url: "", is_affiliate: true, ext_offer_id: null, ext_checked_at: null, ext_link_status: "ok", ext_button_text: null });
+      ext_affiliate_url: "", is_affiliate: true, ext_offer_id: null, ext_checked_at: null, ext_link_status: "ok", ext_button_text: null, specs: {} });
     expect(validateJourney(j).some((e) => e.includes("afiliado"))).toBe(true);
   });
   it("mantém o link de afiliado exatamente como cadastrado e marca como patrocinado", () => {
