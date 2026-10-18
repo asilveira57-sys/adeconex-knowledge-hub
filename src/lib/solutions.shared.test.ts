@@ -23,7 +23,7 @@ describe("assistente de soluções", () => {
     j.steps[0].recommendations.push({ id: "r", product_id: null, item_category: "leitor", role: null, reason: null, is_required: false,
       quantity: null, sort_order: 0, notes: null, is_active: true, show_when: null, ext_name: "Leitor", ext_description: null,
       ext_manufacturer: null, ext_model: null, ext_image_url: null, ext_platform: "Mercado Livre", ext_original_url: null,
-      ext_affiliate_url: "", is_affiliate: true, ext_offer_id: null, ext_checked_at: null, ext_link_status: "ok", ext_button_text: null });
+      ext_affiliate_url: "", is_affiliate: true, ext_offer_id: null, ext_checked_at: null, ext_link_status: "ok", ext_button_text: null, specs: {} });
     expect(validateJourney(j).some((e) => e.includes("afiliado"))).toBe(true);
   });
   it("mantém o link de afiliado exatamente como cadastrado e marca como patrocinado", () => {
@@ -34,5 +34,37 @@ describe("assistente de soluções", () => {
   it("não soma total quando há item externo", () => {
     expect(safeTotal([{ price: 10, external: false }, { price: null, external: true }])).toBeNull();
     expect(safeTotal([{ price: 10, external: false }, { price: 5, external: false }])).toBe(15);
+  });
+});
+
+import { checkCompatibility } from "./solutions.shared";
+describe("checkCompatibility", () => {
+  it("acusa etiqueta mais larga que a impressora", () => {
+    const r = checkCompatibility([
+      { name: "Imp", category: "impressora", specs: { tech: "tt", max_width_mm: 104 } },
+      { name: "Et", category: "etiqueta", specs: { width_mm: 110, material: "couche" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 110, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.filter((n) => n.level === "error")).toHaveLength(2);
+  });
+  it("aceita 109 mm na boca de 109 mm", () => {
+    const r = checkCompatibility([
+      { name: "Imp", category: "impressora", specs: { tech: "tt", max_width_mm: 109 } },
+      { name: "Et", category: "etiqueta", specs: { width_mm: 109, material: "couche" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 110, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.filter((n) => n.level === "error")).toHaveLength(1); // ribbon 110 > 109
+    expect(r.missing).toHaveLength(0);
+  });
+  it("poliéster com ribbon de cera é erro", () => {
+    const r = checkCompatibility([
+      { name: "Et", category: "etiqueta", specs: { width_mm: 50, material: "poliester" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 60, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.some((n) => n.level === "error")).toBe(true);
+  });
+  it("lista dados que faltam", () => {
+    const r = checkCompatibility([{ name: "Imp", category: "impressora", specs: {} }]);
+    expect(r.missing).toHaveLength(2);
   });
 });
