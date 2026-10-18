@@ -1,11 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, ExternalLink, Info, RotateCcw } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, Info, RotateCcw, XCircle } from "lucide-react";
+import { trackSolution } from "@/lib/solution-tracker";
 import { getPublicJourney } from "@/lib/solutions.functions";
 import { absoluteUrl } from "@/lib/seo";
 import {
-  AFFILIATE_NOTICE, DISCLAIMER, GROUPS, ITEM_CATEGORIES, externalHref, externalRel, groupOfStep, matches, safeTotal, visibleSteps, type Answers,
+  AFFILIATE_NOTICE, DISCLAIMER, GROUPS, ITEM_CATEGORIES, checkCompatibility, compareRows, externalHref, externalRel, groupOfStep, matches, safeTotal, visibleSteps, type Answers,
 } from "@/lib/solutions.shared";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +63,7 @@ function Prose({ text }: { text: string | null }) {
   return <div className="space-y-3 text-muted-foreground">{text.split(/\n{2,}/).map((p, i) => <p key={i} className="whitespace-pre-line">{p}</p>)}</div>;
 }
 
-function ItemCard({ item }: { item: Item }) {
+function ItemCard({ item, slug, compare }: { item: Item; slug: string; compare?: { on: boolean; toggle: () => void; disabled: boolean } }) {
   const p = item.product;
   const e = item.external;
   const href = e ? externalHref({ is_affiliate: e.is_affiliate, ext_affiliate_url: e.ext_affiliate_url, ext_original_url: e.ext_original_url }) : null;
@@ -86,13 +87,18 @@ function ItemCard({ item }: { item: Item }) {
           {p ? (
             <>
               {p.price != null ? <span className="text-sm font-medium tabular-nums">{brl(p.price)}</span> : null}
-              <Link to="/produto/$slug" params={{ slug: p.slug }}><Button size="sm">Ver produto</Button></Link>
+              <Link to="/produto/$slug" params={{ slug: p.slug }} onClick={() => trackSolution(slug, "click_internal", { rec_id: item.id })}><Button size="sm">Ver produto</Button></Link>
             </>
           ) : href && e?.link_ok ? (
-            <a href={href} target="_blank" rel={externalRel(!!e?.is_affiliate)}>
+            <a href={href} target="_blank" rel={externalRel(!!e?.is_affiliate)} onClick={() => trackSolution(slug, e?.is_affiliate ? "click_affiliate" : "click_external", { rec_id: item.id })}>
               <Button size="sm" variant="outline">{e?.button || `Ver${e?.platform ? ` no ${e.platform}` : " oferta"}`} <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /></Button>
             </a>
           ) : <span className="text-xs text-muted-foreground">Consulte nossa equipe sobre este item.</span>}
+          {compare ? (
+            <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <input type="checkbox" checked={compare.on} disabled={compare.disabled && !compare.on} onChange={compare.toggle} /> Comparar
+            </label>
+          ) : null}
         </div>
         {e?.is_affiliate && href ? <p className="mt-2 text-xs text-muted-foreground">{AFFILIATE_NOTICE}</p> : null}
         {e ? <p className="mt-1 text-xs text-muted-foreground">Preço e disponibilidade externos não são confirmados pela Adeconex.</p> : null}
@@ -109,6 +115,8 @@ function JourneyPage() {
   const [answers, setAnswers] = useState<Answers>({});
   const [idx, setIdx] = useState(0);
   const [started, setStarted] = useState(false);
+  const [cmp, setCmp] = useState<string[]>([]);
+  useEffect(() => { trackSolution(slug, "view"); }, [slug]);
 
   useEffect(() => {
     try {
@@ -134,6 +142,22 @@ function JourneyPage() {
   const total = safeTotal(finalItems.map(({ it }) => ({ price: it.product?.price ?? null, external: !it.product })));
   const internalSubtotal = finalItems.reduce((acc, { it }) => acc + (it.product?.price ?? 0), 0);
   const hasExternal = finalItems.some(({ it }) => !it.product);
+  const nameOf = (it: Item) => it.product?.name ?? it.external?.name ?? "Item";
+  const compat = checkCompatibility(finalItems.map(({ it }) => ({ name: nameOf(it), category: it.item_category, specs: it.specs })));
+  const cmpItems = cmp.map((id) => finalItems.find((f) => f.it.id === id)?.it).filter(Boolean) as Item[];
+  const cmpRows = compareRows(cmpItems.map((it) => ({ specs: it.specs, category: it.item_category })));
+  const toggleCmp = (id: string) => setCmp((c) => {
+    if (c.includes(id)) return c.filter((x) => x !== id);
+    if (c.length >= 3) return c;
+    if (c.length === 1) trackSolution(slug, "compare");
+    return [...c, id];
+  });
+  const curId = cur?.id; const curType = cur?.step_type;
+  useEffect(() => {
+    if (!started || !curId) return;
+    trackSolution(slug, "step", { step_id: curId });
+    if (curType === "final") trackSolution(slug, "complete");
+  }, [started, curId, curType, slug]);
 
   return (
     <main>
@@ -155,7 +179,7 @@ function JourneyPage() {
             {!started || !cur ? (
               <div className="text-center">
                 <p className="text-lg font-medium">Monte sua solução em {shown.length} {shown.length === 1 ? "etapa" : "etapas"}</p>
-                <Button className="mt-4" onClick={() => { setStarted(true); setIdx(0); }} disabled={!cur}>Começar <ArrowRight className="h-4 w-4" /></Button>
+                <Button className="mt-4" onClick={() => { setStarted(true); setIdx(0); trackSolution(slug, "start"); }} disabled={!cur}>Começar <ArrowRight className="h-4 w-4" /></Button>
               </div>
             ) : (
               <>
@@ -196,10 +220,42 @@ function JourneyPage() {
                       return (
                         <div key={g.key}>
                           <h3 className="mb-3 font-semibold">{g.label}</h3>
-                          <div className="space-y-3">{list.map(({ it }) => <ItemCard key={it.id} item={it} />)}</div>
+                          <div className="space-y-3">{list.map(({ it }) => <ItemCard key={it.id} item={it} slug={slug} compare={{ on: cmp.includes(it.id), toggle: () => toggleCmp(it.id), disabled: cmp.length >= 3 }} />)}</div>
                         </div>
                       );
                     })}
+                    {finalItems.length ? (
+                      <div className="rounded-lg border p-4 text-sm">
+                        <p className="font-semibold">Conferência de compatibilidade</p>
+                        {compat.notes.length === 0 && compat.missing.length === 0 ? (
+                          <p className="mt-2 flex items-center gap-2 text-muted-foreground"><Check className="h-4 w-4 text-primary" /> Pelos dados cadastrados, os itens combinam entre si.</p>
+                        ) : null}
+                        <ul className="mt-2 space-y-2">
+                          {compat.notes.map((n, i) => (
+                            <li key={i} className="flex gap-2">
+                              {n.level === "error" ? <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" /> : n.level === "warning" ? <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> : <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />}
+                              <span>{n.message}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {compat.missing.length ? (
+                          <p className="mt-3 text-muted-foreground">Ainda não temos todas as informações para conferir tudo ({compat.missing.slice(0, 4).join("; ")}{compat.missing.length > 4 ? "…" : ""}). Nossa equipe confirma antes da compra.</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {cmpItems.length >= 2 ? (
+                      <div className="overflow-x-auto rounded-lg border">
+                        <table className="w-full text-sm">
+                          <caption className="p-3 text-left font-semibold">Comparação lado a lado</caption>
+                          <thead><tr className="border-t bg-muted/40"><th className="p-2 text-left font-medium">Item</th>{cmpItems.map((it) => <th key={it.id} className="p-2 text-left font-medium">{nameOf(it)}</th>)}</tr></thead>
+                          <tbody>
+                            <tr className="border-t"><td className="p-2 text-muted-foreground">Tipo</td>{cmpItems.map((it) => <td key={it.id} className="p-2">{catLabel(it.item_category)}</td>)}</tr>
+                            <tr className="border-t"><td className="p-2 text-muted-foreground">Preço</td>{cmpItems.map((it) => <td key={it.id} className="p-2 tabular-nums">{it.product?.price != null ? brl(it.product.price) : "Consultar"}</td>)}</tr>
+                            {cmpRows.map((r) => <tr key={r.label} className="border-t"><td className="p-2 text-muted-foreground">{r.label}</td>{r.values.map((v, i) => <td key={i} className="p-2">{v}</td>)}</tr>)}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : finalItems.length > 1 ? <p className="text-xs text-muted-foreground">Marque “Comparar” em 2 ou 3 itens para ver lado a lado.</p> : null}
                     {finalItems.length === 0 ? <p className="text-sm text-muted-foreground">Ainda não há itens cadastrados para as escolhas feitas. Fale com a nossa equipe.</p> : null}
                     {finalItems.length ? (
                       <div className="rounded-lg bg-muted/40 p-4 text-sm">
@@ -213,7 +269,7 @@ function JourneyPage() {
                     ) : null}
                   </div>
                 ) : itemsFor(cur).length ? (
-                  <div className="mt-5 space-y-3">{itemsFor(cur).map((it) => <ItemCard key={it.id} item={it} />)}</div>
+                  <div className="mt-5 space-y-3">{itemsFor(cur).map((it) => <ItemCard key={it.id} item={it} slug={slug} />)}</div>
                 ) : null}
 
                 <div className="mt-8 flex justify-between gap-3">
