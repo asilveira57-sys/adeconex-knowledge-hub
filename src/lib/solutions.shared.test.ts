@@ -36,3 +36,35 @@ describe("assistente de soluções", () => {
     expect(safeTotal([{ price: 10, external: false }, { price: 5, external: false }])).toBe(15);
   });
 });
+
+import { checkCompatibility } from "./solutions.shared";
+describe("checkCompatibility", () => {
+  it("acusa etiqueta mais larga que a impressora", () => {
+    const r = checkCompatibility([
+      { name: "Imp", category: "impressora", specs: { tech: "tt", max_width_mm: 104 } },
+      { name: "Et", category: "etiqueta", specs: { width_mm: 110, material: "couche" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 110, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.filter((n) => n.level === "error")).toHaveLength(2);
+  });
+  it("aceita 109 mm na boca de 109 mm", () => {
+    const r = checkCompatibility([
+      { name: "Imp", category: "impressora", specs: { tech: "tt", max_width_mm: 109 } },
+      { name: "Et", category: "etiqueta", specs: { width_mm: 109, material: "couche" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 110, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.filter((n) => n.level === "error")).toHaveLength(1); // ribbon 110 > 109
+    expect(r.missing).toHaveLength(0);
+  });
+  it("poliéster com ribbon de cera é erro", () => {
+    const r = checkCompatibility([
+      { name: "Et", category: "etiqueta", specs: { width_mm: 50, material: "poliester" } },
+      { name: "Rb", category: "ribbon", specs: { width_mm: 60, ribbon_type: "cera" } },
+    ]);
+    expect(r.notes.some((n) => n.level === "error")).toBe(true);
+  });
+  it("lista dados que faltam", () => {
+    const r = checkCompatibility([{ name: "Imp", category: "impressora", specs: {} }]);
+    expect(r.missing).toHaveLength(2);
+  });
+});

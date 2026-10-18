@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Copy, ExternalLink, Plus, Pencil, Trash2 } from "lucide-react";
 import {
-  adminListSolutions, adminSaveCategory, adminDeleteCategory, adminCreateJourney, adminDuplicateJourney, adminDeleteJourney,
+  adminListSolutions, adminSaveCategory, adminDeleteCategory, adminCreateJourney, adminDuplicateJourney, adminDeleteJourney, adminSolutionReport,
 } from "@/lib/solutions.functions";
 import { JOURNEY_STATUS, slugify, type JourneyStatus } from "@/lib/solutions.shared";
 import { Button } from "@/components/ui/button";
@@ -71,7 +71,9 @@ function AssistenteAdmin() {
       </div>
 
       <Tabs defaultValue="jornadas">
-        <TabsList><TabsTrigger value="jornadas">Jornadas</TabsTrigger><TabsTrigger value="categorias">Categorias</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="jornadas">Jornadas</TabsTrigger><TabsTrigger value="categorias">Categorias</TabsTrigger><TabsTrigger value="relatorio">Relatório de uso</TabsTrigger></TabsList>
+
+        <TabsContent value="relatorio"><UsageReport /></TabsContent>
 
         <TabsContent value="jornadas" className="space-y-3">
           <Button size="sm" onClick={() => create.mutate()} disabled={create.isPending}><Plus className="h-4 w-4" /> Nova jornada</Button>
@@ -132,6 +134,58 @@ function AssistenteAdmin() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+const day = (d: Date) => d.toISOString().slice(0, 10);
+function UsageReport() {
+  const [from, setFrom] = useState(() => day(new Date(Date.now() - 29 * 86400000)));
+  const [to, setTo] = useState(() => day(new Date()));
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["admin-solution-report", from, to],
+    queryFn: () => adminSolutionReport({ data: { from: `${from}T00:00:00-03:00`, to: `${to}T23:59:59-03:00` } }),
+  });
+  const pct = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)}%` : "—");
+  const typeLabel: Record<string, string> = { click_internal: "Produto Adeconex", click_external: "Link externo", click_affiliate: "Afiliado" };
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="grid gap-1"><Label className="text-xs">De</Label><Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+        <div className="grid gap-1"><Label className="text-xs">Até</Label><Input type="date" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+        <p className="text-xs text-muted-foreground">Visitas contadas por sessão, sem dados pessoais. Robôs são ignorados.</p>
+      </div>
+      {isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : error ? <p className="text-sm text-destructive">Não foi possível carregar o relatório.</p>
+        : !data?.journeys.length ? <p className="text-sm text-muted-foreground">Ainda não há uso registrado nesse período. Os números aparecem quando houver jornadas publicadas e visitas.</p>
+        : data.journeys.map((j) => (
+          <div key={j.id} className="space-y-3 rounded-lg border bg-card p-4">
+            <p className="font-medium">{j.name} <span className="text-xs text-muted-foreground">/comece-por-aqui/{j.slug}</span></p>
+            <div className="grid gap-2 sm:grid-cols-4 lg:grid-cols-7">
+              {[["Abriram", j.views], ["Começaram", j.starts], ["Chegaram à lista", j.completes], ["Conclusão", pct(j.completes, j.starts)],
+                ["Cliques Adeconex", j.internal], ["Cliques externos", j.external], ["Cliques afiliado", j.affiliate]].map(([l, v]) => (
+                <div key={l as string} className="rounded-md bg-muted/40 p-2"><p className="text-xs text-muted-foreground">{l}</p><p className="text-lg font-semibold tabular-nums">{v}</p></div>
+              ))}
+            </div>
+            {j.steps.length ? (
+              <div>
+                <p className="mb-1 text-xs font-medium">Até onde as pessoas chegam</p>
+                <div className="space-y-1">{j.steps.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm">
+                    <span className="w-48 truncate">{i + 1}. {s.title}</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded bg-muted"><div className="h-full bg-primary" style={{ width: pct(s.sessions, j.starts || 1) === "—" ? "0%" : `${Math.min(100, (s.sessions / (j.starts || 1)) * 100)}%` }} /></div>
+                    <span className="w-10 text-right tabular-nums">{s.sessions}</span>
+                  </div>
+                ))}</div>
+              </div>
+            ) : null}
+            {j.topClicks.length ? (
+              <div>
+                <p className="mb-1 text-xs font-medium">Itens mais clicados</p>
+                <ul className="space-y-1 text-sm">{j.topClicks.map((c, i) => <li key={i} className="flex justify-between gap-2"><span>{c.name} <span className="text-xs text-muted-foreground">({typeLabel[c.type]})</span></span><span className="tabular-nums">{c.n}</span></li>)}</ul>
+              </div>
+            ) : null}
+          </div>
+        ))}
     </div>
   );
 }
