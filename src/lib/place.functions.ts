@@ -69,7 +69,39 @@ async function resolvePhoto(photoName: string, apiKey: string, lovableKey: strin
   return json.photoUri ?? null;
 }
 
+// Fallback usado quando o conector Google Maps não está disponível (ex.: após migração
+// de workspace) ou a API falha. Evita que home, /contato e /avaliacoes quebrem.
+// Valores = último dado público conhecido do perfil Google (out/2026).
+const FALLBACK_PLACE: PlaceDetails = {
+  id: PLACE_ID,
+  name: "Adeconex Etiquetas",
+  address: "",
+  phone: null,
+  website: "https://adeconex.com.br",
+  rating: 4.9,
+  reviewCount: 193,
+  location: { lat: 0, lng: 0 },
+  googleMapsUri: `https://www.google.com/maps/place/?q=place_id:${PLACE_ID}`,
+  weekdayDescriptions: [],
+  openNow: false,
+  reviews: [],
+  photos: [],
+};
+
+let lastGood: { at: number; data: PlaceDetails } | null = null;
+
 export const getPlaceDetails = createServerFn({ method: "GET" }).handler(async (): Promise<PlaceDetails> => {
+  try {
+    const data = await fetchPlaceDetails();
+    lastGood = { at: Date.now(), data };
+    return data;
+  } catch (err) {
+    console.error("[place] usando fallback:", err instanceof Error ? err.message : err);
+    return lastGood?.data ?? FALLBACK_PLACE;
+  }
+});
+
+async function fetchPlaceDetails(): Promise<PlaceDetails> {
   const lovableKey = process.env.LOVABLE_API_KEY;
   const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   if (!lovableKey || !apiKey) throw new Error("Missing Google Maps connector credentials");
@@ -124,4 +156,4 @@ export const getPlaceDetails = createServerFn({ method: "GET" }).handler(async (
     reviews,
     photos,
   };
-});
+}
