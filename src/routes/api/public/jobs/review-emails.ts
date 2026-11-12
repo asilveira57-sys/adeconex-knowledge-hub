@@ -12,7 +12,15 @@ async function handle(request: Request) {
   try {
     const { runReviewDispatch } = await import("@/lib/reviews.server");
     const result = await runReviewDispatch();
-    return Response.json({ ok: true, ...result });
+    // Pega carona no mesmo agendador: pagamentos pendentes (MP) + NF/rastreio (Olist)
+    let orders: unknown = null;
+    try {
+      const { runOrderSync } = await import("@/lib/olist-sync.server");
+      orders = await runOrderSync();
+    } catch (e) {
+      console.error("[review-cron] order-sync falhou", e);
+    }
+    return Response.json({ ok: true, ...result, orders });
   } catch (e) {
     console.error("[review-cron] falhou", e);
     return Response.json({ ok: false }, { status: 500 });

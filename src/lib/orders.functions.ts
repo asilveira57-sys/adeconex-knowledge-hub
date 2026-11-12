@@ -349,3 +349,13 @@ export const syncOrderPaymentAdmin = createServerFn({ method: "POST" })
       reason?: string;
     };
   });
+
+export const syncOrderOlistAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v) => z.object({ orderId: z.string().uuid() }).parse(v))
+  .handler(async ({ context, data }) => {
+    await assertStaff(context);
+    const { syncOrderWithOlist } = await import("./olist-sync.server");
+    const r = await syncOrderWithOlist(data.orderId);
+    return { ok: r.ok, situacao: r.situacao ?? null, changes: r.changes, error: r.error ?? null };
+  });

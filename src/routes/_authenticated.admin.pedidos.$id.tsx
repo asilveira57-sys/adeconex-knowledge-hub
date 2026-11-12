@@ -9,6 +9,7 @@ import {
   updateOrderTracking,
   updateOrderInternalNotes,
   syncOrderPaymentAdmin,
+  syncOrderOlistAdmin,
   ORDER_STATUSES,
   ORDER_STATUS_LABEL,
 } from "@/lib/orders.functions";
@@ -97,6 +98,16 @@ function AdminPedidoDetail() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
   });
 
+  const olistMut = useMutation({
+    mutationFn: () => syncOrderOlistAdmin({ data: { orderId: id } }),
+    onSuccess: (r) => {
+      if (!r.ok) toast.error(r.error ?? "Falha ao consultar a Olist");
+      else toast.success(`Olist: ${r.situacao ?? "—"}${r.changes.length ? ` · ${r.changes.join(", ")}` : " · sem novidades"}`);
+      invalidate();
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Erro"),
+  });
+
   if (isLoading) {
     return <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
   }
@@ -145,6 +156,11 @@ function AdminPedidoDetail() {
             <Button size="sm" variant="outline" disabled={syncMut.isPending} onClick={() => syncMut.mutate()}>
               {syncMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Verificar pagamento no Mercado Pago
             </Button>
+            {(order.metadata as any)?.olist?.id && (
+              <Button size="sm" variant="outline" disabled={olistMut.isPending} onClick={() => olistMut.mutate()}>
+                {olistMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Truck className="h-4 w-4" />} Atualizar NF/rastreio da Olist
+              </Button>
+            )}
           </div>
         </div>
       </div>

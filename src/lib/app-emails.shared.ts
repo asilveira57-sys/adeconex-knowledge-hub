@@ -7,6 +7,7 @@ export type AppEmailKey =
   | "pagamento-confirmado"
   | "pagamento-recusado"
   | "pedido-em-producao"
+  | "nota-fiscal-emitida"
   | "pedido-enviado"
   | "pedido-entregue"
   | "pedido-cancelado"
@@ -17,7 +18,9 @@ export type AppEmailKey =
   | "catalogo-lista"
   | "avaliacao-pedido"
   | "avaliacao-lembrete"
-  | "avaliacao-aviso-interno";
+  | "avaliacao-aviso-interno"
+  | "pedido-aviso-interno"
+  | "pagamento-aviso-interno";
 
 export type AppEmailTexts = {
   subject: string;
@@ -129,6 +132,21 @@ export const APP_EMAILS: AppEmailDef[] = [
       heading: "Em produção",
       intro: "Olá, {nome}! O pedido {numero_pedido} entrou em produção.",
       body: "Avisaremos assim que ele for enviado.",
+      cta_label: "Ver meu pedido",
+      closing: SIGN,
+    },
+  },
+  {
+    key: "nota-fiscal-emitida",
+    group: "Pedidos",
+    name: "Nota fiscal emitida",
+    when: "Quando a Olist emite a nota fiscal do pedido (sincronização automática).",
+    variables: [...ORDER_VARS, "nota_fiscal", "link_nota"],
+    defaults: {
+      subject: "Nota fiscal do pedido {numero_pedido} emitida",
+      heading: "Nota fiscal emitida",
+      intro: "Olá, {nome}! A nota fiscal {nota_fiscal} do pedido {numero_pedido} foi emitida.",
+      body: "Seu pedido está sendo preparado para envio. Você pode baixar a nota em: {link_nota}\n\nAssim que for postado, enviaremos o código de rastreio.",
       cta_label: "Ver meu pedido",
       closing: SIGN,
     },
@@ -297,6 +315,38 @@ export const APP_EMAILS: AppEmailDef[] = [
       intro: "{nome} avaliou {produto} com nota {nota}.",
       body: "{mensagem}",
       cta_label: "Moderar avaliações",
+      closing: "Site Adeconex",
+    },
+  },
+  {
+    key: "pedido-aviso-interno",
+    group: "Pedidos",
+    name: "Novo pedido (aviso para vendas@)",
+    when: "Enviado para vendas@adeconex.com.br assim que um pedido é feito no site.",
+    variables: ["numero_pedido", "nome", "email", "telefone", "total", "pagamento", "frete", "itens", "endereco", "link"],
+    internal: true,
+    defaults: {
+      subject: "Novo pedido {numero_pedido} — {total}",
+      heading: "Novo pedido no site",
+      intro: "{nome} fez o pedido {numero_pedido} no valor de {total}. Pagamento: {pagamento}.",
+      body: "Itens:\n{itens}\n\nFrete: {frete}\nEntrega: {endereco}\n\nCliente: {email} · {telefone}",
+      cta_label: "Abrir no admin",
+      closing: "Site Adeconex",
+    },
+  },
+  {
+    key: "pagamento-aviso-interno",
+    group: "Pedidos",
+    name: "Pagamento aprovado (aviso para vendas@)",
+    when: "Enviado para vendas@adeconex.com.br quando o Mercado Pago aprova o pagamento.",
+    variables: ["numero_pedido", "nome", "total", "pagamento", "link"],
+    internal: true,
+    defaults: {
+      subject: "Pagamento aprovado — pedido {numero_pedido} ({total})",
+      heading: "Pagamento aprovado",
+      intro: "O pagamento do pedido {numero_pedido} de {nome} ({total}, {pagamento}) foi aprovado pelo Mercado Pago.",
+      body: "O pedido já foi marcado como pago e enviado para a Olist.",
+      cta_label: "Abrir no admin",
       closing: "Site Adeconex",
     },
   },

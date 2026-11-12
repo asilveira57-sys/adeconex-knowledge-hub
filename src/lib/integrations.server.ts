@@ -268,6 +268,14 @@ export async function sendOrderToInternal(orderId: string): Promise<SendResult> 
         }
         const ok: SendResult = { ok: true, status: res.status, response: lastResponse };
         await logAttempt(supabaseAdmin, orderId, tiny, ok);
+        if (reg?.id) {
+          try {
+            const { rememberOlistOrder } = await import("@/lib/olist-sync.server");
+            await rememberOlistOrder(orderId, String(reg.id), reg.numero ? String(reg.numero) : null);
+          } catch (e) {
+            console.error("[olist] não guardou id do pedido", e);
+          }
+        }
         return ok;
       }
       if (ret) {

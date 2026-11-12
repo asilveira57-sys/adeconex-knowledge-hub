@@ -97,8 +97,9 @@ export async function applyMercadoPagoPayment(supabaseAdmin: any, orderId: strin
     }
   }
   if (becamePaid) {
-    const { sendOrderEmail } = await import("@/lib/app-emails.server");
+    const { sendOrderEmail, sendOrderInternalEmail } = await import("@/lib/app-emails.server");
     await sendOrderEmail("pagamento-confirmado", orderId);
+    await sendOrderInternalEmail("pagamento-aviso-interno", orderId);
   }
   if (paymentStatus === "rejected" || paymentStatus === "cancelled") {
     const { sendOrderEmail } = await import("@/lib/app-emails.server");

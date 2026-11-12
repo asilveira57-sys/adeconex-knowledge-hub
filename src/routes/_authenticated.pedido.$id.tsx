@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Package, MapPin, CreditCard, Truck, Clock } from "lucide-react";
+import { ArrowLeft, Loader2, Package, MapPin, CreditCard, Truck, Clock, FileText } from "lucide-react";
 import { getMyOrder } from "@/lib/orders.functions";
 import { ORDER_STATUS_LABEL } from "@/lib/orders.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +37,8 @@ function PedidoPage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["orders", "me", id],
     queryFn: () => getMyOrder({ data: { orderId: id } }),
+    // Enquanto aguarda pagamento, atualiza sozinho (o webhook do MP muda o status no servidor)
+    refetchInterval: (q) => ((q.state.data as any)?.order?.status === "aguardando_pagamento" ? 15_000 : false),
   });
 
   if (isLoading) {
@@ -160,6 +162,20 @@ function PedidoPage() {
               ) : <p className="text-muted-foreground">Sem pagamento registrado.</p>}
             </CardContent>
           </Card>
+
+          {(order.metadata as any)?.olist?.nota_fiscal && (
+            <Card>
+              <CardHeader><CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" /> Nota fiscal</CardTitle></CardHeader>
+              <CardContent className="text-sm space-y-1">
+                <p className="font-medium">NF-e {(order.metadata as any).olist.nota_fiscal.numero ?? "emitida"}</p>
+                {(order.metadata as any).olist.nota_fiscal.link && (
+                  <a className="text-primary underline" href={(order.metadata as any).olist.nota_fiscal.link} target="_blank" rel="noreferrer">
+                    Baixar nota fiscal
+                  </a>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {shipment && (
             <Card>

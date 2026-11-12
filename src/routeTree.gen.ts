@@ -119,8 +119,10 @@ import { Route as AuthenticatedAdminSeoIntegracoesRouteImport } from './routes/_
 import { Route as AuthenticatedAdminSeoPaginasRouteImport } from './routes/_authenticated.admin.seo.paginas'
 import { Route as AuthenticatedAdminSeoRedirecionamentosRouteImport } from './routes/_authenticated.admin.seo.redirecionamentos'
 import { Route as AuthenticatedAdminSeoTecnicoRouteImport } from './routes/_authenticated.admin.seo.tecnico'
+import { Route as ApiPublicJobsOrderSyncRouteImport } from './routes/api/public/jobs/order-sync'
 import { Route as ApiPublicJobsReviewEmailsRouteImport } from './routes/api/public/jobs/review-emails'
 import { Route as ApiPublicWebhooksMercadopagoRouteImport } from './routes/api/public/webhooks/mercadopago'
+import { Route as ApiPublicWebhooksOlistRouteImport } from './routes/api/public/webhooks/olist'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -720,6 +722,11 @@ const AuthenticatedAdminSeoTecnicoRoute =
     path: '/seo/tecnico',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const ApiPublicJobsOrderSyncRoute = ApiPublicJobsOrderSyncRouteImport.update({
+  id: '/api/public/jobs/order-sync',
+  path: '/api/public/jobs/order-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicJobsReviewEmailsRoute =
   ApiPublicJobsReviewEmailsRouteImport.update({
     id: '/api/public/jobs/review-emails',
@@ -732,6 +739,11 @@ const ApiPublicWebhooksMercadopagoRoute =
     path: '/api/public/webhooks/mercadopago',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicWebhooksOlistRoute = ApiPublicWebhooksOlistRouteImport.update({
+  id: '/api/public/webhooks/olist',
+  path: '/api/public/webhooks/olist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
   id: '/lovable/email/auth/preview',
   path: '/lovable/email/auth/preview',
@@ -852,8 +864,10 @@ export interface FileRoutesByFullPath {
   '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/order-sync': typeof ApiPublicJobsOrderSyncRoute
   '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/api/public/webhooks/olist': typeof ApiPublicWebhooksOlistRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -961,8 +975,10 @@ export interface FileRoutesByTo {
   '/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/order-sync': typeof ApiPublicJobsOrderSyncRoute
   '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/api/public/webhooks/olist': typeof ApiPublicWebhooksOlistRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -1079,8 +1095,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/seo/paginas': typeof AuthenticatedAdminSeoPaginasRoute
   '/_authenticated/admin/seo/redirecionamentos': typeof AuthenticatedAdminSeoRedirecionamentosRoute
   '/_authenticated/admin/seo/tecnico': typeof AuthenticatedAdminSeoTecnicoRoute
+  '/api/public/jobs/order-sync': typeof ApiPublicJobsOrderSyncRoute
   '/api/public/jobs/review-emails': typeof ApiPublicJobsReviewEmailsRoute
   '/api/public/webhooks/mercadopago': typeof ApiPublicWebhooksMercadopagoRoute
+  '/api/public/webhooks/olist': typeof ApiPublicWebhooksOlistRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
@@ -1197,8 +1215,10 @@ export interface FileRouteTypes {
     | '/admin/seo/paginas'
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
+    | '/api/public/jobs/order-sync'
     | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
+    | '/api/public/webhooks/olist'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -1306,8 +1326,10 @@ export interface FileRouteTypes {
     | '/admin/seo/paginas'
     | '/admin/seo/redirecionamentos'
     | '/admin/seo/tecnico'
+    | '/api/public/jobs/order-sync'
     | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
+    | '/api/public/webhooks/olist'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -1423,8 +1445,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/seo/paginas'
     | '/_authenticated/admin/seo/redirecionamentos'
     | '/_authenticated/admin/seo/tecnico'
+    | '/api/public/jobs/order-sync'
     | '/api/public/jobs/review-emails'
     | '/api/public/webhooks/mercadopago'
+    | '/api/public/webhooks/olist'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
@@ -1490,8 +1514,10 @@ export interface RootRouteChildren {
   CatalogoListaTokenRoute: typeof CatalogoListaTokenRoute
   EtiquetasPersonalizadaTipoRoute: typeof EtiquetasPersonalizadaTipoRoute
   EtiquetasPersonalizadaIndexRoute: typeof EtiquetasPersonalizadaIndexRoute
+  ApiPublicJobsOrderSyncRoute: typeof ApiPublicJobsOrderSyncRoute
   ApiPublicJobsReviewEmailsRoute: typeof ApiPublicJobsReviewEmailsRoute
   ApiPublicWebhooksMercadopagoRoute: typeof ApiPublicWebhooksMercadopagoRoute
+  ApiPublicWebhooksOlistRoute: typeof ApiPublicWebhooksOlistRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -2269,6 +2295,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSeoTecnicoRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/api/public/jobs/order-sync': {
+      id: '/api/public/jobs/order-sync'
+      path: '/api/public/jobs/order-sync'
+      fullPath: '/api/public/jobs/order-sync'
+      preLoaderRoute: typeof ApiPublicJobsOrderSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/jobs/review-emails': {
       id: '/api/public/jobs/review-emails'
       path: '/api/public/jobs/review-emails'
@@ -2281,6 +2314,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/webhooks/mercadopago'
       fullPath: '/api/public/webhooks/mercadopago'
       preLoaderRoute: typeof ApiPublicWebhooksMercadopagoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/webhooks/olist': {
+      id: '/api/public/webhooks/olist'
+      path: '/api/public/webhooks/olist'
+      fullPath: '/api/public/webhooks/olist'
+      preLoaderRoute: typeof ApiPublicWebhooksOlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lovable/email/auth/preview': {
@@ -2563,8 +2603,10 @@ const rootRouteChildren: RootRouteChildren = {
   CatalogoListaTokenRoute: CatalogoListaTokenRoute,
   EtiquetasPersonalizadaTipoRoute: EtiquetasPersonalizadaTipoRoute,
   EtiquetasPersonalizadaIndexRoute: EtiquetasPersonalizadaIndexRoute,
+  ApiPublicJobsOrderSyncRoute: ApiPublicJobsOrderSyncRoute,
   ApiPublicJobsReviewEmailsRoute: ApiPublicJobsReviewEmailsRoute,
   ApiPublicWebhooksMercadopagoRoute: ApiPublicWebhooksMercadopagoRoute,
+  ApiPublicWebhooksOlistRoute: ApiPublicWebhooksOlistRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,

@@ -470,6 +470,11 @@ export const createOrderAndPreference = createServerFn({ method: "POST" })
     } catch (e) {
       console.error("[order-email]", e);
     }
+    // 12b) Aviso de novo pedido para vendas@
+    {
+      const { sendOrderInternalEmail } = await import("@/lib/app-emails.server");
+      await sendOrderInternalEmail("pedido-aviso-interno", order.id);
+    }
 
     // Token TEST- => sandbox; APP_USR- => produção
     const isSandbox = token.startsWith("TEST-");

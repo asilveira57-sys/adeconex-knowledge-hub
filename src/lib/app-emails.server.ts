@@ -67,7 +67,11 @@ export async function sendAppEmail(
 const brl = (n: number) => Number(n ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 /** Monta variáveis do pedido e envia o e-mail para o cliente dono do pedido. */
-export async function sendOrderEmail(key: AppEmailKey, orderId: string, extra?: { ctaUrl?: string; eventId?: string }) {
+export async function sendOrderEmail(
+  key: AppEmailKey,
+  orderId: string,
+  extra?: { ctaUrl?: string; eventId?: string; vars?: Vars },
+) {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: order } = await supabaseAdmin
@@ -88,6 +92,7 @@ export async function sendOrderEmail(key: AppEmailKey, orderId: string, extra?: 
       total: brl(Number(order.total)),
       transportadora: ship ? [ship.carrier, ship.service].filter(Boolean).join(" ") : null,
       rastreio: ship?.tracking_code ?? null,
+      ...(extra?.vars ?? {}),
     }, {
       idempotencyKey: `${key}-${orderId}${extra?.eventId ? `-${extra.eventId}` : ""}`,
       reference: order.order_number,
@@ -103,4 +108,59 @@ export async function isFirstOrder(userId: string, orderId: string) {
   const { count } = await supabaseAdmin.from("orders").select("id", { count: "exact", head: true })
     .eq("user_id", userId).neq("id", orderId);
   return (count ?? 0) === 0;
+}
+
+const PAYMENT_LABEL: Record<string, string> = {
+  pix: "Pix", boleto: "Boleto", credit_card: "Cartão de crédito", debit_card: "Cartão de débito", other: "Mercado Pago",
+};
+
+/**
+ * Aviso interno para vendas@ sobre um pedido (novo pedido / pagamento aprovado).
+ * Nunca lança erro. Idempotente por pedido + modelo.
+ */
+export async function sendOrderInternalEmail(key: "pedido-aviso-interno" | "pagamento-aviso-interno", orderId: string) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, order_number, total, shipping_total, shipping_carrier, shipping_service, payment_method, user_id")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!order) return;
+    const [{ data: items }, { data: addr }, { data: profile }, userRes] = await Promise.all([
+      supabaseAdmin.from("order_items").select("product_name, variant_label, quantity, subtotal").eq("order_id", orderId).order("created_at"),
+      supabaseAdmin.from("order_addresses").select("street, number, complement, district, city, state, zip").eq("order_id", orderId).eq("kind", "shipping").maybeSingle(),
+      order.user_id
+        ? supabaseAdmin.from("profiles").select("full_name, phone, whatsapp").eq("id", order.user_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      order.user_id ? supabaseAdmin.auth.admin.getUserById(order.user_id) : Promise.resolve({ data: null }),
+    ]);
+    const p = profile as any;
+    const a = addr as any;
+    const itens = (items ?? [])
+      .map((i: any) => `• ${i.quantity}× ${i.product_name}${i.variant_label ? ` (${i.variant_label})` : ""} — ${brl(Number(i.subtotal))}`)
+      .join("\n");
+    const frete = [brl(Number(order.shipping_total)), [order.shipping_carrier, order.shipping_service].filter(Boolean).join(" ")]
+      .filter(Boolean).join(" · ");
+    const endereco = a
+      ? `${a.street}, ${a.number}${a.complement ? ` ${a.complement}` : ""} — ${a.district}, ${a.city}/${a.state} — CEP ${a.zip}`
+      : null;
+    await sendAppEmail(key, null, {
+      numero_pedido: order.order_number,
+      nome: p?.full_name ?? null,
+      email: (userRes as any)?.data?.user?.email ?? null,
+      telefone: p?.whatsapp || p?.phone || null,
+      total: brl(Number(order.total)),
+      pagamento: order.payment_method ? (PAYMENT_LABEL[order.payment_method] ?? order.payment_method) : "Mercado Pago (aguardando)",
+      frete,
+      itens,
+      endereco,
+    }, {
+      idempotencyKey: `${key}-${orderId}`,
+      reference: order.order_number,
+      ctaUrl: `${SITE_URL}/admin/pedidos/${orderId}`,
+    });
+  } catch (e) {
+    console.error("[app-email] aviso interno", key, e);
+  }
 }
