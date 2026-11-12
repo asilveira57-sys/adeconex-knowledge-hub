@@ -10,7 +10,7 @@ import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
 const SITE_NAME = "Adeconex 2030"
-const SENDER_DOMAIN = "email.adeconex.com.br"
+const SENDER_DOMAIN = "notify.adeconex.com.br"
 const ROOT_DOMAIN = "adeconex.com.br"
 const FROM_DOMAIN = "adeconex.com.br"
 const SITE_URL = `https://${ROOT_DOMAIN}`
