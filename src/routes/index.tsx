@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { ProductCarousel } from "@/components/product-carousel";
@@ -42,11 +43,11 @@ export const Route = createFileRoute("/")({
         content:
           "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento.",
       },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: absoluteUrl("/") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/") }],
   }),
   loader: async () => {
     const [place, banners] = await Promise.all([getPlaceDetails(), getActiveBanners().catch(() => [] as SiteBanner[])]);

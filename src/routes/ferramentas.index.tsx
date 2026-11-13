@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
@@ -8,9 +9,9 @@ export const Route = createFileRoute("/ferramentas/")({
       { name: "description", content: "Calculadoras, geradores e simuladores gratuitos para impressão térmica, etiquetas e código de barras." },
       { property: "og:title", content: "Ferramentas gratuitas — Adeconex" },
       { property: "og:description", content: "QR Code, código de barras, calculadora de ribbon, gerador ZPL, validador GS1 e mais." },
-      { property: "og:url", content: "/ferramentas" },
+      { property: "og:url", content: absoluteUrl("/ferramentas") },
     ],
-    links: [{ rel: "canonical", href: "/ferramentas" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/ferramentas") }],
   }),
   component: () => (
     <ModulePlaceholder

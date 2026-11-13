@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { Stars } from "@/components/reviews/star-rating";
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -141,9 +142,9 @@ export const Route = createFileRoute("/catalogo")({
       { property: "og:description", content: "Encontre etiquetas, ribbons e insumos por categoria, marca e aplicação." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: "/catalogo" },
+      { property: "og:url", content: absoluteUrl("/catalogo") },
     ],
-    links: [{ rel: "canonical", href: "/catalogo" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/catalogo") }],
   }),
   errorComponent: CatalogError,
   notFoundComponent: () => <div className="container-page py-16">Catálogo não encontrado.</div>,

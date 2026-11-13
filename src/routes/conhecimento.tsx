@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { createFileRoute } from "@tanstack/react-router";
 import { ModulePlaceholder } from "@/components/module-placeholder";
 
@@ -9,9 +10,9 @@ export const Route = createFileRoute("/conhecimento")({
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Centro de conhecimento — Adeconex" },
       { property: "og:description", content: "Guias, tutoriais, comparativos e boas práticas sobre identificação industrial." },
-      { property: "og:url", content: "/conhecimento" },
+      { property: "og:url", content: absoluteUrl("/conhecimento") },
     ],
-    links: [{ rel: "canonical", href: "/conhecimento" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/conhecimento") }],
   }),
   component: () => (
     <ModulePlaceholder

@@ -66,6 +66,7 @@ export const updateSiteSetting = createServerFn({ method: "POST" })
       .from("site_settings")
       .upsert({ key: data.key, value: data.value, updated_by: context.userId, updated_at: new Date().toISOString() });
     if (error) throw new Error(error.message);
+    trackingCache = null;
 
     await supabaseAdmin.from("settings_history").insert({
       setting_key: data.key,
@@ -183,11 +184,25 @@ export const deleteRedirectAdmin = createServerFn({ method: "POST" })
   });
 
 /** Config pública e não sensível para o runtime do site (gtag/GTM/Pixel/verificação). */
+// Roda no layout raiz (toda página SSR): cache curto por isolate e nunca derruba a página.
+let trackingCache: { at: number; value: unknown } | null = null;
+const TRACKING_TTL_MS = 5 * 60_000;
+
 export const getPublicTrackingConfig = createServerFn({ method: "GET" }).handler(async () => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { buildPublicTrackingConfig, fetchSettingsMap } = await import("@/lib/seo-central.server");
-  const settings = await fetchSettingsMap(supabaseAdmin);
-  return buildPublicTrackingConfig(settings);
+  if (trackingCache && Date.now() - trackingCache.at < TRACKING_TTL_MS) {
+    return trackingCache.value as ReturnType<typeof buildPublicTrackingConfig>;
+  }
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const value = buildPublicTrackingConfig(await fetchSettingsMap(supabaseAdmin));
+    trackingCache = { at: Date.now(), value };
+    return value;
+  } catch (e) {
+    console.error("[tracking-config] falha ao ler site_settings; usando padrão", e);
+    if (trackingCache) return trackingCache.value as ReturnType<typeof buildPublicTrackingConfig>;
+    return buildPublicTrackingConfig({});
+  }
 });
 
 /** Pop-up de aviso de lançamento — público e não sensível. */

@@ -115,6 +115,8 @@ const organizationJsonLd = {
   ],
 };
 
+const DEFAULT_OG_IMAGE = "https://adeconex.com.br/og/adeconex-og-1200x630.jpg";
+
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   loader: ({ context }) =>
     context.queryClient.ensureQueryData({
@@ -146,8 +148,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Adeconex — Plataforma brasileira de impressão térmica e identificação" },
       { property: "og:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento." },
       { name: "twitter:description", content: "Conteúdo técnico, ferramentas gratuitas, produtos e suporte para impressão térmica, etiquetas e ribbons. Consulte o catálogo ou solicite orçamento." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1c5edd0f-1eec-472d-92aa-380a9d8b04b2/id-preview-ada3296d--f1254735-6f9e-4e85-8415-5f5c04f66b6c.lovable.app-1785673126472.png" },
+      { property: "og:image", content: DEFAULT_OG_IMAGE },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Adeconex — etiquetas, ribbons e impressão térmica" },
+      { name: "twitter:image", content: DEFAULT_OG_IMAGE },
     ],
 
     links: [

@@ -6,7 +6,43 @@ interface SitemapEntry {
   path: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
+  lastmod?: string;
 }
+
+/** Produtos visíveis no catálogo (published/enriched), com lastmod. */
+async function productEntries(): Promise<SitemapEntry[]> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const out: SitemapEntry[] = [];
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await supabaseAdmin
+        .from("products")
+        .select("slug, updated_at")
+        .in("status", ["published", "enriched"])
+        .not("slug", "is", null)
+        .order("slug")
+        .range(from, from + pageSize - 1);
+      if (error) break;
+      for (const r of data ?? []) {
+        if (!r.slug) continue;
+        out.push({
+          path: `/produto/${encodeURIComponent(r.slug)}`,
+          changefreq: "weekly",
+          priority: "0.8",
+          lastmod: r.updated_at ? String(r.updated_at).slice(0, 10) : undefined,
+        });
+      }
+      if (!data || data.length < pageSize) break;
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+const xmlEscape = (v: string) =>
+  v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
@@ -106,14 +142,15 @@ export const Route = createFileRoute("/sitemap.xml")({
             }));
           }),
 
-          
-          
+          // Produtos
+          ...(await productEntries()),
         ];
 
         const urls = entries.map((e) =>
           [
             `  <url>`,
-            `    <loc>${BASE_URL}${e.path}</loc>`,
+            `    <loc>${xmlEscape(BASE_URL + e.path)}</loc>`,
+            e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,

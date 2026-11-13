@@ -1,24 +1,31 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { resolveLegacyRedirect } from "@/lib/legacy-redirects";
+import { resolveDbRedirect } from "@/lib/redirects.functions";
 
 /**
- * Splat catch-all. Captura QUALQUER URL não resolvida pelas rotas explícitas
- * e verifica no mapa de redirects legados (`src/lib/legacy-redirects.ts`).
+ * Splat catch-all. Captura QUALQUER URL não resolvida pelas rotas explícitas.
  *
- * Se casar → HTTP 301 para a rota nova.
- * Se não casar → renderiza NotFound (404 real).
- *
- * Isso preserva o SEO equity das centenas de URLs do site antigo
- * (www.adeconex.com.br pré-2030) que não foram promovidas a pillar pages.
+ * Ordem:
+ *  1. Redirects cadastrados no admin (public.legacy_redirects) — mais específicos.
+ *  2. Regras fixas de `src/lib/legacy-redirects.ts` (prefixos/regex do site antigo).
+ *  3. Nada casou → notFound() no loader → HTTP 404 real (não "soft 404").
  */
 export const Route = createFileRoute("/$")({
-  beforeLoad: ({ location }) => {
+  loader: async ({ location }) => {
+    const db = await resolveDbRedirect({ data: { path: location.pathname } }).catch(() => null);
+    if (db) throw redirect({ href: db.to, statusCode: db.status });
+
     const match = resolveLegacyRedirect(location.pathname);
-    if (match) {
-      throw redirect({ href: match.to, statusCode: match.status });
-    }
+    if (match) throw redirect({ href: match.to, statusCode: match.status });
+
+    throw notFound();
   },
-  component: LegacyNotFound,
+  head: () => ({
+    meta: [{ title: "Página não encontrada — Adeconex" }, { name: "robots", content: "noindex" }],
+  }),
+  // O loader sempre redireciona ou lança notFound(); o componente é só fallback.
+  component: () => <LegacyNotFound />,
+  notFoundComponent: () => <LegacyNotFound />,
 });
 
 function LegacyNotFound() {

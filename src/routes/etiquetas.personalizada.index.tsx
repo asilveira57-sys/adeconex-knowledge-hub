@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -21,8 +22,10 @@ export const Route = createFileRoute("/etiquetas/personalizada/")({
       { property: "og:title", content: TITLE },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: absoluteUrl("/etiquetas/personalizada") },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: absoluteUrl("/etiquetas/personalizada") }],
   }),
   component: CustomLabelLanding,
 });

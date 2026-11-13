@@ -441,6 +441,8 @@ export type ProductDetail = {
   id: string;
   name: string;
   slug: string;
+  /** Status do cadastro; fora de published/enriched a página recebe noindex. */
+  status: string;
   sku: string | null;
   model: string | null;
   reference: string | null;
@@ -640,6 +642,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       id: p.id,
       name: p.name,
       slug: p.slug,
+      status: String(p.status),
       sku: p.sku,
       model: p.model,
       reference: p.reference,

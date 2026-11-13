@@ -1,5 +1,6 @@
 import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
-import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect, useRouter } from "@tanstack/react-router";
+import { resolveDbRedirect } from "@/lib/redirects.functions";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ImageOff, MessageCircle, Mail, CheckCircle2, ShieldCheck, Truck, Award, ShoppingCart, Minus, Plus, ExternalLink, Wand2 } from "lucide-react";
@@ -31,7 +32,12 @@ const productOptions = (slug: string) =>
     queryKey: ["public", "product", slug],
     queryFn: async () => {
       const p = await getProductBySlug({ data: { slug } });
-      if (!p) throw notFound();
+      if (!p) {
+        // Slug trocado no admin grava /produto/<antigo> → /produto/<novo> em legacy_redirects.
+        const r = await resolveDbRedirect({ data: { path: `/produto/${slug}` } }).catch(() => null);
+        if (r) throw redirect({ href: r.to, statusCode: r.status });
+        throw notFound();
+      }
       return p;
     },
     staleTime: 5 * 60_000,
@@ -40,10 +46,10 @@ const productOptions = (slug: string) =>
 export const Route = createFileRoute("/produto/$slug")({
   loader: async ({ params, context }) => {
     const product = await context.queryClient.ensureQueryData(productOptions(params.slug));
-    const reviews = await context.queryClient
-      .ensureQueryData(productReviewsOptions(product.id))
-      .catch(() => null);
-    const questions = await loadQuestions({ type: "product", id: product.id });
+    const [reviews, questions] = await Promise.all([
+      context.queryClient.ensureQueryData(productReviewsOptions(product.id)).catch(() => null),
+      loadQuestions({ type: "product", id: product.id }),
+    ]);
     return { product, reviews, questions };
   },
   head: ({ params, loaderData }) => {
@@ -173,6 +179,10 @@ export const Route = createFileRoute("/produto/$slug")({
         { name: "twitter:title", content: title },
         { name: "twitter:description", content: description },
         ...(image ? [{ name: "twitter:image", content: image }] : []),
+        // Produto fora do catálogo público (importado/oculto) continua acessível para conferência, mas não indexa.
+        ...(!["published", "enriched"].includes(p.status)
+          ? [{ name: "robots", content: "noindex, follow" }]
+          : []),
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [

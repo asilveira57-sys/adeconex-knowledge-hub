@@ -1,3 +1,4 @@
+import { absoluteUrl } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Award, Factory, Microscope, Target, Users } from "lucide-react";
 import factoryImg from "@/assets/factory.jpg";
@@ -18,10 +19,10 @@ export const Route = createFileRoute("/empresa")({
         content:
           "História, estrutura, controle de qualidade e equipe Adeconex. Referência nacional em impressão térmica e identificação.",
       },
-      { property: "og:url", content: "/empresa" },
+      { property: "og:url", content: absoluteUrl("/empresa") },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "/empresa" }],
+    links: [{ rel: "canonical", href: absoluteUrl("/empresa") }],
   }),
   component: EmpresaPage,
 });

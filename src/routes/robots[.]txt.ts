@@ -5,8 +5,20 @@ import { BASE_URL } from "@/lib/seo";
 const DEFAULT_ROBOTS = `User-agent: *
 Allow: /
 
-# Não indexar áreas privadas / autenticadas
+# Não indexar áreas privadas, transacionais ou com token
 Disallow: /b2b
+Disallow: /admin
+Disallow: /auth
+Disallow: /redefinir-senha
+Disallow: /carrinho
+Disallow: /checkout
+Disallow: /minha-conta
+Disallow: /pedido/
+Disallow: /pagamento/
+Disallow: /avaliar/
+Disallow: /catalogo/lista/
+Disallow: /etiquetas/editor
+Disallow: /api/
 `;
 
 export const Route = createFileRoute("/robots.txt")({
