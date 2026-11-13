@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { ProductShowcaseGrid } from "@/components/product-showcase-grid";
-import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
+import { ContentQuestions } from "@/components/questions/content-questions";
+import { loadQuestions } from "@/lib/questions.queries";
 import { normalizeToolPath } from "@/lib/questions.shared";
 
 export const Route = createFileRoute("/ferramentas")({

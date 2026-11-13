@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { BarcodeToolPage, BARCODE_FAQ, TOOL_PATH } from "@/components/tools/barcode-tool-page";
+import { BarcodeToolPage } from "@/components/tools/barcode-tool-page";
+import { BARCODE_FAQ, TOOL_PATH } from "@/lib/barcode/tool-page.shared";
 import { SLUG_TO_SYMBOLOGY, SYMBOLOGY_BY_ID, type SymbologyId } from "@/lib/barcode/symbologies";
 import { absoluteUrl } from "@/lib/seo";
 

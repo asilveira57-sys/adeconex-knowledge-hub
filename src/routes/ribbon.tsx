@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PillarStub } from "@/components/pillar-stub";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 const PATH = "/ribbon";
 const URL = absoluteUrl(PATH);
@@ -9,6 +9,7 @@ const DESCRIPTION =
   "Ribbon (fita térmica) para impressoras de código de barras: cera, resina e misto (wax-resin). Guia técnico, tamanhos, compatibilidade e loja oficial Adeconex.";
 
 export const Route = createFileRoute("/ribbon")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   head: () => ({
     meta: [
       { title: TITLE },

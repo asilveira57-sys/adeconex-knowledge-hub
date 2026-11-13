@@ -53,6 +53,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as BrindesIndexRouteImport } from './routes/brindes.index'
 import { Route as BrindesAgendaPersonalizadaRouteImport } from './routes/brindes.agenda-personalizada'
+import { Route as CategoriaSlugRouteImport } from './routes/categoria.$slug'
 import { Route as ComecePorAquiIndexRouteImport } from './routes/comece-por-aqui.index'
 import { Route as ComecePorAquiSlugRouteImport } from './routes/comece-por-aqui.$slug'
 import { Route as DownloadsIndexRouteImport } from './routes/downloads.index'
@@ -347,6 +348,11 @@ const BrindesAgendaPersonalizadaRoute =
     path: '/agenda-personalizada',
     getParentRoute: () => BrindesRoute,
   } as any)
+const CategoriaSlugRoute = CategoriaSlugRouteImport.update({
+  id: '/categoria/$slug',
+  path: '/categoria/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComecePorAquiIndexRoute = ComecePorAquiIndexRouteImport.update({
   id: '/comece-por-aqui/',
   path: '/comece-por-aqui/',
@@ -803,6 +809,7 @@ export interface FileRoutesByFullPath {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/categoria/$slug': typeof CategoriaSlugRoute
   '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
@@ -915,6 +922,7 @@ export interface FileRoutesByTo {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/categoria/$slug': typeof CategoriaSlugRoute
   '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
@@ -1034,6 +1042,7 @@ export interface FileRoutesById {
   '/avaliar/$token': typeof AvaliarTokenRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/brindes/agenda-personalizada': typeof BrindesAgendaPersonalizadaRoute
+  '/categoria/$slug': typeof CategoriaSlugRoute
   '/comece-por-aqui/$slug': typeof ComecePorAquiSlugRoute
   '/downloads/$slug': typeof DownloadsSlugRoute
   '/etiquetas/preco': typeof EtiquetasPrecoRoute
@@ -1154,6 +1163,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/categoria/$slug'
     | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
@@ -1266,6 +1276,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/categoria/$slug'
     | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
@@ -1384,6 +1395,7 @@ export interface FileRouteTypes {
     | '/avaliar/$token'
     | '/blog/$slug'
     | '/brindes/agenda-personalizada'
+    | '/categoria/$slug'
     | '/comece-por-aqui/$slug'
     | '/downloads/$slug'
     | '/etiquetas/preco'
@@ -1499,6 +1511,7 @@ export interface RootRouteChildren {
   TermosDeUsoRoute: typeof TermosDeUsoRoute
   TrocasEDevolucoesRoute: typeof TrocasEDevolucoesRoute
   AvaliarTokenRoute: typeof AvaliarTokenRoute
+  CategoriaSlugRoute: typeof CategoriaSlugRoute
   ComecePorAquiSlugRoute: typeof ComecePorAquiSlugRoute
   DownloadsSlugRoute: typeof DownloadsSlugRoute
   EtiquetasPrecoRoute: typeof EtiquetasPrecoRoute
@@ -1832,6 +1845,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/brindes/agenda-personalizada'
       preLoaderRoute: typeof BrindesAgendaPersonalizadaRouteImport
       parentRoute: typeof BrindesRoute
+    }
+    '/categoria/$slug': {
+      id: '/categoria/$slug'
+      path: '/categoria/$slug'
+      fullPath: '/categoria/$slug'
+      preLoaderRoute: typeof CategoriaSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/comece-por-aqui/': {
       id: '/comece-por-aqui/'
@@ -2588,6 +2608,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermosDeUsoRoute: TermosDeUsoRoute,
   TrocasEDevolucoesRoute: TrocasEDevolucoesRoute,
   AvaliarTokenRoute: AvaliarTokenRoute,
+  CategoriaSlugRoute: CategoriaSlugRoute,
   ComecePorAquiSlugRoute: ComecePorAquiSlugRoute,
   DownloadsSlugRoute: DownloadsSlugRoute,
   EtiquetasPrecoRoute: EtiquetasPrecoRoute,

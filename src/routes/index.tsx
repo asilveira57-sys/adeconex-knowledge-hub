@@ -1,7 +1,8 @@
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { ProductCarousel } from "@/components/product-carousel";
+import { showcaseOptions } from "@/lib/showcase.queries";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -26,6 +27,7 @@ import { BannerPicture, BannerRotator } from "@/components/site-banner";
 import { useBannersWithPreview } from "@/lib/banner-preview";
 
 export const Route = createFileRoute("/")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   head: () => ({
     meta: [
       {
@@ -49,8 +51,13 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: absoluteUrl("/") }],
   }),
-  loader: async () => {
-    const [place, banners] = await Promise.all([getPlaceDetails(), getActiveBanners().catch(() => [] as SiteBanner[])]);
+  loader: async ({ context }) => {
+    const [place, banners] = await Promise.all([
+      getPlaceDetails(),
+      getActiveBanners().catch(() => [] as SiteBanner[]),
+      // Vitrines renderizadas no servidor (HTML com os produtos, sem "Carregando vitrine…").
+      ...HOME_SHOWCASES.map((v) => context.queryClient.ensureQueryData(showcaseOptions(v.categorySlug)).catch(() => null)),
+    ]);
     return { place, banners };
   },
   staleTime: 60 * 60 * 1000,
@@ -75,30 +82,37 @@ function HomePage() {
   );
 }
 
+const HOME_SHOWCASES = [
+  {
+    title: "Etiquetas Couchê",
+    description: "Papel branco calandrado, ideal para uso geral, código de barras, preço e identificação.",
+    categorySlug: "etiqueta-couche",
+  },
+  {
+    title: "Etiquetas BOPP",
+    description: "Polipropileno branco, resistente à água, gordura e rasgo — perfeito para alimentos e validade.",
+    categorySlug: "etiqueta-bopp",
+  },
+  {
+    title: "Ribbons",
+    description: "Cera, cera-resina e resina, compatíveis com as principais impressoras térmicas do mercado.",
+    categorySlug: "ribbon-cera",
+  },
+] as const;
+
 function Vitrines() {
   return (
     <Suspense fallback={<div className="container-page py-12 text-sm text-muted-foreground">Carregando vitrine…</div>}>
-      <ProductCarousel
-        eyebrow="Vitrine"
-        title="Etiquetas Couchê"
-        description="Papel branco calandrado, ideal para uso geral, código de barras, preço e identificação."
-        categorySlug="etiqueta-couche"
-        ctaHref="/catalogo"
-      />
-      <ProductCarousel
-        eyebrow="Vitrine"
-        title="Etiquetas BOPP"
-        description="Polipropileno branco, resistente à água, gordura e rasgo — perfeito para alimentos e validade."
-        categorySlug="etiqueta-bopp"
-        ctaHref="/catalogo"
-      />
-      <ProductCarousel
-        eyebrow="Vitrine"
-        title="Ribbons"
-        description="Cera, cera-resina e resina, compatíveis com as principais impressoras térmicas do mercado."
-        categorySlug="ribbon-cera"
-        ctaHref="/catalogo"
-      />
+      {HOME_SHOWCASES.map((v) => (
+        <ProductCarousel
+          key={v.categorySlug}
+          eyebrow="Vitrine"
+          title={v.title}
+          description={v.description}
+          categorySlug={v.categorySlug}
+          ctaHref={`/categoria/${v.categorySlug}`}
+        />
+      ))}
     </Suspense>
   );
 }
@@ -235,37 +249,38 @@ function Solutions() {
     {
       icon: Tag,
       title: "Etiquetas adesivas",
-      categorySlug: "etiquetas-adesivas",
+      href: "/categoria/etiquetas-adesivas",
       copy: "BOPP, papel, térmica direta, transferência, removível e personalizada por aplicação.",
     },
     {
       icon: Layers,
       title: "Ribbons",
-      categorySlug: "ribbon",
+      href: "/ribbon",
       copy: "Cera, cera-resina e resina. Compatibilidade testada para Zebra, Argox, Elgin, TSC e Honeywell.",
     },
     {
       icon: Printer,
       title: "Impressoras térmicas",
-      categorySlug: "impressora-de-etiquetas",
+      href: "/categoria/impressora-de-etiquetas",
       copy: "Desktop, industrial e mobile. Especificação técnica, vídeos e suporte pós-venda.",
     },
     {
       icon: Factory,
       title: "Etiquetas industriais",
-      categorySlug: "etiquetas-para-automacao",
+      href: "/categoria/etiquetas-para-automacao",
       copy: "Identificação de produtos, embalagens, caixas e paletes para indústria e varejo.",
     },
     {
       icon: Images,
       title: "Gráfica rápida",
-      categorySlug: "grafica-rapida",
+      // Ainda sem categoria própria no catálogo: leva ao contato para orçamento.
+      href: "/contato",
       copy: "Impressão fotográfica, cartões de visita, encadernação e materiais personalizados para sua marca.",
     },
     {
       icon: Gift,
       title: "Brindes",
-      categorySlug: "brindes-personalizados",
+      href: "/brindes",
       copy: "Agendas, cadernos, calendários e presentes personalizados para empresas, eventos e ocasiões especiais.",
     },
   ];
@@ -287,10 +302,10 @@ function Solutions() {
               {c.copy}
             </p>
             <Button asChild variant="link" className="mt-4 h-auto justify-start gap-1 p-0 text-foreground">
-              <Link to="/catalogo" search={{ cat: c.categorySlug }} aria-label={`Ver linha de ${c.title}`}>
+              <a href={c.href} aria-label={`Ver linha de ${c.title}`}>
                 Ver linha
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-              </Link>
+              </a>
             </Button>
           </article>
         ))}

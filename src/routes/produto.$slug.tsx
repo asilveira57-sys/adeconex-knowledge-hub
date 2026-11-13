@@ -1,4 +1,5 @@
-import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
+import { ContentQuestions } from "@/components/questions/content-questions";
+import { loadQuestions } from "@/lib/questions.queries";
 import { createFileRoute, Link, notFound, redirect, useRouter } from "@tanstack/react-router";
 import { resolveDbRedirect } from "@/lib/redirects.functions";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
@@ -13,13 +14,16 @@ import {
   NON_ADHESIVE_PAPER_150_SPECS_HTML,
 } from "@/lib/sanitize-technical";
 import { formatCommercialHtml } from "@/lib/format-commercial";
-import { BASE_URL, absoluteUrl } from "@/lib/seo";
+import { BASE_URL, absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
+import { imageSrcSet, resizedImageUrl } from "@/lib/image-url";
+import { displayCategoryName } from "@/lib/category-name";
 import { Button } from "@/components/ui/button";
 import { ShippingCepQuote } from "@/components/shipping-cep-quote";
 import { BundleOffersSection } from "@/components/bundle-offers-section";
 import { Badge } from "@/components/ui/badge";
 import { ProductBadgePills } from "@/components/product-badge-pills";
-import { ProductReviewsSection, ReviewSummaryInline, productReviewsOptions } from "@/components/reviews/product-reviews";
+import { ProductReviewsSection, ReviewSummaryInline } from "@/components/reviews/product-reviews";
+import { productReviewsOptions } from "@/lib/reviews.queries";
 import {
   Accordion,
   AccordionContent,
@@ -44,6 +48,7 @@ const productOptions = (slug: string) =>
   });
 
 export const Route = createFileRoute("/produto/$slug")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   loader: async ({ params, context }) => {
     const product = await context.queryClient.ensureQueryData(productOptions(params.slug));
     const [reviews, questions] = await Promise.all([
@@ -148,7 +153,10 @@ export const Route = createFileRoute("/produto/$slug")({
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Início", item: BASE_URL },
         { "@type": "ListItem", position: 2, name: "Catálogo", item: absoluteUrl("/catalogo") },
-        { "@type": "ListItem", position: 3, name: p.name, item: url },
+        ...(p.categories[0]
+          ? [{ "@type": "ListItem", position: 3, name: displayCategoryName(p.categories[0].name), item: absoluteUrl(`/categoria/${p.categories[0].slug}`) }]
+          : []),
+        { "@type": "ListItem", position: p.categories[0] ? 4 : 3, name: p.name, item: url },
       ],
     };
 
@@ -351,7 +359,9 @@ function ProductPage() {
           {p.categories[0] && (
             <>
               <span aria-hidden>/</span>
-              <span className="hover:text-foreground">{p.categories[0].name}</span>
+              <Link to="/categoria/$slug" params={{ slug: p.categories[0].slug }} className="hover:text-foreground">
+                {displayCategoryName(p.categories[0].name)}
+              </Link>
             </>
           )}
           <span aria-hidden>/</span>
@@ -373,8 +383,15 @@ function ProductPage() {
               <div className="aspect-square overflow-hidden rounded-xl border hairline bg-surface-2 shadow-card">
                 {main ? (
                   <img
-                    src={main.url}
+                    src={resizedImageUrl(main.url, 640) ?? main.url}
+                    srcSet={imageSrcSet(main.url, 960)}
+                    sizes="(min-width: 1280px) 620px, (min-width: 1024px) 50vw, 100vw"
+                    width={640}
+                    height={640}
                     alt={main.alt}
+                    loading={idx === 0 ? "eager" : undefined}
+                    fetchPriority={idx === 0 ? "high" : undefined}
+                    decoding="async"
                     className="h-full w-full object-contain p-4"
                   />
                 ) : (
@@ -395,9 +412,12 @@ function ProductPage() {
                       aria-label={`Ver imagem ${i + 1}`}
                     >
                       <img
-                        src={img.url}
+                        src={resizedImageUrl(img.url, 128, 65) ?? img.url}
+                        width={64}
+                        height={64}
                         alt=""
                         loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover"
                       />
                     </button>
@@ -411,7 +431,7 @@ function ProductPage() {
           <div className="space-y-6">
             {p.categories.length > 0 && (
               <p className="eyebrow text-muted-foreground">
-                {p.categories.map((c) => c.name).join(" · ")}
+                {p.categories.map((c) => displayCategoryName(c.name)).join(" · ")}
               </p>
             )}
 

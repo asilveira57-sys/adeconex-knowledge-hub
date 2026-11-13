@@ -1,11 +1,12 @@
-import { ContentQuestions, loadQuestions } from "@/components/questions/content-questions";
+import { ContentQuestions } from "@/components/questions/content-questions";
+import { loadQuestions } from "@/lib/questions.queries";
 import { DownloadEmailForm } from "@/components/newsletter-form";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, Download, FileText, HardDrive, Monitor, Tag } from "lucide-react";
 import { getPublicDownload, kindLabel } from "@/lib/downloads.functions";
 import { trackEvent } from "@/lib/analytics";
-import { BASE_URL } from "@/lib/seo";
+import { BASE_URL, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 import { resolveFaq } from "@/lib/download-faq";
 
 const downloadQuery = (slug: string) =>
@@ -16,6 +17,7 @@ const downloadQuery = (slug: string) =>
   });
 
 export const Route = createFileRoute("/downloads/$slug")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   loader: async ({ context, params }) => {
     const res = await context.queryClient.ensureQueryData(downloadQuery(params.slug));
     if (!res) throw notFound();

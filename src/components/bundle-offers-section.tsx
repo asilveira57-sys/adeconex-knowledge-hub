@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { resizedImageUrl } from "@/lib/image-url";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -222,7 +223,7 @@ function BundleItemRow({
       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border hairline bg-surface-2">
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={resizedImageUrl(item.image_url, 240) ?? undefined}
             alt={item.product_name ?? ""}
             className="h-full w-full object-cover"
             loading="lazy"

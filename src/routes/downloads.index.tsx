@@ -3,7 +3,7 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Download, HardDrive, Search } from "lucide-react";
 import { listPublicDownloads, DOWNLOAD_KINDS, kindLabel } from "@/lib/downloads.functions";
-import { BASE_URL } from "@/lib/seo";
+import { BASE_URL, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 const downloadsQuery = queryOptions({
   queryKey: ["public-downloads"],
@@ -12,6 +12,7 @@ const downloadsQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/downloads/")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   head: ({ loaderData }) => ({
     scripts: [
       {

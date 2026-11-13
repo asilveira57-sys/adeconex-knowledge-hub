@@ -20,7 +20,7 @@ const COPY: Record<ShowcaseKind, { title: string; description: string; cta: stri
   ribbon: {
     title: "Ribbons para sua impressora",
     description: "Cera, mista e resina — o 110 mm × 74 m é o mais usado nas impressoras de 4 polegadas.",
-    cta: "/catalogo?cat=ribbon-cera",
+    cta: "/categoria/ribbon-cera",
   },
   labels: {
     title: "Etiquetas mais vendidas",

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BarcodeToolPage, BARCODE_FAQ, TOOL_URL } from "@/components/tools/barcode-tool-page";
+import { BarcodeToolPage } from "@/components/tools/barcode-tool-page";
+import { BARCODE_FAQ, TOOL_URL } from "@/lib/barcode/tool-page.shared";
 import { absoluteUrl } from "@/lib/seo";
 
 const TITLE = "Gerador de Código de Barras Grátis (EAN-13, GS1-128, ITF-14) | Adeconex";

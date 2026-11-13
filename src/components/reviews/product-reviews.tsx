@@ -1,27 +1,21 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BadgeCheck, MessageSquareReply, Play, ThumbsUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useSession } from "@/hooks/use-session";
-import { getProductReviews, voteReviewHelpful, type ProductReviewsData, type PublicReview } from "@/lib/reviews.functions";
+import { voteReviewHelpful, type ProductReviewsData, type PublicReview } from "@/lib/reviews.functions";
 import { formatRating } from "@/lib/reviews.shared";
 import { Stars } from "./star-rating";
 import { ReviewForm } from "./review-form";
 import { ShareButtons } from "./share-buttons";
 import { reviewMediaUrl } from "./media-url";
 
-type Sort = "recentes" | "uteis" | "maior" | "menor";
-type Filter = "todas" | "midia" | "verificadas" | "5" | "4" | "3" | "2" | "1";
+import { productReviewsOptions, type ReviewSort as Sort, type ReviewFilter as Filter } from "@/lib/reviews.queries";
 
-export const productReviewsOptions = (productId: string, sort: Sort = "recentes", filter: Filter = "todas", page = 1) =>
-  queryOptions({
-    queryKey: ["public", "reviews", productId, sort, filter, page],
-    queryFn: () => getProductReviews({ data: { productId, sort, filter, page, pageSize: 10 } }),
-    staleTime: 60_000,
-  });
+export { productReviewsOptions };
 
 const dateFmt = (iso: string) => new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 

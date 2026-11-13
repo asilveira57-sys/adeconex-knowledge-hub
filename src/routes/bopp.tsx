@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PillarStub } from "@/components/pillar-stub";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 const PATH = "/bopp";
 const URL = absoluteUrl(PATH);
@@ -9,6 +9,7 @@ const DESCRIPTION =
   "Etiquetas em BOPP branco e transparente para produtos, cosméticos, alimentos e químicos. Impressão em resina, alta durabilidade. Fábrica Adeconex.";
 
 export const Route = createFileRoute("/bopp")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   head: () => ({
     meta: [
       { title: TITLE },

@@ -3,7 +3,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { blogPosts, getPost, type BlogBlock, type BlogPost } from "@/content/blog-posts";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 const fmtDate = (iso: string) =>
   new Date(`${iso}T12:00:00Z`).toLocaleDateString("pt-BR", {
@@ -13,6 +13,7 @@ const fmtDate = (iso: string) =>
   });
 
 export const Route = createFileRoute("/blog/$slug")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   loader: ({ params }) => {
     const post = getPost(params.slug);
     if (!post) throw notFound();

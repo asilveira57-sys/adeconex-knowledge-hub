@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PillarStub } from "@/components/pillar-stub";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 const PATH = "/etiquetas/preco";
 const URL = absoluteUrl(PATH);
@@ -9,6 +9,7 @@ const DESCRIPTION =
   "Etiqueta de preço personalizada, adesiva e para gôndola. Rolos com picote, tamanhos padrão, impressão térmica e couché. Fábrica Adeconex — pronta entrega e sob medida.";
 
 export const Route = createFileRoute("/etiquetas/preco")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   head: () => ({
     meta: [
       { title: TITLE },

@@ -538,8 +538,10 @@ export const getProductBySlug = createServerFn({ method: "GET" })
         .order("position", { ascending: true }),
       supabaseAdmin
         .from("product_categories")
-        .select("category:categories(name, slug)")
-        .eq("product_id", p.id),
+        .select("category:categories!inner(name, slug)")
+        .eq("product_id", p.id)
+        // Só categorias publicadas: o breadcrumb linka para /categoria/<slug>.
+        .eq("category.is_published", true),
       supabaseAdmin
         .from("product_variants")
         .select(
@@ -773,3 +775,28 @@ export async function loadShowcaseByIds(ids: string[]): Promise<ShowcaseProduct[
     }];
   });
 }
+
+export type CategoryPageMeta = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  updated_at: string | null;
+};
+
+/** Metadados da página /categoria/$slug (somente categorias publicadas). */
+export const getCategoryPageMeta = createServerFn({ method: "GET" })
+  .inputValidator((v) => z.object({ slug: z.string().min(1).max(200) }).parse(v))
+  .handler(async ({ data }): Promise<CategoryPageMeta | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cat, error } = await supabaseAdmin
+      .from("categories")
+      .select("id, slug, name, description, seo_title, seo_description, updated_at")
+      .eq("slug", data.slug)
+      .eq("is_published", true)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return (cat as CategoryPageMeta | null) ?? null;
+  });

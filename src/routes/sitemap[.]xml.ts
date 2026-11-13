@@ -41,6 +41,41 @@ async function productEntries(): Promise<SitemapEntry[]> {
   }
 }
 
+/** Categorias publicadas com produtos suficientes para serem indexáveis (mesma regra da página). */
+async function categoryEntries(): Promise<SitemapEntry[]> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cats, error } = await supabaseAdmin
+      .from("categories")
+      .select("id, slug, updated_at")
+      .eq("is_published", true);
+    if (error || !cats?.length) return [];
+    const counts = new Map<string, number>();
+    const pageSize = 1000;
+    for (let from = 0; ; from += pageSize) {
+      const { data, error: e } = await supabaseAdmin
+        .from("product_categories")
+        .select("category_id, products!inner(status, is_available)")
+        .in("products.status", ["published", "enriched"])
+        .eq("products.is_available", true)
+        .range(from, from + pageSize - 1);
+      if (e) break;
+      for (const r of data ?? []) counts.set(r.category_id, (counts.get(r.category_id) ?? 0) + 1);
+      if (!data || data.length < pageSize) break;
+    }
+    return cats
+      .filter((c) => (counts.get(c.id) ?? 0) >= 3)
+      .map((c) => ({
+        path: `/categoria/${encodeURIComponent(c.slug)}`,
+        changefreq: "weekly" as const,
+        priority: "0.85",
+        lastmod: c.updated_at ? String(c.updated_at).slice(0, 10) : undefined,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 const xmlEscape = (v: string) =>
   v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 
@@ -142,7 +177,8 @@ export const Route = createFileRoute("/sitemap.xml")({
             }));
           }),
 
-          // Produtos
+          // Categorias e produtos
+          ...(await categoryEntries()),
           ...(await productEntries()),
         ];
 

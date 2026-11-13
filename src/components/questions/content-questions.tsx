@@ -12,7 +12,10 @@ import { getMyQuestionIdentity, getPublishedQuestions, submitQuestion } from "@/
 import { ANONYMOUS_LABEL, QUESTION_MAX, QUESTION_MIN, type PublicQuestion } from "@/lib/questions.shared";
 import { UserAvatar } from "./user-avatar";
 
-export type QuestionTarget = { type: "product"; id: string } | { type: "download"; id: string } | { type: "tool"; path: string };
+import { loadQuestions, type QuestionTarget } from "@/lib/questions.queries";
+
+export { loadQuestions };
+export type { QuestionTarget };
 type Page = { items: PublicQuestion[]; total: number };
 
 const keyOf = (t: QuestionTarget) => ["questions", t.type, t.type === "tool" ? t.path : t.id];
@@ -20,7 +23,6 @@ export const questionsQuery = (t: QuestionTarget) => ({
   queryKey: [...keyOf(t), 0],
   queryFn: () => getPublishedQuestions({ data: { target: t, page: 0 } }),
 });
-export const loadQuestions = (t: QuestionTarget) => getPublishedQuestions({ data: { target: t, page: 0 } }).catch(() => null);
 
 const fmt = (d: string) => new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 

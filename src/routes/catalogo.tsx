@@ -1,6 +1,5 @@
-import { absoluteUrl } from "@/lib/seo";
-import { Stars } from "@/components/reviews/star-rating";
-import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
+import { createFileRoute, Link, stripSearchParams, useNavigate, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -14,12 +13,12 @@ import {
 } from "@/lib/analytics";
 import { showcaseToEcomItem } from "@/lib/analytics-list";
 
-import { ImageOff, ChevronLeft, ChevronRight, ChevronDown, ArrowUpDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ArrowUpDown } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { ProductBadgePills } from "@/components/product-badge-pills";
+import { ProductCard } from "@/components/catalog/product-card";
 import { ShareSearchDialog } from "@/components/catalog/share-search-dialog";
 import {
   getCatalogBadges,
@@ -110,8 +109,13 @@ const listOptions = (f: ListFilters) =>
     staleTime: 60_000,
   });
 
+const CATALOG_SEARCH_DEFAULTS = { promo: false, disp: "all", sort: "relevance", page: 1 };
+
 export const Route = createFileRoute("/catalogo")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   validateSearch: zodValidator(searchSchema),
+  // Sem isso o SSR redireciona /catalogo → /catalogo?promo=false&disp=all&sort=relevance&page=1 (307).
+  search: { middlewares: [stripSearchParams(CATALOG_SEARCH_DEFAULTS)] },
   loaderDeps: ({ search }) => ({
     cat: search.cat,
     marca: search.marca,
@@ -130,7 +134,11 @@ export const Route = createFileRoute("/catalogo")({
       context.queryClient.ensureQueryData(listOptions(deps)),
     ]);
   },
-  head: () => ({
+  head: ({ match }) => {
+    // /catalogo?cat=X é o filtro; a versão indexável da categoria é /categoria/X.
+    const cat = (match.search as { cat?: string }).cat;
+    const canonical = absoluteUrl(cat ? `/categoria/${cat}` : "/catalogo");
+    return {
     meta: [
       { title: "Catálogo técnico — Adeconex" },
       {
@@ -142,10 +150,11 @@ export const Route = createFileRoute("/catalogo")({
       { property: "og:description", content: "Encontre etiquetas, ribbons e insumos por categoria, marca e aplicação." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:url", content: absoluteUrl("/catalogo") },
+      { property: "og:url", content: canonical },
     ],
-    links: [{ rel: "canonical", href: absoluteUrl("/catalogo") }],
-  }),
+    links: [{ rel: "canonical", href: canonical }],
+    };
+  },
   errorComponent: CatalogError,
   notFoundComponent: () => <div className="container-page py-16">Catálogo não encontrado.</div>,
   component: CatalogPage,
@@ -162,57 +171,8 @@ function CatalogError() {
   );
 }
 
-function money(v: number | null): string | null {
-  if (v === null || v === undefined) return null;
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
 
-function ProductCard({ p }: { p: ShowcaseProduct }) {
-  const price = money(p.promotional_price ?? p.price);
-  const strike = p.promotional_price && p.price ? money(p.price) : null;
-  return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border hairline bg-surface-2 transition-colors hover:border-signal">
-      <div className="relative aspect-square overflow-hidden bg-surface-3">
-        {p.image_url ? (
-          <img
-            src={p.image_url}
-            alt={p.image_alt ?? p.name}
-            loading="lazy"
-            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-            <ImageOff className="h-8 w-8" />
-          </div>
-        )}
-        <ProductBadgePills badges={p.badges} className="absolute left-2 top-2" />
-      </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-medium leading-snug">{p.name}</h3>
-        {p.rating_count ? (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Stars value={p.rating_avg ?? 0} size={12} />
-            <span className="tabular-nums">({p.rating_count})</span>
-          </span>
-        ) : null}
-        {p.short_description && (
-          <p className="line-clamp-2 text-xs text-muted-foreground">{p.short_description}</p>
-        )}
-        <div className="mt-auto flex items-baseline justify-between gap-2 pt-2">
-          {price ? (
-            <div className="flex flex-col leading-tight">
-              <span className="text-base font-semibold">{price}</span>
-              {strike && <span className="text-[10px] text-muted-foreground line-through">{strike}</span>}
-            </div>
-          ) : (
-            <span className="text-xs text-muted-foreground">Sob consulta</span>
-          )}
-          <span className="text-xs font-mono uppercase tracking-[0.14em] text-signal">Detalhes</span>
-        </div>
-      </div>
-    </article>
-  );
-}
+
 
 const pillClass = (active: boolean) =>
   cn(
@@ -472,7 +432,7 @@ function CatalogGrid() {
               })
             }
           >
-            <ProductCard p={p} />
+            <ProductCard p={p} priority={i < 4} />
           </Link>
         ))}
       </div>

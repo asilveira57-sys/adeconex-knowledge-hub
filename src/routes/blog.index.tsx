@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, stripSearchParams } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { ArrowRight, CalendarDays, Clock, Search, X } from "lucide-react";
@@ -12,7 +12,7 @@ import {
   type FacetGroupKey,
 } from "@/content/blog-facets";
 import { BLOG_HUBS } from "@/content/blog-hubs";
-import { absoluteUrl } from "@/lib/seo";
+import { absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
 
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,10 @@ const EMPTY: BlogFilterState = {
 };
 
 export const Route = createFileRoute("/blog/")({
+  headers: () => PUBLIC_PAGE_CACHE_HEADERS,
   validateSearch: zodValidator(searchSchema),
+  // Sem isso o SSR redireciona /blog → /blog?q=&cat=Todos&... (307).
+  search: { middlewares: [stripSearchParams(EMPTY)] },
   head: () => ({
     meta: [
       { title: "Blog técnico Adeconex — ribbon, etiquetas e impressoras" },

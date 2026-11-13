@@ -1,4 +1,5 @@
 import { ImageOff } from "lucide-react";
+import { resizedImageUrl } from "@/lib/image-url";
 import type { CartSnapshot } from "@/lib/cart.functions";
 import type { CheckoutSelection } from "@/lib/checkout.local";
 
@@ -47,7 +48,7 @@ export function CheckoutSummary({
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border hairline bg-surface-2">
                 {line.image_url ? (
                   <img
-                    src={line.image_url}
+                    src={resizedImageUrl(line.image_url, 128) ?? undefined}
                     alt=""
                     className="h-full w-full object-contain p-0.5"
                     loading="lazy"

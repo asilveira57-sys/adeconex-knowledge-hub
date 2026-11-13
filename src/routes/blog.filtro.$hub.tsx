@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, stripSearchParams } from "@tanstack/react-router";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { ArrowRight, CalendarDays, Clock } from "lucide-react";
@@ -26,6 +26,7 @@ const pageUrl = (slug: string, page: number) =>
 
 export const Route = createFileRoute("/blog/filtro/$hub")({
   validateSearch: zodValidator(searchSchema),
+  search: { middlewares: [stripSearchParams({ page: 1 })] },
   loaderDeps: ({ search }) => ({ page: search.page }),
   loader: ({ params, deps }): { hub: BlogHub; posts: BlogPost[]; page: number; totalPages: number } => {
     const hub = getHub(params.hub);

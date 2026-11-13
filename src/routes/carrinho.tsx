@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { resizedImageUrl } from "@/lib/image-url";
 import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, ImageOff, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -57,7 +58,7 @@ function CartPage() {
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg border hairline bg-surface-2">
                   {line.image_url ? (
                     <img
-                      src={line.image_url}
+                      src={resizedImageUrl(line.image_url, 192) ?? undefined}
                       alt=""
                       className="h-full w-full object-contain p-1"
                       loading="lazy"
