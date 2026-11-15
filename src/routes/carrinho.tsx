@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { resizedImageUrl } from "@/lib/image-url";
+import { resizedImageUrl, fallbackToOriginal } from "@/lib/image-url";
 import { useState } from "react";
 import { Minus, Plus, ShoppingBag, Trash2, ImageOff, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -59,6 +59,7 @@ function CartPage() {
                   {line.image_url ? (
                     <img
                       src={resizedImageUrl(line.image_url, 192) ?? undefined}
+                      onError={fallbackToOriginal(line.image_url)}
                       alt=""
                       className="h-full w-full object-contain p-1"
                       loading="lazy"

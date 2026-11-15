@@ -2,7 +2,7 @@ import { ImageOff } from "lucide-react";
 import { Stars } from "@/components/reviews/star-rating";
 import { ProductBadgePills } from "@/components/product-badge-pills";
 import type { ShowcaseProduct } from "@/lib/catalog.functions";
-import { imageSrcSet, resizedImageUrl } from "@/lib/image-url";
+import { imageSrcSet, resizedImageUrl, fallbackToOriginal } from "@/lib/image-url";
 
 function money(v: number | null): string | null {
   if (v === null || v === undefined) return null;
@@ -25,6 +25,7 @@ export function ProductCard({ p, priority = false, sizes = PRODUCT_CARD_SIZES }:
         {p.image_url ? (
           <img
             src={resizedImageUrl(p.image_url, 400) ?? p.image_url}
+            onError={fallbackToOriginal(p.image_url)}
             srcSet={imageSrcSet(p.image_url, 640)}
             sizes={sizes}
             width={400}

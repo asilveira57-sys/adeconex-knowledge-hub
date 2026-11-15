@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound, stripSearchParams } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect, stripSearchParams } from "@tanstack/react-router";
+import { resolveDbRedirect } from "@/lib/redirects.functions";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -72,7 +73,12 @@ export const Route = createFileRoute("/categoria/$slug")({
       context.queryClient.ensureQueryData(metaOptions(params.slug)),
       context.queryClient.ensureQueryData(productsOptions(params.slug, deps.sort, deps.page)),
     ]);
-    if (!meta) throw notFound();
+    if (!meta) {
+      // Categoria mesclada/renomeada: segue o 301 cadastrado em legacy_redirects.
+      const r = await resolveDbRedirect({ data: { path: `/categoria/${params.slug}` } }).catch(() => null);
+      if (r) throw redirect({ href: r.to, statusCode: r.status });
+      throw notFound();
+    }
     const totalPages = Math.max(1, Math.ceil(list.total / list.pageSize));
     if (deps.page > totalPages) throw notFound();
     return { meta, total: list.total, items: list.items, totalPages };

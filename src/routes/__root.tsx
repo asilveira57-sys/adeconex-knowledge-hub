@@ -158,6 +158,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      // Imagens do catálogo otimizadas via wsrv.nl (ver src/lib/image-url.ts).
+      { rel: "preconnect", href: "https://wsrv.nl" },
     ],
     scripts: [
       {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { resizedImageUrl } from "@/lib/image-url";
+import { resizedImageUrl, fallbackToOriginal } from "@/lib/image-url";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -224,6 +224,7 @@ function BundleItemRow({
         {item.image_url ? (
           <img
             src={resizedImageUrl(item.image_url, 240) ?? undefined}
+            onError={fallbackToOriginal(item.image_url)}
             alt={item.product_name ?? ""}
             className="h-full w-full object-cover"
             loading="lazy"

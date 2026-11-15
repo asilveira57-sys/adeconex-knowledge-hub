@@ -15,7 +15,7 @@ import {
 } from "@/lib/sanitize-technical";
 import { formatCommercialHtml } from "@/lib/format-commercial";
 import { BASE_URL, absoluteUrl, PUBLIC_PAGE_CACHE_HEADERS } from "@/lib/seo";
-import { imageSrcSet, resizedImageUrl } from "@/lib/image-url";
+import { imageSrcSet, resizedImageUrl, fallbackToOriginal } from "@/lib/image-url";
 import { displayCategoryName } from "@/lib/category-name";
 import { Button } from "@/components/ui/button";
 import { ShippingCepQuote } from "@/components/shipping-cep-quote";
@@ -384,6 +384,7 @@ function ProductPage() {
                 {main ? (
                   <img
                     src={resizedImageUrl(main.url, 640) ?? main.url}
+                    onError={fallbackToOriginal(main.url)}
                     srcSet={imageSrcSet(main.url, 960)}
                     sizes="(min-width: 1280px) 620px, (min-width: 1024px) 50vw, 100vw"
                     width={640}
@@ -413,6 +414,7 @@ function ProductPage() {
                     >
                       <img
                         src={resizedImageUrl(img.url, 128, 65) ?? img.url}
+                        onError={fallbackToOriginal(img.url)}
                         width={64}
                         height={64}
                         alt=""
